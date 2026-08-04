@@ -66,9 +66,9 @@
         .container {
             position: relative;
             z-index: 1;
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 2rem 1.5rem;
+            padding: 2rem 1rem;
         }
 
         /* --- Header Section & Top Bar --- */
@@ -77,6 +77,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .theme-selector {
@@ -130,7 +132,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         .logo-wrapper {
@@ -141,13 +143,13 @@
         }
 
         .logo-icon {
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
             color: var(--accent-cyan);
             filter: drop-shadow(0 0 10px var(--accent-cyan));
         }
 
         .brand-title {
-            font-size: 3.5rem;
+            font-size: clamp(2.2rem, 6vw, 3.5rem);
             font-weight: 800;
             letter-spacing: -1px;
         }
@@ -160,7 +162,7 @@
 
         .tagline {
             color: var(--text-muted);
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             margin-top: 0.5rem;
         }
 
@@ -174,7 +176,7 @@
             margin-bottom: 2.5rem;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.25rem;
             border-radius: 20px;
             border: 1px solid var(--card-border);
         }
@@ -187,8 +189,7 @@
             padding: 0.7rem 1.25rem;
             border-radius: 50px;
             border: 1px solid var(--card-border);
-            flex: 1;
-            min-width: 260px;
+            flex: 1 1 280px;
         }
 
         .search-box input {
@@ -203,6 +204,7 @@
         .category-tags {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .category-btn {
@@ -214,6 +216,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
+            font-size: 0.85rem;
         }
 
         .category-btn:hover, .category-btn.active {
@@ -223,11 +226,29 @@
             box-shadow: 0 4px 15px rgba(255, 0, 128, 0.3);
         }
 
-        /* --- Games Grid --- */
+        /* --- Dynamic Responsive Games Grid --- */
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .games-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 992px) {
+            .games-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .games-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .game-card {
@@ -250,21 +271,51 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--primary-glow);
         }
 
+        /* --- Animated Canvas & Fallback Gradient Banner --- */
         .card-banner {
-            height: 150px;
             position: relative;
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.5rem;
-            color: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #311042, #020617);
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease infinite;
         }
 
-        .banner-flappy { background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(121, 40, 202, 0.5)); }
-        .banner-snake { background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(0, 242, 254, 0.4)); }
-        .banner-tetris { background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(255, 0, 128, 0.4)); }
-        .banner-pong { background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(250, 204, 21, 0.4)); }
-        .banner-highway { background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(121, 40, 202, 0.5)); }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .preview-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Animated Fallback CSS Glyph (Reveals if canvas fails/disabled) */
+        .banner-glyph {
+            position: relative;
+            z-index: 2;
+            font-size: 3.5rem;
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 15px var(--accent-cyan));
+            transition: transform 0.4s ease, filter 0.4s ease;
+        }
+
+        .game-card:hover .banner-glyph {
+            transform: scale(1.2) rotate(-5deg);
+            filter: drop-shadow(0 0 25px var(--secondary-glow));
+            color: #fff;
+        }
 
         .badge {
             position: absolute;
@@ -274,28 +325,30 @@
             color: #000;
             font-size: 0.7rem;
             font-weight: 800;
-            padding: 0.2rem 0.6rem;
+            padding: 0.25rem 0.60rem;
             border-radius: 6px;
             text-transform: uppercase;
+            z-index: 3;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         .card-details {
-            padding: 1.5rem;
+            padding: 1.25rem 1.5rem 1.5rem 1.5rem;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
         }
 
         .card-details h3 {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
         .card-details p {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             color: var(--text-muted);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             line-height: 1.4;
             flex-grow: 1;
         }
@@ -313,7 +366,8 @@
             background: rgba(255, 255, 255, 0.05);
             color: var(--accent-cyan);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .play-btn {
@@ -348,7 +402,7 @@
         }
 
         .modal-card {
-            background: rgba(22, 27, 46, 0.9);
+            background: rgba(22, 27, 46, 0.95);
             border: 1px solid var(--card-border);
             border-radius: 20px;
             width: 90%;
@@ -398,7 +452,7 @@
                 <i class="fa-solid fa-gamepad logo-icon"></i>
                 <h1 class="brand-title">Chromium <span>Games</span></h1>
             </div>
-            <p class="tagline">Next-gen browser arcade powered by speed and style.</p>
+            <p class="tagline">Browser arcade powered by boredom.</p>
         </header>
 
         <!-- Controls -->
@@ -416,14 +470,15 @@
             </div>
         </section>
 
-        <!-- Game Cards -->
+        <!-- Dynamic Game Cards Grid -->
         <section id="games-list" class="games-grid">
 
-            <!-- Wordle Card (New Category) -->
+            <!-- Wordle Card -->
             <a href="wordGames/wordle.html" class="game-card" data-category="word retro" data-name="wordle daily word game">
-                <div class="card-banner" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.4), rgba(234, 179, 8, 0.4));">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #064e3b, #047857, #15803d, #022c22);">
                     <div class="badge">Daily</div>
-                    <i class="fa-solid fa-font"></i>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
+                    <i class="fa-solid fa-font banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Daily Wordle</h3>
@@ -435,41 +490,46 @@
                 </div>
             </a>
 
+            <!-- Earthdle Card -->
             <a href="wordGames/earthdle.html" class="game-card" data-category="word retro" data-name="earthdle daily geography game">
-                <div class="card-banner" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.4), rgba(234, 179, 8, 0.4));">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #0369a1, #1e3a8a, #0c4a6e);">
                     <div class="badge">Daily Earthdle</div>
-                    <i class="fa-solid fa-globe"></i>
+                    <canvas class="preview-canvas" data-type="globe-rotator"></canvas>
+                    <i class="fa-solid fa-globe banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Daily Earthdle</h3>
                     <p>Guess the country in 6 tries. Completely randomized and resets every single day.</p>
                     <div class="card-footer">
-                        <span class="genre-tag">Geography Game</span>
+                        <span class="genre-tag">Geography</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
             </a>
 
+            <!-- Loldle Card -->
             <a href="wordGames/loldle.html" class="game-card" data-category="word retro" data-name="loldle daily league of legends game">
-                <div class="card-banner" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.4), rgba(234, 179, 8, 0.4));">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #581c87, #6b21a8, #3b0764, #1e1b4b);">
                     <div class="badge">Daily Loldle</div>
-                    <i class="fa-solid fa-gamepad"></i>
+                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
+                    <i class="fa-solid fa-wand-magic-sparkles banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Daily Loldle</h3>
-                    <p>Guess the League of Legends champion in 6 tries. Completely randomized and resets every single day.</p>
+                    <p>Guess the League of Legends champion in 6 tries. Reset every single day.</p>
                     <div class="card-footer">
-                        <span class="genre-tag">League of Legends Game</span>
+                        <span class="genre-tag">LoL Game</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
             </a>
 
-            <!-- Existing Arcade Games -->
+            <!-- Flappy Bird Clone -->
             <a href="games/flappybird.html" class="game-card" data-category="arcade retro" data-name="flappy bird clone">
-                <div class="card-banner banner-flappy">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #38bdf8, #0369a1, #0c4a6e);">
                     <div class="badge">Popular</div>
-                    <i class="fa-solid fa-dove"></i>
+                    <canvas class="preview-canvas" data-type="bouncing-bird"></canvas>
+                    <i class="fa-solid fa-dove banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Flappy Bird Clone</h3>
@@ -481,9 +541,11 @@
                 </div>
             </a>
 
+            <!-- Snake -->
             <a href="games/snake.html" class="game-card" data-category="arcade retro" data-name="snake">
-                <div class="card-banner banner-snake">
-                    <i class="fa-solid fa-staff-snake"></i>
+                <div class="card-banner" style="background: linear-gradient(-45deg, #14532d, #16a34a, #052e16, #065f46);">
+                    <canvas class="preview-canvas" data-type="snake-trail"></canvas>
+                    <i class="fa-solid fa-staff-snake banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Snake</h3>
@@ -495,9 +557,11 @@
                 </div>
             </a>
 
+            <!-- Block Puzzler -->
             <a href="games/blockpuzzler.html" class="game-card" data-category="arcade action" data-name="block puzzler tetris">
-                <div class="card-banner banner-tetris">
-                    <i class="fa-solid fa-cubes"></i>
+                <div class="card-banner" style="background: linear-gradient(-45deg, #7e22ce, #a855f7, #4c1d95, #3b0764);">
+                    <canvas class="preview-canvas" data-type="falling-blocks"></canvas>
+                    <i class="fa-solid fa-cubes banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Block Puzzler</h3>
@@ -509,9 +573,11 @@
                 </div>
             </a>
 
+            <!-- Chess -->
             <a href="games/chess.html" class="game-card" data-category="arcade action" data-name="chess">
-                <div class="card-banner banner-chess">
-                    <i class="fa-solid fa-chess"></i>
+                <div class="card-banner" style="background: linear-gradient(-45deg, #334155, #475569, #0f172a, #1e293b);">
+                    <canvas class="preview-canvas" data-type="chess-grid"></canvas>
+                    <i class="fa-solid fa-chess banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Chess</h3>
@@ -523,9 +589,11 @@
                 </div>
             </a>
 
+            <!-- Neon Pong -->
             <a href="games/pong.html" class="game-card" data-category="action retro" data-name="neon pong">
-                <div class="card-banner banner-pong">
-                    <i class="fa-solid fa-table-tennis-paddle-ball"></i>
+                <div class="card-banner" style="background: linear-gradient(-45deg, #be123c, #fb7185, #881337, #4c0519);">
+                    <canvas class="preview-canvas" data-type="pong-paddles"></canvas>
+                    <i class="fa-solid fa-table-tennis-paddle-ball banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Neon Pong</h3>
@@ -537,9 +605,11 @@
                 </div>
             </a>
 
+            <!-- Highway Racer -->
             <a href="games/highway.html" class="game-card" data-category="action" data-name="highway racer">
-                <div class="card-banner banner-highway">
-                    <i class="fa-solid fa-car-side"></i>
+                <div class="card-banner" style="background: linear-gradient(-45deg, #c2410c, #f97316, #7c2d12, #431407);">
+                    <canvas class="preview-canvas" data-type="highway-grid"></canvas>
+                    <i class="fa-solid fa-car-side banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Highway Racer</h3>
@@ -551,9 +621,11 @@
                 </div>
             </a>
 
+            <!-- Flight Simulator -->
             <a href="games/flightsim.html" class="game-card" data-category="action" data-name="flight simulator">
-                <div class="card-banner banner-flightsim">
-                    <i class="fa-solid fa-plane"></i>
+                <div class="card-banner" style="background: linear-gradient(-45deg, #1e1b4b, #4338ca, #312e81, #0f172a);">
+                    <canvas class="preview-canvas" data-type="flight-radar"></canvas>
+                    <i class="fa-solid fa-plane banner-glyph"></i>
                 </div>
                 <div class="card-details">
                     <h3>Flight Simulator</h3>
@@ -590,7 +662,7 @@
     </div>
 
     <script>
-        /* Interactive Background Particle System */
+        /* --- Global Particles Canvas --- */
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -667,7 +739,85 @@
         initParticles();
         animate();
 
-        /* Search & Filter Feature */
+        /* --- Interactive Mini Card Preview Animations --- */
+        const previewCanvases = document.querySelectorAll('.preview-canvas');
+
+        previewCanvases.forEach(c => {
+            const pCtx = c.getContext('2d');
+            if (!pCtx) return; // Fallback to CSS automatically if canvas isn't supported
+
+            let width, height;
+            function resizePreview() {
+                width = c.width = c.parentElement.clientWidth;
+                height = c.height = c.parentElement.clientHeight;
+            }
+            resizePreview();
+
+            const type = c.dataset.type;
+            let frame = 0;
+
+            function renderPreview() {
+                pCtx.clearRect(0, 0, width, height);
+                frame++;
+
+                if (type === 'snake-trail') {
+                    pCtx.fillStyle = '#22c55e';
+                    for (let i = 0; i < 5; i++) {
+                        let x = (Math.sin((frame + i * 15) * 0.05) * 40) + width / 2;
+                        let y = (Math.cos((frame + i * 15) * 0.05) * 20) + height / 2;
+                        pCtx.beginPath();
+                        pCtx.arc(x, y, 6 - i, 0, Math.PI * 2);
+                        pCtx.fill();
+                    }
+                } else if (type === 'falling-blocks') {
+                    pCtx.fillStyle = 'rgba(168, 85, 247, 0.4)';
+                    let yPos = (frame * 2) % height;
+                    pCtx.fillRect(width / 2 - 20, yPos, 15, 15);
+                    pCtx.fillRect(width / 2, yPos - 30, 15, 15);
+                } else if (type === 'pong-paddles') {
+                    pCtx.fillStyle = '#38bdf8';
+                    let yLeft = Math.sin(frame * 0.05) * 30 + height / 2;
+                    let yRight = Math.cos(frame * 0.05) * 30 + height / 2;
+                    pCtx.fillRect(15, yLeft - 15, 6, 30);
+                    pCtx.fillRect(width - 21, yRight - 15, 6, 30);
+                } else if (type === 'highway-grid') {
+                    pCtx.strokeStyle = 'rgba(249, 115, 22, 0.3)';
+                    pCtx.lineWidth = 1;
+                    let offset = (frame * 2) % 20;
+                    for (let x = 0; x < width; x += 20) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(x, 0);
+                        pCtx.lineTo(x, height);
+                        pCtx.stroke();
+                    }
+                    for (let y = offset; y < height; y += 20) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(0, y);
+                        pCtx.lineTo(width, y);
+                        pCtx.stroke();
+                    }
+                } else if (type === 'flight-radar') {
+                    pCtx.strokeStyle = 'rgba(99, 102, 241, 0.4)';
+                    pCtx.lineWidth = 2;
+                    pCtx.beginPath();
+                    pCtx.arc(width / 2, height / 2, (frame % 80), 0, Math.PI * 2);
+                    pCtx.stroke();
+                } else {
+                    // Default Floating Ambient Orbs
+                    pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
+                    let x = Math.sin(frame * 0.03) * 30 + width / 2;
+                    let y = Math.cos(frame * 0.03) * 20 + height / 2;
+                    pCtx.beginPath();
+                    pCtx.arc(x, y, 12, 0, Math.PI * 2);
+                    pCtx.fill();
+                }
+
+                requestAnimationFrame(renderPreview);
+            }
+            renderPreview();
+        });
+
+        /* --- Search & Filter Feature --- */
         const searchInput = document.getElementById('search-input');
         const categoryBtns = document.querySelectorAll('.category-btn');
         const cards = document.querySelectorAll('.game-card');
@@ -695,7 +845,7 @@
             });
         });
 
-        /* Theme Switcher */
+        /* --- Theme Switcher --- */
         const themeBtns = document.querySelectorAll('.theme-btn');
         themeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -708,7 +858,7 @@
             });
         });
 
-        /* Leaderboard Modal logic */
+        /* --- Leaderboard Modal Logic --- */
         const modal = document.getElementById('leaderboard-modal');
         const openModalBtn = document.getElementById('open-leaderboard-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
