@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Wordle | Chromium Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0d19;
+            --card-bg: rgba(22, 27, 46, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-cyan: #00f2fe;
+            --correct-green: #22c55e;
+            --present-yellow: #eab308;
+            --absent-gray: #334155;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-cyan);
+        }
+
+        /* Wordle Grid */
+        .board-container {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .tile {
+            width: 54px;
+            height: 54px;
+            border: 2px solid var(--card-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: var(--card-bg);
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        .tile[data-state="active"] {
+            border-color: var(--primary-cyan);
+            transform: scale(1.05);
+        }
+
+        .tile[data-state="correct"] {
+            background-color: var(--correct-green);
+            border-color: var(--correct-green);
+            color: #fff;
+        }
+
+        .tile[data-state="present"] {
+            background-color: var(--present-yellow);
+            border-color: var(--present-yellow);
+            color: #fff;
+        }
+
+        .tile[data-state="absent"] {
+            background-color: var(--absent-gray);
+            border-color: var(--absent-gray);
+            color: #94a3b8;
+        }
+
+        /* Virtual Keyboard */
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .key-row {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .key {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 6px;
+            padding: 0.8rem 0.6rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .key.wide {
+            flex: 1.5;
+            font-size: 0.75rem;
+        }
+
+        .key[data-state="correct"] { background-color: var(--correct-green); border-color: transparent; }
+        .key[data-state="present"] { background-color: var(--present-yellow); border-color: transparent; }
+        .key[data-state="absent"] { background-color: var(--absent-gray); opacity: 0.4; }
+
+        /* Status Toast */
+        .toast {
+            position: fixed;
+            top: 20%;
+            background: rgba(0, 242, 254, 0.9);
+            color: #000;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 800;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <h2>Daily Wordle</h2>
+    </div>
+
+    <div id="toast" class="toast">Not in word list</div>
+
+    <div id="board" class="board-container"></div>
+
+    <div id="keyboard" class="keyboard">
+        <div class="key-row">
+            <button class="key" data-key="Q">Q</button>
+            <button class="key" data-key="W">W</button>
+            <button class="key" data-key="E">E</button>
+            <button class="key" data-key="R">R</button>
+            <button class="key" data-key="T">T</button>
+            <button class="key" data-key="Y">Y</button>
+            <button class="key" data-key="U">U</button>
+            <button class="key" data-key="I">I</button>
+            <button class="key" data-key="O">O</button>
+            <button class="key" data-key="P">P</button>
+        </div>
+        <div class="key-row">
+            <button class="key" data-key="A">A</button>
+            <button class="key" data-key="S">S</button>
+            <button class="key" data-key="D">D</button>
+            <button class="key" data-key="F">F</button>
+            <button class="key" data-key="G">G</button>
+            <button class="key" data-key="H">H</button>
+            <button class="key" data-key="J">J</button>
+            <button class="key" data-key="K">K</button>
+            <button class="key" data-key="L">L</button>
+        </div>
+        <div class="key-row">
+            <button class="key wide" data-key="ENTER">ENTER</button>
+            <button class="key" data-key="Z">Z</button>
+            <button class="key" data-key="X">X</button>
+            <button class="key" data-key="C">C</button>
+            <button class="key" data-key="V">V</button>
+            <button class="key" data-key="B">B</button>
+            <button class="key" data-key="N">N</button>
+            <button class="key" data-key="M">M</button>
+            <button class="key wide" data-key="BACKSPACE">BACK</button>
+        </div>
+    </div>
+
+    <script src="wordle.js"></script>
+</body>
+</html>

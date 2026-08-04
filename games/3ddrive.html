@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Horizon | Ultra 3D Procedural Drive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --bg: #0b0d19;
+            --cyan: #00f2fe;
+            --pink: #ff0080;
+            --glass: rgba(15, 18, 35, 0.72);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+        body {
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+        }
+        .hud {
+            position: absolute;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .hud.top-left {
+            top: 1.5rem;
+            left: 1.5rem;
+        }
+        .hud.top-right {
+            top: 1.5rem;
+            right: 1.5rem;
+            align-items: flex-end;
+        }
+        .hud.bottom {
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .glass {
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 18px;
+            padding: 1rem 1.4rem;
+            pointer-events: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+        .back-btn {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            color: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+        }
+        .speedometer {
+            text-align: center;
+            min-width: 130px;
+        }
+        .speed-val {
+            font-size: 3.8rem;
+            font-weight: 800;
+            color: var(--cyan);
+            line-height: 0.9;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.4);
+        }
+        .speed-label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-top: 0.4rem;
+            font-weight: 600;
+        }
+        .info-row {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .info-pill {
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .info-pill i {
+            color: var(--cyan);
+        }
+        .controls-hint {
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .controls-hint strong {
+            color: #fff;
+            font-weight: 600;
+        }
+        #loading {
+            position: absolute;
+            inset: 0;
+            z-index: 100;
+            background: #070812;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            transition: opacity 0.8s ease;
+        }
+        .spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px solid rgba(0, 242, 254, 0.12);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            filter: drop-shadow(0 0 12px var(--cyan));
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .loading-text {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            letter-spacing: 0.12em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        @media (max-width: 768px) {
+            .controls-hint {
+                font-size: 0.6rem;
+                padding: 0.5rem 1rem;
+                white-space: normal;
+                max-width: 95vw;
+            }
+            .speed-val {
+                font-size: 2.6rem;
+            }
+            .glass {
+                padding: 0.7rem 1rem;
+            }
+            .info-pill {
+                font-size: 0.65rem;
+                padding: 0.3rem 0.7rem;
+            }
+        }
+    </style>
+
+    <!-- Three.js + Post Processing Suite -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js">
+    </script>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Compiling Shader Engine &amp; Infinite World…</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="hud top-left">
+        <a href="../index.html" class="glass back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <div class="glass speedometer">
+            <div class="speed-val" id="speed-display">0</div>
+            <div class="speed-label">KM / H</div>
+        </div>
+    </div>
+
+    <div class="hud top-right">
+        <div class="info-row">
+            <div class="info-pill"><i class="fa-solid fa-camera"></i> <span id="cam-display">Chase</span></div>
+            <div class="info-pill"><i class="fa-solid fa-cloud-sun"></i> <span id="weather-display">Sunset</span></div>
+        </div>
+        <div class="info-pill" style="margin-top:0.5rem;"><i class="fa-solid fa-location-dot"></i> <span id="coord-display">0, 0</span></div>
+    </div>
+
+    <div class="hud bottom">
+        <div class="controls-hint">
+            <strong>W/S</strong> Drive &nbsp;|&nbsp; <strong>A/D</strong> Steer &nbsp;|&nbsp; <strong>Shift</strong> Boost &nbsp;|&nbsp;
+            <strong>C</strong> Camera &nbsp;|&nbsp; <strong>Q/E</strong> Theme &nbsp;|&nbsp; <strong>L</strong> Lights &nbsp;|&nbsp; <strong>R</strong> Reset
+        </div>
+    </div>
+    
+    <script src="3ddrive.js"></script>
+</body>
+</html>

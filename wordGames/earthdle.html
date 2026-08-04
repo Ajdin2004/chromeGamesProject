@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Earthdle | 3D Globe Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0d19;
+            --card-bg: rgba(22, 27, 46, 0.85);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --primary-cyan: #00f2fe;
+            --correct-green: #22c55e;
+            --wrong-red: #ef4444;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 0.5rem;
+            z-index: 10;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+        .back-btn:hover { color: var(--primary-cyan); }
+
+        /* Main Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 900px;
+            align-items: start;
+            transition: all 0.3s ease;
+        }
+
+        /* 3D Globe Container */
+        .globe-wrapper {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #globe-container { width: 100%; height: 100%; }
+
+        /* Game Dashboard Panel */
+        .game-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.25rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .search-container { position: relative; }
+
+        .input-box { display: flex; gap: 0.5rem; }
+
+        .input-box input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .input-box input:focus {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary-cyan), #4facfe);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 0 1.25rem;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0; right: 0;
+            background: rgba(15, 18, 35, 0.95);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            max-height: 160px;
+            overflow-y: auto;
+            z-index: 50;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 0.65rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+        .suggestion-item:hover {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--primary-cyan);
+        }
+
+        .guesses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .guess-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            padding: 0.6rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .guess-row.correct {
+            background: rgba(34, 197, 94, 0.25);
+            border-color: var(--correct-green);
+        }
+
+        .country-name { text-align: left; font-weight: 600; }
+        .distance { color: var(--primary-cyan); font-weight: 700; }
+
+        .toast {
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            min-height: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* --- Small/Medium Screen Keep Original Layout --- */
+        @media (max-width: 768px) {
+            .layout-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- Large Screen Dynamic Layout Adaptations (1024px and up) --- */
+        @media (min-width: 1024px) {
+            body {
+                padding: 0;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .header-bar {
+                position: absolute;
+                top: 1rem;
+                left: 1.5rem;
+                max-width: none;
+                width: auto;
+                gap: 1.5rem;
+                background: var(--card-bg);
+                padding: 0.75rem 1.25rem;
+                border-radius: 16px;
+                border: 1px solid var(--card-border);
+                backdrop-filter: blur(16px);
+                z-index: 20;
+            }
+
+            .layout-grid {
+                display: block;
+                width: 100vw;
+                height: 100vh;
+                max-width: none;
+            }
+
+            .globe-wrapper {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+
+            .game-panel {
+                position: absolute;
+                top: 5rem;
+                right: 2rem;
+                width: 380px;
+                max-height: calc(100vh - 7rem);
+            }
+        }
+    </style>
+
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl@2.22.0/dist/globe.gl.min.js"></script>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <h2>Daily 3D Earthdle</h2>
+    </div>
+
+    <div class="layout-grid">
+        <div class="globe-wrapper">
+            <div id="globe-container"></div>
+        </div>
+
+        <div class="game-panel">
+            <div class="search-container">
+                <div class="input-box">
+                    <input type="text" id="country-input" placeholder="Enter country name..." autocomplete="off">
+                    <button id="btn-guess" class="btn-submit">GUESS</button>
+                </div>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+
+            <div id="guesses-container" class="guesses-list"></div>
+
+            <div id="toast" class="toast">Initializing 3D World...</div>
+        </div>
+    </div>
+
+    <script src="earthdle.js"></script>
+</body>
+</html>

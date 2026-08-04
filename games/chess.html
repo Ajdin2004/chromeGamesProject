@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Chess | Chromium Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0d19;
+            --card-bg: rgba(22, 27, 46, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-cyan: #00f2fe;
+            --primary-magenta: #ff0080;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 680px;
+            margin-bottom: 0.75rem;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-cyan);
+        }
+
+        /* Controls & Mode Bar */
+        .controls-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 680px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 0.4rem;
+            background: var(--card-bg);
+            padding: 0.3rem;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta));
+            color: #000;
+            font-weight: 800;
+        }
+
+        .slider-box {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--card-bg);
+            padding: 0.4rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .slider-box label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .slider-box input[type="range"] {
+            accent-color: var(--primary-cyan);
+            cursor: pointer;
+        }
+
+        /* Layout Container */
+        .main-layout {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Chess Board Window */
+        .game-wrapper {
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 242, 254, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 18, 35, 0.9);
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 56px);
+            grid-template-rows: repeat(8, 56px);
+            width: 448px;
+            height: 448px;
+        }
+
+        .square {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.3rem;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.15s ease;
+        }
+
+        .square.light { background-color: #1e2640; }
+        .square.dark { background-color: #111625; }
+
+        .square.selected {
+            background-color: rgba(0, 242, 254, 0.35) !important;
+            box-shadow: inset 0 0 10px var(--primary-cyan);
+        }
+
+        .square.valid-move::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            background-color: var(--primary-cyan);
+            border-radius: 50%;
+            opacity: 0.8;
+            box-shadow: 0 0 8px var(--primary-cyan);
+        }
+
+        .square.valid-capture {
+            background-color: rgba(255, 0, 128, 0.4) !important;
+        }
+
+        /* Piece Colors */
+        .square .white-piece {
+            color: #00f2fe;
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+        }
+
+        .square .black-piece {
+            color: #ff0080;
+            text-shadow: 0 0 8px rgba(255, 0, 128, 0.6);
+        }
+
+        /* Sidebar Info Box */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 210px;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel h3 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .move-history {
+            height: 180px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            color: var(--text-main);
+        }
+
+        .move-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.2rem 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .puzzle-card {
+            display: none;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta));
+            color: #000;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Status Toast */
+        .status-msg {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-cyan);
+            margin-top: 0.4rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <h2>Neon Chess</h2>
+    </div>
+
+    <!-- Mode & Difficulty Settings Bar -->
+    <div class="controls-bar">
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="btn-vs-ai">Vs AI Engine</button>
+            <button class="mode-btn" id="btn-puzzles">Puzzles</button>
+        </div>
+
+        <div class="slider-box" id="ai-difficulty-box">
+            <label for="difficulty-slider">Engine Level: <span id="diff-val" style="color:#00f2fe;">3</span></label>
+            <input type="range" id="difficulty-slider" min="1" max="5" value="3">
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Chess Board Grid -->
+        <div class="game-wrapper">
+            <div id="board"></div>
+        </div>
+
+        <!-- Sidebar Panel -->
+        <div class="sidebar">
+            <!-- Game Status -->
+            <div class="panel">
+                <h3>STATUS</h3>
+                <div id="status" class="status-msg">White's Turn</div>
+            </div>
+
+            <!-- Puzzle Selector (Hidden by default) -->
+            <div class="panel puzzle-card" id="puzzle-panel">
+                <h3>CHALLENGES</h3>
+                <button class="btn-action" id="btn-next-puzzle">Next Puzzle</button>
+                <div id="puzzle-desc" style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.4rem;">Mate in 1 - White to Move</div>
+            </div>
+
+            <!-- Move History -->
+            <div class="panel">
+                <h3>MOVE LOG</h3>
+                <div id="move-log" class="move-history"></div>
+            </div>
+
+            <button class="btn-action" id="btn-reset">New Game</button>
+        </div>
+    </div>
+
+    <script src="chess.js"></script>
+</body>
+</html>

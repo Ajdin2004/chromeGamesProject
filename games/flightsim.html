@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Flight Simulator - 6DOF</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #cesiumContainer { 
+            width: 100vw; 
+            height: 100vh; 
+            background: #1a1f35;
+        }
+        
+        /* HUD Overlay */
+        #hud {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 12px 28px;
+            display: flex;
+            gap: 35px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            user-select: none;
+            pointer-events: none;
+            z-index: 10;
+        }
+        #hud span { color: #4facfe; font-weight: 800; font-size: 18px; margin-left: 4px; }
+        .hud-item { display: flex; align-items: center; gap: 6px; }
+        .hud-item i { color: #94a3b8; font-size: 14px; }
+        
+        #controls-hint {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            text-align: center;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.05);
+            z-index: 5;
+            pointer-events: none;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+        #controls-hint kbd {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: inherit;
+            color: #fff;
+            margin: 0 2px;
+        }
+        
+        #stall-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff2a6d;
+            font-size: 28px;
+            font-weight: 800;
+            text-shadow: 0 0 40px rgba(255, 42, 109, 0.6);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 8;
+            letter-spacing: 4px;
+        }
+        #stall-warning.show { opacity: 1; }
+        
+        /* Loading indicator */
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #4facfe;
+            font-size: 18px;
+            z-index: 20;
+            background: rgba(0,0,0,0.8);
+            padding: 20px 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="cesiumContainer">
+        <div id="loading">Loading Flight Simulator...</div>
+    </div>
+    
+    <div id="hud">
+        <div class="hud-item"><i class="fa-solid fa-gauge-high"></i> Speed <span id="val-speed">0</span> kt</div>
+        <div class="hud-item"><i class="fa-solid fa-arrow-up"></i> Alt <span id="val-alt">0</span> ft</div>
+        <div class="hud-item"><i class="fa-solid fa-compass"></i> Hdg <span id="val-hdg">000°</span></div>
+        <div class="hud-item"><i class="fa-solid fa-circle"></i> Throttle <span id="val-throttle">0%</span></div>
+    </div>
+    
+    <div id="stall-warning">⚠ STALL</div>
+    <div id="controls-hint">
+        <kbd>W</kbd> Pitch Up · <kbd>S</kbd> Pitch Down · <kbd>A</kbd> Roll Left · <kbd>D</kbd> Roll Right · 
+        <kbd>Q</kbd> Yaw Left · <kbd>E</kbd> Yaw Right · <kbd>Shift</kbd> Throttle+ · <kbd>Ctrl</kbd> Throttle- · <kbd>R</kbd> Reset
+    </div>
+
+    <!-- Cesium JS -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.111/Build/Cesium/Widgets/widgets.css">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // =========================================================
+        // FIXED FLIGHT SIMULATOR — NO ATMOSPHERE ERRORS
+        // =========================================================
+
+        console.log('Initializing Flight Simulator...');
+
+        // 1. Keyless Setup
+        Cesium.Ion.defaultAccessToken = '';
+
+        // 2. Initialize Cesium Engine with minimal configuration
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                credit: '© OpenStreetMap contributors'
+            }),
+            baseLayerPicker: false,
+            geocoder: false,
+            homeButton: false,
+            sceneModePicker: false,
+            navigationHelpButton: false,
+            animation: false,
+            timeline: false,
+            fullscreenButton: false,
+            selectionIndicator: false,
+            infoBox: false,
+            skyBox: false,
+            skyAtmosphere: false, // Disabled to avoid compatibility issues
+            terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+            orderIndependentTranslucency: false,
+            contextOptions: {
+                webgl: {
+                    alpha: false,
+                    antialias: true,
+                    preserveDrawingBuffer: true
+                }
+            }
+        });
+
+        // Remove loading indicator
+        const loadingEl = document.getElementById('loading');
+        if (loadingEl) loadingEl.style.display = 'none';
+
+        console.log('Cesium Viewer initialized');
+
+        // Add a simple sky gradient using CSS
+        const container = document.getElementById('cesiumContainer');
+        container.style.background = 'linear-gradient(180deg, #1a3a5c 0%, #4a90d9 40%, #87CEEB 70%, #b8d4e3 100%)';
+
+        // Enable minimal lighting
+        viewer.scene.globe.enableLighting = true;
+        viewer.scene.globe.showGroundAtmosphere = false;
+        
+        // Force render
+        viewer.scene.requestRender();
+
+        // 3. Audio Engine
+        let audioCtx = null, engineFilter = null, engineOsc = null, noiseNode = null;
+
+        function initAudio() {
+            if (audioCtx) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.15;
+                masterGain.connect(audioCtx.destination);
+
+                // Noise engine
+                const bufferSize = 2 * audioCtx.sampleRate;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+                const whiteNoise = audioCtx.createBufferSource();
+                whiteNoise.buffer = buffer;
+                whiteNoise.loop = true;
+
+                engineFilter = audioCtx.createBiquadFilter();
+                engineFilter.type = 'bandpass';
+                engineFilter.frequency.value = 350;
+                engineFilter.Q.value = 1.5;
+
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.value = 0.2;
+                whiteNoise.connect(engineFilter);
+                engineFilter.connect(noiseGain);
+                noiseGain.connect(masterGain);
+                whiteNoise.start();
+                noiseNode = noiseGain;
+
+                // Oscillator for harmonic richness
+                engineOsc = audioCtx.createOscillator();
+                engineOsc.type = 'sawtooth';
+                engineOsc.frequency.value = 180;
+                const oscGain = audioCtx.createGain();
+                oscGain.gain.value = 0.04;
+                engineOsc.connect(oscGain);
+                oscGain.connect(masterGain);
+                engineOsc.start();
+                console.log('Audio initialized');
+            } catch (e) {
+                console.warn('Audio init failed:', e);
+            }
+        }
+
+        function updateEngineAudio(speedRatio, throttle) {
+            if (!audioCtx) return;
+            try {
+                const baseFreq = 180 + speedRatio * 600;
+                const q = 1.2 + speedRatio * 1.8;
+                engineFilter.frequency.setTargetAtTime(baseFreq, audioCtx.currentTime, 0.08);
+                engineFilter.Q.setTargetAtTime(q, audioCtx.currentTime, 0.08);
+                if (engineOsc) {
+                    engineOsc.frequency.setTargetAtTime(100 + speedRatio * 350, audioCtx.currentTime, 0.08);
+                }
+                if (noiseNode) {
+                    noiseNode.gain.setTargetAtTime(0.05 + throttle * 0.25, audioCtx.currentTime, 0.1);
+                }
+            } catch (e) {}
+        }
+
+        // 4. Flight Constants & State
+        const SPAWN_LON = 17.815;
+        const SPAWN_LAT = 43.337;
+        const SPAWN_ALT = 800;
+
+        let planePosition = Cesium.Cartesian3.fromDegrees(SPAWN_LON, SPAWN_LAT, SPAWN_ALT);
+        let planeQuaternion = new THREE.Quaternion();
+        
+        // Aerodynamic state
+        let speed = 120; // Knots
+        let throttle = 0.6;
+        let pitchRate = 0;
+        let rollRate = 0;
+        let yawRate = 0;
+        
+        // Constants
+        const MIN_SPEED = 25;
+        const STALL_SPEED = 45;
+        const MAX_SPEED = 420;
+        const GRAVITY = 9.81;
+
+        // 5. 3D Aircraft Model
+        console.log('Creating aircraft model...');
+        const planeEntity = viewer.entities.add({
+            position: planePosition,
+            model: {
+                uri: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/CesiumAir/glTF-Embedded/CesiumAir.gltf',
+                minimumPixelSize: 128,
+                maximumScale: 1500
+            }
+        });
+        console.log('Aircraft model added');
+
+        // 6. Input Controls
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            initAudio();
+            const k = e.key.toLowerCase();
+            keys[k] = true;
+            if (k === 'r') resetAircraft();
+        });
+        window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+        window.addEventListener('click', initAudio);
+
+        // 7. Flight Physics
+        function updateFlightPhysics(dt) {
+            // Throttle Management
+            if (keys['shift']) throttle = Math.min(1.0, throttle + 0.6 * dt);
+            if (keys['control']) throttle = Math.max(0.0, throttle - 0.6 * dt);
+            throttle = THREE.MathUtils.clamp(throttle, 0, 1);
+
+            // Control Surface Inputs
+            const inputPitch = (keys['w'] ? 1 : 0) - (keys['s'] ? 1 : 0);
+            const inputRoll = (keys['a'] ? 1 : 0) - (keys['d'] ? 1 : 0);
+            const inputYaw = (keys['q'] ? 1 : 0) - (keys['e'] ? 1 : 0);
+
+            // Speed Management
+            const thrust = throttle * 1.0;
+            const drag = 0.005 * speed * speed * 0.001;
+            const accel = (thrust - drag) * 1.5;
+            
+            let speedMs = speed * 0.514444;
+            speedMs += accel * dt;
+            speedMs = Math.max(MIN_SPEED * 0.514444, Math.min(MAX_SPEED * 0.514444, speedMs));
+            speed = speedMs / 0.514444;
+
+            // Control Authority
+            const speedRatio = Math.min(1, speed / 120);
+            const authority = 0.4 + 0.6 * speedRatio;
+
+            // Pitch Control
+            const euler = new THREE.Euler().setFromQuaternion(planeQuaternion, 'YXZ');
+            const pitchAngle = euler.x;
+            const targetPitchRate = inputPitch * 1.5 * authority;
+            const pitchStability = -pitchAngle * 0.5;
+            
+            pitchRate += ((targetPitchRate + pitchStability) - pitchRate) * 8 * dt;
+            
+            // Roll Control
+            const targetRollRate = inputRoll * 2.8 * authority;
+            rollRate += (targetRollRate - rollRate) * 8 * dt;
+            
+            // Yaw Control
+            const targetYawRate = inputYaw * 0.8 * authority;
+            yawRate += (targetYawRate - yawRate) * 8 * dt;
+
+            // Apply Rotation
+            const rotDelta = new THREE.Euler(
+                pitchRate * dt,
+                yawRate * dt,
+                rollRate * dt,
+                'YXZ'
+            );
+            const deltaQuat = new THREE.Quaternion().setFromEuler(rotDelta);
+            planeQuaternion.multiply(deltaQuat);
+            planeQuaternion.normalize();
+
+            // Forward Vector
+            const forward = new THREE.Vector3(0, 1, 0).applyQuaternion(planeQuaternion);
+            
+            // Movement
+            const moveVector = forward.clone().multiplyScalar(speedMs * dt);
+            
+            // Gravity effect
+            const pitchAngleRad = euler.x;
+            const gravityEffect = -GRAVITY * 0.02 * dt;
+            const worldUp = new THREE.Vector3(0, 0, 1);
+            const gravityVector = worldUp.clone().multiplyScalar(gravityEffect);
+            
+            const totalMove = new THREE.Vector3().copy(moveVector).add(gravityVector);
+
+            // Convert to Cesium Cartesian
+            const cesiumMove = new Cesium.Cartesian3(totalMove.x, totalMove.y, totalMove.z);
+            planePosition = Cesium.Cartesian3.add(planePosition, cesiumMove, new Cesium.Cartesian3());
+            
+            // Ground Collision
+            const carto = Cesium.Cartographic.fromCartesian(planePosition);
+            if (carto.height < 5) {
+                carto.height = 5;
+                planePosition = Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, carto.height);
+                speedMs *= 0.5;
+                speed = speedMs / 0.514444;
+                pitchRate *= 0.5;
+                rollRate *= 0.5;
+                yawRate *= 0.5;
+            }
+
+            // Stall Detection
+            const isStalling = speed < STALL_SPEED;
+            if (isStalling) {
+                document.getElementById('stall-warning').classList.add('show');
+                if (pitchAngleRad > 0) {
+                    const recoveryQuat = new THREE.Quaternion().setFromAxisAngle(
+                        new THREE.Vector3(1, 0, 0), -0.5 * dt
+                    );
+                    planeQuaternion.multiply(recoveryQuat);
+                }
+            } else {
+                document.getElementById('stall-warning').classList.remove('show');
+            }
+
+            // Update Audio
+            const audioSpeed = Math.min(1, speed / MAX_SPEED);
+            updateEngineAudio(audioSpeed, throttle);
+            
+            // Telemetry
+            document.getElementById('val-speed').textContent = Math.round(speed);
+            document.getElementById('val-alt').textContent = Math.round(carto.height * 3.28084);
+            const hdg = Math.round((Cesium.Math.toDegrees(euler.y) % 360 + 360) % 360);
+            document.getElementById('val-hdg').textContent = `${hdg.toString().padStart(3, '0')}°`;
+            document.getElementById('val-throttle').textContent = Math.round(throttle * 100) + '%';
+        }
+
+        function resetAircraft() {
+            planePosition = Cesium.Cartesian3.fromDegrees(SPAWN_LON, SPAWN_LAT, SPAWN_ALT);
+            planeQuaternion.set(0, 0, 0, 1);
+            pitchRate = 0;
+            rollRate = 0;
+            yawRate = 0;
+            speed = 120;
+            throttle = 0.6;
+            document.getElementById('stall-warning').classList.remove('show');
+            console.log('Aircraft reset');
+        }
+
+        // 8. Main Loop
+        const clock = new THREE.Clock();
+        let frameCount = 0;
+
+        viewer.clock.onTick.addEventListener(() => {
+            const dt = Math.min(clock.getDelta(), 0.05);
+            updateFlightPhysics(dt);
+
+            // Update Entity Position & Orientation
+            const euler = new THREE.Euler().setFromQuaternion(planeQuaternion, 'YXZ');
+            const hpr = new Cesium.HeadingPitchRoll(euler.y, euler.x, euler.z);
+            
+            planeEntity.position = planePosition;
+            planeEntity.orientation = Cesium.Transforms.headingPitchRollQuaternion(planePosition, hpr);
+
+            // Camera: Chase view from behind
+            const transformMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(planePosition, hpr);
+            
+            const speedFactor = Math.min(1, speed / 200);
+            const chaseDistance = 40 + 20 * speedFactor;
+            const chaseHeight = 10 + 10 * speedFactor;
+            
+            const cameraOffset = new Cesium.Cartesian3(0, -chaseDistance, chaseHeight);
+            const cameraPos = Cesium.Matrix4.multiplyByPoint(transformMatrix, cameraOffset, new Cesium.Cartesian3());
+            
+            // Smooth camera follow
+            const currentPos = viewer.camera.position;
+            const smoothPos = new Cesium.Cartesian3();
+            Cesium.Cartesian3.lerp(currentPos, cameraPos, 0.15, smoothPos);
+            
+            // Look at aircraft
+            const direction = Cesium.Cartesian3.subtract(planePosition, smoothPos, new Cesium.Cartesian3());
+            const normalizedDir = Cesium.Cartesian3.normalize(direction, new Cesium.Cartesian3());
+            const up = Cesium.Cartesian3.UNIT_Z;
+            
+            viewer.camera.setView({
+                destination: smoothPos,
+                orientation: {
+                    direction: normalizedDir,
+                    up: up
+                }
+            });
+
+            // Force render every few frames
+            frameCount++;
+            if (frameCount % 2 === 0) {
+                viewer.scene.requestRender();
+            }
+        });
+
+        // Initial camera position
+        viewer.camera.setView({
+            destination: Cesium.Cartesian3.fromDegrees(SPAWN_LON, SPAWN_LAT, 2000),
+            orientation: {
+                heading: 0,
+                pitch: -0.3,
+                roll: 0
+            }
+        });
+
+        // Initial reset after a short delay
+        setTimeout(() => {
+            resetAircraft();
+            console.log('Flight Simulator ready!');
+        }, 500);
+    </script>
+</body>
+</html>
