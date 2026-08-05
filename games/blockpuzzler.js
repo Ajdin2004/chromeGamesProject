@@ -2,10 +2,11 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const nextCanvas = document.getElementById('nextCanvas');
 const nextCtx = nextCanvas.getContext('2d');
+const wrapper = document.getElementById('wrapper');
 
 const COLS = 10;
 const ROWS = 20;
-const BLOCK_SIZE = 24;
+let blockSize = 24;
 
 // --- Web Audio Synthesizer ---
 let audioCtx = null;
@@ -70,6 +71,37 @@ const Sound = {
     }
 };
 
+// --- Dynamic Dynamic Scaling ---
+function resizeCanvas() {
+    const rect = wrapper.getBoundingClientRect();
+    const targetRatio = COLS / ROWS;
+    
+    let w = rect.width;
+    let h = rect.height;
+
+    if (w / h > targetRatio) {
+        w = h * targetRatio;
+    } else {
+        h = w / targetRatio;
+    }
+
+    blockSize = h / ROWS;
+    
+    // Scale main canvas
+    canvas.width = blockSize * COLS;
+    canvas.height = blockSize * ROWS;
+
+    // Scale preview canvas
+    const nextSize = Math.min(80, Math.max(48, blockSize * 2.5));
+    nextCanvas.width = nextSize;
+    nextCanvas.height = nextSize;
+
+    draw();
+    if (nextPiece) drawNextPiece();
+}
+
+window.addEventListener('resize', resizeCanvas);
+
 // --- Tetromino Definitions & Colors ---
 const PIECES = [
     { name: 'I', color: '#00f2fe', matrix: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]] },
@@ -81,9 +113,7 @@ const PIECES = [
     { name: 'Z', color: '#ef4444', matrix: [[1,1,0],[0,1,1],[0,0,0]] }
 ];
 
-// Board state (0 = empty, color string = filled block)
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-
 let score = 0;
 let linesCleared = 0;
 let level = 1;
@@ -94,16 +124,25 @@ let pieceX = 0;
 let pieceY = 0;
 
 let lastDropTime = 0;
-let dropInterval = 800; // ms per drop tick
+let dropInterval = 800;
 let isGameOver = false;
 
-// --- Helper Functions ---
 function getRandomPiece() {
     const p = PIECES[Math.floor(Math.random() * PIECES.length)];
     return {
         matrix: p.matrix.map(row => [...row]),
         color: p.color
     };
+}
+
+function resetGame() {
+    board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    score = 0; linesCleared = 0; level = 1; dropInterval = 800;
+    document.getElementById('score').textContent = 0;
+    document.getElementById('lines').textContent = 0;
+    document.getElementById('level').textContent = 1;
+    isGameOver = false;
+    spawnPiece();
 }
 
 function spawnPiece() {
@@ -168,7 +207,7 @@ function clearLines() {
             board.splice(y, 1);
             board.unshift(Array(COLS).fill(0));
             lines++;
-            y++; // Check same row again
+            y++;
         }
     }
 
@@ -183,6 +222,18 @@ function clearLines() {
         document.getElementById('score').textContent = score;
         document.getElementById('lines').textContent = linesCleared;
         document.getElementById('level').textContent = level;
+    }
+}
+
+function moveLeft() {
+    if (!collide(activePiece.matrix, pieceX - 1, pieceY)) {
+        pieceX--; Sound.move();
+    }
+}
+
+function moveRight() {
+    if (!collide(activePiece.matrix, pieceX + 1, pieceY)) {
+        pieceX++; Sound.move();
     }
 }
 
@@ -205,13 +256,12 @@ function hardDrop() {
 }
 
 // --- Drawing ---
-function drawBlock(ctxRef, x, y, color, size = BLOCK_SIZE) {
+function drawBlock(ctxRef, x, y, color, size = blockSize) {
     ctxRef.fillStyle = color;
     ctxRef.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
 
-    // Subtle inner bevel gradient
     ctxRef.fillStyle = 'rgba(255, 255, 255, 0.2)';
-    ctxRef.fillRect(x * size + 1, y * size + 1, size - 2, 3);
+    ctxRef.fillRect(x * size + 1, y * size + 1, size - 2, Math.max(2, size * 0.1));
 }
 
 function drawGrid() {
@@ -222,14 +272,14 @@ function drawGrid() {
     ctx.lineWidth = 1;
     for (let x = 0; x <= COLS; x++) {
         ctx.beginPath();
-        ctx.moveTo(x * BLOCK_SIZE, 0);
-        ctx.lineTo(x * BLOCK_SIZE, canvas.height);
+        ctx.moveTo(x * blockSize, 0);
+        ctx.lineTo(x * blockSize, canvas.height);
         ctx.stroke();
     }
     for (let y = 0; y <= ROWS; y++) {
         ctx.beginPath();
-        ctx.moveTo(0, y * BLOCK_SIZE);
-        ctx.lineTo(canvas.width, y * BLOCK_SIZE);
+        ctx.moveTo(0, y * blockSize);
+        ctx.lineTo(canvas.width, y * blockSize);
         ctx.stroke();
     }
 }
@@ -237,7 +287,7 @@ function drawGrid() {
 function drawNextPiece() {
     nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
     const matrix = nextPiece.matrix;
-    const size = 20;
+    const size = nextCanvas.width / 5;
     const offsetX = (nextCanvas.width - matrix[0].length * size) / 2 / size;
     const offsetY = (nextCanvas.height - matrix.length * size) / 2 / size;
 
@@ -253,14 +303,12 @@ function drawNextPiece() {
 function draw() {
     drawGrid();
 
-    // Draw Locked Board Blocks
     board.forEach((row, y) => {
         row.forEach((color, x) => {
             if (color) drawBlock(ctx, x, y, color);
         });
     });
 
-    // Draw Ghost Piece
     if (activePiece) {
         let ghostY = pieceY;
         while (!collide(activePiece.matrix, pieceX, ghostY + 1)) ghostY++;
@@ -269,12 +317,11 @@ function draw() {
             row.forEach((value, x) => {
                 if (value) {
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-                    ctx.fillRect((pieceX + x) * BLOCK_SIZE + 1, (ghostY + y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                    ctx.fillRect((pieceX + x) * blockSize + 1, (ghostY + y) * blockSize + 1, blockSize - 2, blockSize - 2);
                 }
             });
         });
 
-        // Draw Active Piece
         activePiece.matrix.forEach((row, y) => {
             row.forEach((value, x) => {
                 if (value) drawBlock(ctx, pieceX + x, pieceY + y, activePiece.color);
@@ -283,64 +330,101 @@ function draw() {
     }
 
     if (isGameOver) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-        ctx.fillRect(0, 160, canvas.width, 120);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        ctx.fillRect(0, canvas.height / 2 - 50, canvas.width, 100);
 
         ctx.fillStyle = '#ef4444';
-        ctx.font = '800 24px Outfit, sans-serif';
+        ctx.font = `800 ${Math.max(16, blockSize)}px Outfit, sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER', canvas.width / 2, 210);
+        ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 5);
 
         ctx.fillStyle = '#fff';
-        ctx.font = '400 14px Outfit, sans-serif';
-        ctx.fillText('Press Key to Restart', canvas.width / 2, 240);
+        ctx.font = `400 ${Math.max(10, blockSize * 0.45)}px Outfit, sans-serif`;
+        ctx.fillText('Tap screen to restart', canvas.width / 2, canvas.height / 2 + 25);
     }
 }
 
-// --- Controls ---
+// --- Gesture & Input Controls ---
+let startX = 0;
+let startY = 0;
+let startTime = 0;
+let lastMoveX = 0;
+
 window.addEventListener('keydown', e => {
     initAudio();
-
     if (isGameOver) {
-        board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-        score = 0; linesCleared = 0; level = 1; dropInterval = 800;
-        document.getElementById('score').textContent = 0;
-        document.getElementById('lines').textContent = 0;
-        document.getElementById('level').textContent = 1;
-        isGameOver = false;
-        spawnPiece();
+        resetGame();
         return;
     }
 
     switch (e.key) {
-        case 'ArrowLeft':
-        case 'a':
-            if (!collide(activePiece.matrix, pieceX - 1, pieceY)) {
-                pieceX--; Sound.move();
-            }
-            break;
-        case 'ArrowRight':
-        case 'd':
-            if (!collide(activePiece.matrix, pieceX + 1, pieceY)) {
-                pieceX++; Sound.move();
-            }
-            break;
-        case 'ArrowDown':
-        case 's':
-            moveDown();
-            break;
-        case 'ArrowUp':
-        case 'w':
-            rotatePiece();
-            break;
-        case ' ':
-            e.preventDefault();
-            hardDrop();
-            break;
+        case 'ArrowLeft': case 'a': moveLeft(); break;
+        case 'ArrowRight': case 'd': moveRight(); break;
+        case 'ArrowDown': case 's': moveDown(); break;
+        case 'ArrowUp': case 'w': rotatePiece(); break;
+        case ' ': e.preventDefault(); hardDrop(); break;
     }
 });
 
-// --- Game Loop ---
+// Gesture Handling directly on Window/Document
+window.addEventListener('touchstart', e => {
+    initAudio();
+    if (isGameOver) {
+        resetGame();
+        return;
+    }
+
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    lastMoveX = touch.clientX;
+    startTime = Date.now();
+}, { passive: false });
+
+window.addEventListener('touchmove', e => {
+    if (isGameOver) return;
+
+    const touch = e.touches[0];
+    const diffX = touch.clientX - lastMoveX;
+    const diffY = touch.clientY - startY;
+
+    // Drag horizontally cell by cell
+    if (Math.abs(diffX) > blockSize) {
+        if (diffX > 0) moveRight();
+        else moveLeft();
+        lastMoveX = touch.clientX;
+    }
+
+    // Soft drop when dragging downwards continuously
+    if (diffY > blockSize * 1.5) {
+        moveDown();
+        startY = touch.clientY; // reset baseline
+    }
+}, { passive: false });
+
+window.addEventListener('touchend', e => {
+    if (isGameOver) return;
+
+    const touch = e.changedTouches[0];
+    const totalX = touch.clientX - startX;
+    const totalY = touch.clientY - startY;
+    const duration = Date.now() - startTime;
+
+    // Fast swipe down triggers Hard Drop
+    if (totalY > 100 && duration < 250 && Math.abs(totalX) < 60) {
+        hardDrop();
+    } 
+    // Tap (short duration, minimal movement) triggers Rotate
+    else if (Math.abs(totalX) < 15 && Math.abs(totalY) < 15 && duration < 250) {
+        rotatePiece();
+    }
+});
+
+// Initial Setup
+resizeCanvas();
+spawnPiece();
+update();
+
 function update(time = 0) {
     const deltaTime = time - lastDropTime;
 
@@ -352,6 +436,3 @@ function update(time = 0) {
     draw();
     requestAnimationFrame(update);
 }
-
-spawnPiece();
-update();

@@ -50,6 +50,9 @@ const btnGuess = document.getElementById('btn-guess');
 const suggestionsEl = document.getElementById('suggestions');
 const guessesContainer = document.getElementById('guesses-container');
 const toastEl = document.getElementById('toast');
+const helpModal = document.getElementById('help-modal');
+const btnHelp = document.getElementById('btn-help');
+const btnCloseHelp = document.getElementById('btn-close-help');
 
 // --- Initialize 3D Globe Instance ---
 function initGlobe() {
@@ -77,10 +80,8 @@ async function fetchGeoJsonDataset() {
         geoJsonFeatures = data.features;
         worldGlobe.polygonsData(geoJsonFeatures);
 
-        // Map simplified dataset for search and distance calculations
         COUNTRIES = geoJsonFeatures.map(f => {
             const props = f.properties;
-            // Approximate centroid coordinates
             const bbox = f.bbox || [0,0,0,0];
             const lon = (bbox[0] + bbox[2]) / 2 || 0;
             const lat = (bbox[1] + bbox[3]) / 2 || 0;
@@ -93,7 +94,6 @@ async function fetchGeoJsonDataset() {
             };
         }).sort((a, b) => a.name.localeCompare(b.name));
 
-        // Deterministic Daily Seed
         const now = new Date();
         const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
         TARGET_COUNTRY = COUNTRIES[seed % COUNTRIES.length];
@@ -129,25 +129,20 @@ function calculateBearingArrow(lat1, lon1, lat2, lon2) {
     return arrows[Math.round(brng / 45) % 8];
 }
 
-// --- Highlight Country on Globe & Rotate Camera ---
 function highlightCountryOnGlobe(country, isCorrect) {
     if (!country || !country.feature) return;
 
-    // Set dynamic polygon highlight colors
     country.feature.properties.customColor = isCorrect 
-        ? 'rgba(34, 197, 94, 0.85)'   // Green for Win
-        : 'rgba(239, 68, 68, 0.75)';  // Red for Incorrect Guess
+        ? 'rgba(34, 197, 94, 0.85)'
+        : 'rgba(239, 68, 68, 0.75)';
     country.feature.properties.customAltitude = 0.05;
 
-    // Refresh polygon render state
     worldGlobe.polygonsData([...geoJsonFeatures]);
 
-    // Smooth-rotate globe camera to point at guessed country
     worldGlobe.controls().autoRotate = false;
     worldGlobe.pointOfView({ lat: country.lat, lng: country.lon, altitude: 1.8 }, 1200);
 }
 
-// --- Autocomplete ---
 function handleAutocomplete() {
     const val = inputEl.value.toLowerCase().trim();
     suggestionsEl.innerHTML = '';
@@ -175,7 +170,6 @@ function handleAutocomplete() {
     }
 }
 
-// --- Submit Guess Logic ---
 function submitGuess() {
     if (gameOver || !TARGET_COUNTRY) return;
     initAudio();
@@ -272,29 +266,24 @@ function saveProgress(passed) {
     }));
 }
 
-// Add Resize Observer to dynamically stretch 3D Canvas upon screen size change
 function setupDynamicResize() {
     const container = document.getElementById('globe-container');
-    
     const resizeObserver = new ResizeObserver(() => {
         if (worldGlobe) {
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            worldGlobe.width(width);
-            worldGlobe.height(height);
+            worldGlobe.width(container.clientWidth);
+            worldGlobe.height(container.clientHeight);
         }
     });
-
     resizeObserver.observe(container);
 }
 
-// Ensure resize handler triggers on init
+// Modal Toggle Handlers
+btnHelp.addEventListener('click', () => helpModal.classList.add('active'));
+btnCloseHelp.addEventListener('click', () => helpModal.classList.remove('active'));
+
+// Initialize Application Single Instance
 initGlobe();
 setupDynamicResize();
-fetchGeoJsonDataset();
-
-// Start Game
-initGlobe();
 fetchGeoJsonDataset();
 
 inputEl.addEventListener('input', handleAutocomplete);
