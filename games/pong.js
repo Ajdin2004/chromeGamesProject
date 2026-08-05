@@ -51,9 +51,19 @@ const Sound = {
     }
 };
 
-// --- Game Settings & Objects ---
-let gameMode = 'ai'; // 'ai' or 'pvp'
-const WINNING_SCORE = 5;
+// --- Game Settings & Configuration ---
+let gameMode = 'ai'; 
+let WINNING_SCORE = 5;
+
+// AI Difficulty Profiles
+const AI_PROFILES = {
+    easy: { speed: 3.5, margin: 25 },
+    medium: { speed: 5.0, margin: 12 },
+    hard: { speed: 6.5, margin: 4 },
+    impossible: { speed: 9.0, margin: 0 }
+};
+
+let currentAiDifficulty = 'medium';
 
 const paddleWidth = 12;
 const paddleHeight = 80;
@@ -62,8 +72,7 @@ const player1 = {
     x: 20,
     y: canvas.height / 2 - paddleHeight / 2,
     score: 0,
-    dy: 0,
-    speed: 6,
+    speed: 6.5,
     color: '#00f2fe'
 };
 
@@ -71,8 +80,7 @@ const player2 = {
     x: canvas.width - 20 - paddleWidth,
     y: canvas.height / 2 - paddleHeight / 2,
     score: 0,
-    dy: 0,
-    speed: 6,
+    speed: 6.5,
     color: '#ff2a6d'
 };
 
@@ -82,12 +90,20 @@ const ball = {
     radius: 7,
     speed: 5,
     dx: 5,
-    dy: 3
+    dy: 3,
+    trail: []
 };
 
 const keys = {};
 let isGameOver = false;
 let winnerText = '';
+
+// DOM Elements
+const modeBtns = document.querySelectorAll('.mode-btn');
+const hint = document.getElementById('control-hint');
+const aiDiffSelect = document.getElementById('ai-diff');
+const aiDiffBox = document.getElementById('ai-difficulty-box');
+const scoreLimitSelect = document.getElementById('score-limit');
 
 function resetBall(direction = 1) {
     ball.x = canvas.width / 2;
@@ -95,6 +111,7 @@ function resetBall(direction = 1) {
     ball.speed = 5;
     ball.dx = direction * ball.speed;
     ball.dy = (Math.random() - 0.5) * 6;
+    ball.trail = [];
 }
 
 function resetGame() {
@@ -106,7 +123,7 @@ function resetGame() {
     resetBall();
 }
 
-// --- Logic ---
+// --- Logic Update ---
 function update() {
     if (isGameOver) return;
 
@@ -114,25 +131,30 @@ function update() {
     if (keys['w'] || keys['W']) player1.y = Math.max(0, player1.y - player1.speed);
     if (keys['s'] || keys['S']) player1.y = Math.min(canvas.height - paddleHeight, player1.y + player1.speed);
 
-    // Player 2 Movement (AI or Up/Down Arrows)
+    // Player 2 Movement (Fixes the Downward Superspeed Bug)
     if (gameMode === 'pvp') {
         if (keys['ArrowUp']) player2.y = Math.max(0, player2.y - player2.speed);
-        if (keys['ArrowDown']) player2.y = Math.min(canvas.height - paddleHeight, player2.y + paddleHeight);
+        if (keys['ArrowDown']) player2.y = Math.min(canvas.height - paddleHeight, player2.y + player2.speed);
     } else {
-        // Simple AI Tracking
+        // AI Movement Logic
+        const profile = AI_PROFILES[currentAiDifficulty];
         const paddleCenter = player2.y + paddleHeight / 2;
-        if (paddleCenter < ball.y - 12) {
-            player2.y = Math.min(canvas.height - paddleHeight, player2.y + 4.5);
-        } else if (paddleCenter > ball.y + 12) {
-            player2.y = Math.max(0, player2.y - 4.5);
+        
+        if (paddleCenter < ball.y - profile.margin) {
+            player2.y = Math.min(canvas.height - paddleHeight, player2.y + profile.speed);
+        } else if (paddleCenter > ball.y + profile.margin) {
+            player2.y = Math.max(0, player2.y - profile.speed);
         }
     }
 
-    // Ball Movement
+    // Ball Movement & Motion Trail
+    ball.trail.push({ x: ball.x, y: ball.y });
+    if (ball.trail.length > 8) ball.trail.shift();
+
     ball.x += ball.dx;
     ball.y += ball.dy;
 
-    // Top & Bottom Wall Bounce
+    // Wall Bounce
     if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= canvas.height) {
         ball.dy *= -1;
         Sound.wallHit();
@@ -147,19 +169,18 @@ function update() {
         ball.y > paddle.y &&
         ball.y < paddle.y + paddleHeight
     ) {
-        // Calculate angle based on hit location
         let collidePoint = (ball.y - (paddle.y + paddleHeight / 2)) / (paddleHeight / 2);
         let angleRad = (Math.PI / 4) * collidePoint;
 
         let direction = (ball.x < canvas.width / 2) ? 1 : -1;
-        ball.speed = Math.min(12, ball.speed + 0.4); // Accelerate ball
+        ball.speed = Math.min(13, ball.speed + 0.4);
         ball.dx = direction * ball.speed * Math.cos(angleRad);
         ball.dy = ball.speed * Math.sin(angleRad);
 
         Sound.paddleHit();
     }
 
-    // Score Tracking
+    // Scoring
     if (ball.x - ball.radius < 0) {
         player2.score++;
         Sound.score();
@@ -195,11 +216,21 @@ function drawDashedLine() {
     ctx.setLineDash([]);
 }
 
+function drawTrail() {
+    ball.trail.forEach((point, i) => {
+        ctx.fillStyle = `rgba(0, 242, 254, ${ (i + 1) / 12 })`;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, ball.radius * ((i + 1) / 8), 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
 function draw() {
     ctx.fillStyle = '#101426';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawDashedLine();
+    drawTrail();
 
     // Player 1 Paddle
     ctx.fillStyle = player1.color;
@@ -219,7 +250,7 @@ function draw() {
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.shadowBlur = 0; // Reset
+    ctx.shadowBlur = 0;
 
     // Scores
     ctx.font = '800 36px Outfit, sans-serif';
@@ -261,22 +292,33 @@ canvas.addEventListener('click', () => {
     if (isGameOver) resetGame();
 });
 
-// Mode Switching
-const modeBtns = document.querySelectorAll('.mode-btn');
-const hint = document.getElementById('control-hint');
-
+// Settings Handlers
 modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         modeBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         gameMode = btn.dataset.mode;
 
-        hint.innerHTML = gameMode === 'ai'
-            ? 'P1: <strong>W/S</strong> &nbsp;|&nbsp; AI Controlled Right Paddle'
-            : 'P1: <strong>W/S</strong> &nbsp;|&nbsp; P2: <strong>Up/Down Arrows</strong>';
+        if (gameMode === 'ai') {
+            aiDiffBox.style.display = 'flex';
+            hint.innerHTML = 'P1: <strong>W/S</strong> &nbsp;|&nbsp; AI Controlled Right Paddle';
+        } else {
+            aiDiffBox.style.display = 'none';
+            hint.innerHTML = 'P1: <strong>W/S</strong> &nbsp;|&nbsp; P2: <strong>Up/Down Arrows</strong>';
+        }
 
         resetGame();
     });
+});
+
+aiDiffSelect.addEventListener('change', (e) => {
+    currentAiDifficulty = e.target.value;
+    resetGame();
+});
+
+scoreLimitSelect.addEventListener('change', (e) => {
+    WINNING_SCORE = parseInt(e.target.value);
+    resetGame();
 });
 
 // Loop

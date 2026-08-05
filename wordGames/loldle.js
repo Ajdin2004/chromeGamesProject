@@ -34,24 +34,41 @@ const Sound = {
     }
 };
 
-// DataDragon Version & CDN Base
-const DDRAGON_VER = "14.1.1";
-const CDN_IMG_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/img/champion/`;
+function debounce(fn, wait = 150) {
+    let t;
+    return function(...args) {
+        clearTimeout(t);
+        t = setTimeout(() => fn.apply(this, args), wait);
+    };
+}
 
-// Extended Attributes Metadata Map
-const CHAMPION_METADATA = {
-    "Aatrox": { gender: "Male", position: "Top", species: "Darkin", region: "Runeterra" },
-    "Ahri": { gender: "Female", position: "Middle", species: "Vastaya", region: "Ionia" },
-    "Akali": { gender: "Female", position: "Middle, Top", species: "Human", region: "Ionia" },
-    "Ashe": { gender: "Female", position: "Bottom", species: "Human", region: "Freljord" },
-    "Darius": { gender: "Male", position: "Top", species: "Human", region: "Noxus" },
-    "Garen": { gender: "Male", position: "Top", species: "Human", region: "Demacia" },
-    "Jinx": { gender: "Female", position: "Bottom", species: "Human", region: "Zaun" },
-    "LeeSin": { gender: "Male", position: "Jungle", species: "Human", region: "Ionia" },
-    "Lux": { gender: "Female", position: "Middle, Support", species: "Human", region: "Demacia" },
-    "Thresh": { gender: "Male", position: "Support", species: "Undead", region: "Shadow Isles" },
-    "Yasuo": { gender: "Male", position: "Middle, Top", species: "Human", region: "Ionia" },
-    "Zed": { gender: "Male", position: "Middle", species: "Human", region: "Ionia" }
+const DDRAGON_VER = "14.1.1";
+const DDRAGON_CDN_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/data/en_US/champion.json`;
+const DDRAGON_IMG_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/img/champion/`;
+
+// Detailed multi-species metadata map to distinguish stat twins
+const CHAMPION_DETAILS = {
+    "Aatrox": { gender: "Male", position: "Top", species: "Darkin, Humanoid", region: "Runeterra", releaseYear: "2013" },
+    "Ahri": { gender: "Female", position: "Middle", species: "Vastaya, Spirit", region: "Ionia", releaseYear: "2011" },
+    "Akali": { gender: "Female", position: "Middle, Top", species: "Human, Martial", region: "Ionia", releaseYear: "2010" },
+    "Anivia": { gender: "Female", position: "Middle", species: "God-Willow, Spirit", region: "Freljord", releaseYear: "2009" },
+    "Annie": { gender: "Female", position: "Middle", species: "Human", region: "Noxus", releaseYear: "2009" },
+    "Ashe": { gender: "Female", position: "Bottom", species: "Human, Iceborn", region: "Freljord", releaseYear: "2009" },
+    "Bard": { gender: "Other", position: "Support", species: "Celestial", region: "Runeterra", releaseYear: "2015" },
+    "Blitzcrank": { gender: "Other", position: "Support", species: "Golem, Hextech", region: "Zaun", releaseYear: "2009" },
+    "Darius": { gender: "Male", position: "Top", species: "Human, Noxian", region: "Noxus", releaseYear: "2012" },
+    "Fiddlesticks": { gender: "Other", position: "Jungle", species: "Demon", region: "Runeterra", releaseYear: "2009" },
+    "Garen": { gender: "Male", position: "Top", species: "Human, Demacian", region: "Demacia", releaseYear: "2010" },
+    "Janna": { gender: "Female", position: "Support", species: "Spirit, God", region: "Zaun", releaseYear: "2009" },
+    "Jinx": { gender: "Female", position: "Bottom", species: "Human, Chemtech", region: "Zaun", releaseYear: "2013" },
+    "Kindred": { gender: "Other", position: "Jungle", species: "Spirit, God", region: "Runeterra", releaseYear: "2015" },
+    "LeeSin": { gender: "Male", position: "Jungle", species: "Human, Spiritual", region: "Ionia", releaseYear: "2011" },
+    "Lux": { gender: "Female", position: "Middle, Support", species: "Human, Mage", region: "Demacia", releaseYear: "2010" },
+    "Thresh": { gender: "Male", position: "Support", species: "Undead, Spirit", region: "Shadow Isles", releaseYear: "2013" },
+    "Yasuo": { gender: "Male", position: "Middle, Top", species: "Human, Wind-Master", region: "Ionia", releaseYear: "2013" },
+    "Zed": { gender: "Male", position: "Middle", species: "Human, Shadow", region: "Ionia", releaseYear: "2012" },
+    "Swain": { gender: "Male", position: "Middle, Support", species: "Human", region: "Runeterra", releaseYear: "2010" }
+
 };
 
 let CHAMPIONS = [];
@@ -60,44 +77,118 @@ const TODAY_DATE_STR = new Date().toISOString().slice(0, 10);
 const MAX_GUESSES = 8;
 let guessesHistory = [];
 let gameOver = false;
+let currentMatches = [];
+let suggestionActiveIndex = -1;
+let userScore = 0;
 
 // DOM Elements
 const inputEl = document.getElementById('champ-input');
+const inputWrapper = document.getElementById('input-wrapper');
 const btnGuess = document.getElementById('btn-guess');
 const suggestionsEl = document.getElementById('suggestions');
 const guessesContainer = document.getElementById('guesses-container');
 const toastEl = document.getElementById('toast');
+const hintBox = document.getElementById('hint-box');
+const scoreValEl = document.getElementById('score-val');
+// --- Local Background Music Control ---
+const btnMusic = document.getElementById('btn-music');
+const bgMusic = document.getElementById('bg-music');
 
-// --- Fetch Full Champion Dataset from Riot DataDragon API ---
+// Configure audio element safely and add diagnostics
+if (bgMusic) {
+    try { bgMusic.crossOrigin = 'anonymous'; } catch (e) { /* ignore */ }
+    bgMusic.volume = 0.15; // 15% low volume
+
+    bgMusic.addEventListener('error', (ev) => {
+        console.error('Background music failed to load or play', ev, bgMusic.error);
+        if (toastEl) toastEl.textContent = 'Background music failed to load.';
+    });
+
+    bgMusic.addEventListener('canplaythrough', () => {
+        console.info('Background music ready');
+    });
+
+    bgMusic.addEventListener('stalled', () => {
+        console.warn('Background music stalled while fetching data');
+    });
+}
+
+function playBackgroundMusic() {
+    initAudio(); // Resumes Web Audio Context if suspended
+    
+    bgMusic.play().then(() => {
+        btnMusic.classList.add('playing');
+        btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i> Music';
+        toastEl.textContent = "Guess today's mystery champion!";
+    }).catch(err => {
+        console.warn("Autoplay prevented:", err);
+        toastEl.textContent = "Click anywhere on the page to enable audio.";
+        
+        // Add a one-time document listener to unlock audio on the next user tap/click
+        const unlockAudio = () => {
+            bgMusic.play().then(() => {
+                btnMusic.classList.add('playing');
+                btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i> Music';
+                toastEl.textContent = "Guess today's mystery champion!";
+            });
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('keydown', unlockAudio);
+        };
+        
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('keydown', unlockAudio, { once: true });
+    });
+}
+
+btnMusic.addEventListener('click', () => {
+    if (bgMusic.paused) {
+        playBackgroundMusic();
+    } else {
+        bgMusic.pause();
+        btnMusic.classList.remove('playing');
+        btnMusic.innerHTML = '<i class="fa-solid fa-music"></i> Music';
+    }
+});
+
+function mapRoleToPosition(tags) {
+    if (tags.includes("Support")) return "Support";
+    if (tags.includes("Marksman")) return "Bottom";
+    if (tags.includes("Mage")) return "Middle";
+    if (tags.includes("Assassin")) return "Middle, Jungle";
+    if (tags.includes("Tank") || tags.includes("Fighter")) return "Top, Jungle";
+    return "Middle";
+}
+
 async function fetchChampionsData() {
     try {
-        const response = await fetch(`https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/data/en_US/champion.json`);
-        const data = await response.json();
+        const res = await fetch(DDRAGON_CDN_URL);
+        const data = await res.json();
         const champsObj = data.data;
 
         CHAMPIONS = Object.keys(champsObj).map(key => {
             const c = champsObj[key];
-            const meta = CHAMPION_METADATA[key] || {
-                gender: "Male/Female",
-                position: c.tags.join(", "),
+            const meta = CHAMPION_DETAILS[key] || {
+                            gender: "Unknown",
+                position: mapRoleToPosition(c.tags),
                 species: "Human",
-                region: "Runeterra"
+                region: "Runeterra",
+                releaseYear: "2012"
             };
 
             return {
                 id: c.id,
                 name: c.name,
-                image: `${CDN_IMG_URL}${c.image.full}`,
+                image: `${DDRAGON_IMG_URL}${c.image.full}`,
                 gender: meta.gender,
                 position: meta.position,
                 species: meta.species,
                 resource: c.partype || "Manaless",
                 range: c.stats.attackrange > 300 ? "Ranged" : "Melee",
-                region: meta.region
+                region: meta.region,
+                releaseYear: meta.releaseYear
             };
         }).sort((a, b) => a.name.localeCompare(b.name));
 
-        // Deterministic Daily Target
         const now = new Date();
         const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
         TARGET_CHAMP = CHAMPIONS[seed % CHAMPIONS.length];
@@ -106,48 +197,134 @@ async function fetchChampionsData() {
         toastEl.textContent = "Guess today's mystery champion!";
         restoreProgress();
     } catch (err) {
-        toastEl.textContent = "Error fetching DataDragon dataset.";
+        toastEl.textContent = "Error fetching champion dataset.";
+        console.error(err);
     }
 }
 
-// --- Attribute Comparison Helper ---
 function compareAttribute(val1, val2) {
     if (val1 === val2) return 'correct';
-    const list1 = val1.split(', ').map(s => s.trim());
-    const list2 = val2.split(', ').map(s => s.trim());
+    const list1 = String(val1).split(/\s*,\s*/).map(s => s.trim().toLowerCase());
+        const list2 = String(val2).split(/\s*,\s*/).map(s => s.trim().toLowerCase());
     if (list1.some(v => list2.includes(v))) return 'partial';
     return 'wrong';
 }
 
-// --- Autocomplete ---
 function handleAutocomplete() {
     const val = inputEl.value.toLowerCase().trim();
     suggestionsEl.innerHTML = '';
 
     if (!val || CHAMPIONS.length === 0) {
+        currentMatches = [];
         suggestionsEl.style.display = 'none';
         return;
     }
 
-    const matches = CHAMPIONS.filter(c => c.name.toLowerCase().includes(val)).slice(0, 8);
-    if (matches.length > 0) {
+    currentMatches = CHAMPIONS.filter(c => 
+        c.name.toLowerCase().startsWith(val) || c.name.toLowerCase().includes(val)
+    ).slice(0, 8);
+    
+    if (currentMatches.length > 0) {
         suggestionsEl.style.display = 'block';
-        matches.forEach(c => {
+        currentMatches.forEach((c, idx) => {
             const div = document.createElement('div');
-            div.className = 'suggestion-item';
-            div.innerHTML = `<img src="${c.image}" alt="${c.name}"> <span>${c.name}</span>`;
+            div.className = `suggestion-item ${idx === 0 ? 'active' : ''}`;
+            div.setAttribute('role', 'option');
+            div.dataset.index = idx;
+
+            const info = document.createElement('div');
+            info.className = 'suggestion-info';
+
+            const img = document.createElement('img');
+            img.src = c.image;
+            img.alt = c.name;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = c.name;
+
+            info.appendChild(img);
+            info.appendChild(nameSpan);
+            div.appendChild(info);
+
+            if (idx === 0) {
+                const tabHint = document.createElement('span');
+                tabHint.className = 'tab-hint';
+                tabHint.textContent = 'Tab ↹';
+                div.appendChild(tabHint);
+                suggestionActiveIndex = 0;
+            }
+
             div.addEventListener('click', () => {
-                inputEl.value = c.name;
-                suggestionsEl.style.display = 'none';
+                suggestionActiveIndex = idx;
+                selectChampion(c.name);
             });
+
             suggestionsEl.appendChild(div);
         });
     } else {
         suggestionsEl.style.display = 'none';
+        suggestionActiveIndex = -1;
     }
 }
 
-// --- Submit Guess ---
+function updateActiveSuggestion() {
+    const items = suggestionsEl.querySelectorAll('.suggestion-item');
+    items.forEach(item => item.classList.remove('active'));
+    if (suggestionActiveIndex >= 0 && items[suggestionActiveIndex]) {
+        items[suggestionActiveIndex].classList.add('active');
+        items[suggestionActiveIndex].scrollIntoView({ block: 'nearest' });
+    }
+}
+
+function selectChampion(name) {
+    inputEl.value = name;
+    suggestionsEl.style.display = 'none';
+    inputEl.focus();
+}
+
+function triggerShake() {
+    inputWrapper.classList.remove('shake');
+    void inputWrapper.offsetWidth;
+    inputWrapper.classList.add('shake');
+}
+
+inputEl.addEventListener('keydown', e => {
+    const isSuggestionsVisible = suggestionsEl.style.display === 'block' && currentMatches.length > 0;
+    if (e.key === 'Tab' && isSuggestionsVisible) {
+        e.preventDefault();
+        const idx = suggestionActiveIndex >= 0 ? suggestionActiveIndex : 0;
+        selectChampion(currentMatches[idx].name);
+    } else if (e.key === 'ArrowDown' && isSuggestionsVisible) {
+        e.preventDefault();
+        suggestionActiveIndex = (suggestionActiveIndex + 1) % currentMatches.length;
+        updateActiveSuggestion();
+    } else if (e.key === 'ArrowUp' && isSuggestionsVisible) {
+        e.preventDefault();
+        suggestionActiveIndex = (suggestionActiveIndex - 1 + currentMatches.length) % currentMatches.length;
+        updateActiveSuggestion();
+    } else if (e.key === 'Enter') {
+        if (isSuggestionsVisible && suggestionActiveIndex >= 0) {
+            e.preventDefault();
+            selectChampion(currentMatches[suggestionActiveIndex].name);
+        } else {
+            submitGuess();
+        }
+    }
+});
+
+function calculateGuessPoints(champ) {
+    const fields = ['gender', 'position', 'species', 'resource', 'range', 'region'];
+    let guessPoints = 0;
+
+    fields.forEach(f => {
+        const status = compareAttribute(champ[f], TARGET_CHAMP[f]);
+        if (status === 'correct') guessPoints += 100;
+        else if (status === 'partial') guessPoints += 50;
+    });
+
+    return guessPoints;
+}
+
 function submitGuess() {
     if (gameOver || !TARGET_CHAMP) return;
     initAudio();
@@ -156,28 +333,38 @@ function submitGuess() {
     const guessedChamp = CHAMPIONS.find(c => c.name.toLowerCase() === val.toLowerCase());
 
     if (!guessedChamp) {
-        toastEl.textContent = "Unknown Champion!";
+        toastEl.textContent = "Champion not found!";
+        triggerShake();
         return;
     }
 
     if (guessesHistory.includes(guessedChamp.name)) {
         toastEl.textContent = "Already Guessed!";
+        triggerShake();
         return;
     }
 
+    const pts = calculateGuessPoints(guessedChamp);
+    userScore += pts;
+    scoreValEl.textContent = userScore;
+
     guessesHistory.push(guessedChamp.name);
-    renderRowUI(guessedChamp);
+    renderRowUI(guessedChamp, true);
     Sound.guess();
 
     inputEl.value = '';
     suggestionsEl.style.display = 'none';
 
+    checkHintState();
+
     const isCorrect = guessedChamp.name === TARGET_CHAMP.name;
 
     if (isCorrect) {
         gameOver = true;
+        userScore += 500;
+        scoreValEl.textContent = userScore;
         Sound.win();
-        toastEl.textContent = "Splendid! Loldle Solved!";
+        toastEl.textContent = `Splendid! Loldle Solved! Final Score: ${userScore}`;
         inputEl.disabled = true;
         btnGuess.disabled = true;
         saveProgress(true);
@@ -188,11 +375,20 @@ function submitGuess() {
         btnGuess.disabled = true;
         saveProgress(false);
     } else {
+        toastEl.textContent = `Scored +${pts} pts on this guess!`;
         saveProgress(false);
     }
 }
 
-function renderRowUI(champ) {
+function checkHintState() {
+    if (guessesHistory.length >= 4 && !gameOver) {
+        const firstLetter = TARGET_CHAMP.name.charAt(0);
+        hintBox.style.display = 'block';
+        hintBox.innerHTML = `<i class="fa-solid fa-lightbulb"></i> <strong>Hint Unlocked:</strong> Released in <strong>${TARGET_CHAMP.releaseYear}</strong> and starts with the letter '<strong>${firstLetter}</strong>'!`;
+    }
+}
+
+function renderRowUI(champ, shouldAnimate = false) {
     const row = document.createElement('div');
     row.className = 'guess-row';
 
@@ -205,19 +401,34 @@ function renderRowUI(champ) {
         { key: 'region', val: champ.region }
     ];
 
-    let html = `
-        <div class="attribute-box champ-card">
-            <img src="${champ.image}" class="champ-avatar" alt="${champ.name}">
-            <span>${champ.name}</span>
-        </div>
-    `;
+    const champCard = document.createElement('div');
+    champCard.className = 'attribute-box champ-card';
+    if (shouldAnimate) champCard.classList.add('animate-flip');
 
-    fields.forEach(f => {
+    const avatar = document.createElement('img');
+    avatar.src = champ.image;
+    avatar.className = 'champ-avatar';
+    avatar.alt = champ.name;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = champ.name;
+
+    champCard.appendChild(avatar);
+    champCard.appendChild(nameSpan);
+    row.appendChild(champCard);
+
+    fields.forEach((f, idx) => {
         const status = compareAttribute(f.val, TARGET_CHAMP[f.key]);
-        html += `<div class="attribute-box ${status}">${f.val}</div>`;
+        const box = document.createElement('div');
+        box.className = 'attribute-box ' + status;
+        if (shouldAnimate) {
+            box.classList.add('animate-flip');
+            box.style.animationDelay = `${(idx + 1) * 0.1}s`;
+        }
+        box.textContent = f.val;
+        row.appendChild(box);
     });
 
-    row.innerHTML = html;
     guessesContainer.insertBefore(row, guessesContainer.firstChild);
 }
 
@@ -227,23 +438,28 @@ function restoreProgress() {
 
     guessesHistory = saved.history || [];
     gameOver = saved.gameOver;
+    userScore = saved.score || 0;
+    scoreValEl.textContent = userScore;
 
     guessesHistory.forEach(champName => {
         const champ = CHAMPIONS.find(c => c.name === champName);
-        if (champ) renderRowUI(champ);
+        if (champ) renderRowUI(champ, false);
     });
+
+    checkHintState();
 
     if (gameOver) {
         inputEl.disabled = true;
         btnGuess.disabled = true;
-        toastEl.textContent = saved.passed ? "Daily Loldle Solved!" : `Mystery Champion was: ${TARGET_CHAMP.name}`;
+        toastEl.textContent = saved.passed ? `Daily Loldle Solved! Final Score: ${userScore}` : `Mystery Champion was: ${TARGET_CHAMP.name}`;
     }
 }
 
-function saveProgress(passed) {
+function saveProgress(passed = false) {
     localStorage.setItem(`loldle_ddragon_save_${TODAY_DATE_STR}`, JSON.stringify({
         date: TODAY_DATE_STR,
         history: guessesHistory,
+        score: userScore,
         gameOver: gameOver,
         passed: passed
     }));
@@ -252,6 +468,5 @@ function saveProgress(passed) {
 // Start Game
 fetchChampionsData();
 
-inputEl.addEventListener('input', handleAutocomplete);
+inputEl.addEventListener('input', debounce(handleAutocomplete, 150));
 btnGuess.addEventListener('click', submitGuess);
-inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') submitGuess(); });

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Highway Racer · Enhanced</title>
+    <link rel="icon" type="image/png" href="https://a.storyblok.com/f/118112/3200x1440/65ff1ae54d/twingo_jaune.png/m/1536x0/filters:format(png)">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -72,7 +73,7 @@
             margin-top: 0.6rem;
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 1.2rem;
             flex-wrap: wrap;
             color: #94a3b8;
             font-size: 0.75rem;
@@ -90,7 +91,6 @@
             transition: 0.2s;
         }
         .shop-toggle:hover { background: #00f2fe22; color: #00f2fe; }
-        /* Shop Modal */
         .shop-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -117,7 +117,17 @@
         .shop-panel h2 i { color: #facc15; }
         .close-shop { background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; }
         .close-shop:hover { color: #fff; }
-        .vehicle-card {
+        
+        .section-header {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00f2fe;
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 800;
+        }
+
+        .upgrade-card, .vehicle-card {
             background: rgba(255,255,255,0.03);
             border-radius: 14px;
             padding: 0.8rem 1rem;
@@ -128,15 +138,21 @@
             border: 1px solid rgba(255,255,255,0.04);
             transition: 0.2s;
         }
-        .vehicle-card:hover { background: rgba(255,255,255,0.06); }
-        .vehicle-card .info { display: flex; align-items: center; gap: 0.8rem; }
+        .upgrade-card:hover, .vehicle-card:hover { background: rgba(255,255,255,0.06); }
+        .vehicle-card .info, .upgrade-card .info { display: flex; align-items: center; gap: 0.8rem; }
         .vehicle-card .color-dot {
             width: 28px; height: 28px; border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.1);
         }
-        .vehicle-card .name { font-weight: 600; font-size: 0.9rem; }
-        .vehicle-card .price { font-size: 0.75rem; color: #94a3b8; }
-        .vehicle-card .price i { color: #facc15; margin-right: 0.2rem; }
+        .upgrade-card .icon-box {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: rgba(0,242,254,0.1); border: 1px solid rgba(0,242,254,0.3);
+            display: flex; align-items: center; justify-content: center;
+            color: #00f2fe; font-size: 0.9rem;
+        }
+        .name { font-weight: 600; font-size: 0.9rem; }
+        .price { font-size: 0.75rem; color: #94a3b8; }
+        .price i { color: #facc15; margin-right: 0.2rem; }
         .buy-btn {
             background: #00f2fe22;
             border: 1px solid #00f2fe44;
@@ -151,6 +167,7 @@
         .buy-btn:hover { background: #00f2fe44; }
         .buy-btn.owned { background: #22c55e22; border-color: #22c55e44; color: #22c55e; cursor: default; }
         .buy-btn.equipped { background: #facc1522; border-color: #facc1544; color: #facc15; cursor: default; }
+        .buy-btn.maxed { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #94a3b8; cursor: default; }
         .buy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .achievement-toast {
             position: fixed;
@@ -173,6 +190,47 @@
             align-items: center;
             gap: 0.6rem;
         }
+        /* Clean, Unobtrusive Mobile Overlay */
+.touch-layer {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: auto;
+    display: none;
+    z-index: 10;
+    touch-action: none; /* Prevents browser scrolling during swipes */
+}
+
+@media (pointer: coarse), (max-width: 768px) {
+    .touch-layer { display: block; }
+}
+
+/* Floating Honk Button (Keeps Dashboard Clear) */
+.touch-btn-honk {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    pointer-events: auto;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(0, 242, 254, 0.4);
+    color: #00f2fe;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    backdrop-filter: blur(6px);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.touch-btn-honk:active {
+    background: rgba(0, 242, 254, 0.4);
+    color: #fff;
+    transform: scale(0.92);
+}
         .achievement-toast.show { opacity: 1; }
         .achievement-toast i { font-size: 1.2rem; }
         ::-webkit-scrollbar { width: 4px; }
@@ -191,22 +249,33 @@
 </div>
 <div class="game-wrapper">
     <canvas id="gameCanvas" width="400" height="600"></canvas>
+    
+    <!-- Minimal Touch Overlay -->
+    <div class="touch-layer" id="touchLayer">
+        <button class="touch-btn-honk" id="tHonk"><i class="fa-solid fa-bullhorn"></i></button>
+    </div>
 </div>
 <div class="controls">
     <span><i class="fa-solid fa-arrow-left"></i><i class="fa-solid fa-arrow-right"></i> Lanes</span>
-    <span><i class="fa-solid fa-arrow-up"></i> Boost</span>
+    <span><i class="fa-solid fa-arrow-up"></i> Throttle</span>
     <span><i class="fa-solid fa-arrow-down"></i> Brake</span>
+    <span><strong>Shift/Ctrl</strong> Gear Up/Down</span>
+    <span><i class="fa-solid fa-bullhorn"></i> <strong>H / Space</strong> Honk</span>
 </div>
 
 <!-- Shop Modal -->
 <div class="shop-overlay" id="shopOverlay">
     <div class="shop-panel">
         <h2><span><i class="fa-solid fa-car"></i> Garage</span> <span><i class="fa-solid fa-coins"></i> <span id="shopCurrency">0</span> <button class="close-shop" id="closeShop"><i class="fa-solid fa-xmark"></i></button></span></h2>
+        
+        <div class="section-header">Performance Upgrades</div>
+        <div id="upgradeList"></div>
+
+        <div class="section-header">Vehicle Skins</div>
         <div id="shopList"></div>
     </div>
 </div>
 
-<!-- Achievement Toast -->
 <div class="achievement-toast" id="achievementToast"><i class="fa-solid fa-trophy"></i> <span id="achText">Achievement Unlocked!</span></div>
     <script src="highway.js"></script>
 </body>

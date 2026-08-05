@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chromium Games | Arcade Hub</title>
+    <link rel="icon" type="image/png" href="https://png.pngtree.com/png-clipart/20250426/original/pngtree-neon-game-controller-icon-in-blue-and-pink-glow-png-image_20885567.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -128,6 +129,29 @@
             box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
             border-color: var(--accent-cyan);
             transform: translateY(-2px);
+        }
+
+        /* Random game button (compact) */
+        .random-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.45rem 0.9rem;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .random-btn:hover {
+            box-shadow: 0 0 12px var(--accent-cyan);
+            transform: translateY(-2px);
+            border-color: var(--accent-cyan);
         }
 
         header {
@@ -468,6 +492,11 @@
                 <button class="category-btn" data-category="action">Action</button>
                 <button class="category-btn" data-category="retro">Retro</button>
             </div>
+
+            <!-- Quick Random Game Button -->
+            <button id="random-btn" class="random-btn" title="Surprise me!">
+                <i class="fa-solid fa-dice"></i> Random
+            </button>
         </section>
 
         <!-- Dynamic Game Cards Grid -->
@@ -519,6 +548,23 @@
                     <p>Guess the League of Legends champion in 6 tries. Reset every single day.</p>
                     <div class="card-footer">
                         <span class="genre-tag">LoL Game</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Boggle-like Card -->
+            <a href="wordGames/boggle.html" class="game-card" data-category="word" data-name="boggle word search grid">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #0b1220);">
+                    <div class="badge">New</div>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
+                    <i class="fa-solid fa-dice banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Grid Word Finder</h3>
+                    <p>Find as many words as you can on a 4x4 letter grid. Words must be adjacent and at least 3 letters long.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Word Game</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
@@ -621,17 +667,32 @@
                 </div>
             </a>
 
-            <!-- Flight Simulator -->
-            <a href="games/flightsim.html" class="game-card" data-category="action" data-name="flight simulator">
+            <!-- Asteroids -->
+            <a href="games/asteroids.html" class="game-card" data-category="action" data-name="flight simulator">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #1e1b4b, #4338ca, #312e81, #0f172a);">
+                    <canvas class="preview-canvas" data-type="flight-radar"></canvas>
+                    <i class="fa-solid fa-rocket banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Asteroids</h3>
+                    <p>Defend your ship against waves of asteroids in this classic arcade game.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Arcade</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+            <!-- Space Invaders -->
+            <a href="games/spaceinvaders.html" class="game-card" data-category="action" data-name="flight simulator">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #1e1b4b, #4338ca, #312e81, #0f172a);">
                     <canvas class="preview-canvas" data-type="flight-radar"></canvas>
                     <i class="fa-solid fa-plane banner-glyph"></i>
                 </div>
                 <div class="card-details">
-                    <h3>Flight Simulator</h3>
-                    <p>Experience the thrill of flying with realistic physics and controls.</p>
+                    <h3>Space Invaders</h3>
+                    <p>Defend Earth from alien invaders in this iconic arcade game.</p>
                     <div class="card-footer">
-                        <span class="genre-tag">Simulation</span>
+                        <span class="genre-tag">Arcade</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
@@ -857,6 +918,33 @@
                 }
             });
         });
+
+        /* --- Random Game Picker --- */
+        const randomBtn = document.getElementById('random-btn');
+        if (randomBtn) {
+            randomBtn.addEventListener('click', () => {
+                const visible = Array.from(cards).filter(c => c.style.display !== 'none');
+                if (visible.length === 0) {
+                    alert('No games match your current filters.');
+                    return;
+                }
+                const pick = visible[Math.floor(Math.random() * visible.length)];
+
+                // brief highlight animation before navigating
+                pick.style.transition = 'transform 0.25s ease, box-shadow 0.25s ease';
+                pick.style.transform = 'scale(1.04)';
+                pick.style.boxShadow = '0 20px 40px rgba(0,0,0,0.6), 0 0 25px var(--primary-glow)';
+
+                // record a tiny stat for curiosity
+                const key = 'random_plays';
+                localStorage.setItem(key, (parseInt(localStorage.getItem(key) || '0', 10) + 1).toString());
+
+                setTimeout(() => {
+                    const href = pick.getAttribute('href');
+                    if (href) window.location.href = href;
+                }, 220);
+            });
+        }
 
         /* --- Leaderboard Modal Logic --- */
         const modal = document.getElementById('leaderboard-modal');

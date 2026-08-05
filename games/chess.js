@@ -47,19 +47,16 @@ const Sound = {
     }
 };
 
-// --- Unicode Chess Symbols ---
 const PIECE_SYMBOLS = {
     'P': '♟', 'R': '♜', 'N': '♞', 'B': '♝', 'Q': '♛', 'K': '♚',
     'p': '♟', 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚'
 };
 
-// Piece point values for Minimax Evaluation
 const PIECE_VALUES = {
     'p': 10, 'n': 30, 'b': 30, 'r': 50, 'q': 90, 'k': 900,
     'P': -10, 'N': -30, 'B': -30, 'R': -50, 'Q': -90, 'K': -900
 };
 
-// Initial Starting Board Matrix
 const INITIAL_BOARD = [
     ['r','n','b','q','k','b','n','r'],
     ['p','p','p','p','p','p','p','p'],
@@ -71,7 +68,6 @@ const INITIAL_BOARD = [
     ['R','N','B','Q','K','B','N','R']
 ];
 
-// Puzzle Database Definitions
 const PUZZLES = [
     {
         name: "Mate in 1 - Scholar's Mate Finish",
@@ -105,13 +101,15 @@ const PUZZLES = [
 
 // --- Engine State ---
 let boardState = [];
-let turn = 'w'; // 'w' or 'b'
+let turn = 'w';
 let selectedSquare = null;
+let lastMove = null;
 let validMoves = [];
 let moveLog = [];
-let gameMode = 'ai'; // 'ai' or 'puzzle'
+let gameMode = 'ai';
 let currentPuzzleIdx = 0;
 let aiDifficulty = 3;
+let isAnimating = false; // Prevents click overlap during motion
 
 // --- DOM References ---
 const boardEl = document.getElementById('board');
@@ -124,7 +122,6 @@ const btnPuzzles = document.getElementById('btn-puzzles');
 const puzzlePanel = document.getElementById('puzzle-panel');
 const puzzleDesc = document.getElementById('puzzle-desc');
 
-// --- Initialization ---
 function initBoard(customBoard = null) {
     boardState = customBoard 
         ? JSON.parse(JSON.stringify(customBoard))
@@ -132,61 +129,119 @@ function initBoard(customBoard = null) {
         
     turn = 'w';
     selectedSquare = null;
+    lastMove = null;
     validMoves = [];
     moveLog = [];
+    isAnimating = false;
     renderLog();
     renderBoard();
     updateStatus();
 }
 
-// --- Render Board Grid ---
+// --- Optimized Render Board Grid ---
 function renderBoard() {
-    boardEl.innerHTML = '';
-    
+    // Only build the DOM elements on initial load or full reset
+    if (boardEl.children.length !== 64) {
+        boardEl.innerHTML = '';
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const sq = document.createElement('div');
+                const isLight = (r + c) % 2 === 0;
+                sq.className = `square ${isLight ? 'light' : 'dark'}`;
+                sq.dataset.row = r;
+                sq.dataset.col = c;
+                sq.addEventListener('click', () => handleSquareClick(r, c));
+                boardEl.appendChild(sq);
+            }
+        }
+    }
+
+    // Smoothly update board squares without destroying DOM elements
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
-            const sq = document.createElement('div');
-            const isLight = (r + c) % 2 === 0;
-            sq.className = `square ${isLight ? 'light' : 'dark'}`;
-            sq.dataset.row = r;
-            sq.dataset.col = c;
-
+            const sq = boardEl.children[r * 8 + c];
             const piece = boardState[r][c];
-            if (piece !== '.') {
-                const isWhite = piece === piece.toUpperCase();
-                const pSpan = document.createElement('span');
-                pSpan.className = isWhite ? 'white-piece' : 'black-piece';
-                pSpan.textContent = PIECE_SYMBOLS[piece];
-                sq.appendChild(pSpan);
-            }
 
-            // Highlight Selected Square
+            // Update square selection & move highlight classes
+            sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+
             if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) {
                 sq.classList.add('selected');
             }
 
-            // Highlight Valid Move Targets
+            if (lastMove) {
+                if (lastMove.fromR === r && lastMove.fromC === c) sq.classList.add('last-move-from');
+                if (lastMove.toR === r && lastMove.toC === c) sq.classList.add('last-move-to');
+            }
+
             const isMove = validMoves.some(m => m.r === r && m.c === c);
             if (isMove) {
                 if (boardState[r][c] !== '.') sq.classList.add('valid-capture');
                 else sq.classList.add('valid-move');
             }
 
-            sq.addEventListener('click', () => handleSquareClick(r, c));
-            boardEl.appendChild(sq);
+            // Sync piece contents
+            let pSpan = sq.querySelector('.piece');
+            if (piece !== '.') {
+                const isWhite = piece === piece.toUpperCase();
+                if (!pSpan) {
+                    pSpan = document.createElement('span');
+                    sq.appendChild(pSpan);
+                }
+                pSpan.className = `piece ${isWhite ? 'white-piece' : 'black-piece'}`;
+                pSpan.textContent = PIECE_SYMBOLS[piece];
+                pSpan.style.transform = 'none'; // Reset animation offsets
+                pSpan.style.zIndex = '1';
+            } else if (pSpan) {
+                pSpan.remove();
+            }
         }
     }
 }
 
-// --- Square Click Logic ---
+// --- Animated Piece Motion Handler ---
+function animateAndMove(fromR, fromC, toR, toC) {
+    isAnimating = true;
+
+    const fromSq = boardEl.children[fromR * 8 + fromC];
+    const toSq = boardEl.children[toR * 8 + toC];
+    const pieceEl = fromSq ? fromSq.querySelector('.piece') : null;
+
+    if (!fromSq || !toSq || !pieceEl) {
+        makeMove(fromR, fromC, toR, toC);
+        isAnimating = false;
+        return;
+    }
+
+    const fromRect = fromSq.getBoundingClientRect();
+    const toRect = toSq.getBoundingClientRect();
+
+    const deltaX = toRect.left - fromRect.left;
+    const deltaY = toRect.top - fromRect.top;
+
+    // Apply smooth linear sliding transition
+    pieceEl.style.zIndex = '100';
+    pieceEl.style.transition = 'transform 0.2s ease-in-out';
+    pieceEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+    setTimeout(() => {
+        makeMove(fromR, fromC, toR, toC);
+        isAnimating = false;
+        
+        if (gameMode === 'ai' && turn === 'b') {
+            setTimeout(triggerAiMove, 250);
+        }
+    }, 200);
+}
+
 function handleSquareClick(r, c) {
+    if (isAnimating) return; // Block clicks while animating
     initAudio();
-    if (gameMode === 'ai' && turn === 'b') return; // Ignore input on AI turn
+    if (gameMode === 'ai' && turn === 'b') return;
 
     const piece = boardState[r][c];
     const isWhite = piece !== '.' && piece === piece.toUpperCase();
 
-    // Select Player Piece
     if (piece !== '.' && ((turn === 'w' && isWhite) || (turn === 'b' && !isWhite))) {
         selectedSquare = { r, c };
         validMoves = getValidMovesForPiece(r, c, boardState);
@@ -194,18 +249,12 @@ function handleSquareClick(r, c) {
         return;
     }
 
-    // Execute Move
     if (selectedSquare) {
         const targetMove = validMoves.find(m => m.r === r && m.c === c);
         if (targetMove) {
-            makeMove(selectedSquare.r, selectedSquare.c, r, c);
+            animateAndMove(selectedSquare.r, selectedSquare.c, r, c);
             selectedSquare = null;
             validMoves = [];
-            
-            // Trigger AI turn if in AI mode
-            if (gameMode === 'ai' && turn === 'b') {
-                setTimeout(triggerAiMove, 300);
-            }
         } else {
             selectedSquare = null;
             validMoves = [];
@@ -214,26 +263,58 @@ function handleSquareClick(r, c) {
     }
 }
 
-// --- Execute Move & Switch Turn ---
+// --- Animated Piece Motion Handler ---
+function animateAndMove(fromR, fromC, toR, toC) {
+    isAnimating = true;
+
+    const fromSq = boardEl.children[fromR * 8 + fromC];
+    const toSq = boardEl.children[toR * 8 + toC];
+    const pieceEl = fromSq ? fromSq.querySelector('.piece') : null;
+
+    if (!fromSq || !toSq || !pieceEl) {
+        makeMove(fromR, fromC, toR, toC);
+        isAnimating = false;
+        return;
+    }
+
+    const fromRect = fromSq.getBoundingClientRect();
+    const toRect = toSq.getBoundingClientRect();
+
+    const deltaX = toRect.left - fromRect.left;
+    const deltaY = toRect.top - fromRect.top;
+
+    // Apply smooth linear sliding transition
+    pieceEl.style.zIndex = '100';
+    pieceEl.style.transition = 'transform 0.2s ease-in-out';
+    pieceEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+    setTimeout(() => {
+        makeMove(fromR, fromC, toR, toC);
+        isAnimating = false;
+        
+        if (gameMode === 'ai' && turn === 'b') {
+            setTimeout(triggerAiMove, 250);
+        }
+    }, 200);
+}
+
 function makeMove(fromR, fromC, toR, toC) {
     const piece = boardState[fromR][fromC];
     const target = boardState[toR][toC];
 
-    // Sound Trigger
+    lastMove = { fromR, fromC, toR, toC };
+
     if (target !== '.') Sound.capture();
     else Sound.move();
 
-    // Log Move Notation
     const colNames = ['a','b','c','d','e','f','g','h'];
     const notation = `${piece.toUpperCase()}${colNames[fromC]}${8-fromR} → ${colNames[toC]}${8-toC}`;
     moveLog.push(notation);
     renderLog();
 
-    // Update Board Matrix
     boardState[toR][toC] = piece;
     boardState[fromR][fromC] = '.';
 
-    // Puzzle Verification Logic
     if (gameMode === 'puzzle') {
         const puzzle = PUZZLES[currentPuzzleIdx];
         if (fromR === puzzle.solution.fromR && fromC === puzzle.solution.fromC &&
@@ -247,16 +328,15 @@ function makeMove(fromR, fromC, toR, toC) {
         }
     }
 
-    // Pawn Promotion (Auto-Queen)
     if (piece === 'P' && toR === 0) boardState[toR][toC] = 'Q';
     if (piece === 'p' && toR === 7) boardState[toR][toC] = 'q';
 
     turn = turn === 'w' ? 'b' : 'w';
     updateStatus();
     renderBoard();
+    autoSaveGame();
 }
 
-// --- Move Generation Logic ---
 function getValidMovesForPiece(r, c, board) {
     const piece = board[r][c];
     if (piece === '.') return [];
@@ -275,13 +355,12 @@ function getValidMovesForPiece(r, c, board) {
             const target = board[tr][tc];
             if (target === '.' || isEnemy(target)) {
                 moves.push({ r: tr, c: tc });
-                return target === '.'; // Keep scanning ray if empty square
+                return target === '.';
             }
         }
         return false;
     };
 
-    // Pawns
     if (type === 'p') {
         const dir = isWhite ? -1 : 1;
         const startRow = isWhite ? 6 : 1;
@@ -292,7 +371,6 @@ function getValidMovesForPiece(r, c, board) {
                 moves.push({ r: r + 2 * dir, c });
             }
         }
-        // Captures
         [-1, 1].forEach(dc => {
             if (c + dc >= 0 && c + dc < 8 && board[r + dir]) {
                 const target = board[r + dir][c + dc];
@@ -301,13 +379,11 @@ function getValidMovesForPiece(r, c, board) {
         });
     }
 
-    // Knights
     if (type === 'n') {
         const offsets = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
         offsets.forEach(([dr, dc]) => addMove(r + dr, c + dc));
     }
 
-    // Bishops, Rooks, Queens, Kings
     const rayDirections = {
         'b': [[-1,-1],[-1,1],[1,-1],[1,1]],
         'r': [[-1,0],[1,0],[0,-1],[0,1]],
@@ -319,7 +395,7 @@ function getValidMovesForPiece(r, c, board) {
         rayDirections[type].forEach(([dr, dc]) => {
             let step = 1;
             while (addMove(r + dr * step, c + dc * step)) {
-                if (type === 'k') break; // King steps only once
+                if (type === 'k') break;
                 step++;
             }
         });
@@ -328,7 +404,6 @@ function getValidMovesForPiece(r, c, board) {
     return moves;
 }
 
-// --- AI Minimax Engine ---
 function evaluateBoard(board) {
     let score = 0;
     for (let r = 0; r < 8; r++) {
@@ -353,7 +428,6 @@ function minimax(board, depth, isMaximizing, alpha, beta) {
             if (piece !== '.' && ((side === 'w' && piece === piece.toUpperCase()) || (side === 'b' && piece === piece.toLowerCase()))) {
                 const moves = getValidMovesForPiece(r, c, board);
                 for (const move of moves) {
-                    // Copy & Simulate Move
                     const boardCopy = JSON.parse(JSON.stringify(board));
                     boardCopy[move.r][move.c] = piece;
                     boardCopy[r][c] = '.';
@@ -383,16 +457,47 @@ function minimax(board, depth, isMaximizing, alpha, beta) {
 }
 
 function triggerAiMove() {
-    // Map slider level 1-5 to search depth
     const depth = Math.min(3, Math.ceil(aiDifficulty / 2));
     const result = minimax(boardState, depth, true, -Infinity, Infinity);
 
     if (result.move) {
-        makeMove(result.move.fromR, result.move.fromC, result.move.toR, result.move.toC);
+        animateAndMove(result.move.fromR, result.move.fromC, result.move.toR, result.move.toC);
     }
 }
 
-// --- UI Updates ---
+function autoSaveGame() {
+    if (gameMode !== 'ai') return;
+    const saveState = { boardState, turn, moveLog, lastMove, aiDifficulty };
+    localStorage.setItem('neon_chess_autosave', JSON.stringify(saveState));
+}
+
+function manualSaveGame() {
+    autoSaveGame();
+    statusEl.textContent = "Game Saved Successfully!";
+}
+
+function loadSavedGame() {
+    const saved = JSON.parse(localStorage.getItem('neon_chess_autosave'));
+    if (!saved) {
+        statusEl.textContent = "No Saved Game Found!";
+        return;
+    }
+
+    boardState = saved.boardState;
+    turn = saved.turn;
+    moveLog = saved.moveLog || [];
+    lastMove = saved.lastMove || null;
+    aiDifficulty = saved.aiDifficulty || 3;
+
+    diffSlider.value = aiDifficulty;
+    diffVal.textContent = aiDifficulty;
+
+    renderLog();
+    renderBoard();
+    updateStatus();
+    statusEl.textContent = "Game Loaded!";
+}
+
 function updateStatus() {
     if (gameMode === 'ai') {
         statusEl.textContent = turn === 'w' ? "White's Turn (You)" : "Black's Turn (AI Thinking...)";
@@ -410,7 +515,6 @@ function renderLog() {
     moveLogEl.scrollTop = moveLogEl.scrollHeight;
 }
 
-// --- Control Event Listeners ---
 diffSlider.addEventListener('input', (e) => {
     aiDifficulty = parseInt(e.target.value);
     diffVal.textContent = aiDifficulty;
@@ -448,9 +552,19 @@ function loadPuzzle(idx) {
 }
 
 document.getElementById('btn-reset').addEventListener('click', () => {
+    initAudio();
     if (gameMode === 'puzzle') loadPuzzle(currentPuzzleIdx);
     else initBoard();
 });
 
-// Start Default Game
+document.getElementById('btn-save').addEventListener('click', () => {
+    initAudio();
+    manualSaveGame();
+});
+
+document.getElementById('btn-load').addEventListener('click', () => {
+    initAudio();
+    loadSavedGame();
+});
+
 initBoard();

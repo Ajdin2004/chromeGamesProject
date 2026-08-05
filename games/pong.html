@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Pong | Chromium Games</title>
+    <link rel="icon" type="image/png" href="https://pngfre.com/wp-content/uploads/Table-Tennis-7.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -58,10 +59,20 @@
             color: var(--primary-cyan);
         }
 
+        .settings-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 600px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .mode-selector {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            gap: 0.35rem;
             background: var(--card-bg);
             padding: 0.35rem;
             border-radius: 10px;
@@ -72,7 +83,7 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 0.4rem 0.9rem;
+            padding: 0.4rem 0.8rem;
             border-radius: 6px;
             font-weight: 600;
             font-size: 0.85rem;
@@ -84,6 +95,30 @@
             background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta));
             color: #000;
             font-weight: 800;
+        }
+
+        .control-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card-bg);
+            padding: 0.35rem 0.75rem;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .control-box select {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--card-border);
+            color: var(--primary-cyan);
+            font-weight: 700;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
         }
 
         .game-wrapper {
@@ -114,9 +149,30 @@
         <h2>Neon Pong</h2>
     </div>
 
-    <div class="mode-selector">
-        <button class="mode-btn active" data-mode="ai">1 Player vs AI</button>
-        <button class="mode-btn" data-mode="pvp">2 Players</button>
+    <div class="settings-bar">
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="ai">1 Player vs AI</button>
+            <button class="mode-btn" data-mode="pvp">2 Players</button>
+        </div>
+
+        <div class="control-box" id="ai-difficulty-box">
+            <label for="ai-diff">AI Level:</label>
+            <select id="ai-diff">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+                <option value="impossible">Unbeatable</option>
+            </select>
+        </div>
+
+        <div class="control-box">
+            <label for="score-limit">Target Score:</label>
+            <select id="score-limit">
+                <option value="3">3 Points</option>
+                <option value="5" selected>5 Points</option>
+                <option value="10">10 Points</option>
+            </select>
+        </div>
     </div>
 
     <div class="game-wrapper">
