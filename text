@@ -1,0 +1,13 @@
+Daily Wordle — Classic 5-letter daily word-guessing puzzle: guess the target in up to 6 tries with per-letter feedback (correct/present/absent).
+Daily Earthdle — Geography guessing game using an interactive 3D globe: spin/inspect the globe and guess the country in limited attempts. Includes mobile/touch mitigation and a starry background for a space look.
+Daily Riddler — Daily riddle word game (new): a short riddle gives a clue to a target word; you get up to 7 guesses with per-letter feedback and a “related-word” hint for each guess.
+Daily Loldle — League of Legends-themed daily guess game: guess the champion name (same daily-guess style as Wordle but with champion data and hints).
+Grid Word Finder (Boggle-like) — 4x4 letter grid: find as many valid words as possible by chaining adjacent letters; emphasizes speed and pattern recognition.
+Flappy Bird Clone — Physics-based arcade: tap/press to flap and navigate a bird through gaps in obstacles.
+Snake — Classic Snake: grow the snake by eating fruit, avoid collisions and manage limited space.
+Block Puzzler (Tetris-style) — Falling-block puzzle: rotate and place tetromino-like pieces to clear lines; includes ghost pieces and line-clearing mechanics.
+Chess — Standard chess implementation: two-player strategy with standard rules and move validation.
+Neon Pong — Neon-themed Pong: fast paddle-and-ball gameplay with single-player AI and local two-player modes.
+Highway Racer — Top/third-person highway dodging: steer to avoid traffic in a pseudo-3D road environment.
+Asteroids — Classic Asteroids arcade: pilot a ship, shoot or evade asteroids; touch/gesture controls added (swipe to steer/thrust, tap to shoot).
+Space Invaders — Retro Space Invaders: defend Earth from alien waves; includes touch/tap controls for mobile (tap halves to move, tap to shoot).
