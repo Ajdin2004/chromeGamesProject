@@ -132,6 +132,21 @@ let enemySpawnTimer = 0;
 let lastShotTime = 0;
 const keys = {};
 
+const touchState = {
+    active: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    moved: false,
+    downTime: 0
+};
+
+function resetAsteroidsTouchControls() {
+    keys['ArrowLeft'] = false;
+    keys['ArrowRight'] = false;
+    keys['ArrowUp'] = false;
+}
+
 const POWERUP_TYPES = [
     { type: 'shield', color: '#00f2fe', label: '🛡️ SHIELD', duration: 360 },
     { type: 'triple', color: '#a855f7', label: '⚡ TRIPLE', duration: 360 },
@@ -255,6 +270,8 @@ function resetGame() {
     particles = [];
     enemyShip = null;
     enemySpawnTimer = 300;
+    touchState.active = false;
+    resetAsteroidsTouchControls();
     createWave();
     gameState = STATE_PLAYING;
 }
@@ -782,6 +799,76 @@ window.addEventListener('keydown', e => {
 });
 
 window.addEventListener('keyup', e => keys[e.key] = false);
+
+const canvasElement = document.getElementById('gameCanvas');
+
+canvasElement.style.touchAction = 'none';
+
+canvasElement.addEventListener('pointerdown', e => {
+    initAudio();
+    if (gameState !== STATE_PLAYING) {
+        resetGame();
+        return;
+    }
+
+    canvasElement.setPointerCapture(e.pointerId);
+    touchState.active = true;
+    touchState.pointerId = e.pointerId;
+    touchState.startX = e.clientX;
+    touchState.startY = e.clientY;
+    touchState.moved = false;
+    touchState.downTime = Date.now();
+
+    const dx = e.clientX - canvasElement.getBoundingClientRect().left - canvasElement.width / 2;
+    if (Math.abs(dx) > 20) {
+        keys['ArrowLeft'] = dx < 0;
+        keys['ArrowRight'] = dx > 0;
+    }
+});
+
+canvasElement.addEventListener('pointermove', e => {
+    if (!touchState.active || e.pointerId !== touchState.pointerId) return;
+    e.preventDefault();
+
+    const dx = e.clientX - touchState.startX;
+    const dy = e.clientY - touchState.startY;
+    touchState.moved = Math.abs(dx) > 12 || Math.abs(dy) > 12;
+
+    keys['ArrowLeft'] = dx < -20;
+    keys['ArrowRight'] = dx > 20;
+    keys['ArrowUp'] = dy < -20;
+});
+
+canvasElement.addEventListener('pointerup', e => {
+    if (!touchState.active || e.pointerId !== touchState.pointerId) return;
+    e.preventDefault();
+    canvasElement.releasePointerCapture(e.pointerId);
+
+    const dx = e.clientX - touchState.startX;
+    const dy = e.clientY - touchState.startY;
+    const duration = Date.now() - touchState.downTime;
+
+    if (!touchState.moved && duration < 300 && gameState === STATE_PLAYING) {
+        const now = Date.now();
+        const fireCooldown = ship.rapidFireTimer > 0 ? 80 : 160;
+        if (now - lastShotTime > fireCooldown) {
+            fireBullets();
+            lastShotTime = now;
+        }
+    }
+
+    touchState.active = false;
+    touchState.pointerId = null;
+    resetAsteroidsTouchControls();
+});
+
+canvasElement.addEventListener('pointercancel', e => {
+    if (touchState.active && e.pointerId === touchState.pointerId) {
+        touchState.active = false;
+        touchState.pointerId = null;
+        resetAsteroidsTouchControls();
+    }
+});
 
 setInterval(() => {
     if (gameState === STATE_PLAYING && keys[' '] && ship.rapidFireTimer > 0) {

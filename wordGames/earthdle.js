@@ -62,8 +62,9 @@
 
             worldGlobe = Globe()
                 (container)
-                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg')
+                .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
                 .backgroundColor('rgba(0,0,0,0)')
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg')
                 .polygonSideColor(() => 'rgba(0, 242, 254, 0.15)')
                 .polygonStrokeColor(() => '#00f2fe')
                 .polygonCapColor(d => d.properties.customColor || 'rgba(15, 23, 42, 0.6)')

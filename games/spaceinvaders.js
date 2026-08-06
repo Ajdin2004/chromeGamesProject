@@ -87,6 +87,20 @@ let lastShotTime = 0;
 let animationFrame = 0;
 const keys = {};
 
+const touchState = {
+    active: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    moved: false,
+    downTime: 0
+};
+
+function resetInvadersTouchControls() {
+    keys['ArrowLeft'] = false;
+    keys['ArrowRight'] = false;
+}
+
 // --- Vector Graphics Rendering Helpers ---
 
 // Render Player Spaceship
@@ -538,6 +552,77 @@ window.addEventListener('keydown', e => {
 });
 
 window.addEventListener('keyup', e => keys[e.key] = false);
+
+const canvasElement = document.getElementById('gameCanvas');
+
+canvasElement.style.touchAction = 'none';
+
+canvasElement.addEventListener('pointerdown', e => {
+    initAudio();
+    if (gameState !== STATE_PLAYING) {
+        resetGame();
+        return;
+    }
+
+    canvasElement.setPointerCapture(e.pointerId);
+    touchState.active = true;
+    touchState.pointerId = e.pointerId;
+    touchState.startX = e.clientX;
+    touchState.startY = e.clientY;
+    touchState.moved = false;
+    touchState.downTime = Date.now();
+
+    const rect = canvasElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    keys['ArrowLeft'] = x < rect.width / 2;
+    keys['ArrowRight'] = x > rect.width / 2;
+});
+
+canvasElement.addEventListener('pointermove', e => {
+    if (!touchState.active || e.pointerId !== touchState.pointerId) return;
+    e.preventDefault();
+
+    const rect = canvasElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    touchState.moved = Math.abs(e.clientX - touchState.startX) > 12 || Math.abs(e.clientY - touchState.startY) > 12;
+
+    keys['ArrowLeft'] = x < rect.width / 2;
+    keys['ArrowRight'] = x > rect.width / 2;
+});
+
+canvasElement.addEventListener('pointerup', e => {
+    if (!touchState.active || e.pointerId !== touchState.pointerId) return;
+    e.preventDefault();
+    canvasElement.releasePointerCapture(e.pointerId);
+
+    const duration = Date.now() - touchState.downTime;
+    if (!touchState.moved && duration < 300 && gameState === STATE_PLAYING) {
+        const now = Date.now();
+        if (now - lastShotTime > 200) {
+            Sound.laser();
+            if (player.tripleShotTimer > 0) {
+                bullets.push({ x: player.x + player.w / 2 - 12, y: player.y, id: Math.random() });
+                bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
+                bullets.push({ x: player.x + player.w / 2 + 12, y: player.y, id: Math.random() });
+            } else {
+                bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
+            }
+            lastShotTime = now;
+        }
+    }
+
+    touchState.active = false;
+    touchState.pointerId = null;
+    resetInvadersTouchControls();
+});
+
+canvasElement.addEventListener('pointercancel', e => {
+    if (touchState.active && e.pointerId === touchState.pointerId) {
+        touchState.active = false;
+        touchState.pointerId = null;
+        resetInvadersTouchControls();
+    }
+});
 
 // --- Loop ---
 function gameLoop() {
