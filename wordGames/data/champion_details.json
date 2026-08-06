@@ -1,0 +1,1199 @@
+{
+  "Aatrox": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Darkin, Void",
+    "region": "Shurima",
+    "releaseYear": "2013"
+  },
+  "Ahri": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Spirit, Undead, Vastaya",
+    "region": "Ionia",
+    "releaseYear": "2011"
+  },
+  "Akali": {
+    "gender": "Female",
+    "position": "Middle, Top",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2010"
+  },
+  "Akshan": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Sentinel",
+    "region": "Shurima",
+    "releaseYear": "2021"
+  },
+  "Alistar": {
+    "gender": "Male",
+    "position": "Support",
+    "species": "Human",
+    "region": "Runeterra",
+    "releaseYear": "2009"
+  },
+  "Ambessa": {
+    "gender": "Female",
+    "position": "Top",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2024"
+  },
+  "Amumu": {
+    "gender": "Male",
+    "position": "Jungle, Support",
+    "species": "Human",
+    "region": "Shurima",
+    "releaseYear": "2009"
+  },
+  "Anivia": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Spirit, Undead",
+    "region": "Freljord",
+    "releaseYear": "2009"
+  },
+  "Annie": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2009"
+  },
+  "Aphelios": {
+    "gender": "Male",
+    "position": "Bottom",
+    "species": "Human",
+    "region": "Mount-Targon",
+    "releaseYear": "2019"
+  },
+  "Ashe": {
+    "gender": "Female",
+    "position": "Bottom, Support",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2009"
+  },
+  "AurelionSol": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Spirit, Targon",
+    "region": "Runeterra",
+    "releaseYear": "2016"
+  },
+  "Aurora": {
+    "gender": "Female",
+    "position": "Middle, Top",
+    "species": "Spirit, Undead",
+    "region": "Freljord",
+    "releaseYear": "2024"
+  },
+  "Azir": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Ascended",
+    "region": "Shurima",
+    "releaseYear": "2014"
+  },
+  "Bard": {
+    "gender": "Other",
+    "species": "Celestial",
+    "position": "Support",
+    "region": "Runeterra",
+    "releaseYear": "2015"
+  },
+  "Belveth": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2022"
+  },
+  "Blitzcrank": {
+    "gender": "Other",
+    "species": "Golem",
+    "position": "Support",
+    "region": "Zaun",
+    "releaseYear": "2009"
+  },
+  "Brand": {
+    "gender": "Male",
+    "position": "Jungle, Middle, Support",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2011"
+  },
+  "Braum": {
+    "gender": "Male",
+    "position": "Support",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2014"
+  },
+  "Briar": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2023"
+  },
+  "Caitlyn": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2011"
+  },
+  "Camille": {
+    "gender": "Female",
+    "position": "Support, Top",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2016"
+  },
+  "Cassiopeia": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2010"
+  },
+  "Chogath": {
+    "gender": "Unknown",
+    "position": "Top",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2009"
+  },
+  "Corki": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Yordle",
+    "region": "Bandle-City",
+    "releaseYear": "2009"
+  },
+  "Darius": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2012"
+  },
+  "Diana": {
+    "gender": "Female",
+    "position": "Jungle, Middle",
+    "species": "Targon",
+    "region": "Mount-Targon",
+    "releaseYear": "2012"
+  },
+  "Draven": {
+    "gender": "Male",
+    "position": "Bottom",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2012"
+  },
+  "DrMundo": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2009"
+  },
+  "Ekko": {
+    "gender": "Male",
+    "position": "Jungle, Middle",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2015"
+  },
+  "Elise": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Spirit",
+    "region": "Shadow-Isles",
+    "releaseYear": "2012"
+  },
+  "Evelynn": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Demon",
+    "region": "Runeterra",
+    "releaseYear": "2009"
+  },
+  "Ezreal": {
+    "gender": "Male",
+    "position": "Bottom",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2010"
+  },
+  "Fiddlesticks": {
+    "gender": "Other",
+    "species": "Demon, Spirit",
+    "position": "Jungle",
+    "region": "Runeterra",
+    "releaseYear": "2009"
+  },
+  "Fiora": {
+    "gender": "Female",
+    "position": "Top",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2012"
+  },
+  "Fizz": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Spirit, Undead, Yordle",
+    "region": "Bilgewater",
+    "releaseYear": "2011"
+  },
+  "Galio": {
+    "gender": "Male",
+    "position": "Middle, Support",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2010"
+  },
+  "Gangplank": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Bilgewater",
+    "releaseYear": "2009"
+  },
+  "Garen": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2010"
+  },
+  "Gnar": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Yordle",
+    "region": "Freljord",
+    "releaseYear": "2014"
+  },
+  "Gragas": {
+    "gender": "Male",
+    "position": "Jungle, Middle, Top",
+    "species": "Spirit, Undead",
+    "region": "Freljord",
+    "releaseYear": "2010"
+  },
+  "Graves": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Bilgewater",
+    "releaseYear": "2011"
+  },
+  "Gwen": {
+    "gender": "Female",
+    "position": "Jungle, Top",
+    "species": "Human",
+    "region": "Shadow-Isles",
+    "releaseYear": "2021"
+  },
+  "Hecarim": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Shadow-Isles",
+    "releaseYear": "2012"
+  },
+  "Heimerdinger": {
+    "gender": "Male",
+    "position": "Middle, Support, Top",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2009"
+  },
+  "Hwei": {
+    "gender": "Male",
+    "position": "Middle, Support",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2023"
+  },
+  "Illaoi": {
+    "gender": "Female",
+    "position": "Top",
+    "species": "Spirit, Undead",
+    "region": "Bilgewater",
+    "releaseYear": "2015"
+  },
+  "Irelia": {
+    "gender": "Female",
+    "position": "Middle, Top",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2010"
+  },
+  "Ivern": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2016"
+  },
+  "Janna": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Spirit, Undead",
+    "region": "Zaun",
+    "releaseYear": "2009"
+  },
+  "JarvanIV": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2011"
+  },
+  "Jax": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Void",
+    "region": "The Void",
+    "releaseYear": "2009"
+  },
+  "Jayce": {
+    "gender": "Male",
+    "position": "Middle, Top",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2012"
+  },
+  "Jhin": {
+    "gender": "Male",
+    "position": "Bottom",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2016"
+  },
+  "Jinx": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Demon",
+    "region": "Zaun",
+    "releaseYear": "2013"
+  },
+  "Kaisa": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2018"
+  },
+  "Kalista": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Spirit, Undead, Undying",
+    "region": "Shadow-Isles",
+    "releaseYear": "2014"
+  },
+  "Karma": {
+    "gender": "Female",
+    "position": "Middle, Support, Top",
+    "species": "Spirit, Undead",
+    "region": "Ionia",
+    "releaseYear": "2011"
+  },
+  "Karthus": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Spirit, Undead, Undying",
+    "region": "Shadow-Isles",
+    "releaseYear": "2009"
+  },
+  "Kassadin": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2009"
+  },
+  "Katarina": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2009"
+  },
+  "Kayle": {
+    "gender": "Female",
+    "position": "Top",
+    "species": "Targon",
+    "region": "Demacia",
+    "releaseYear": "2009"
+  },
+  "Kayn": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Darkin",
+    "region": "Ionia",
+    "releaseYear": "2017"
+  },
+  "Kennen": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Spirit, Undead, Yordle",
+    "region": "Ionia",
+    "releaseYear": "2010"
+  },
+  "Khazix": {
+    "gender": "Unknown",
+    "position": "Jungle",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2012"
+  },
+  "Kindred": {
+    "gender": "Other",
+    "species": "Spirit",
+    "position": "Jungle",
+    "region": "Runeterra",
+    "releaseYear": "2015"
+  },
+  "Kled": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Yordle",
+    "region": "Noxus",
+    "releaseYear": "2016"
+  },
+  "KogMaw": {
+    "gender": "Unknown",
+    "position": "Bottom",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2010"
+  },
+  "KSante": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Ascended, Void",
+    "region": "Shurima",
+    "releaseYear": "2022"
+  },
+  "Leblanc": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2010"
+  },
+  "LeeSin": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Dragon, Spirit, Undead",
+    "region": "Ionia",
+    "releaseYear": "2011"
+  },
+  "Leona": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Spirit, Targon",
+    "region": "Mount-Targon",
+    "releaseYear": "2011"
+  },
+  "Lillia": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2020"
+  },
+  "Lissandra": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2013"
+  },
+  "Lucian": {
+    "gender": "Male",
+    "position": "Bottom",
+    "species": "Sentinel",
+    "region": "Runeterra",
+    "releaseYear": "2013"
+  },
+  "Lulu": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Yordle",
+    "region": "Bandle-City",
+    "releaseYear": "2012"
+  },
+  "Lux": {
+    "gender": "Female",
+    "position": "Middle, Support",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2010"
+  },
+  "Malphite": {
+    "gender": "Male",
+    "position": "Middle, Support, Top",
+    "species": "Human",
+    "region": "Ixtal",
+    "releaseYear": "2009"
+  },
+  "Malzahar": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2010"
+  },
+  "Maokai": {
+    "gender": "Male",
+    "position": "Jungle, Support",
+    "species": "Spirit, Undead",
+    "region": "Shadow-Isles",
+    "releaseYear": "2011"
+  },
+  "MasterYi": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2009"
+  },
+  "Mel": {
+    "gender": "Female",
+    "position": "Middle, Support",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2025"
+  },
+  "Milio": {
+    "gender": "Male",
+    "position": "Support",
+    "species": "Human",
+    "region": "Ixtal",
+    "releaseYear": "2023"
+  },
+  "MissFortune": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Human",
+    "region": "Bilgewater",
+    "releaseYear": "2010"
+  },
+  "MonkeyKing": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Vastaya",
+    "region": "Ionia",
+    "releaseYear": "2011"
+  },
+  "Mordekaiser": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Undead",
+    "region": "Noxus",
+    "releaseYear": "2010"
+  },
+  "Morgana": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Spirit, Targon",
+    "region": "Demacia",
+    "releaseYear": "2009"
+  },
+  "Naafiri": {
+    "gender": "Other",
+    "position": "Middle",
+    "species": "Darkin",
+    "region": "Shurima",
+    "releaseYear": "2023"
+  },
+  "Nami": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Targon, Vastaya",
+    "region": "Targon",
+    "releaseYear": "2012"
+  },
+  "Nasus": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Ascended, Spirit",
+    "region": "Shurima",
+    "releaseYear": "2009"
+  },
+  "Nautilus": {
+    "gender": "Male",
+    "position": "Support",
+    "species": "Human",
+    "region": "Bilgewater",
+    "releaseYear": "2012"
+  },
+  "Neeko": {
+    "gender": "Female",
+    "position": "Middle, Support",
+    "species": "Spirit, Undead, Vastaya",
+    "region": "Ixtal",
+    "releaseYear": "2018"
+  },
+  "Nidalee": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Ixtal",
+    "releaseYear": "2009"
+  },
+  "Nilah": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Demon",
+    "region": "Bilgewater",
+    "releaseYear": "2022"
+  },
+  "Nocturne": {
+    "gender": "Unknown",
+    "position": "Jungle",
+    "species": "Demon, Spirit, Undead",
+    "region": "Shadow Isles",
+    "releaseYear": "2011"
+  },
+  "Nunu": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2009"
+  },
+  "Olaf": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2010"
+  },
+  "Orianna": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2011"
+  },
+  "Ornn": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Spirit, Undead",
+    "region": "Freljord",
+    "releaseYear": "2017"
+  },
+  "Pantheon": {
+    "gender": "Male",
+    "position": "Jungle, Middle, Support, Top",
+    "species": "Spirit, Targon",
+    "region": "Mount-Targon",
+    "releaseYear": "2010"
+  },
+  "Poppy": {
+    "gender": "Female",
+    "position": "Jungle, Top",
+    "species": "Yordle",
+    "region": "Demacia",
+    "releaseYear": "2010"
+  },
+  "Pyke": {
+    "gender": "Male",
+    "position": "Support",
+    "species": "Human",
+    "region": "Bilgewater",
+    "releaseYear": "2018"
+  },
+  "Qiyana": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Ixtal",
+    "releaseYear": "2019"
+  },
+  "Quinn": {
+    "gender": "Female",
+    "position": "Top",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2013"
+  },
+  "Rakan": {
+    "gender": "Male",
+    "position": "Support",
+    "species": "Vastaya",
+    "region": "Ionia",
+    "releaseYear": "2017"
+  },
+  "Rammus": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Spirit",
+    "region": "Shurima",
+    "releaseYear": "2009"
+  },
+  "RekSai": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2014"
+  },
+  "Rell": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2020"
+  },
+  "Renata": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2022"
+  },
+  "Renekton": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Ascended",
+    "region": "Shurima",
+    "releaseYear": "2011"
+  },
+  "Rengar": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Vastaya, Void",
+    "region": "Ixtal",
+    "releaseYear": "2012"
+  },
+  "Riven": {
+    "gender": "Female",
+    "position": "Top",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2011"
+  },
+  "Rumble": {
+    "gender": "Male",
+    "position": "Middle, Top",
+    "species": "Mech, Yordle",
+    "region": "Bandle-City",
+    "releaseYear": "2011"
+  },
+  "Ryze": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Runeterra",
+    "releaseYear": "2009"
+  },
+  "Samira": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Demon",
+    "region": "Noxus",
+    "releaseYear": "2020"
+  },
+  "Sejuani": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2012"
+  },
+  "Senna": {
+    "gender": "Female",
+    "position": "Bottom, Support",
+    "species": "Sentinel",
+    "region": "Runeterra",
+    "releaseYear": "2019"
+  },
+  "Seraphine": {
+    "gender": "Female",
+    "position": "Bottom, Support",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2020"
+  },
+  "Sett": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2020"
+  },
+  "Shaco": {
+    "gender": "Male",
+    "position": "Jungle, Support",
+    "species": "Demon",
+    "region": "Runeterra",
+    "releaseYear": "2009"
+  },
+  "Shen": {
+    "gender": "Male",
+    "position": "Support, Top",
+    "species": "Spirit, Undead",
+    "region": "Ionia",
+    "releaseYear": "2010"
+  },
+  "Shyvana": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Dragon",
+    "region": "Demacia",
+    "releaseYear": "2011"
+  },
+  "Singed": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2009"
+  },
+  "Sion": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Undead",
+    "region": "Noxus",
+    "releaseYear": "2009"
+  },
+  "Sivir": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Human",
+    "region": "Shurima",
+    "releaseYear": "2009"
+  },
+  "Skarner": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Human",
+    "region": "Ixtal",
+    "releaseYear": "2011"
+  },
+  "Smolder": {
+    "gender": "Male",
+    "position": "Bottom, Middle, Top",
+    "species": "Dragon",
+    "region": "Runeterra",
+    "releaseYear": "2024"
+  },
+  "Sona": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2010"
+  },
+  "Soraka": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Spirit, Targon",
+    "region": "Mount-Targon",
+    "releaseYear": "2009"
+  },
+  "Swain": {
+    "gender": "Male",
+    "position": "Bottom, Middle, Support",
+    "species": "Demon",
+    "region": "Noxus",
+    "releaseYear": "2010"
+  },
+  "Sylas": {
+    "gender": "Male",
+    "position": "Middle, Top",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2019"
+  },
+  "Syndra": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2012"
+  },
+  "TahmKench": {
+    "gender": "Male",
+    "position": "Support, Top",
+    "species": "Demon",
+    "region": "Runeterra",
+    "releaseYear": "2015"
+  },
+  "Taliyah": {
+    "gender": "Female",
+    "position": "Jungle, Middle",
+    "species": "Spirit, Undead",
+    "region": "Shurima",
+    "releaseYear": "2016"
+  },
+  "Talon": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2011"
+  },
+  "Taric": {
+    "gender": "Male",
+    "position": "Middle, Support",
+    "species": "Ascended, Targon, Void",
+    "region": "Mount-Targon",
+    "releaseYear": "2009"
+  },
+  "Teemo": {
+    "gender": "Male",
+    "position": "Jungle, Support, Top",
+    "species": "Spirit, Undead, Yordle",
+    "region": "Bandle-City",
+    "releaseYear": "2009"
+  },
+  "Thresh": {
+    "gender": "Male",
+    "species": "Undead, Spirit",
+    "region": "Shadow Isles",
+    "position": "Support",
+    "releaseYear": "2013"
+  },
+  "Tristana": {
+    "gender": "Female",
+    "position": "Bottom, Middle",
+    "species": "Yordle",
+    "region": "Bandle-City",
+    "releaseYear": "2009"
+  },
+  "Trundle": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2010"
+  },
+  "Tryndamere": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Freljord",
+    "releaseYear": "2009"
+  },
+  "TwistedFate": {
+    "gender": "Male",
+    "position": "Bottom, Middle, Top",
+    "species": "Human",
+    "region": "Bilgewater",
+    "releaseYear": "2009"
+  },
+  "Twitch": {
+    "gender": "Male",
+    "position": "Bottom, Support",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2009"
+  },
+  "Udyr": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Spirit, Undead",
+    "region": "Freljord",
+    "releaseYear": "2009"
+  },
+  "Urgot": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2010"
+  },
+  "Varus": {
+    "gender": "Male",
+    "position": "Bottom",
+    "species": "Darkin",
+    "region": "Ionia",
+    "releaseYear": "2012"
+  },
+  "Vayne": {
+    "gender": "Female",
+    "position": "Bottom, Top",
+    "species": "Demon",
+    "region": "Demacia",
+    "releaseYear": "2011"
+  },
+  "Veigar": {
+    "gender": "Male",
+    "position": "Middle, Support",
+    "species": "Spirit, Undead, Yordle",
+    "region": "Bandle-City",
+    "releaseYear": "2009"
+  },
+  "Velkoz": {
+    "gender": "Male",
+    "position": "Middle, Support",
+    "species": "Void",
+    "region": "Void",
+    "releaseYear": "2014"
+  },
+  "Vex": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Yordle",
+    "region": "Shadow-Isles",
+    "releaseYear": "2021"
+  },
+  "Vi": {
+    "gender": "Female",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Piltover",
+    "releaseYear": "2012"
+  },
+  "Viego": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Shadow-Isles",
+    "releaseYear": "2021"
+  },
+  "Viktor": {
+    "gender": "Male",
+    "position": "Middle",
+    "species": "Mech",
+    "region": "Zaun",
+    "releaseYear": "2011"
+  },
+  "Vladimir": {
+    "gender": "Male",
+    "position": "Middle, Top",
+    "species": "Human",
+    "region": "Noxus",
+    "releaseYear": "2010"
+  },
+  "Volibear": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Spirit",
+    "region": "Freljord",
+    "releaseYear": "2011"
+  },
+  "Warwick": {
+    "gender": "Male",
+    "position": "Jungle, Top",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2009"
+  },
+  "Xayah": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Vastaya",
+    "region": "Ionia",
+    "releaseYear": "2017"
+  },
+  "Xerath": {
+    "gender": "Male",
+    "position": "Middle, Support",
+    "species": "Ascended",
+    "region": "Shurima",
+    "releaseYear": "2011"
+  },
+  "XinZhao": {
+    "gender": "Male",
+    "position": "Jungle",
+    "species": "Human",
+    "region": "Demacia",
+    "releaseYear": "2010"
+  },
+  "Yasuo": {
+    "gender": "Male",
+    "position": "Bottom, Middle, Top",
+    "species": "Human",
+    "region": "Ionia",
+    "releaseYear": "2013"
+  },
+  "Yone": {
+    "gender": "Male",
+    "position": "Middle, Top",
+    "species": "Demon, Spirit, Undead",
+    "region": "Ionia",
+    "releaseYear": "2020"
+  },
+  "Yorick": {
+    "gender": "Male",
+    "position": "Top",
+    "species": "Human",
+    "region": "Shadow-Isles",
+    "releaseYear": "2011"
+  },
+  "Yunara": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Spirit, Undead",
+    "region": "Ionia",
+    "releaseYear": "2025"
+  },
+  "Yuumi": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Yordle",
+    "region": "Bandle-City",
+    "releaseYear": "2019"
+  },
+  "Zac": {
+    "gender": "Unknown",
+    "position": "Jungle, Support, Top",
+    "species": "Human",
+    "region": "Zaun",
+    "releaseYear": "2013"
+  },
+  "Zed": {
+    "gender": "Male",
+    "position": "Jungle, Middle",
+    "species": "Spirit, Undead",
+    "region": "Ionia",
+    "releaseYear": "2012"
+  },
+  "Zeri": {
+    "gender": "Female",
+    "position": "Bottom",
+    "species": "Spirit, Undead",
+    "region": "Zaun",
+    "releaseYear": "2022"
+  },
+  "Ziggs": {
+    "gender": "Male",
+    "position": "Bottom, Middle",
+    "species": "Yordle",
+    "region": "Zaun",
+    "releaseYear": "2012"
+  },
+  "Zilean": {
+    "gender": "Male",
+    "position": "Support",
+    "species": "Void",
+    "region": "The Void",
+    "releaseYear": "2009"
+  },
+  "Zoe": {
+    "gender": "Female",
+    "position": "Middle",
+    "species": "Targon",
+    "region": "Mount-Targon",
+    "releaseYear": "2017"
+  },
+  "Zyra": {
+    "gender": "Female",
+    "position": "Support",
+    "species": "Human",
+    "region": "Ixtal",
+    "releaseYear": "2012"
+  }
+}

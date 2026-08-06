@@ -199,9 +199,16 @@
             color: var(--primary-cyan);
         }
 
+        /* Table & Grid Scroller for Identical Mobile Viewport Layout */
+        .table-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         .grid-header {
             display: grid;
-            grid-template-columns: 1.8fr repeat(6, 1fr);
+            grid-template-columns: 180px repeat(6, 100px);
             gap: 6px;
             text-align: center;
             font-size: 0.75rem;
@@ -209,7 +216,8 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding: 0 0.2rem;
+            padding: 0 0.2rem 0.5rem 0.2rem;
+            min-width: 780px;
         }
 
         .guesses-list {
@@ -217,11 +225,12 @@
             flex-direction: column;
             gap: 8px;
             perspective: 1000px;
+            min-width: 780px;
         }
 
         .guess-row {
             display: grid;
-            grid-template-columns: 1.8fr repeat(6, 1fr);
+            grid-template-columns: 180px repeat(6, 100px);
             gap: 6px;
             align-items: center;
         }
@@ -320,6 +329,117 @@
             min-height: 20px;
             font-size: 0.95rem;
         }
+
+        /* Victory Overlay Modal */
+        .celebration-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(11, 13, 25, 0.88);
+            backdrop-filter: blur(12px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .celebration-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .win-card {
+            background: var(--card-bg);
+            border: 2px solid var(--correct-green);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 440px;
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .celebration-modal.active .win-card {
+            transform: scale(1);
+        }
+
+        .win-title {
+            color: var(--correct-green);
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .win-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 3px solid var(--correct-green);
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+
+        .win-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .win-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .win-stats div strong {
+            color: var(--primary-cyan);
+        }
+
+        .btn-close-win {
+            background: var(--correct-green);
+            color: #000;
+            font-weight: 800;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: filter 0.2s ease;
+        }
+
+        .btn-close-win:hover { filter: brightness(1.1); }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        @media (max-width: 920px) {
+            .game-panel { padding: 1rem; border-radius: 16px; }
+            .header-bar { max-width: 920px; }
+            body { padding: 1rem 0.6rem; }
+        }
     </style>
 </head>
 <body>
@@ -329,8 +449,7 @@
         <h2>Daily Loldle</h2>
         <div class="header-controls">
             <button id="btn-music" class="music-btn"><i class="fa-solid fa-music"></i> Music</button>
-            <div class="score-badge">Points: <span id="score-val">0</span></div>
-        </div>
+           </div>
     </div>
 
     <div class="game-panel">
@@ -344,23 +463,44 @@
 
         <div id="hint-box" class="hint-box"></div>
 
-        <div class="grid-header">
-            <span>Champion</span>
-            <span>Gender</span>
-            <span>Position</span>
-            <span>Species</span>
-            <span>Resource</span>
-            <span>Range</span>
-            <span>Region</span>
-        </div>
+        <div class="table-scroll-wrapper">
+            <div class="grid-header">
+                <span>Champion</span>
+                <span>Gender</span>
+                <span>Position</span>
+                <span>Species</span>
+                <span>Resource</span>
+                <span>Range</span>
+                <span>Region</span>
+            </div>
 
-        <div id="guesses-container" class="guesses-list"></div>
+            <div id="guesses-container" class="guesses-list"></div>
+        </div>
 
         <div id="toast" class="toast">Fetching official DataDragon dataset...</div>
     </div>
 
-    <!-- Client Theme Audio Element (Low Volume Default) -->
-    
+    <!-- Victory Overlay Modal -->
+    <div id="celebration-modal" class="celebration-modal">
+        <canvas id="confetti-canvas"></canvas>
+        <div class="win-card">
+            <div class="win-title">Victory!</div>
+            <img id="win-avatar" class="win-avatar" src="" alt="Champion">
+            <div id="win-name" class="win-name">---</div>
+            
+            <div class="win-stats">
+                <div><strong>Gender:</strong> <span id="win-gender"></span></div>
+                <div><strong>Position:</strong> <span id="win-position"></span></div>
+                <div><strong>Species:</strong> <span id="win-species"></span></div>
+                <div><strong>Resource:</strong> <span id="win-resource"></span></div>
+                <div><strong>Range:</strong> <span id="win-range"></span></div>
+                <div><strong>Region:</strong> <span id="win-region"></span></div>
+            </div>
+
+            <button id="btn-close-win" class="btn-close-win">CONTINUE</button>
+        </div>
+    </div>
+
     <audio id="bg-music" loop autoplay preload="auto">
         <source src="../music/loltrack.mp3" type="audio/mpeg">
     </audio>

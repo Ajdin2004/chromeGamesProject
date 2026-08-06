@@ -42,32 +42,13 @@ function debounce(fn, wait = 150) {
     };
 }
 
-const DDRAGON_VER = "14.1.1";
-const DDRAGON_CDN_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/data/en_US/champion.json`;
-const DDRAGON_IMG_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/img/champion/`;
+// Use local bundled Meraki champions snapshot
+const MERAKI_CHAMPIONS_URL = './data/champions.json';
 
 // Detailed multi-species metadata map to distinguish stat twins
 const CHAMPION_DETAILS = {
     "Aatrox": { gender: "Male", position: "Top", species: "Darkin, Humanoid", region: "Runeterra", releaseYear: "2013" },
-    "Ahri": { gender: "Female", position: "Middle", species: "Vastaya, Spirit", region: "Ionia", releaseYear: "2011" },
-    "Akali": { gender: "Female", position: "Middle, Top", species: "Human, Martial", region: "Ionia", releaseYear: "2010" },
-    "Anivia": { gender: "Female", position: "Middle", species: "God-Willow, Spirit", region: "Freljord", releaseYear: "2009" },
-    "Annie": { gender: "Female", position: "Middle", species: "Human", region: "Noxus", releaseYear: "2009" },
-    "Ashe": { gender: "Female", position: "Bottom", species: "Human, Iceborn", region: "Freljord", releaseYear: "2009" },
-    "Bard": { gender: "Other", position: "Support", species: "Celestial", region: "Runeterra", releaseYear: "2015" },
-    "Blitzcrank": { gender: "Other", position: "Support", species: "Golem, Hextech", region: "Zaun", releaseYear: "2009" },
-    "Darius": { gender: "Male", position: "Top", species: "Human, Noxian", region: "Noxus", releaseYear: "2012" },
-    "Fiddlesticks": { gender: "Other", position: "Jungle", species: "Demon", region: "Runeterra", releaseYear: "2009" },
-    "Garen": { gender: "Male", position: "Top", species: "Human, Demacian", region: "Demacia", releaseYear: "2010" },
-    "Janna": { gender: "Female", position: "Support", species: "Spirit, God", region: "Zaun", releaseYear: "2009" },
-    "Jinx": { gender: "Female", position: "Bottom", species: "Human, Chemtech", region: "Zaun", releaseYear: "2013" },
-    "Kindred": { gender: "Other", position: "Jungle", species: "Spirit, God", region: "Runeterra", releaseYear: "2015" },
-    "LeeSin": { gender: "Male", position: "Jungle", species: "Human, Spiritual", region: "Ionia", releaseYear: "2011" },
-    "Lux": { gender: "Female", position: "Middle, Support", species: "Human, Mage", region: "Demacia", releaseYear: "2010" },
-    "Thresh": { gender: "Male", position: "Support", species: "Undead, Spirit", region: "Shadow Isles", releaseYear: "2013" },
-    "Yasuo": { gender: "Male", position: "Middle, Top", species: "Human, Wind-Master", region: "Ionia", releaseYear: "2013" },
-    "Zed": { gender: "Male", position: "Middle", species: "Human, Shadow", region: "Ionia", releaseYear: "2012" },
-    "Swain": { gender: "Male", position: "Middle, Support", species: "Human", region: "Runeterra", releaseYear: "2010" }
+    
 
 };
 
@@ -79,7 +60,6 @@ let guessesHistory = [];
 let gameOver = false;
 let currentMatches = [];
 let suggestionActiveIndex = -1;
-let userScore = 0;
 
 // DOM Elements
 const inputEl = document.getElementById('champ-input');
@@ -93,6 +73,19 @@ const scoreValEl = document.getElementById('score-val');
 // --- Local Background Music Control ---
 const btnMusic = document.getElementById('btn-music');
 const bgMusic = document.getElementById('bg-music');
+
+// Celebration modal elements (created on demand)
+let celebrationModal = null;
+let winAvatar = null;
+let winName = null;
+let winGender = null;
+let winPosition = null;
+let winSpecies = null;
+let winResource = null;
+let winRange = null;
+let winRegion = null;
+let btnCloseWin = null;
+let confettiAnimId = null;
 
 // Configure audio element safely and add diagnostics
 if (bgMusic) {
@@ -150,45 +143,197 @@ btnMusic.addEventListener('click', () => {
     }
 });
 
-function mapRoleToPosition(tags) {
-    if (tags.includes("Support")) return "Support";
-    if (tags.includes("Marksman")) return "Bottom";
-    if (tags.includes("Mage")) return "Middle";
-    if (tags.includes("Assassin")) return "Middle, Jungle";
-    if (tags.includes("Tank") || tags.includes("Fighter")) return "Top, Jungle";
-    return "Middle";
+
+// Try to infer gender from the champion lore (uses simple pronoun heuristics).
+// This improves accuracy without requiring a full manual mapping for every champion.
+function inferGenderFromLore(lore) {
+    if (!lore) return 'Unknown';
+    const low = lore.toLowerCase();
+    // Look for strong indicators first
+    if (/\b(she|her|hers)\b/.test(low)) return 'Female';
+    if (/\b(he|his|him)\b/.test(low)) return 'Male';
+    // Plural / neutral pronouns
+    if (/\b(they|their|theirs)\b/.test(low)) return 'Other';
+    // Titles like "the hound", "the conjurer" are ambiguous; fall back to Unknown
+    return 'Unknown';
+}
+
+// Infer region from lore/title/blurb by searching for known region keywords
+function inferRegionFromLore(text) {
+    if (!text) return null;
+    const low = text.toLowerCase();
+    const regions = {
+        'demacia': 'Demacia',
+        'noxus': 'Noxus',
+        'ionia': 'Ionia',
+        'freljord': 'Freljord',
+        'piltover': 'Piltover',
+        'zaun': 'Zaun',
+        'bilgewater': 'Bilgewater',
+        'shurima': 'Shurima',
+        'bandle': 'Bandle City',
+        'ixtal': 'Ixtal',
+        'targon': 'Targon',
+        'shadow isles': 'Shadow Isles',
+        'shadow isles': 'Shadow Isles',
+        'runeterra': 'Runeterra',
+        'the void': 'The Void',
+        'void': 'The Void',
+        'mount targon': 'Targon'
+    };
+
+    for (const key in regions) {
+        if (low.includes(key)) return regions[key];
+    }
+
+    // Try to detect by common region words (e.g., 'isles', 'mountain', 'city') if specific name not matched
+    if (/\b(isles|isle|island|shadows|shadow)\b/.test(low)) return 'Shadow Isles';
+    if (/\b(piltover|zaun|city|city-state)\b/.test(low)) return 'Piltover/Zaun';
+
+    return null;
+}
+
+// Infer species from lore/title by searching for known species keywords
+function inferSpeciesFromLore(text) {
+    if (!text) return null;
+    const low = text.toLowerCase();
+    const speciesMap = {
+        'vastaya': 'Vastaya',
+        'vastayan': 'Vastaya',
+        'yordle': 'Yordle',
+        'human': 'Human',
+        'voidborn': 'Void',
+        'voidborn': 'Void',
+        'void': 'Void',
+        'spirit': 'Spirit',
+        'undead': 'Undead',
+        'undying': 'Undead',
+        'demon': 'Demon',
+        'dragon': 'Dragon',
+        'ascended': 'Ascended',
+        'darkin': 'Darkin',
+        'celestial': 'Celestial',
+        'golem': 'Construct',
+        'hextech': 'Hextech',
+        'machine': 'Construct',
+        'robot': 'Construct',
+        'fox': 'Vastaya',
+        'spider': 'Monster',
+        'monkey': 'Primate',
+        'lion': 'Beast',
+        'wolf': 'Beast',
+        'rabbit': 'Beast'
+    };
+
+    for (const key in speciesMap) {
+        if (low.includes(key)) return speciesMap[key];
+    }
+
+    // Try title keywords like "the Nine-Tailed Fox" or "the Exile"
+    const titleSpecies = (text.match(/the\s([a-z\-\s]{3,30})/i) || [])[1];
+    if (titleSpecies) {
+        for (const key in speciesMap) {
+            if (titleSpecies.toLowerCase().includes(key)) return speciesMap[key];
+        }
+    }
+
+    return null;
+}
+
+// Normalize champion names for robust matching (removes punctuation/spaces and lowercases)
+function normalizeName(name) {
+    if (!name) return '';
+    return String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// Helper: map Meraki positions array to a readable position string
+function mapMerakiPositions(positions) {
+    if (!positions || positions.length === 0) return 'Unknown';
+    const pos = positions.map(p => p.toLowerCase());
+    if (pos.includes('top')) return 'Top';
+    if (pos.includes('middle') || pos.includes('mid')) return 'Middle';
+    if (pos.includes('bottom') || pos.includes('adc')) return 'Bottom';
+    if (pos.includes('jungle')) return 'Jungle';
+    if (pos.includes('support')) return 'Support';
+    return positions.join(', ');
+}
+
+// Helper: humanize resource strings from Meraki data
+function humanizeResource(res) {
+    if (!res) return 'Manaless';
+    const r = String(res).toLowerCase();
+    if (r.includes('mana')) return 'Mana';
+    if (r.includes('energy')) return 'Energy';
+    if (r.includes('rage') || r.includes('blood')) return 'Energy';
+    if (r.includes('true')) return 'Other';
+    if (r.includes('none')) return 'Manaless';
+    return res.replace(/_/g, ' ').replace(/\b([a-z])/g, s => s.toUpperCase());
 }
 
 async function fetchChampionsData() {
     try {
-        const res = await fetch(DDRAGON_CDN_URL);
+        // Load local champion details overrides if present (generated by scripts/generate_champion_metadata.py)
+        try {
+            const overridesRes = await fetch('./data/champion_details.json');
+            if (overridesRes.ok) {
+                const overrides = await overridesRes.json();
+                // Merge into CHAMPION_DETAILS (client-side); generated file takes precedence
+                Object.keys(overrides).forEach(k => {
+                    CHAMPION_DETAILS[k] = Object.assign({}, CHAMPION_DETAILS[k] || {}, overrides[k]);
+                });
+                console.info('Loaded champion overrides from ./data/champion_details.json');
+            }
+        } catch (e) {
+            console.info('No local champion_details.json found or failed to load; continuing without overrides.');
+        }
+
+        // Load local snapshot served from the same origin to avoid CORS issues
+        const res = await fetch(MERAKI_CHAMPIONS_URL);
         const data = await res.json();
-        const champsObj = data.data;
+        const champsObj = data;
 
         CHAMPIONS = Object.keys(champsObj).map(key => {
             const c = champsObj[key];
-            const meta = CHAMPION_DETAILS[key] || {
-                            gender: "Unknown",
-                position: mapRoleToPosition(c.tags),
-                species: "Human",
-                region: "Runeterra",
-                releaseYear: "2012"
+
+            // Use manual overrides from CHAMPION_DETAILS when available, otherwise attempt to infer from lore/blurb/title
+            const manual = CHAMPION_DETAILS[key] || {};
+            const inferredGender = manual.gender && manual.gender !== 'Unknown' ? manual.gender : inferGenderFromLore(c.lore || c.blurb || c.title);
+
+            const inferredSpecies = inferSpeciesFromLore(c.lore || c.blurb || c.title || (c.positions || []).join(' '));
+            const inferredRegion = inferRegionFromLore(c.lore || c.blurb || c.title);
+
+            const meta = {
+                gender: inferredGender || 'Unknown',
+                position: manual.position || mapMerakiPositions(c.positions || []),
+                species: manual.species || inferredSpecies || 'Human',
+                region: manual.region || inferredRegion || 'Runeterra',
+                releaseYear: manual.releaseYear || 'Unknown'
             };
 
+            // Attack range in Meraki data is at stats.attackRange.flat (if present)
+            let attackRange = null;
+            if (c.stats && c.stats.attackRange && typeof c.stats.attackRange.flat === 'number') attackRange = c.stats.attackRange.flat;
+
             return {
-                id: c.id,
-                name: c.name,
-                image: `${DDRAGON_IMG_URL}${c.image.full}`,
+                id: c.id || c.key || key,
+                name: c.name || key,
+                image: c.icon || '',
                 gender: meta.gender,
                 position: meta.position,
                 species: meta.species,
-                resource: c.partype || "Manaless",
-                range: c.stats.attackrange > 300 ? "Ranged" : "Melee",
+                resource: humanizeResource(c.resource || c.partype || ''),
+                range: (attackRange !== null) ? (attackRange > 300 ? 'Ranged' : 'Melee') : 'Unknown',
                 region: meta.region,
                 releaseYear: meta.releaseYear
             };
         }).sort((a, b) => a.name.localeCompare(b.name));
 
+        // Guard: ensure we loaded champions
+        if (!CHAMPIONS || CHAMPIONS.length === 0) {
+            throw new Error('No champions loaded from ' + MERAKI_CHAMPIONS_URL + '. Ensure the file exists at this path and that the page is served over HTTP/S (fetch() will not work from file://).');
+        }
+
+        // Seed today's champion deterministically by date so everyone gets same daily target
         const now = new Date();
         const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
         TARGET_CHAMP = CHAMPIONS[seed % CHAMPIONS.length];
@@ -197,8 +342,12 @@ async function fetchChampionsData() {
         toastEl.textContent = "Guess today's mystery champion!";
         restoreProgress();
     } catch (err) {
-        toastEl.textContent = "Error fetching champion dataset.";
-        console.error(err);
+        // Provide more helpful guidance in dev console and UI
+        console.error('Failed to load champions from:', MERAKI_CHAMPIONS_URL, err);
+        if (err && err.message) console.error('Error message:', err.message);
+        toastEl.textContent = "Error loading champion data. Check console for details.\nMake sure the file '" + MERAKI_CHAMPIONS_URL + "' is present and the page is served over HTTP (not file://).";
+        inputEl.disabled = true;
+        btnGuess.disabled = true;
     }
 }
 
@@ -312,25 +461,32 @@ inputEl.addEventListener('keydown', e => {
     }
 });
 
-function calculateGuessPoints(champ) {
-    const fields = ['gender', 'position', 'species', 'resource', 'range', 'region'];
-    let guessPoints = 0;
-
-    fields.forEach(f => {
-        const status = compareAttribute(champ[f], TARGET_CHAMP[f]);
-        if (status === 'correct') guessPoints += 100;
-        else if (status === 'partial') guessPoints += 50;
-    });
-
-    return guessPoints;
-}
 
 function submitGuess() {
     if (gameOver || !TARGET_CHAMP) return;
     initAudio();
 
     const val = inputEl.value.trim();
-    const guessedChamp = CHAMPIONS.find(c => c.name.toLowerCase() === val.toLowerCase());
+    if (!val) {
+        toastEl.textContent = 'Please enter a champion name.';
+        triggerShake();
+        return;
+    }
+
+    // Try exact normalized match first (robust against spacing/punctuation like "Lee Sin" vs "Leesin")
+    let guessedChamp = CHAMPIONS.find(c => normalizeName(c.name) === normalizeName(val));
+
+    // Fallback: case-insensitive exact name
+    if (!guessedChamp) guessedChamp = CHAMPIONS.find(c => c.name.toLowerCase() === val.toLowerCase());
+
+    // Fallback: startsWith or includes
+    if (!guessedChamp) guessedChamp = CHAMPIONS.find(c => c.name.toLowerCase().startsWith(val.toLowerCase()) || c.name.toLowerCase().includes(val.toLowerCase()));
+
+    // Fallback: if suggestions are open, use the active suggestion
+    if (!guessedChamp && currentMatches.length > 0) {
+        const idx = suggestionActiveIndex >= 0 ? suggestionActiveIndex : 0;
+        guessedChamp = currentMatches[idx];
+    }
 
     if (!guessedChamp) {
         toastEl.textContent = "Champion not found!";
@@ -344,9 +500,6 @@ function submitGuess() {
         return;
     }
 
-    const pts = calculateGuessPoints(guessedChamp);
-    userScore += pts;
-    scoreValEl.textContent = userScore;
 
     guessesHistory.push(guessedChamp.name);
     renderRowUI(guessedChamp, true);
@@ -361,12 +514,18 @@ function submitGuess() {
 
     if (isCorrect) {
         gameOver = true;
-        userScore += 500;
-        scoreValEl.textContent = userScore;
         Sound.win();
-        toastEl.textContent = `Splendid! Loldle Solved! Final Score: ${userScore}`;
+        toastEl.textContent = `Splendid! Loldle Solved!`;
         inputEl.disabled = true;
         btnGuess.disabled = true;
+
+        // Show celebration modal + confetti (creates modal dynamically if missing)
+        try {
+            triggerVictoryModal(TARGET_CHAMP);
+        } catch (e) {
+            console.warn('Unable to trigger victory modal:', e);
+        }
+
         saveProgress(true);
     } else if (guessesHistory.length >= MAX_GUESSES) {
         gameOver = true;
@@ -375,7 +534,7 @@ function submitGuess() {
         btnGuess.disabled = true;
         saveProgress(false);
     } else {
-        toastEl.textContent = `Scored +${pts} pts on this guess!`;
+        toastEl.textContent = `Guess recorded!`;
         saveProgress(false);
     }
 }
@@ -393,12 +552,12 @@ function renderRowUI(champ, shouldAnimate = false) {
     row.className = 'guess-row';
 
     const fields = [
-        { key: 'gender', val: champ.gender },
-        { key: 'position', val: champ.position },
-        { key: 'species', val: champ.species },
-        { key: 'resource', val: champ.resource },
-        { key: 'range', val: champ.range },
-        { key: 'region', val: champ.region }
+        { key: 'gender', val: champ.gender, label: 'Gender' },
+        { key: 'position', val: champ.position, label: 'Position' },
+        { key: 'species', val: champ.species, label: 'Species' },
+        { key: 'resource', val: champ.resource, label: 'Resource' },
+        { key: 'range', val: champ.range, label: 'Range' },
+        { key: 'region', val: champ.region, label: 'Region' }
     ];
 
     const champCard = document.createElement('div');
@@ -421,6 +580,8 @@ function renderRowUI(champ, shouldAnimate = false) {
         const status = compareAttribute(f.val, TARGET_CHAMP[f.key]);
         const box = document.createElement('div');
         box.className = 'attribute-box ' + status;
+        // Provide data-label for small-screen CSS to show the attribute name
+        box.setAttribute('data-label', f.label || f.key);
         if (shouldAnimate) {
             box.classList.add('animate-flip');
             box.style.animationDelay = `${(idx + 1) * 0.1}s`;
@@ -432,14 +593,237 @@ function renderRowUI(champ, shouldAnimate = false) {
     guessesContainer.insertBefore(row, guessesContainer.firstChild);
 }
 
+
+// Create a lightweight celebration modal and confetti canvas if the HTML doesn't already provide them.
+function createCelebrationModalIfMissing() {
+    if (celebrationModal) return;
+
+    celebrationModal = document.createElement('div');
+    celebrationModal.id = 'celebration-modal';
+    // Inline styles to ensure visibility without depending on external CSS
+    celebrationModal.style.position = 'fixed';
+    celebrationModal.style.top = '0';
+    celebrationModal.style.left = '0';
+    celebrationModal.style.width = '100%';
+    celebrationModal.style.height = '100%';
+    celebrationModal.style.display = 'none';
+    celebrationModal.style.alignItems = 'center';
+    celebrationModal.style.justifyContent = 'center';
+    celebrationModal.style.background = 'rgba(0,0,0,0.6)';
+    celebrationModal.style.zIndex = '9999';
+    celebrationModal.style.flexDirection = 'column';
+    celebrationModal.style.padding = '20px';
+
+    const content = document.createElement('div');
+    content.style.background = '#0b1220';
+    content.style.border = '2px solid rgba(255,255,255,0.06)';
+    content.style.borderRadius = '12px';
+    content.style.padding = '18px';
+    content.style.minWidth = '260px';
+    content.style.maxWidth = '90%';
+    content.style.color = '#fff';
+    content.style.textAlign = 'center';
+    content.style.position = 'relative';
+    content.style.boxShadow = '0 8px 30px rgba(0,0,0,0.6)';
+
+    winAvatar = document.createElement('img');
+    winAvatar.alt = 'Champion avatar';
+    winAvatar.style.width = '96px';
+    winAvatar.style.height = '96px';
+    winAvatar.style.objectFit = 'cover';
+    winAvatar.style.borderRadius = '8px';
+    winAvatar.style.display = 'block';
+    winAvatar.style.margin = '0 auto 12px';
+
+    winName = document.createElement('h2');
+    winName.style.margin = '6px 0 12px';
+    winName.style.fontSize = '1.4rem';
+
+    const details = document.createElement('div');
+    details.style.display = 'flex';
+    details.style.flexWrap = 'wrap';
+    details.style.justifyContent = 'center';
+    details.style.gap = '8px';
+
+    function makeDetailSpan(label) {
+        const sp = document.createElement('div');
+        sp.style.fontSize = '0.90rem';
+        sp.style.padding = '6px 8px';
+        sp.style.background = 'rgba(255,255,255,0.03)';
+        sp.style.borderRadius = '6px';
+        sp.style.minWidth = '90px';
+        sp.style.boxSizing = 'border-box';
+        sp.dataset.label = label;
+        return sp;
+    }
+
+    winGender = makeDetailSpan('Gender');
+    winPosition = makeDetailSpan('Position');
+    winSpecies = makeDetailSpan('Species');
+    winResource = makeDetailSpan('Resource');
+    winRange = makeDetailSpan('Range');
+    winRegion = makeDetailSpan('Region');
+
+    details.appendChild(winGender);
+    details.appendChild(winPosition);
+    details.appendChild(winSpecies);
+    details.appendChild(winResource);
+    details.appendChild(winRange);
+    details.appendChild(winRegion);
+
+    btnCloseWin = document.createElement('button');
+    btnCloseWin.textContent = 'Close';
+    btnCloseWin.style.marginTop = '14px';
+    btnCloseWin.style.padding = '8px 12px';
+    btnCloseWin.style.border = 'none';
+    btnCloseWin.style.background = '#1f2937';
+    btnCloseWin.style.color = '#fff';
+    btnCloseWin.style.borderRadius = '8px';
+    btnCloseWin.style.cursor = 'pointer';
+
+    // Canvas for confetti (absolute positioned behind content)
+    const canvas = document.createElement('canvas');
+    canvas.id = 'confetti-canvas';
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.display = 'block';
+
+    content.appendChild(winAvatar);
+    content.appendChild(winName);
+    content.appendChild(details);
+    content.appendChild(btnCloseWin);
+
+    // Ensure content sits below the confetti canvas so confetti can appear in front
+    content.style.zIndex = '10000';
+    canvas.style.zIndex = '10001';
+
+    celebrationModal.appendChild(canvas);
+    celebrationModal.appendChild(content);
+    // Hide initially
+    celebrationModal.style.display = 'none';
+
+    document.body.appendChild(celebrationModal);
+
+    btnCloseWin.addEventListener('click', () => {
+        // Hide and stop confetti
+        celebrationModal.style.display = 'none';
+        if (typeof confettiAnimId === 'number') {
+            cancelAnimationFrame(confettiAnimId);
+            confettiAnimId = null;
+        }
+        // Clear canvas
+        try {
+            const c = document.getElementById('confetti-canvas');
+            if (c && c.getContext) {
+                const ctx = c.getContext('2d');
+                ctx.clearRect(0, 0, c.width, c.height);
+            }
+        } catch (e) { /* ignore */ }
+    });
+}
+
+// Run a lightweight confetti animation on the 'confetti-canvas' element
+function runConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas || !celebrationModal) return;
+
+    // Size the canvas using device pixel ratio for crisp rendering
+    const rect = celebrationModal.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+
+    const ctx = canvas.getContext('2d');
+    // Scale drawing context so coordinates are in CSS pixels
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const width = rect.width;
+    const height = rect.height;
+
+    const pieces = Array.from({ length: 140 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height - height,
+        size: Math.random() * 12 + 6,
+        color: ['#00f2fe', '#22c55e', '#eab308', '#ef4444', '#a855f7', '#06b6d4'][Math.floor(Math.random() * 6)],
+        speedY: Math.random() * 120 + 80, // pixels per second
+        speedX: (Math.random() - 0.5) * 120,
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 360 // deg per second
+    }));
+
+    let lastTime = performance.now();
+
+    function draw(now) {
+        const dt = Math.min(100, now - lastTime) / 1000; // seconds
+        lastTime = now;
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < pieces.length; i++) {
+            const p = pieces[i];
+            p.y += p.speedY * dt;
+            p.x += p.speedX * dt;
+            p.rotation += p.rotationSpeed * dt;
+
+            if (p.y > height + 20) {
+                p.y = -20;
+                p.x = Math.random() * width;
+            }
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            ctx.restore();
+        }
+
+        if (celebrationModal && celebrationModal.style.display !== 'none') {
+            confettiAnimId = requestAnimationFrame(draw);
+        } else {
+            confettiAnimId = null;
+            ctx.clearRect(0, 0, width, height);
+        }
+    }
+
+    if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+    confettiAnimId = requestAnimationFrame(draw);
+}
+
+// Show victory modal and populate fields
+function triggerVictoryModal(champ) {
+    if (!champ) return;
+    try {
+        createCelebrationModalIfMissing();
+
+        winAvatar.src = champ.image || '';
+        winName.textContent = champ.name || 'Champion';
+        winGender.textContent = `Gender: ${champ.gender || 'Unknown'}`;
+        winPosition.textContent = `Position: ${champ.position || 'Unknown'}`;
+        winSpecies.textContent = `Species: ${champ.species || 'Unknown'}`;
+        winResource.textContent = `Resource: ${champ.resource || 'Unknown'}`;
+        winRange.textContent = `Range: ${champ.range || 'Unknown'}`;
+        winRegion.textContent = `Region: ${champ.region || 'Unknown'}`;
+
+        celebrationModal.style.display = 'flex';
+        // Start confetti
+        runConfetti();
+    } catch (e) {
+        console.error('Failed to show victory modal:', e);
+    }
+}
+
 function restoreProgress() {
     const saved = JSON.parse(localStorage.getItem(`loldle_ddragon_save_${TODAY_DATE_STR}`));
     if (!saved) return;
 
     guessesHistory = saved.history || [];
     gameOver = saved.gameOver;
-    userScore = saved.score || 0;
-    scoreValEl.textContent = userScore;
 
     guessesHistory.forEach(champName => {
         const champ = CHAMPIONS.find(c => c.name === champName);
@@ -451,7 +835,7 @@ function restoreProgress() {
     if (gameOver) {
         inputEl.disabled = true;
         btnGuess.disabled = true;
-        toastEl.textContent = saved.passed ? `Daily Loldle Solved! Final Score: ${userScore}` : `Mystery Champion was: ${TARGET_CHAMP.name}`;
+        toastEl.textContent = saved.passed ? `Daily Loldle Solved!` : `Mystery Champion was: ${TARGET_CHAMP.name}`;
     }
 }
 
@@ -459,7 +843,6 @@ function saveProgress(passed = false) {
     localStorage.setItem(`loldle_ddragon_save_${TODAY_DATE_STR}`, JSON.stringify({
         date: TODAY_DATE_STR,
         history: guessesHistory,
-        score: userScore,
         gameOver: gameOver,
         passed: passed
     }));

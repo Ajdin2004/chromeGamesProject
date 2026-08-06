@@ -40,6 +40,40 @@
             justify-content: flex-start;
             padding: 0.75rem;
             overflow: hidden;
+            position: relative;
+        }
+
+        /* Fullscreen globe wrapper on large screens */
+        .globe-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .globe-fullscreen #globe-container {
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+                    touch-action: none;
+                }
+                /* Overlay panel on top of globe */
+        .ui-overlay {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            padding: 0.75rem 0;
+            pointer-events: none;
+        }
+        .ui-overlay > * {
+            pointer-events: auto;
         }
 
         .header-bar {
@@ -47,10 +81,13 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            max-width: 900px;
             margin-bottom: 0.5rem;
-            z-index: 10;
             flex-shrink: 0;
+            background: rgba(11, 13, 25, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 0.4rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid var(--card-border);
         }
 
         .header-actions {
@@ -89,50 +126,36 @@
         }
         .back-btn:hover { color: var(--primary-cyan); }
 
-        /* Main Responsive Layout */
+        /* Layout for game panel */
         .layout-grid {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
             width: 100%;
-            max-width: 900px;
             flex: 1;
             min-height: 0;
+            margin-top: auto;
+            justify-content: flex-end;
+            pointer-events: none;
+        }
+        .layout-grid > * {
+            pointer-events: auto;
         }
 
-        /* 3D Globe Container */
-        .globe-wrapper {
-            position: relative;
-            width: 100%;
-            flex: 1;
-            min-height: 200px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            overflow: hidden;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #globe-container { width: 100%; height: 100%; }
-
-        /* Game Dashboard Panel */
+        /* Game Panel */
         .game-panel {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 0.85rem;
             backdrop-filter: blur(16px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            z-index: 10;
-            max-height: 45%;
+            max-height: 55vh;
             flex-shrink: 0;
+            pointer-events: auto;
         }
 
         .search-container { position: relative; }
@@ -141,7 +164,7 @@
 
         .input-box input {
             flex: 1;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--card-border);
             padding: 0.6rem 0.8rem;
             border-radius: 10px;
@@ -186,17 +209,18 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 0.85rem;
         }
-        .suggestion-item:hover {
-            background: rgba(0, 242, 254, 0.15);
-            color: var(--primary-cyan);
-        }
+                .suggestion-item:hover,
+                .suggestion-item.active {
+                    background: rgba(0, 242, 254, 0.15);
+                    color: var(--primary-cyan);
+                }
 
         .guesses-list {
             display: flex;
             flex-direction: column;
             gap: 0.35rem;
             overflow-y: auto;
-            flex: 1;
+            max-height: 200px;
         }
 
         .guess-row {
@@ -205,7 +229,7 @@
             align-items: center;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--card-border);
-            padding: 0.45rem 0.6rem;
+            padding: 0.4rem 0.6rem;
             border-radius: 8px;
             font-size: 0.8rem;
             text-align: center;
@@ -227,7 +251,7 @@
             min-height: 18px;
         }
 
-        /* Instructions Modal */
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -300,60 +324,105 @@
             margin-top: 0.25rem;
         }
 
-        /* Landscape/Tablet Viewports */
+        /* Landscape / tablet */
         @media (min-width: 768px) {
-            .layout-grid {
-                display: grid;
-                grid-template-columns: 1fr 340px;
-            }
-
             .game-panel {
-                max-height: 100%;
+                max-height: 60vh;
             }
-
             .suggestions {
                 bottom: auto;
                 top: 100%;
                 margin-bottom: 0;
                 margin-top: 4px;
             }
+            .header-bar {
+                background: rgba(11, 13, 25, 0.5);
+                backdrop-filter: blur(8px);
+            }
+        }
+        /* On large screens, hide the globe wrapper from layout (it's fixed) */
+        @media (min-width: 1024px) {
+            .globe-fullscreen {
+                display: block;
+            }
+            .ui-overlay {
+                max-width: 1000px;
+            }
+            .game-panel {
+                max-width: 520px;
+                margin-left: auto;
+                margin-right: 0.5rem;
+            }
+        }
+        /* small screens: globe is inline */
+        @media (max-width: 1023px) {
+            .globe-fullscreen {
+                position: relative;
+                width: 100%;
+                height: 45vh;
+                pointer-events: auto;
+                margin-bottom: 0.5rem;
+                border-radius: 16px;
+                overflow: hidden;
+                border: 1px solid var(--card-border);
+                background: var(--card-bg);
+            }
+            .ui-overlay {
+                padding: 0;
+                height: auto;
+                flex: 1;
+            }
+            .header-bar {
+                background: rgba(11, 13, 25, 0.7);
+                backdrop-filter: blur(8px);
+                margin-bottom: 0.5rem;
+            }
+            .layout-grid {
+                margin-top: 0;
+                flex: 1;
+                justify-content: flex-start;
+            }
+            .game-panel {
+                max-height: 50vh;
+            }
         }
     </style>
-
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/globe.gl@2.22.0/dist/globe.gl.min.js"></script>
 </head>
 <body>
 
-    <div class="header-bar">
-        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-        <h2>Daily 3D Earthdle</h2>
-        <div class="header-actions">
-            <button id="btn-help" class="icon-btn" title="How to Play"><i class="fa-solid fa-circle-question"></i></button>
-        </div>
+    <!-- Fullscreen Globe Container (fixed on large screens) -->
+    <div class="globe-fullscreen" id="globe-fullscreen" style="touch-action: none;">
+        <div id="globe-container" style="touch-action: none;"></div>
     </div>
 
-    <div class="layout-grid">
-        <div class="globe-wrapper">
-            <div id="globe-container"></div>
-        </div>
-
-        <div class="game-panel">
-            <div class="search-container">
-                <div class="input-box">
-                    <input type="text" id="country-input" placeholder="Enter country..." autocomplete="off">
-                    <button id="btn-guess" class="btn-submit">GUESS</button>
-                </div>
-                <div id="suggestions" class="suggestions"></div>
+    <!-- UI Overlay -->
+    <div class="ui-overlay">
+        <div class="header-bar">
+            <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+            <h2 style="font-size: 1rem;">Daily 3D Earthdle</h2>
+            <div class="header-actions">
+                <button id="btn-help" class="icon-btn" title="How to Play"><i class="fa-solid fa-circle-question"></i></button>
             </div>
+        </div>
 
-            <div id="guesses-container" class="guesses-list"></div>
+        <div class="layout-grid">
+            <div class="game-panel">
+                <div class="search-container">
+                    <div class="input-box">
+                        <input type="text" id="country-input" placeholder="Enter country..." autocomplete="off">
+                        <button id="btn-guess" class="btn-submit">GUESS</button>
+                    </div>
+                    <div id="suggestions" class="suggestions"></div>
+                </div>
 
-            <div id="toast" class="toast">Initializing 3D World...</div>
+                <div id="guesses-container" class="guesses-list"></div>
+
+                <div id="toast" class="toast">Initializing 3D World...</div>
+            </div>
         </div>
     </div>
 
-    <!-- Instructions Modal -->
+    <!-- Help Modal -->
     <div id="help-modal" class="modal-overlay">
         <div class="modal-card">
             <h3>How to Play <i class="fa-solid fa-earth-americas"></i></h3>
@@ -366,7 +435,7 @@
             <button id="btn-close-help" class="btn-close-modal">GOT IT</button>
         </div>
     </div>
-
+    <script src="https://unpkg.com/globe.gl@2.22.0/dist/globe.gl.min.js"></script>
     <script src="earthdle.js"></script>
 </body>
 </html>
