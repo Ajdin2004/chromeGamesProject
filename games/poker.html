@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Poker · Texas Hold'em</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+        body {
+            background: #0b0d19;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem;
+            color: #f0f4f8;
+            overflow: hidden;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 1rem;
+        }
+        .back {
+            color: #f0f4f8;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: 0.2s;
+        }
+        .back:hover { color: #00f2fe; }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            height: 80vh;
+            background: #101426;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 13, 25, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .overlay h1 {
+            font-size: clamp(1.8rem, 6vw, 3rem);
+            background: linear-gradient(135deg, #00f2fe, #7928ca, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .overlay p {
+            color: #9ca3af;
+            font-size: 1rem;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #00f2fe;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #00f2fe, #7928ca);
+            border: none;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn.primary:hover {
+            box-shadow: 0 4px 25px rgba(0, 242, 254, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        @media (max-width: 600px) {
+            #game-container {
+                height: 70vh;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+    <h2 style="font-weight: 600; font-size: 1.2rem; letter-spacing: 0.5px;">Texas Hold'em</h2>
+    <div style="width: 50px;"></div> <!-- Spacer -->
+</div>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="result-overlay" class="overlay hidden">
+        <h1 id="result-title"><i class="fa-solid fa-trophy" style="color:#facc15;"></i> You Win!</h1>
+        <p id="result-desc">You won the pot!</p>
+        <button class="btn primary" id="result-new-game">Play Again</button>
+    </div>
+</div>
+
+<div class="controls">
+    <button class="btn primary" id="new-game">New Hand</button>
+    <button class="btn" id="fold-btn" disabled>Fold</button>
+    <button class="btn" id="check-btn" disabled>Check</button>
+    <button class="btn" id="call-btn" disabled>Call</button>
+    <button class="btn" id="raise-min-btn" disabled>Min Raise</button>
+    <button class="btn" id="raise-half-btn" disabled>½ Pot</button>
+    <button class="btn" id="raise-pot-btn" disabled>Pot</button>
+    <button class="btn" id="raise-all-btn" disabled>All-In</button>
+</div>
+
+<script src="poker.js"></script>
+</body>
+</html>

@@ -1,68 +1,86 @@
+/* Riddler — Daily 5-letter word riddle validated against the Dictionary API */
+
 const RIDDLE_ENTRIES = [
     {
-        word: 'HORIZON',
-        clue: 'The distant line where the earth and sky appear to meet.',
-        related: ['SUNSET', 'DAWN', 'SKYLINE', 'TWILIGHT', 'VIEW']
+        word: 'WATER',
+        clue: 'A clear, colorless liquid essential for all life.',
+        related: ['DRINK', 'OCEAN', 'FLUID', 'CLEAR', 'RAINY']
     },
     {
-        word: 'ENIGMA',
-        clue: 'A puzzling mystery or riddle whose solution requires thought.',
-        related: ['MYSTERY', 'PUZZLE', 'RIDDLE', 'CLUE', 'HIDDEN']
+        word: 'LIGHT',
+        clue: 'The natural force that lets us see, produced by the sun or a lamp.',
+        related: ['GLARE', 'BEAMS', 'GLOWS', 'SHINE', 'SUNNY']
     },
     {
-        word: 'GALAXY',
-        clue: 'A massive collection of stars, gas, and dust held together by gravity.',
-        related: ['COSMOS', 'UNIVERSE', 'STARS', 'SPACE', 'ORBIT']
+        word: 'EARTH',
+        clue: 'The planet we live on, the third from the sun.',
+        related: ['WORLD', 'GLOBE', 'SOILS', 'ORBIT', 'MUDDY']
     },
     {
-        word: 'FOREST',
-        clue: 'A large area filled with trees and wild plant life.',
-        related: ['WOODS', 'JUNGLE', 'TREES', 'NATURE', 'GROVE']
+        word: 'SMILE',
+        clue: 'A happy look with upward-curved lips.',
+        related: ['GRINS', 'CHEER', 'HAPPY', 'LAUGH', 'MOUTH']
     },
     {
-        word: 'LEGEND',
-        clue: 'A story passed through generations, often heroic or mythical.',
-        related: ['MYTH', 'TALE', 'FOLKLORE', 'HERO', 'EPIC']
+        word: 'STORM',
+        clue: 'Fierce weather with strong winds and heavy rain.',
+        related: ['RAINS', 'WINDY', 'CLOUD', 'GUSTS', 'FLASH']
     },
     {
-        word: 'BALANCE',
-        clue: 'A state where opposing forces are equal and steady.',
-        related: ['EQUILIBRIUM', 'SCALE', 'EQUAL', 'HARMONY', 'WEIGHT']
+        word: 'SLEEP',
+        clue: 'A natural rest state where the body and mind recharge.',
+        related: ['DREAM', 'NIGHT', 'DOZES', 'TIRED', 'SNORE']
     },
     {
-        word: 'ORCHARD',
-        clue: 'A planted area of fruit trees maintained for harvesting.',
-        related: ['APPLES', 'GARDEN', 'FRUITS', 'PLANT', 'GROWTH']
+        word: 'MUSIC',
+        clue: 'Sounds arranged in a pleasant way, often with rhythm.',
+        related: ['SINGS', 'LYRIC', 'TUNES', 'BEATS', 'CHORD']
     },
     {
-        word: 'SALVAGE',
-        clue: 'To recover valuable material from something damaged or wrecked.',
-        related: ['RECOVER', 'RESCUE', 'RECLAIM', 'REUSE', 'SAVE']
+        word: 'OCEAN',
+        clue: 'A vast body of salt water that covers most of the planet.',
+        related: ['WAVES', 'SALTY', 'TIDES', 'DEEPS', 'BLUES']
     },
     {
-        word: 'ORIENT',
-        clue: 'To align or position something relative to a known direction.',
-        related: ['DIRECTION', 'LOCATE', 'POSITION', 'ALIGN', 'FIND']
+        word: 'HEART',
+        clue: 'The organ that keeps blood moving through your body.',
+        related: ['CHEST', 'BLOOD', 'PUMPS', 'ORGAN', 'BEATS']
     },
     {
-        word: 'NOVELTY',
-        clue: 'Something new and unusual that catches attention.',
-        related: ['UNIQUE', 'FRESH', 'ORIGINAL', 'TRENDY', 'CURIOUS']
+        word: 'CLOUD',
+        clue: 'A floating mass of water droplets high in the sky.',
+        related: ['FLOAT', 'SKIES', 'MISTY', 'VAPOR', 'RAINS']
+    },
+    {
+        word: 'SWEET',
+        clue: 'Tasting like sugar or honey.',
+        related: ['SUGAR', 'HONEY', 'CANDY', 'TASTE', 'MELON']
+    },
+    {
+        word: 'GREEN',
+        clue: 'The color of grass and fresh leaves.',
+        related: ['GRASS', 'LEAFY', 'OLIVE', 'FRESH', 'COLOR']
     }
 ];
 
 const TODAY_DATE_STR = new Date().toISOString().slice(0, 10);
-const DAILY_INDEX = (new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate()) % RIDDLE_ENTRIES.length;
-const DAILY_ENTRY = RIDDLE_ENTRIES[DAILY_INDEX];
-const TARGET_WORD = DAILY_ENTRY.word.toUpperCase();
-const TARGET_LENGTH = TARGET_WORD.length;
-const TARGET_CLUE = DAILY_ENTRY.clue;
-const RELATED_WORDS = new Set(DAILY_ENTRY.related.map(word => word.toUpperCase()));
-const MAX_ATTEMPTS = 7;
+const SEED = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
+const MAX_ATTEMPTS = 5;
+const SAVE_KEY = `riddler_save_${TODAY_DATE_STR}_v2`;
+const DICT_API = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
+
+// Resolved once today's entry is fetched and validated
+let dailyEntry = null;
+let targetWord = '';
+let targetLength = 5;
+let relatedWords = new Set();
 
 let currentAttempt = 0;
 let gameOver = false;
+let checkingGuess = false;
 let previousGuesses = [];
+
+const dictCache = {};
 
 const boardEl = document.getElementById('board');
 const riddleTextEl = document.getElementById('riddle-text');
@@ -78,13 +96,41 @@ function setMessage(text, type = 'info') {
     messageEl.className = `message ${type}`;
 }
 
+// --- Dictionary API Validation ---
+async function isValidDictionaryWord(word) {
+    const key = word.toUpperCase();
+    if (dictCache[key] !== undefined) return dictCache[key];
+
+    try {
+        const res = await fetch(`${DICT_API}${encodeURIComponent(word.toLowerCase())}`);
+        const valid = res.ok;
+        dictCache[key] = valid;
+        return valid;
+    } catch (e) {
+        // Offline / API failure fallback: stay lenient so the game remains playable
+        dictCache[key] = true;
+        return true;
+    }
+}
+
+// --- Daily Word Selection (5-letter, dictionary-verified) ---
+async function fetchDailyEntry() {
+    const startIdx = SEED % RIDDLE_ENTRIES.length;
+    for (let i = 0; i < RIDDLE_ENTRIES.length; i++) {
+        const idx = (startIdx + i) % RIDDLE_ENTRIES.length;
+        const candidate = RIDDLE_ENTRIES[idx];
+        if (await isValidDictionaryWord(candidate.word)) return candidate;
+    }
+    return RIDDLE_ENTRIES[startIdx];
+}
+
 function initBoard() {
     boardEl.innerHTML = '';
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
         const row = document.createElement('div');
         row.className = 'board-row';
-        row.style.gridTemplateColumns = `repeat(${TARGET_LENGTH}, 1fr)`;
-        for (let j = 0; j < TARGET_LENGTH; j++) {
+        row.style.gridTemplateColumns = `repeat(${targetLength}, 1fr)`;
+        for (let j = 0; j < targetLength; j++) {
             const tile = document.createElement('div');
             tile.className = 'tile empty';
             tile.id = `tile-${i}-${j}`;
@@ -95,7 +141,7 @@ function initBoard() {
 }
 
 function restoreProgress() {
-    const savedData = JSON.parse(localStorage.getItem(`riddler_save_${TODAY_DATE_STR}`));
+    const savedData = JSON.parse(localStorage.getItem(SAVE_KEY));
     if (!savedData) return;
 
     currentAttempt = savedData.currentAttempt || 0;
@@ -104,7 +150,8 @@ function restoreProgress() {
 
     previousGuesses.forEach((entry, attempt) => {
         const [guess, states] = [entry.guess, entry.states];
-        for (let pos = 0; pos < TARGET_LENGTH; pos++) {
+        if (!guess || guess.length !== targetLength) return;
+        for (let pos = 0; pos < targetLength; pos++) {
             const tile = document.getElementById(`tile-${attempt}-${pos}`);
             tile.textContent = guess[pos] || '';
             tile.className = `tile ${states[pos]}`;
@@ -112,10 +159,10 @@ function restoreProgress() {
     });
 
     if (gameOver) {
-        const solved = previousGuesses.some(entry => entry.guess === TARGET_WORD);
+        const solved = previousGuesses.some(entry => entry.guess === targetWord);
         const resultText = solved
             ? 'You already solved today\'s riddle.'
-            : `The answer was ${TARGET_WORD}.`;
+            : `The answer was ${targetWord}.`;
         setMessage(resultText, solved ? 'success' : 'error');
         guessInput.disabled = true;
     }
@@ -124,7 +171,7 @@ function restoreProgress() {
 }
 
 function saveProgress() {
-    localStorage.setItem(`riddler_save_${TODAY_DATE_STR}`, JSON.stringify({
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
         currentAttempt,
         gameOver,
         previousGuesses
@@ -137,8 +184,8 @@ function updateDashboard(relatedStatus = 'Submit a guess to see if it connects.'
 }
 
 function getWordStates(guess) {
-    const results = Array(TARGET_LENGTH).fill('absent');
-    const targetArray = TARGET_WORD.split('');
+    const results = Array(targetLength).fill('absent');
+    const targetArray = targetWord.split('');
 
     guess.split('').forEach((letter, index) => {
         if (letter === targetArray[index]) {
@@ -160,16 +207,16 @@ function getWordStates(guess) {
 }
 
 function isValidWord(guess) {
-    return /^[A-Z]+$/.test(guess) && guess.length === TARGET_LENGTH;
+    return /^[A-Z]+$/.test(guess) && guess.length === targetLength;
 }
 
-function handleGuess(evt) {
+async function handleGuess(evt) {
     if (evt) evt.preventDefault();
-    if (gameOver) return;
+    if (gameOver || checkingGuess) return;
 
     const rawGuess = guessInput.value.trim().toUpperCase();
-    if (rawGuess.length !== TARGET_LENGTH) {
-        setMessage(`Guess must be exactly ${TARGET_LENGTH} letters.`, 'warning');
+    if (rawGuess.length !== targetLength) {
+        setMessage(`Guess must be exactly ${targetLength} letters.`, 'warning');
         return;
     }
 
@@ -183,21 +230,34 @@ function handleGuess(evt) {
         return;
     }
 
+    // Validate the guess is a real word via the Dictionary API
+    checkingGuess = true;
+    setMessage(`Checking "${rawGuess}" in the dictionary...`, 'info');
+    const inDictionary = await isValidDictionaryWord(rawGuess);
+    checkingGuess = false;
+
+    if (!inDictionary) {
+        setMessage(`"${rawGuess}" is not in the dictionary.`, 'warning');
+        return;
+    }
+
+    if (gameOver) return;
+
     const states = getWordStates(rawGuess);
     previousGuesses.push({ guess: rawGuess, states });
 
-    for (let pos = 0; pos < TARGET_LENGTH; pos++) {
+    for (let pos = 0; pos < targetLength; pos++) {
         const tile = document.getElementById(`tile-${currentAttempt}-${pos}`);
         tile.textContent = rawGuess[pos];
         tile.className = `tile ${states[pos]}`;
     }
 
-    const isRelated = RELATED_WORDS.has(rawGuess);
+    const isRelated = relatedWords.has(rawGuess);
     const relatedText = isRelated ? 'This guess is related to the answer.' : 'This guess is not one of the related words.';
     updateDashboard(relatedText);
 
-    if (rawGuess === TARGET_WORD) {
-        setMessage(`Correct! The answer is ${TARGET_WORD}.`, 'success');
+    if (rawGuess === targetWord) {
+        setMessage(`Correct! The answer is ${targetWord}.`, 'success');
         gameOver = true;
         guessInput.disabled = true;
         saveProgress();
@@ -206,11 +266,11 @@ function handleGuess(evt) {
 
     currentAttempt += 1;
     if (currentAttempt >= MAX_ATTEMPTS) {
-        setMessage(`Out of guesses! Today's answer was ${TARGET_WORD}.`, 'error');
+        setMessage(`Out of guesses! Today's answer was ${targetWord}.`, 'error');
         gameOver = true;
         guessInput.disabled = true;
     } else {
-        setMessage(`Not quite. ${relatedText} Target word length is ${TARGET_LENGTH}.`, 'info');
+        setMessage(`Not quite. ${relatedText} Target word length is ${targetLength}.`, 'info');
     }
 
     saveProgress();
@@ -219,16 +279,24 @@ function handleGuess(evt) {
     updateDashboard(relatedText);
 }
 
-function initializeGame() {
-    riddleTextEl.textContent = TARGET_CLUE;
-    lengthBadgeEl.textContent = `${TARGET_LENGTH} letters`;
+async function initializeGame() {
+    setMessage('Loading today\'s riddle...');
+
+    // Fetch & dictionary-verify today's 5-letter word
+    dailyEntry = await fetchDailyEntry();
+    targetWord = dailyEntry.word.toUpperCase();
+    targetLength = targetWord.length;
+    relatedWords = new Set(dailyEntry.related.map(word => word.toUpperCase()));
+
+    riddleTextEl.textContent = dailyEntry.clue;
+    lengthBadgeEl.textContent = `${targetLength} letters`;
     initBoard();
     restoreProgress();
-    guessInput.placeholder = `Guess a ${TARGET_LENGTH}-letter word...`;
-    guessInput.maxLength = TARGET_LENGTH;
+    guessInput.placeholder = `Guess a ${targetLength}-letter word...`;
+    guessInput.maxLength = targetLength;
 
     if (!gameOver && previousGuesses.length === 0) {
-        setMessage('Good luck! Try to solve the riddle in 7 guesses.', 'info');
+        setMessage('Good luck! Try to solve the riddle in 5 guesses.', 'info');
     } else if (!gameOver && previousGuesses.length > 0) {
         setMessage('Continue solving the riddle with your next guess.', 'info');
     }

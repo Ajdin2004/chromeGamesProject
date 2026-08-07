@@ -97,8 +97,10 @@ function safeItunesJsonpQuery(params) {
 }
 
 function setMessage(text, type = 'info') {
-    messageBox.textContent = text;
-    messageBox.className = `message-box ${type} msg-anim`;
+    if (messageBox) {
+        messageBox.textContent = text;
+        messageBox.className = `message-box ${type} msg-anim`;
+    }
 }
 
 function normalizeForCompare(s) {
@@ -144,26 +146,26 @@ function celebrateSuccess() {
         overlay.appendChild(piece);
     }
 
-    messageBox.classList.add('celebrate');
+    if (messageBox) messageBox.classList.add('celebrate');
     setTimeout(() => {
         overlay.classList.remove('active');
         overlay.innerHTML = '';
-        messageBox.classList.remove('celebrate');
+        if (messageBox) messageBox.classList.remove('celebrate');
     }, 2200);
 }
 
 function updateAttemptDisplay() {
-    attemptDisplay.textContent = `${attempts}/${MAX_ATTEMPTS}`;
+    if (attemptDisplay) attemptDisplay.textContent = `${attempts}/${MAX_ATTEMPTS}`;
 }
 
 // --- Dynamic Hint Generation ---
 function updateHint() {
+    if (!hintDisplay) return;
     if (!dailyTrack) {
         hintDisplay.textContent = '—';
         return;
     }
 
-    // Progressively reveal hints based on attempts or default to Album name
     if (attempts >= 3 && dailyTrack.artistName) {
         hintDisplay.textContent = `Artist starts with '${dailyTrack.artistName.charAt(0)}'`;
     } else if (dailyTrack.collectionName) {
@@ -174,6 +176,7 @@ function updateHint() {
 }
 
 function updateBoardList() {
+    if (!boardContainer) return;
     boardContainer.innerHTML = '';
     guesses.forEach(g => {
         const div = document.createElement('div');
@@ -185,7 +188,37 @@ function updateBoardList() {
     boardContainer.scrollTop = boardContainer.scrollHeight;
 }
 
+// --- First-Attempt Autofill Toggle ---
+function updateAutofillState() {
+    if (!guessInput) return;
+
+    if (attempts === 0) {
+        // Force fully unrecognized attributes on attempt 1 to defeat browser heuristics
+        guessInput.type = 'text';
+        guessInput.setAttribute('autocomplete', 'none');
+        guessInput.setAttribute('aria-autocomplete', 'none');
+        guessInput.setAttribute('role', 'presentation');
+        guessInput.setAttribute('autocorrect', 'off');
+        guessInput.setAttribute('autocapitalize', 'off');
+        guessInput.setAttribute('spellcheck', 'false');
+        guessInput.setAttribute('name', `field_no_fill_${Math.random().toString(36).substring(2, 7)}`);
+    } else {
+        // Restore standard autofill behavior for attempt 2 and beyond
+        guessInput.removeAttribute('role');
+        guessInput.setAttribute('autocomplete', 'on');
+        guessInput.setAttribute('aria-autocomplete', 'list');
+        guessInput.setAttribute('autocorrect', 'on');
+        guessInput.setAttribute('autocapitalize', 'on');
+        guessInput.setAttribute('spellcheck', 'true');
+        guessInput.setAttribute('name', 'guessInput');
+    }
+}
+
 // --- Autocomplete ---
+function suggestionsAllowed() {
+    return attempts > 0 && !suggestionDisabled;
+}
+
 function hideSuggestions() {
     if (!suggestionBox) return;
     suggestionBox.style.display = 'none';
@@ -193,7 +226,7 @@ function hideSuggestions() {
 }
 
 function renderSuggestions(items) {
-    if (!suggestionBox) return;
+    if (!suggestionBox || !suggestionsAllowed()) return;
     suggestionBox.innerHTML = '';
 
     if (!items || items.length === 0) { 
@@ -209,9 +242,9 @@ function renderSuggestions(items) {
         
         row.addEventListener('mousedown', (ev) => ev.preventDefault());
         row.addEventListener('click', () => {
-            guessInput.value = `${it.trackName}`;
+            if (guessInput) guessInput.value = `${it.trackName}`;
             hideSuggestions();
-            guessInput.focus();
+            if (guessInput) guessInput.focus();
         });
         
         suggestionBox.appendChild(row);
@@ -242,7 +275,7 @@ async function fetchSuggestions(term) {
 }
 
 function scheduleSuggestions(term) {
-    if (suggestionDisabled) return;
+    if (!suggestionsAllowed()) return;
     if (suggestionTimer) clearTimeout(suggestionTimer);
     suggestionTimer = setTimeout(async () => {
         const items = await fetchSuggestions(term);
@@ -262,14 +295,14 @@ function playSnippet(seconds) {
         audio.currentTime = 0;
         audio.volume = volume;
         
-        playBtn.classList.add('pulse-anim');
+        if (playBtn) playBtn.classList.add('pulse-anim');
         audio.play().catch(() => {});
         
         const stopAfter = Math.min(seconds, MAX_PREVIEW_SECONDS);
         setTimeout(() => {
             try { 
                 audio.pause(); 
-                playBtn.classList.remove('pulse-anim');
+                if (playBtn) playBtn.classList.remove('pulse-anim');
             } catch (e) {}
         }, stopAfter * 1000 + 250);
     } catch (e) {}
@@ -301,12 +334,13 @@ function restoreState() {
         gameOver = !!st.gameOver;
         dailyTrack = st.dailyTrack || null;
         updateAttemptDisplay();
+        updateAutofillState();
         updateBoardList();
         
         if (gameOver) {
             setMessage(st.passed ? `🎉 Solved! ${dailyTrack.trackName} — ${dailyTrack.artistName}` : `Game over! It was ${dailyTrack.trackName} — ${dailyTrack.artistName}`, st.passed ? 'success' : 'error');
-            guessInput.disabled = true; 
-            guessBtn.disabled = true;
+            if (guessInput) guessInput.disabled = true; 
+            if (guessBtn) guessBtn.disabled = true;
             revealAnswer();
         } else {
             setMessage(`Guess the song or artist — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
@@ -364,7 +398,7 @@ function checkCorrectGuess(guess) {
 }
 
 async function handleGuess() {
-    if (gameOver) return;
+    if (gameOver || !guessInput) return;
     const raw = guessInput.value.trim();
     if (!raw) { setMessage('Please type an artist or song title.', 'warning'); return; }
     
@@ -383,7 +417,7 @@ async function handleGuess() {
         setMessage(`🎉 Correct — ${res === 'title' ? 'song' : 'artist'} matched! ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
         celebrateSuccess();
         guessInput.disabled = true; 
-        guessBtn.disabled = true;
+        if (guessBtn) guessBtn.disabled = true;
         playFullPreview();
         revealAnswer();
         saveState(true);
@@ -393,12 +427,14 @@ async function handleGuess() {
 
     attempts++;
     updateAttemptDisplay();
+    // Switch input state to enable browser autofill on Attempt 2+
+    updateAutofillState();
 
     if (attempts >= MAX_ATTEMPTS) {
         gameOver = true;
         setMessage(`❌ Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
         guessInput.disabled = true; 
-        guessBtn.disabled = true;
+        if (guessBtn) guessBtn.disabled = true;
         playFullPreview();
         revealAnswer();
         saveState(false);
@@ -407,7 +443,7 @@ async function handleGuess() {
     }
 
     const secs = revealSeconds();
-    cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
+    if (cluePreview) cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
     playSnippet(secs);
     setMessage(`Not quite — try again. ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
     saveState(false);
@@ -420,17 +456,20 @@ async function init() {
     updateAttemptDisplay();
     updateHint();
 
-    boardContainer.innerHTML = '';
+    if (boardContainer) boardContainer.innerHTML = '';
 
     await fetchDailyTrack();
     const restored = restoreState();
+    if (!restored) {
+        updateAutofillState();
+    }
     updateHint();
 
     if (!dailyTrack) {
         setMessage('No track available today — try again later.', 'error');
-        guessInput.disabled = true; 
-        guessBtn.disabled = true; 
-        playBtn.disabled = true;
+        if (guessInput) guessInput.disabled = true; 
+        if (guessBtn) guessBtn.disabled = true; 
+        if (playBtn) playBtn.disabled = true;
         return;
     }
 
@@ -510,49 +549,79 @@ async function init() {
 
     if (!restored) {
         setTimeout(() => {
-            cluePreview.textContent = `Preview: ${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s`;
+            if (cluePreview) cluePreview.textContent = `Preview: ${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s`;
             playSnippet(revealSeconds());
             setMessage(`Guess the song or artist — ${MAX_ATTEMPTS} attempts.`, 'info');
         }, 300);
     }
 
-    guessBtn.addEventListener('click', handleGuess);
-    guessInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            handleGuess();
-        } else if (e.key === 'Tab' && suggestionBox && suggestionBox.style.display === 'block') {
-            const firstRow = suggestionBox.querySelector('.suggestion-row');
-            if (firstRow) {
+    if (guessBtn) guessBtn.addEventListener('click', handleGuess);
+    if (guessInput) {
+        guessInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
                 e.preventDefault();
-                guessInput.value = firstRow.dataset.trackName || guessInput.value;
-                hideSuggestions();
-                guessInput.focus();
+                handleGuess();
+            } else if (e.key === 'Tab' && suggestionBox && suggestionBox.style.display === 'block') {
+                const firstRow = suggestionBox.querySelector('.suggestion-row');
+                if (firstRow) {
+                    e.preventDefault();
+                    guessInput.value = firstRow.dataset.trackName || guessInput.value;
+                    hideSuggestions();
+                    guessInput.focus();
+                }
             }
-        }
-    });
+        });
 
-    guessInput.addEventListener('focus', () => {
-        setTimeout(() => {
-            guessInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
-    });
+        guessInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                guessInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
 
-    guessInput.addEventListener('input', (e) => {
-        const term = e.target.value.trim();
-        if (suggestionDisabled || term.length < 2) {
-            hideSuggestions();
-            return;
-        }
-        scheduleSuggestions(term);
-    });
+        guessInput.addEventListener('input', (e) => {
+            const term = e.target.value.trim();
+            if (!suggestionsAllowed() || term.length < 2) {
+                hideSuggestions();
+                return;
+            }
+            scheduleSuggestions(term);
+        });
+
+        guessInput.addEventListener('blur', () => setTimeout(hideSuggestions, 200));
+    }
 
     document.addEventListener('click', (e) => {
-        if (!suggestionBox.contains(e.target) && !guessInput.contains(e.target)) {
+        if (suggestionBox && guessInput && !suggestionBox.contains(e.target) && !guessInput.contains(e.target)) {
             hideSuggestions();
         }
     });
 
-    guessInput.addEventListener('blur', () => setTimeout(hideSuggestions, 200));
+    const guessForm = document.getElementById('guessForm');
+    if (guessForm) {
+        // Intercept native browser autofill with dummy fields
+        if (!document.getElementById('dummyAutofillTrap')) {
+            const dummyInput = document.createElement('input');
+            dummyInput.id = 'dummyAutofillTrap';
+            dummyInput.type = 'text';
+            dummyInput.name = 'search';
+            dummyInput.style.position = 'absolute';
+            dummyInput.style.top = '-9999px';
+            dummyInput.style.left = '-9999px';
+            dummyInput.setAttribute('autocomplete', 'on');
+            dummyInput.tabIndex = -1;
+            guessForm.prepend(dummyInput);
+        }
+
+        guessForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleGuess();
+        });
+    }
 }
 
-init();
+// Safely boot when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

@@ -221,27 +221,32 @@ function undo() {
 }
 
 function computeLayout() {
-    const w = canvas.width;
-    const h = canvas.height;
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
 
-    LEFT_MARGIN = Math.max(10, w * 0.02);
-    COLUMN_SPACING = Math.max(6, w * 0.015);
+    LEFT_MARGIN = Math.max(12, w * 0.03);
+    COLUMN_SPACING = Math.max(8, w * 0.02);
 
+    // Dynamic width calculation with expanded max boundary
     let widthBased = (w - LEFT_MARGIN * 2 - COLUMN_SPACING * 6) / 7;
-    widthBased = Math.max(35, Math.min(widthBased, 100));
-
-    CARD_WIDTH = widthBased;
+    CARD_WIDTH = Math.max(35, Math.min(widthBased, 160));
     CARD_HEIGHT = CARD_WIDTH * 1.45;
     CARD_RADIUS = CARD_WIDTH * 0.1;
-    STACK_SPACING = CARD_HEIGHT * 0.26;
+    
+    // Scale stack spacing relative to available canvas height
+    STACK_SPACING = Math.min(CARD_HEIGHT * 0.3, (h - CARD_HEIGHT - 60) / 12);
     HIDDEN_SPACING = CARD_HEIGHT * 0.12;
     TOP_MARGIN = Math.max(15, h * 0.03);
 }
 
 function resize() {
     const container = document.getElementById('game-container');
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
+    const dpr = window.devicePixelRatio || 1;
+    
+    canvas.width = container.clientWidth * dpr;
+    canvas.height = container.clientHeight * dpr;
+    
+    ctx.scale(dpr, dpr);
     computeLayout();
     resizeConfettiCanvas();
 }
@@ -300,9 +305,12 @@ function draw() {
         ctx.fillText('↻', stockX + CARD_WIDTH / 2, stockY + CARD_HEIGHT / 2 + CARD_WIDTH * 0.1);
     }
 
-    // Draw Waste
+    // Draw Waste (Skip top card if it is currently being dragged)
     if (waste.length > 0) {
-        waste[waste.length - 1].draw(ctx, LEFT_MARGIN + CARD_WIDTH + COLUMN_SPACING, stockY);
+        const topWasteCard = waste[waste.length - 1];
+        if (!isDragging || !draggedCards || !draggedCards.includes(topWasteCard)) {
+            topWasteCard.draw(ctx, LEFT_MARGIN + CARD_WIDTH + COLUMN_SPACING, stockY);
+        }
     }
 
     // Draw Tableau

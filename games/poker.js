@@ -1,0 +1,1390 @@
+// =============================================================================
+// TEXAS HOLD'EM POKER — Production build
+// =============================================================================
+'use strict';
+
+const canvas = (typeof document !== 'undefined') ? document.getElementById('gameCanvas') : null;
+const ctx = canvas ? canvas.getContext('2d') : null;
+
+// ---------------------------------------------------------------------------
+// Cards & Deck
+// ---------------------------------------------------------------------------
+const SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
+const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+const COLORS = { hearts: '#ff4d4d', diamonds: '#ff4d4d', clubs: '#2d3436', spades: '#2d3436' };
+const SUIT_ICONS = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
+
+class Card {
+    constructor(suit, rank) {
+        this.suit = suit;
+        this.rank = rank;
+        this.faceUp = false;
+        this.x = 0; this.y = 0;       // current position
+        this.tx = 0; this.ty = 0;     // target position
+        this.flipStart = -1;          // flip animation start timestamp
+        this.flipDur = 400;
+    }
+    get color() { return COLORS[this.suit]; }
+    get rankValue() { return RANKS.indexOf(this.rank) + 2; }
+    key() { return this.suit + ':' + this.rank; }
+
+    draw(x, y, opts = {}) {
+        if (!ctx) return;
+        const scale = opts.scale || 1;
+        const w = CARD_WIDTH * scale;
+        const h = CARD_HEIGHT * scale;
+        const r = CARD_RADIUS * scale;
+        const glow = opts.glow || false;
+        const dim = opts.dim || false;
+
+        // Face orientation for flip animation
+        let faceUp = this.faceUp;
+        let sx = 1;
+        if (opts.flipT !== undefined && opts.flipT >= 0) {
+            faceUp = opts.flipT < 0.5 ? !this.faceUp : this.faceUp;
+            sx = Math.max(0.05, Math.abs(Math.cos(opts.flipT * Math.PI)));
+        }
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(sx, 1);
+
+        // Shadow
+        ctx.shadowColor = glow ? 'rgba(250,204,21,0.8)' : 'rgba(0,0,0,0.35)';
+        ctx.shadowBlur = glow ? 16 : 5;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+
+        // Card base
+        ctx.fillStyle = faceUp ? '#ffffff' : '#1e3799';
+        ctx.beginPath();
+        ctx.roundRect(0, 0, w, h, r);
+        ctx.fill();
+
+        if (glow) {
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        if (!faceUp) {
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            ctx.fillRect(w * 0.125, h * 0.083, w * 0.75, h * 0.834);
+            // small diamond motif
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.beginPath();
+            ctx.moveTo(w * 0.5, h * 0.3);
+            ctx.lineTo(w * 0.62, h * 0.5);
+            ctx.lineTo(w * 0.5, h * 0.7);
+            ctx.lineTo(w * 0.38, h * 0.5);
+            ctx.closePath();
+            ctx.fill();
+        } else {
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#dfe6e9';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            const rankFont = Math.max(8, w * 0.225);
+            const smallSuitFont = Math.max(7, w * 0.2);
+            const bigSuitFont = Math.max(14, w * 0.5);
+
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = dim ? 0.45 : 1;
+            ctx.font = `bold ${rankFont}px Outfit`;
+            ctx.textAlign = 'left';
+            ctx.fillText(this.rank, w * 0.1, h * 0.185);
+
+            ctx.font = `${smallSuitFont}px serif`;
+            ctx.fillText(SUIT_ICONS[this.suit], w * 0.1, h * 0.335);
+
+            ctx.font = `${bigSuitFont}px serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText(SUIT_ICONS[this.suit], w / 2, h / 2 + bigSuitFont * 0.35);
+            ctx.globalAlpha = 1;
+        }
+        ctx.restore();
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Hand evaluation — best 5 of 7
+// ---------------------------------------------------------------------------
+function compareEval(a, b) {
+    if (a.rank !== b.rank) return a.rank - b.rank;
+    for (let i = 0; i < Math.min(a.tiebreakers.length, b.tiebreakers.length); i++) {
+        if (a.tiebreakers[i] !== b.tiebreakers[i]) return a.tiebreakers[i] - b.tiebreakers[i];
+    }
+    return 0;
+}
+
+function straightHigh5(uniqDesc) {
+    if (uniqDesc.length < 5) return 0;
+    // Wheel: A-2-3-4-5
+    if (uniqDesc.includes(14) && uniqDesc.includes(2) && uniqDesc.includes(3) && uniqDesc.includes(4) && uniqDesc.includes(5)) return 5;
+    for (let i = 0; i <= uniqDesc.length - 5; i++) {
+        if (uniqDesc[i] - uniqDesc[i + 4] === 4) return uniqDesc[i];
+    }
+    return 0;
+}
+
+function evaluate5(cards) {
+    const vals = cards.map(c => c.rankValue).sort((a, b) => b - a);
+    const cnt = {};
+    vals.forEach(v => cnt[v] = (cnt[v] || 0) + 1);
+    const uniq = Object.keys(cnt).map(Number).sort((a, b) => b - a);
+    const flush = cards.every(c => c.suit === cards[0].suit);
+    const sh = flush ? straightHigh5(uniq) : 0;
+
+    if (sh) {
+        return { rank: sh === 14 ? 9 : 8, tiebreakers: [sh], cards };
+    }
+    const four = uniq.find(v => cnt[v] === 4);
+    if (four !== undefined) {
+        return { rank: 7, tiebreakers: [four, ...uniq.filter(v => v !== four)], cards };
+    }
+    const three = uniq.find(v => cnt[v] === 3);
+    const pair1 = uniq.find(v => cnt[v] === 2);
+    if (three !== undefined && pair1 !== undefined) {
+        return { rank: 6, tiebreakers: [three, pair1], cards };
+    }
+    if (flush) {
+        return { rank: 5, tiebreakers: vals, cards };
+    }
+    const sh2 = straightHigh5(uniq);
+    if (sh2) {
+        return { rank: 4, tiebreakers: [sh2], cards };
+    }
+    if (three !== undefined) {
+        return { rank: 3, tiebreakers: [three, ...uniq.filter(v => v !== three)], cards };
+    }
+    const pairs = uniq.filter(v => cnt[v] === 2);
+    if (pairs.length === 2) {
+        const kick = uniq.find(v => cnt[v] === 1);
+        return { rank: 2, tiebreakers: [pairs[0], pairs[1], kick], cards };
+    }
+    if (pairs.length === 1) {
+        return { rank: 1, tiebreakers: [pairs[0], ...uniq.filter(v => v !== pairs[0])], cards };
+    }
+    return { rank: 0, tiebreakers: vals, cards };
+}
+
+function evaluateCards(cards) {
+    if (cards.length !== 7) return evaluate5(cards);
+    // Best 5 of 7 — all 21 combinations
+    let best = null;
+    for (let a = 0; a < 3; a++)
+        for (let b = a + 1; b < 4; b++)
+            for (let c = b + 1; c < 5; c++)
+                for (let d = c + 1; d < 6; d++)
+                    for (let e = d + 1; e < 7; e++) {
+                        const combo = [cards[a], cards[b], cards[c], cards[d], cards[e]];
+                        const ev = evaluate5(combo);
+                        if (!best || compareEval(ev, best) > 0) best = ev;
+                    }
+    return best;
+}
+
+const RANK_LABEL = { 14: 'A', 13: 'K', 12: 'Q', 11: 'J', 10: '10', 9: '9', 8: '8', 7: '7', 6: '6', 5: '5', 4: '4', 3: '3', 2: '2' };
+const RANK_PLURAL = { 14: 'Aces', 13: 'Kings', 12: 'Queens', 11: 'Jacks', 10: 'Tens', 9: 'Nines', 8: 'Eights', 7: 'Sevens', 6: 'Sixes', 5: 'Fives', 4: 'Fours', 3: 'Threes', 2: 'Twos' };
+
+function handLabel(ev) {
+    switch (ev.rank) {
+        case 9: return 'Royal Flush';
+        case 8: return `Straight Flush, ${RANK_LABEL[ev.tiebreakers[0]]} high`;
+        case 7: return `Four of a Kind, ${RANK_PLURAL[ev.tiebreakers[0]]}`;
+        case 6: return `Full House, ${RANK_PLURAL[ev.tiebreakers[0]]} full of ${RANK_PLURAL[ev.tiebreakers[1]]}`;
+        case 5: return `Flush, ${RANK_LABEL[ev.tiebreakers[0]]} high`;
+        case 4: return `Straight, ${RANK_LABEL[ev.tiebreakers[0]]} high`;
+        case 3: return `Three of a Kind, ${RANK_PLURAL[ev.tiebreakers[0]]}`;
+        case 2: return `Two Pair, ${RANK_PLURAL[ev.tiebreakers[0]]} and ${RANK_PLURAL[ev.tiebreakers[1]]}`;
+        case 1: return `Pair of ${RANK_PLURAL[ev.tiebreakers[0]]}`;
+        default: return `High Card, ${RANK_LABEL[ev.tiebreakers[0]]} high`;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Responsive layout
+// ---------------------------------------------------------------------------
+let CARD_WIDTH = 70;
+let CARD_HEIGHT = 100;
+let CARD_RADIUS = 8;
+
+function computeLayout() {
+    if (!canvas) return;
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    // Card size is constrained by BOTH width and the vertical space available
+    // between the AI row, community cards, and the player row. This keeps
+    // everything inside the visible play area on any aspect ratio.
+    const widthCap = w * 0.070;
+    const heightCap = h * 0.165;   // cards occupy at most ~16.5% of container height
+    CARD_WIDTH = Math.max(26, Math.min(widthCap, heightCap / 1.45, 80));
+    CARD_HEIGHT = CARD_WIDTH * 1.45;
+    CARD_RADIUS = CARD_WIDTH * 0.1;
+}
+
+function resize() {
+    if (!canvas) return;
+    const container = document.getElementById('game-container');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = container.clientWidth * dpr;
+    canvas.height = container.clientHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    computeLayout();
+}
+
+function layout() {
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+
+    // Vertical bands — all derived from card height so labels never clip
+    // into cards or fall off-screen.
+    const AI_CARDS_Y = Math.max(h * 0.055 + CARD_HEIGHT * 0.5 + 44, h * 0.17); // AI hand centers
+    const PLAYER_CARDS_Y = Math.min(h * 0.86, h - CARD_HEIGHT * 0.5 - 52);     // player hand centers
+    return {
+        w, h,
+        AI_NAME_Y: h * 0.075,                 // AI name labels
+        AI_CHIPS_Y: h * 0.075 + 18,           // AI chip counts
+        AI_CARDS_Y,
+        COMMUNITY_Y: h * 0.50,                // community cards center
+        POT_Y: h * 0.39,                      // pot label
+        PLAYER_CARDS_Y,
+        PLAYER_LABEL_Y: PLAYER_CARDS_Y - CARD_HEIGHT * 0.5 - 14, // readout above player cards
+        FEED_Y: h * 0.42,                     // action feed start (left column)
+        deck: { x: w * 0.07, y: h * 0.39 },
+        pot: { x: w / 2, y: h * 0.39 },
+        community: { x: w / 2, y: h * 0.50 },
+        seats: [
+            { x: w * 0.5, y: PLAYER_CARDS_Y },
+            { x: w * 0.14, y: AI_CARDS_Y },
+            { x: w * 0.5, y: AI_CARDS_Y },
+            { x: w * 0.86, y: AI_CARDS_Y }
+        ]
+    };
+}
+
+// ---------------------------------------------------------------------------
+// Game state
+// ---------------------------------------------------------------------------
+const AI_PERSONALITIES = {
+    Neon: { raiseAgg: 0.35, bluffFreq: 0.15, foldTight: 0.6 },
+    Viper: { raiseAgg: 0.75, bluffFreq: 0.4, foldTight: 0.15 },
+    Ace: { raiseAgg: 0.5, bluffFreq: 0.22, foldTight: 0.4 }
+};
+
+let seats = [];           // seat 0 = player
+let community = [];
+let deck = [];
+let pot = 0;
+let displayPot = 0;
+let currentBet = 0;
+let actionQueue = [];
+let dealerPos = 0;
+let smallBlind = 10;
+let bigBlind = 20;
+let handNumber = 0;
+let mode = 'idle';        // idle | dealing | betting | street | showdown | payout | gameover
+let phaseLabel = '';
+let playerTurn = false;
+let pendingAIPlayer = -1;
+let aiThinkUntil = 0;
+let streetUntil = 0;
+let afterStreet = null;
+let showdownUntil = 0;
+let payoutUntil = 0;
+let afterPayout = null;
+let dealingT = 0;
+let dealingCards = [];
+let dealDurTotal = 0;
+let winningKeys = [];
+let winningEval = null;
+let bestSeatIdx = -1;
+let actionFeed = [];
+let confetti = [];
+let floatingChips = [];
+let lastNow = performance.now();
+let resultShown = false;
+let gameOverMsg = '';
+
+function makeSeat(name, isPlayer, personality) {
+    return { name, isPlayer, personality, chips: 1000, bet: 0, totalBet: 0, folded: false, hand: [] };
+}
+function seat(i) { return seats[i]; }
+function playerSeat() { return seats[0]; }
+function activeActors() { return seats.map((s, i) => i).filter(i => !seats[i].folded && seats[i].chips > 0); }
+function activeContenders() { return seats.map((s, i) => i).filter(i => !seats[i].folded); }
+function allInSeats() { return seats.map((s, i) => i).filter(i => !seats[i].folded && seats[i].chips <= 0); }
+
+function createDeck() {
+    deck = [];
+    for (const suit of SUITS) for (const rank of RANKS) deck.push(new Card(suit, rank));
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+}
+
+function loadChips() {
+    try { const v = parseInt(localStorage.getItem('poker_chips'), 10); if (v && v > 0) return v; } catch (e) { /* ignore */ }
+    return 1000;
+}
+function saveChips() {
+    try { localStorage.setItem('poker_chips', String(playerSeat().chips)); } catch (e) { /* ignore */ }
+}
+function saveBestChips() {
+    try {
+        const best = parseInt(localStorage.getItem('poker_best_chips'), 10) || 0;
+        if (playerSeat().chips > best) localStorage.setItem('poker_best_chips', String(playerSeat().chips));
+    } catch (e) { /* ignore */ }
+}
+
+// ---------------------------------------------------------------------------
+// Game flow
+// ---------------------------------------------------------------------------
+function newHand() {
+    if (mode === 'dealing' || mode === 'betting' || mode === 'street') return;
+    hideOverlay();
+    createDeck();
+    community = [];
+    pot = 0; displayPot = 0; currentBet = 0;
+    winningKeys = []; winningEval = null; bestSeatIdx = -1;
+    actionFeed = []; floatingChips = []; confetti = [];
+    seats.forEach(s => { s.hand = []; s.bet = 0; s.totalBet = 0; s.folded = false; });
+    handNumber++;
+    phaseLabel = 'Pre-Flop';
+    dealHoleCards();
+    mode = 'dealing';
+    dealingT = 0;
+    updateOverlay();
+}
+
+function dealHoleCards() {
+    const L = layout();
+    dealingCards = [];
+    let delay = 0;
+    for (let r = 0; r < 2; r++) {
+        for (let i = 0; i < 4; i++) {
+            const card = deck.pop();
+            card.faceUp = (i === 0);
+            card.x = L.deck.x; card.y = L.deck.y;
+            const tgt = seatCardPos(i, r);
+            card.tx = tgt.x; card.ty = tgt.y;
+            card.flipStart = -1;
+            card.arrived = false;
+            card.dealDelay = delay;
+            card.dealDur = 650;
+            seats[i].hand.push(card);
+            dealingCards.push(card);
+            delay += 140;
+        }
+    }
+    dealDurTotal = delay;
+    logAction(`Hand #${handNumber} — dealing…`);
+}
+
+function seatCardPos(seatIdx, cardIdx) {
+    const L = layout();
+    const s = L.seats[seatIdx];
+    const n = seats[seatIdx].hand.length || 2;
+    const spacing = seatIdx === 0 ? CARD_WIDTH + 8 : CARD_WIDTH * 0.55;
+    return {
+        x: s.x - ((n - 1) * spacing) / 2 + cardIdx * spacing,
+        y: s.y
+    };
+}
+
+function startBettingRound(firstToAct) {
+    mode = 'betting';
+    buildActionQueue(firstToAct);
+    runTurn();
+}
+
+function buildActionQueue(firstToAct) {
+    actionQueue = [];
+    const active = activeActors();
+    if (!active.length) return;
+    let idx = active.indexOf(firstToAct);
+    if (idx === -1) {
+        // first-to-act isn't active; find next active going around
+        idx = -1;
+        for (let k = 1; k <= 4; k++) {
+            const cand = (firstToAct + k) % 4;
+            if (active.includes(cand)) { idx = active.indexOf(cand); break; }
+        }
+        if (idx === -1) idx = 0;
+    }
+    for (let i = 0; i < active.length; i++) actionQueue.push(active[(idx + i) % active.length]);
+}
+
+function runTurn() {
+    if (mode !== 'betting') return;
+    while (actionQueue.length > 0) {
+        const idx = actionQueue[0];
+        if (seats[idx].folded || seats[idx].chips <= 0) { actionQueue.shift(); continue; }
+        if (seats[idx].isPlayer) {
+            playerTurn = true;
+            updateButtons();
+            return;
+        }
+        playerTurn = false;
+        updateButtons();
+        pendingAIPlayer = idx;
+        aiThinkUntil = performance.now() + 500 + Math.random() * 700;
+        return;
+    }
+    endBettingRound();
+}
+
+function advanceAfterAction() {
+    if (mode !== 'betting') return;
+    // If only one non-folded player remains, they win immediately
+    const contenders = activeContenders();
+    if (contenders.length === 1) {
+        awardPot(contenders[0], 'everyone folded');
+        return;
+    }
+    if (contenders.length === 0) return; // should not happen
+    actionQueue.shift();
+    runTurn();
+}
+
+function endBettingRound() {
+    if (mode !== 'betting') return;
+    const contenders = activeContenders();
+    if (contenders.length === 1) {
+        awardPot(contenders[0], 'everyone folded');
+        return;
+    }
+    // Reset round bets, keep totalBet
+    seats.forEach(s => { s.bet = 0; });
+    currentBet = 0;
+    if (community.length === 0) {
+        burnAndStreet(3, 'Flop');
+    } else if (community.length === 3) {
+        burnAndStreet(1, 'Turn');
+    } else if (community.length === 4) {
+        burnAndStreet(1, 'River');
+    } else {
+        startShowdown();
+    }
+}
+
+function burnAndStreet(count, label) {
+    mode = 'street';
+    phaseLabel = label;
+    deck.pop(); // burn
+    const L = layout();
+    const startX = L.community.x - ((community.length + count - 1) * (CARD_WIDTH + 8)) / 2;
+    community.forEach((c, i) => {
+        c.tx = startX + i * (CARD_WIDTH + 8);
+        c.ty = L.community.y;
+    });
+    for (let i = 0; i < count; i++) {
+        const card = deck.pop();
+        card.faceUp = true;
+        card.x = L.deck.x; card.y = L.deck.y;
+        const idx = community.length;
+        card.tx = startX + idx * (CARD_WIDTH + 8);
+        card.ty = L.community.y;
+        card.flipStart = performance.now() + i * 250;
+        card.flipDur = 420;
+        card.arrived = true;
+        community.push(card);
+    }
+    streetUntil = performance.now() + count * 250 + 500;
+    afterStreet = () => {
+        mode = 'betting';
+        logAction(`${label} dealt`);
+        startBettingRound((dealerPos + 1) % 4);
+    };
+}
+
+function startShowdown() {
+    mode = 'showdown';
+    phaseLabel = 'Showdown';
+    let base = performance.now() + 400;
+    seats.forEach((s, i) => {
+        if (i > 0 && !s.folded) {
+            s.hand.forEach(c => { c.flipStart = base + (i - 1) * 300; c.flipDur = 420; });
+        }
+    });
+    showdownUntil = base + 3 * 300 + 500;
+    logAction('Showdown!');
+}
+
+function computeWinnerAndAward() {
+    // Evaluate best hand for every non-folded seat
+    const evals = activeContenders().map(i => ({
+        i,
+        ev: evaluateCards([...seats[i].hand, ...community])
+    }));
+
+    // Overall strongest hand (for highlight & message)
+    let bestE = evals[0].ev;
+    let bestList = [evals[0]];
+    for (const e2 of evals.slice(1)) {
+        const cmp = compareEval(e2.ev, bestE);
+        if (cmp > 0) { bestE = e2.ev; bestList = [e2]; }
+        else if (cmp === 0) bestList.push(e2);
+    }
+    winningEval = bestE;
+    winningKeys = (bestE.cards || []).map(c => c.key());
+    bestSeatIdx = bestList[0].i;
+
+    // Payout via side pots
+    const before = playerSeat().chips;
+    payoutSidePots();
+    const won = playerSeat().chips - before;
+
+    // Floating chip animation pot -> winner(s bestSeat)
+    spawnPayoutChips(bestSeatIdx);
+
+    // Determine outcome message
+    const playerIsBest = bestList.some(b => b.i === 0);
+    const aiChipsLeft = seats.slice(1).filter(s => s.chips > 0).length;
+
+    if (playerSeat().chips <= 0) {
+        gameOverMsg = 'busted';
+    } else if (aiChipsLeft === 0) {
+        gameOverMsg = 'cleared';
+    } else if (playerIsBest) {
+        gameOverMsg = 'win';
+    } else {
+        gameOverMsg = 'lose';
+    }
+
+    mode = 'payout';
+    payoutUntil = performance.now() + 1500;
+    afterPayout = () => finishHand(won);
+    saveChips();
+    saveBestChips();
+}
+
+function payoutSidePots() {
+    const contributors = [0, 1, 2, 3].map(i => ({ i, totalBet: seats[i].totalBet, folded: seats[i].folded }));
+    const levels = [...new Set(contributors.filter(c => c.totalBet > 0).map(c => c.totalBet))].sort((a, b) => a - b);
+    let prev = 0;
+    for (const level of levels) {
+        const elig = contributors.filter(c => c.totalBet >= level);
+        const segment = (level - prev) * elig.length;
+        const contenders = elig.filter(c => !c.folded);
+        if (segment > 0 && contenders.length > 0) {
+            const evals = contenders.map(c => ({ i: c.i, ev: evaluateCards([...seats[c.i].hand, ...community]) }));
+            let best = evals[0].ev;
+            let winners = [evals[0]];
+            for (const e2 of evals.slice(1)) {
+                const cmp = compareEval(e2.ev, best);
+                if (cmp > 0) { best = e2.ev; winners = [e2]; }
+                else if (cmp === 0) winners.push(e2);
+            }
+            const share = Math.floor(segment / winners.length);
+            winners.forEach(w => { seats[w.i].chips += share; });
+        }
+        prev = level;
+    }
+    pot = 0;
+}
+
+function awardPot(seatIdx, reason) {
+    const name = seatIdx === 0 ? 'You' : seats[seatIdx].name;
+    const amount = pot;
+    const playerBefore = playerSeat().chips;
+    pot = 0;
+    seats[seatIdx].chips += amount;
+    winningKeys = [];
+    winningEval = null;
+    bestSeatIdx = seatIdx;
+    logAction(`${name} wins the pot! (${reason})`);
+    spawnPayoutChips(seatIdx);
+
+    const won = playerSeat().chips - playerBefore;
+
+    const aiChipsLeft = seats.slice(1).filter(s => s.chips > 0).length;
+    if (playerSeat().chips <= 0) gameOverMsg = 'busted';
+    else if (aiChipsLeft === 0) gameOverMsg = 'cleared';
+    else gameOverMsg = seatIdx === 0 ? 'win' : 'lose';
+
+    mode = 'payout';
+    payoutUntil = performance.now() + 1400;
+    afterPayout = () => finishHand(won);
+    saveChips();
+    saveBestChips();
+}
+
+function finishHand(wonAmount) {
+    dealerPos = (dealerPos + 1) % 4;
+    showResultOverlay(wonAmount);
+    updateButtons();
+}
+
+function showResultOverlay(wonAmount) {
+    const overlay = document.getElementById('result-overlay');
+    const titleEl = document.getElementById('result-title');
+    const descEl = document.getElementById('result-desc');
+    const btn = document.getElementById('result-new-game');
+    if (!overlay || !titleEl || !descEl || !btn) return;
+
+    resultShown = true;
+
+    if (gameOverMsg === 'win') {
+        launchConfetti();
+        titleEl.innerHTML = `<i class="fa-solid fa-trophy" style="color:#facc15;"></i> You Win!`;
+        descEl.textContent = `You take ${wonAmount} chips with ${handLabel(winningEval)}!`;
+    } else if (gameOverMsg === 'lose') {
+        titleEl.innerHTML = `<i class="fa-solid fa-robot" style="color:#ff0080;"></i> ${seats[bestSeatIdx].name} Wins!`;
+        descEl.textContent = `${seats[bestSeatIdx].name} takes the pot with ${handLabel(winningEval)}.`;
+    } else if (gameOverMsg === 'busted') {
+        titleEl.innerHTML = `<i class="fa-solid fa-skull" style="color:#ff4d4d;"></i> You Busted!`;
+        descEl.textContent = `You're out of chips. Your bankroll has been reset.`;
+        btn.textContent = 'Restart Game';
+    } else if (gameOverMsg === 'cleared') {
+        launchConfetti();
+        titleEl.innerHTML = `<i class="fa-solid fa-crown" style="color:#facc15;"></i> You Cleared the Table!`;
+        descEl.textContent = `All opponents are out. You are the champion!`;
+        btn.textContent = 'New Tournament';
+    } else {
+        titleEl.innerHTML = `<i class="fa-solid fa-handshake" style="color:#00f2fe;"></i> Hand Complete`;
+        descEl.textContent = `Bankroll: ${playerSeat().chips} chips.`;
+        btn.textContent = 'Next Hand';
+    }
+    overlay.classList.remove('hidden');
+}
+
+function hideOverlay() {
+    resultShown = false;
+    const overlay = document.getElementById('result-overlay');
+    if (overlay) overlay.classList.add('hidden');
+}
+
+// ---------------------------------------------------------------------------
+// Player actions
+// ---------------------------------------------------------------------------
+function playerFoldAct() {
+    if (!playerTurn || mode !== 'betting') return;
+    seats[0].folded = true;
+    logAction(`You fold.`);
+    playerTurn = false;
+    advanceAfterAction();
+}
+
+function playerCheckAct() {
+    if (!playerTurn || mode !== 'betting') return;
+    if (seats[0].bet < currentBet) return;
+    logAction(`You check.`);
+    playerTurn = false;
+    advanceAfterAction();
+}
+
+function playerCallAct() {
+    if (!playerTurn || mode !== 'betting') return;
+    const toCall = Math.min(currentBet - seats[0].bet, seats[0].chips);
+    const p = seats[0];
+    p.chips -= toCall;
+    p.bet += toCall;
+    p.totalBet += toCall;
+    pot += toCall;
+    logAction(`You call ${toCall}.`);
+    playerTurn = false;
+    advanceAfterAction();
+}
+
+function playerRaiseTo(raiseTo) {
+    if (!playerTurn || mode !== 'betting') return;
+    const p = seats[0];
+    const capped = Math.min(raiseTo, p.chips + p.bet);
+    if (capped <= currentBet) {
+        // Can't raise above current bet — fall back to call
+        playerCallAct();
+        return;
+    }
+    const amount = capped - p.bet;
+    p.chips -= amount;
+    p.bet = capped;
+    p.totalBet += amount;
+    pot += amount;
+    currentBet = capped;
+    logAction(`You raise to ${capped}.`);
+    playerTurn = false;
+    // Everyone after raiser must re-act
+    rebuildAfterRaise(0);
+    advanceAfterAction();
+}
+
+function rebuildAfterRaise(raiserIdx) {
+    const active = activeActors();
+    actionQueue = [];
+    if (!active.includes(raiserIdx)) return;
+    const idx = active.indexOf(raiserIdx);
+    for (let i = 1; i < active.length; i++) {
+        actionQueue.push(active[(idx + i) % active.length]);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// AI logic
+// ---------------------------------------------------------------------------
+function aiAct(idx) {
+    const ai = seats[idx];
+    if (ai.folded || ai.chips <= 0 || mode !== 'betting') {
+        pendingAIPlayer = -1;
+        return;
+    }
+    const pers = AI_PERSONALITIES[ai.name] || AI_PERSONALITIES.Ace;
+    const ev = evaluateCards([...ai.hand, ...community]);
+    const strength = ev.rank;
+    const toCall = Math.min(currentBet - ai.bet, ai.chips);
+    const rand = Math.random();
+
+    // Preflop: strength from 2-card eval is weak; use hole "hand rank" heuristic
+    if (community.length === 0) {
+        const h1 = ai.hand[0].rankValue, h2 = ai.hand[1].rankValue;
+        const paired = h1 === h2;
+        const high = Math.max(h1, h2);
+        const suited = ai.hand[0].suit === ai.hand[1].suit;
+        let score = paired ? 6 : 0;
+        score += high >= 14 ? 4 : high >= 12 ? 3 : high >= 10 ? 2 : 0;
+        score += Math.abs(h1 - h2) <= 2 ? 2 : 0;
+        score += suited ? 1 : 0;
+        decideAI(idx, score / 12, toCall, pers, rand);
+        return;
+    }
+
+    decideAI(idx, strength / 9, toCall, pers, rand);
+}
+
+function decideAI(idx, strength01, toCall, pers, rand) {
+    const ai = seats[idx];
+    const potOdds = pot + toCall > 0 ? toCall / (pot + toCall) : 0;
+
+    if (toCall === 0) {
+        // Option: check or bet
+        if (strength01 >= 0.55 || rand < pers.raiseAgg) {
+            const bet = betSizeAI(ai);
+            applyAIBet(idx, bet);
+        } else {
+            logAction(`${ai.name} checks.`);
+            pendingAIPlayer = -1;
+            advanceAfterAction();
+        }
+        return;
+    }
+
+    if (strength01 >= 0.6 || (strength01 >= 0.4 && rand < 0.5)) {
+        // Strong: call or raise
+        if (rand < pers.raiseAgg * 0.6) {
+            const bet = betSizeAI(ai);
+            applyAIBet(idx, bet);
+        } else {
+            const callAmount = Math.min(toCall, ai.chips);
+            ai.chips -= callAmount;
+            ai.bet += callAmount;
+            ai.totalBet += callAmount;
+            pot += callAmount;
+            logAction(`${ai.name} calls ${callAmount}.`);
+            pendingAIPlayer = -1;
+            advanceAfterAction();
+        }
+    } else if (rand < pers.bluffFreq && strength01 >= 0.15) {
+        // Bluff raise
+        const bet = betSizeAI(ai, true);
+        applyAIBet(idx, bet);
+    } else if (potOdds > 0.18 && rand < 0.5) {
+        // Cheap to call
+        const callAmount = Math.min(toCall, ai.chips);
+        ai.chips -= callAmount;
+        ai.bet += callAmount;
+        ai.totalBet += callAmount;
+        pot += callAmount;
+        logAction(`${ai.name} calls ${callAmount}.`);
+        pendingAIPlayer = -1;
+        advanceAfterAction();
+    } else if (rand < pers.foldTight) {
+        ai.folded = true;
+        logAction(`${ai.name} folds.`);
+        pendingAIPlayer = -1;
+        advanceAfterAction();
+    } else {
+        const callAmount = Math.min(toCall, ai.chips);
+        ai.chips -= callAmount;
+        ai.bet += callAmount;
+        ai.totalBet += callAmount;
+        pot += callAmount;
+        logAction(`${ai.name} calls ${callAmount}.`);
+        pendingAIPlayer = -1;
+        advanceAfterAction();
+    }
+}
+
+function betSizeAI(ai, bluff = false) {
+    let target;
+    if (bluff) {
+        target = Math.floor(pot * (0.4 + Math.random() * 0.4));
+    } else if (pot === 0) {
+        target = bigBlind * (1 + Math.floor(Math.random() * 3));
+    } else {
+        target = Math.floor(pot * (0.5 + Math.random() * 0.8));
+    }
+    const minBet = currentBet > 0 ? currentBet + bigBlind : bigBlind;
+    const raiseTo = Math.max(minBet, currentBet + target);
+    return Math.min(raiseTo, ai.chips + ai.bet);
+}
+
+function applyAIBet(idx, raiseTo) {
+    const ai = seats[idx];
+    const capped = Math.min(raiseTo, ai.chips + ai.bet);
+    if (capped <= currentBet) {
+        // can't raise; call instead
+        const toCall = Math.min(currentBet - ai.bet, ai.chips);
+        ai.chips -= toCall;
+        ai.bet += toCall;
+        ai.totalBet += toCall;
+        pot += toCall;
+        logAction(`${ai.name} calls ${toCall}.`);
+        pendingAIPlayer = -1;
+        advanceAfterAction();
+        return;
+    }
+    const amount = capped - ai.bet;
+    ai.chips -= amount;
+    ai.bet = capped;
+    ai.totalBet += amount;
+    pot += amount;
+    currentBet = capped;
+    logAction(`${ai.name} raises to ${capped}.`);
+    pendingAIPlayer = -1;
+    rebuildAfterRaise(idx);
+    advanceAfterAction();
+}
+
+// ---------------------------------------------------------------------------
+// Animation / update loop (frame-rate independent)
+// ---------------------------------------------------------------------------
+function logAction(text) {
+    actionFeed.push({ text, t: lastNow });
+    if (actionFeed.length > 4) actionFeed.shift();
+}
+
+function update(now) {
+    const dt = Math.min(now - lastNow, 50);
+    lastNow = now;
+
+    // 1. Dealing animation
+    if (mode === 'dealing') {
+        dealingT += dt;
+        let allArrived = true;
+        for (const card of dealingCards) {
+            if (!card.arrived) {
+                if (dealingT >= card.dealDelay) {
+                    const t = Math.min(1, (dealingT - card.dealDelay) / card.dealDur);
+                    const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
+                    const from = layout().deck;
+                    card.x = from.x + (card.tx - from.x) * e;
+                    card.y = from.y + (card.ty - from.y) * e;
+                    if (t >= 1) { card.arrived = true; card.x = card.tx; card.y = card.ty; }
+                    else allArrived = false;
+                } else {
+                    allArrived = false;
+                }
+            }
+        }
+        if (allArrived) {
+            mode = 'betting';
+            // Post blinds after deal (blinds accumulate into pot)
+            const sb = (dealerPos + 1) % 4;
+            const bb = (dealerPos + 2) % 4;
+            postBlind(sb, smallBlind);
+            postBlind(bb, bigBlind);
+            currentBet = bigBlind;
+            logAction(`Blinds: ${seats[sb].name} ${smallBlind} / ${seats[bb].name} ${bigBlind}`);
+            startBettingRound((bb + 1) % 4);
+        }
+    }
+
+    // 2. Street dealing (community cards flip)
+    if (mode === 'street' && now >= streetUntil) {
+        const cb = afterStreet;
+        afterStreet = null;
+        if (cb) cb();
+    }
+
+    // 3. AI thinking
+    if (mode === 'betting' && pendingAIPlayer >= 0) {
+        if (now >= aiThinkUntil) {
+            const idx = pendingAIPlayer;
+            pendingAIPlayer = -1;
+            aiAct(idx);
+        }
+    }
+
+    // 4. Showdown reveal -> evaluate
+    if (mode === 'showdown' && now >= showdownUntil) {
+        computeWinnerAndAward();
+    }
+
+    // 5. Payout -> finish
+    if (mode === 'payout' && now >= payoutUntil) {
+        const cb = afterPayout;
+        afterPayout = null;
+        if (cb) cb();
+    }
+
+    // 6. Smooth position lerp for all active cards to their targets
+    const k = 1 - Math.exp(-dt * 0.014);
+    if (mode !== 'dealing') {
+        const allCards = [...seats.flatMap(s => s.hand), ...community];
+        for (const c of allCards) {
+            const dx = c.tx - c.x, dy = c.ty - c.y;
+            if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+                c.x += dx * k;
+                c.y += dy * k;
+                if (Math.abs(c.tx - c.x) < 0.5) c.x = c.tx;
+                if (Math.abs(c.ty - c.y) < 0.5) c.y = c.ty;
+            }
+        }
+    }
+
+    // 7. Floating chips
+    floatingChips = floatingChips.filter(ch => now < ch.end);
+    // 8. Confetti
+    if (confetti.length > 0) updateConfetti(now);
+    // 9. Pot display tween
+    displayPot += (pot - displayPot) * Math.min(1, dt * 0.008);
+    if (Math.abs(pot - displayPot) < 0.5) displayPot = pot;
+    // 10. Feed decay handled in draw
+}
+
+function postBlind(idx, amt) {
+    const s = seats[idx];
+    const paid = Math.min(amt, s.chips);
+    s.chips -= paid;
+    s.bet += paid;
+    s.totalBet += paid;
+    pot += paid;
+}
+
+function spawnPayoutChips(seatIdx) {
+    const L = layout();
+    const fromX = L.pot.x, fromY = L.pot.y;
+    const to = L.seats[seatIdx];
+    const colors = ['#facc15', '#00f2fe', '#ff0080', '#ffffff', '#10b981'];
+    const n = Math.min(10, 4 + Math.floor(Math.random() * 4));
+    for (let i = 0; i < n; i++) {
+        floatingChips.push({
+            x: fromX + (Math.random() - 0.5) * 40,
+            y: fromY + (Math.random() - 0.5) * 30,
+            tx: to.x + (Math.random() - 0.5) * 80,
+            ty: to.y + CARD_HEIGHT * 0.5 + 14 + Math.random() * 10,
+            start: performance.now() + i * 60,
+            dur: 700,
+            color: colors[i % colors.length],
+            end: performance.now() + i * 60 + 700
+        });
+    }
+}
+
+function cardFlipT(card, now) {
+    if (card.flipStart < 0) return -1;
+    const t = (now - card.flipStart) / card.flipDur;
+    if (t >= 1) { card.flipStart = -1; card.flipDur = 400; return -1; }
+    return Math.max(0, t);
+}
+
+// ---------------------------------------------------------------------------
+// Confetti
+// ---------------------------------------------------------------------------
+function launchConfetti() {
+    const colors = ['#00f2fe', '#7928ca', '#ff0080', '#facc15', '#10b981', '#ff4d4d'];
+    for (let i = 0; i < 140; i++) {
+        confetti.push({
+            x: Math.random() * canvas.width,
+            y: -Math.random() * canvas.height * 0.5,
+            vx: (Math.random() - 0.5) * 3,
+            vy: Math.random() * 2 + 2,
+            size: Math.random() * 6 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.2,
+            born: performance.now()
+        });
+    }
+}
+function updateConfetti(now) {
+    confetti = confetti.filter(p => p.y < canvas.height + 40 && now - p.born < 8000);
+    confetti.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.rotation += p.rotSpeed;
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
+function drawTable(L) {
+    const { w, h } = L;
+    // Felt gradient
+    const g = ctx.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, Math.max(w, h) * 0.55);
+    g.addColorStop(0, '#16304f');
+    g.addColorStop(0.55, '#101c33');
+    g.addColorStop(1, '#0b0f1f');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(w / 2, h / 2, w * 0.46, h * 0.44, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Felt rim
+    ctx.strokeStyle = 'rgba(0,242,254,0.18)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(w / 2, h / 2, w * 0.46, h * 0.44, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Inner subtle ring
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(w / 2, h / 2, w * 0.36, h * 0.35, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Phase banner
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.font = `800 ${Math.max(14, w * 0.018)}px Outfit`;
+    ctx.textAlign = 'center';
+    ctx.fillText(phaseLabel.toUpperCase(), w / 2, h * 0.06);
+
+    // Decorative suit watermarks
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `${Math.max(40, w * 0.06)}px serif`;
+    ctx.fillText('♠', w * 0.08, h * 0.92);
+    ctx.fillText('♥', w * 0.92, h * 0.9);
+    ctx.fillText('♣', w * 0.06, h * 0.12);
+    ctx.fillText('♦', w * 0.93, h * 0.14);
+    ctx.globalAlpha = 1;
+}
+
+function drawPot(L, now) {
+    ctx.fillStyle = '#facc15';
+    ctx.font = `800 ${Math.max(13, L.w * 0.019)}px Outfit`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`POT  ${Math.round(displayPot)}`, L.pot.x, L.pot.y - 10);
+
+    // small chip icon
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(L.pot.x - 14, L.pot.y - 26, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#b8860b';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+}
+
+function drawCommunity(L, now) {
+    const spacing = CARD_WIDTH + 8;
+    const total = 5;
+    const startX = L.community.x - ((total - 1) * spacing) / 2;
+    // Empty slots
+    for (let i = 0; i < total; i++) {
+        const x = startX + i * spacing;
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, L.community.y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
+        ctx.stroke();
+    }
+    // Actual cards
+    community.forEach((card, i) => {
+        const flipT = cardFlipT(card, now);
+        card.draw(card.x, card.y, { flipT });
+    });
+}
+
+function drawSeat(idx, L, now) {
+    const s = seats[idx];
+    const pos = L.seats[idx];
+    const isPlayer = idx === 0;
+    const acting = (mode === 'betting' && (playerTurn && isPlayer) || (pendingAIPlayer === idx)) && !s.folded;
+    const isWinnerHighlight = bestSeatIdx === idx && (mode === 'payout' || mode === 'gameover' || resultShown);
+    const pulse = 0.5 + 0.5 * Math.sin(now * 0.005);
+    const cardTop = pos.y - CARD_HEIGHT * 0.5;
+    const badgeH = Math.max(16, CARD_HEIGHT * 0.16);
+
+    // Active pulsing ring
+    if (acting) {
+        ctx.strokeStyle = isPlayer ? `rgba(0,242,254,${0.35 + pulse * 0.4})` : `rgba(255,0,128,${0.35 + pulse * 0.4})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y - 6, CARD_HEIGHT * 0.62 + pulse * 4, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    if (isWinnerHighlight) {
+        ctx.strokeStyle = `rgba(250,204,21,${0.5 + pulse * 0.4})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y - 6, CARD_HEIGHT * 0.62 + 6, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    // Labels — AI seats use fixed top bands (never collide with phase banner
+    // or clip off-screen); player seat stacks labels above its cards.
+    ctx.font = `800 ${Math.max(11, L.w * 0.015)}px Outfit`;
+    ctx.textAlign = 'center';
+    if (isPlayer) {
+        ctx.fillStyle = s.folded ? '#4b5563' : '#00f2fe';
+        ctx.fillText(s.name, pos.x, cardTop - 18);
+        ctx.fillStyle = '#facc15';
+        ctx.font = `${Math.max(10, L.w * 0.013)}px Outfit`;
+        ctx.fillText(`${s.chips} chips`, pos.x, cardTop - 36);
+    } else {
+        ctx.fillStyle = s.folded ? '#4b5563' : '#f0f4f8';
+        ctx.fillText(s.name, pos.x, L.AI_NAME_Y);
+        ctx.fillStyle = '#facc15';
+        ctx.font = `${Math.max(10, L.w * 0.013)}px Outfit`;
+        ctx.fillText(`${s.chips} chips`, pos.x, L.AI_CHIPS_Y);
+    }
+
+    // Bet badge — below the cards, sized relative to card height
+    if (s.bet > 0 && !s.folded) {
+        const by = isPlayer ? pos.y + CARD_HEIGHT * 0.5 + 8 : pos.y + CARD_HEIGHT * 0.5 + 6;
+        ctx.fillStyle = 'rgba(250,204,21,0.12)';
+        ctx.beginPath();
+        ctx.roundRect(pos.x - 30, by, 60, badgeH, 9);
+        ctx.fill();
+        ctx.fillStyle = '#facc15';
+        ctx.font = `700 ${Math.max(9, L.w * 0.012)}px Outfit`;
+        ctx.fillText(`${s.bet}`, pos.x, by + badgeH * 0.72);
+    }
+
+    // Folded label
+    if (s.folded) {
+        ctx.fillStyle = 'rgba(255,80,80,0.85)';
+        ctx.font = `800 ${Math.max(11, L.w * 0.016)}px Outfit`;
+        ctx.fillText('FOLDED', pos.x, pos.y + 4);
+    }
+
+    // "Thinking..." indicator — above the name band
+    if (pendingAIPlayer === idx) {
+        ctx.fillStyle = `rgba(255,0,128,${0.6 + pulse * 0.4})`;
+        ctx.font = `700 ${Math.max(9, L.w * 0.012)}px Outfit`;
+        ctx.fillText('● thinking…', pos.x, isPlayer ? cardTop - 54 : L.AI_NAME_Y - 12);
+    }
+
+    // Cards
+    s.hand.forEach((card, j) => {
+        const flipT = cardFlipT(card, now);
+        const isWinCard = winningKeys.includes(card.key());
+        card.draw(card.x, card.y, {
+            flipT,
+            glow: isWinCard && (mode === 'payout' || resultShown || gameOverMsg === 'win' || gameOverMsg === 'lose'),
+            dim: s.folded
+        });
+    });
+
+    // Player's best-hand readout — above name, clear of card tops
+    if (isPlayer && community.length >= 3 && !s.folded) {
+        const ev = evaluateCards([...s.hand, ...community]);
+        ctx.fillStyle = 'rgba(0,242,254,0.85)';
+        ctx.font = `700 ${Math.max(10, L.w * 0.013)}px Outfit`;
+        ctx.textAlign = 'center';
+        ctx.fillText(handLabel(ev), pos.x, cardTop - 54);
+    }
+}
+
+function drawDealerButton(L, now) {
+    const pos = L.seats[dealerPos];
+    const pulse = 0.5 + 0.5 * Math.sin(now * 0.004);
+    ctx.fillStyle = '#e5e7eb';
+    ctx.beginPath();
+    ctx.arc(pos.x - CARD_WIDTH * 0.82, pos.y - CARD_HEIGHT * 0.62, 15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(0,242,254,${0.5 + pulse * 0.5})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#111827';
+    ctx.font = `800 12px Outfit`;
+    ctx.textAlign = 'center';
+    ctx.fillText('D', pos.x - CARD_WIDTH * 0.82, pos.y - CARD_HEIGHT * 0.62 + 4);
+}
+
+function drawActionFeed(L, now) {
+    // Feed lives in the empty space between the AI cards and the community
+    // cards, on the left so it never collides with the pot or center cards.
+    const shown = actionFeed.slice(-4);
+    const feedX = Math.max(8, L.w * 0.02);
+    const feedY = L.AI_CARDS_Y + CARD_HEIGHT * 0.5 + 10;
+    shown.forEach((item, i) => {
+        const age = now - item.t;
+        let alpha = 1;
+        if (age > 2600) alpha = Math.max(0, 1 - (age - 2600) / 900);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = `${Math.max(10, L.w * 0.013)}px Outfit`;
+        ctx.textAlign = 'left';
+        ctx.fillText(item.text, feedX, feedY + i * 18);
+    });
+    ctx.globalAlpha = 1;
+}
+
+function drawFloatingChips(now) {
+    floatingChips.forEach(ch => {
+        if (now < ch.start) return;
+        const t = Math.min(1, (now - ch.start) / ch.dur);
+        const e = 1 - Math.pow(1 - t, 3);
+        const x = ch.x + (ch.tx - ch.x) * e;
+        const y = ch.y + (ch.ty - ch.y) * e - Math.sin(t * Math.PI) * 40;
+        ctx.save();
+        ctx.translate(x, y);
+        // chip stack: 3 ellipses
+        for (let k = 0; k < 3; k++) {
+            ctx.fillStyle = ch.color;
+            ctx.beginPath();
+            ctx.ellipse(0, -k * 3, 8, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,0.35)';
+            ctx.beginPath();
+            ctx.ellipse(0, -k * 3, 8, 3.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.restore();
+    });
+}
+
+function drawConfetti() {
+    confetti.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        ctx.restore();
+    });
+}
+
+function draw(now) {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const L = layout();
+
+    drawTable(L);
+    drawPot(L, now);
+    drawCommunity(L, now);
+    for (let i = 0; i < 4; i++) drawSeat(i, L, now);
+    drawDealerButton(L, now);
+    drawActionFeed(L, now);
+    drawFloatingChips(now);
+    if (confetti.length > 0) drawConfetti();
+}
+
+// ---------------------------------------------------------------------------
+// UI buttons
+// ---------------------------------------------------------------------------
+function updateButtons() {
+    const fold = document.getElementById('fold-btn');
+    const check = document.getElementById('check-btn');
+    const call = document.getElementById('call-btn');
+    const btnMin = document.getElementById('raise-min-btn');
+    const btnHalf = document.getElementById('raise-half-btn');
+    const btnPot = document.getElementById('raise-pot-btn');
+    const btnAll = document.getElementById('raise-all-btn');
+    const newGame = document.getElementById('new-game');
+    if (!fold) return;
+
+    const canAct = playerTurn && mode === 'betting' && !seats[0].folded;
+
+    fold.disabled = !canAct;
+    check.disabled = !canAct || seats[0].bet < currentBet;
+    call.disabled = !canAct || seats[0].bet >= currentBet;
+    if (seats[0].bet >= currentBet) call.textContent = 'Call';
+    else call.textContent = `Call ${Math.min(currentBet - seats[0].bet, seats[0].chips)}`;
+
+    const toCall = currentBet - seats[0].bet;
+    const maxRaiseTo = seats[0].chips + seats[0].bet;
+    const minRaiseTo = currentBet + bigBlind;
+    const halfTo = Math.max(minRaiseTo, currentBet + Math.floor(pot / 2));
+    const potTo = Math.max(minRaiseTo, currentBet + pot);
+    const allTo = maxRaiseTo;
+
+    const canRaise = canAct && maxRaiseTo > currentBet;
+    btnMin.disabled = !canRaise;
+    btnHalf.disabled = !canRaise || halfTo >= maxRaiseTo;
+    btnPot.disabled = !canRaise || potTo >= maxRaiseTo;
+    btnAll.disabled = !canRaise;
+
+    newGame.disabled = (mode === 'dealing' || mode === 'betting' || mode === 'street');
+}
+
+function updateOverlay() {
+    const btn = document.getElementById('result-new-game');
+    if (btn) btn.textContent = 'Next Hand';
+}
+
+// ---------------------------------------------------------------------------
+// Bootstrapping (browser only)
+// ---------------------------------------------------------------------------
+if (typeof document !== 'undefined' && document.getElementById('gameCanvas')) {
+    (function boot() {
+        window.addEventListener('resize', resize);
+        resize();
+
+        document.getElementById('new-game').addEventListener('click', newHand);
+        document.getElementById('fold-btn').addEventListener('click', playerFoldAct);
+        document.getElementById('check-btn').addEventListener('click', playerCheckAct);
+        document.getElementById('call-btn').addEventListener('click', playerCallAct);
+        document.getElementById('raise-min-btn').addEventListener('click', () => {
+            const minRaiseTo = currentBet + bigBlind;
+            playerRaiseTo(minRaiseTo);
+        });
+        document.getElementById('raise-half-btn').addEventListener('click', () => {
+            playerRaiseTo(Math.max(currentBet + bigBlind, currentBet + Math.floor(pot / 2)));
+        });
+        document.getElementById('raise-pot-btn').addEventListener('click', () => {
+            playerRaiseTo(Math.max(currentBet + bigBlind, currentBet + pot));
+        });
+        document.getElementById('raise-all-btn').addEventListener('click', () => {
+            playerRaiseTo(seats[0].chips + seats[0].bet);
+        });
+        const resultBtn = document.getElementById('result-new-game');
+        if (resultBtn) {
+            resultBtn.addEventListener('click', () => {
+                if (gameOverMsg === 'busted' || gameOverMsg === 'cleared') {
+                    // Reset tournament: everyone back to 1000
+                    seats.forEach(s => s.chips = 1000);
+                    try { localStorage.setItem('poker_chips', '1000'); } catch (e) { /* ignore */ }
+                }
+                newHand();
+            });
+        }
+
+        // Fresh session: load player bankroll
+        seats = [
+            makeSeat('You', true, null),
+            makeSeat('Neon', false, AI_PERSONALITIES.Neon),
+            makeSeat('Viper', false, AI_PERSONALITIES.Viper),
+            makeSeat('Ace', false, AI_PERSONALITIES.Ace)
+        ];
+        playerSeat().chips = loadChips();
+
+        lastNow = performance.now();
+        newHand();
+        function frame(now) {
+            update(now);
+            draw(now);
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    })();
+}
+
+// ---------------------------------------------------------------------------
+// Node testability
+// ---------------------------------------------------------------------------
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { Card, evaluateCards, evaluate5, compareEval, handLabel, SUITS, RANKS };
+}
