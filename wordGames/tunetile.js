@@ -36,6 +36,8 @@ let audio = new Audio();
 let attempts = 0;
 let guesses = [];
 let gameOver = false;
+let volume = 0.1; // Default volume: 10%
+audio.volume = volume;
 
 // --- CORS & Scheme-Redirect Safe Fetcher ---
 async function safeiTunesQuery(params) {
@@ -258,6 +260,7 @@ function playSnippet(seconds) {
         audio.pause();
         audio.src = dailyTrack.previewUrl;
         audio.currentTime = 0;
+        audio.volume = volume;
         
         playBtn.classList.add('pulse-anim');
         audio.play().catch(() => {});
@@ -278,6 +281,7 @@ function playFullPreview() {
         audio.pause();
         audio.src = dailyTrack.previewUrl;
         audio.currentTime = 0;
+        audio.volume = volume;
         audio.play().catch(() => {});
     } catch (e) {}
 }
@@ -462,12 +466,39 @@ async function init() {
         left.appendChild(info);
 
         const right = document.createElement('div');
+        right.style.display = 'flex';
+        right.style.flexDirection = 'column';
+        right.style.alignItems = 'flex-end';
+        right.style.gap = '0.5rem';
+
         const play = document.createElement('button');
         play.id = 'playMelodyBtn';
         play.className = 'play-btn';
         play.innerHTML = '<i class="fa-solid fa-play"></i> Play preview';
         right.appendChild(play);
-        
+
+        // Volume control
+        const volControl = document.createElement('div');
+        volControl.className = 'volume-control';
+        const volIcon = document.createElement('i');
+        volIcon.className = 'fa-solid fa-volume-low';
+        const volSlider = document.createElement('input');
+        volSlider.type = 'range';
+        volSlider.className = 'volume-slider';
+        volSlider.min = '0';
+        volSlider.max = '100';
+        volSlider.value = Math.round(volume * 100);
+        volSlider.setAttribute('aria-label', 'Volume');
+        volControl.appendChild(volIcon);
+        volControl.appendChild(volSlider);
+        right.appendChild(volControl);
+
+        volSlider.addEventListener('input', () => {
+            volume = volSlider.value / 100;
+            audio.volume = volume;
+            volIcon.className = volume === 0 ? 'fa-solid fa-volume-xmark' : (volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high');
+        });
+
         melodyBox.appendChild(left);
         melodyBox.appendChild(right);
 

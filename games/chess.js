@@ -244,7 +244,7 @@ function handleSquareClick(r, c) {
 
     if (piece !== '.' && ((turn === 'w' && isWhite) || (turn === 'b' && !isWhite))) {
         selectedSquare = { r, c };
-        validMoves = getValidMovesForPiece(r, c, boardState);
+        validMoves = getLegalMovesForPiece(r, c, boardState);
         renderBoard();
         return;
     }
@@ -261,41 +261,6 @@ function handleSquareClick(r, c) {
             renderBoard();
         }
     }
-}
-
-// --- Animated Piece Motion Handler ---
-function animateAndMove(fromR, fromC, toR, toC) {
-    isAnimating = true;
-
-    const fromSq = boardEl.children[fromR * 8 + fromC];
-    const toSq = boardEl.children[toR * 8 + toC];
-    const pieceEl = fromSq ? fromSq.querySelector('.piece') : null;
-
-    if (!fromSq || !toSq || !pieceEl) {
-        makeMove(fromR, fromC, toR, toC);
-        isAnimating = false;
-        return;
-    }
-
-    const fromRect = fromSq.getBoundingClientRect();
-    const toRect = toSq.getBoundingClientRect();
-
-    const deltaX = toRect.left - fromRect.left;
-    const deltaY = toRect.top - fromRect.top;
-
-    // Apply smooth linear sliding transition
-    pieceEl.style.zIndex = '100';
-    pieceEl.style.transition = 'transform 0.2s ease-in-out';
-    pieceEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-
-    setTimeout(() => {
-        makeMove(fromR, fromC, toR, toC);
-        isAnimating = false;
-        
-        if (gameMode === 'ai' && turn === 'b') {
-            setTimeout(triggerAiMove, 250);
-        }
-    }, 200);
 }
 
 function makeMove(fromR, fromC, toR, toC) {
@@ -332,9 +297,97 @@ function makeMove(fromR, fromC, toR, toC) {
     if (piece === 'p' && toR === 7) boardState[toR][toC] = 'q';
 
     turn = turn === 'w' ? 'b' : 'w';
+
+    // Check for check, checkmate, or stalemate on the opponent
+    const opponent = turn;
+    const inCheck = isInCheck(boardState, opponent);
+    const hasMoves = hasLegalMoves(boardState, opponent);
+
+    if (!hasMoves) {
+        if (inCheck) {
+            const winner = opponent === 'w' ? 'Black' : 'White';
+            statusEl.textContent = `♛ Checkmate! ${winner} Wins! ♛`;
+            Sound.win();
+            renderBoard();
+            autoSaveGame();
+            return;
+        } else {
+            statusEl.textContent = "Stalemate! It's a Draw!";
+            renderBoard();
+            autoSaveGame();
+            return;
+        }
+    } else if (inCheck) {
+        statusEl.textContent = `${opponent === 'w' ? "White" : "Black"} is in Check!`;
+    }
+
     updateStatus();
     renderBoard();
     autoSaveGame();
+}
+
+function isInCheck(board, side) {
+    // Find the king of the given side
+    const kingChar = side === 'w' ? 'K' : 'k';
+    let kingR = -1, kingC = -1;
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (board[r][c] === kingChar) {
+                kingR = r;
+                kingC = c;
+                break;
+            }
+        }
+        if (kingR !== -1) break;
+    }
+    // King not found (shouldn't happen in normal play)
+    if (kingR === -1) return false;
+
+    // Check if any enemy piece can attack the king
+    const enemySide = side === 'w' ? 'b' : 'w';
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = board[r][c];
+            if (piece === '.') continue;
+            const isEnemy = enemySide === 'w' ? piece === piece.toUpperCase() : piece === piece.toLowerCase();
+            if (!isEnemy) continue;
+
+            const rawMoves = getValidMovesForPiece(r, c, board);
+            if (rawMoves.some(m => m.r === kingR && m.c === kingC)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function getLegalMovesForPiece(r, c, board) {
+    const piece = board[r][c];
+    if (piece === '.') return [];
+    const side = piece === piece.toUpperCase() ? 'w' : 'b';
+    const rawMoves = getValidMovesForPiece(r, c, board);
+    
+    // Filter out moves that would leave our own king in check
+    return rawMoves.filter(move => {
+        const boardCopy = JSON.parse(JSON.stringify(board));
+        boardCopy[move.r][move.c] = piece;
+        boardCopy[r][c] = '.';
+        return !isInCheck(boardCopy, side);
+    });
+}
+
+function hasLegalMoves(board, side) {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = board[r][c];
+            if (piece === '.') continue;
+            const isSidePiece = side === 'w' ? piece === piece.toUpperCase() : piece === piece.toLowerCase();
+            if (isSidePiece && getLegalMovesForPiece(r, c, board).length > 0) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function getValidMovesForPiece(r, c, board) {
@@ -426,7 +479,7 @@ function minimax(board, depth, isMaximizing, alpha, beta) {
         for (let c = 0; c < 8; c++) {
             const piece = board[r][c];
             if (piece !== '.' && ((side === 'w' && piece === piece.toUpperCase()) || (side === 'b' && piece === piece.toLowerCase()))) {
-                const moves = getValidMovesForPiece(r, c, board);
+                const moves = getLegalMovesForPiece(r, c, board);
                 for (const move of moves) {
                     const boardCopy = JSON.parse(JSON.stringify(board));
                     boardCopy[move.r][move.c] = piece;
@@ -500,7 +553,16 @@ function loadSavedGame() {
 
 function updateStatus() {
     if (gameMode === 'ai') {
-        statusEl.textContent = turn === 'w' ? "White's Turn (You)" : "Black's Turn (AI Thinking...)";
+        const currentMsg = statusEl.textContent;
+        if (currentMsg.includes('Checkmate') || currentMsg.includes('Stalemate') || currentMsg.includes('SOLVED') || currentMsg.includes('Incorrect')) {
+            return;
+        }
+        const inCheck = isInCheck(boardState, turn);
+        if (inCheck) {
+            statusEl.textContent = turn === 'w' ? "White is in Check! (Your Turn)" : "Black is in Check! (AI Thinking...)";
+        } else {
+            statusEl.textContent = turn === 'w' ? "White's Turn (You)" : "Black's Turn (AI Thinking...)";
+        }
     }
 }
 

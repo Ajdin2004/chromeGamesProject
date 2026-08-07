@@ -425,6 +425,10 @@
             pointer-events: none;
         }
 
+        .category-btn.hidden {
+            display: none;
+        }
+
         .modal-card {
             background: rgba(22, 27, 46, 0.95);
             border: 1px solid var(--card-border);
@@ -487,6 +491,7 @@
             </div>
             <div class="category-tags">
                 <button class="category-btn active" data-category="all">All</button>
+                <button id="recent-category-btn" class="category-btn hidden" data-category="recent">Recently Played</button>
                 <button class="category-btn" data-category="word">Word Games</button>
                 <button class="category-btn" data-category="arcade">Arcade</button>
                 <button class="category-btn" data-category="action">Action</button>
@@ -602,7 +607,7 @@
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
-            </a>
+            </a>    
 
             <!-- Flappy Bird Clone -->
             <a href="games/flappybird.html" class="game-card" data-category="arcade retro" data-name="flappy bird clone">
@@ -727,6 +732,22 @@
                     <p>Defend Earth from alien invaders in this iconic arcade game.</p>
                     <div class="card-footer">
                         <span class="genre-tag">Arcade</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Solitaire -->
+            <a href="games/solitaire.html" class="game-card" data-category="arcade retro" data-name="solitaire classic card game">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #065f46, #10b981, #064e3b, #022c22);">
+                    <canvas class="preview-canvas" data-type="card-shuffle"></canvas>
+                    <i class="fa-solid fa-clover banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Solitaire</h3>
+                    <p>Classic Klondike solitaire. Build four stacks of cards by suit from Ace to King.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Card Game</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
@@ -897,6 +918,17 @@
                     pCtx.beginPath();
                     pCtx.arc(width / 2, height / 2, (frame % 80), 0, Math.PI * 2);
                     pCtx.stroke();
+                } else if (type === 'card-shuffle') {
+                    pCtx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+                    for (let i = 0; i < 3; i++) {
+                        let x = width / 2 - 20 + i * 10;
+                        let y = height / 2 - 15 + Math.sin((frame + i * 20) * 0.1) * 5;
+                        pCtx.beginPath();
+                        pCtx.roundRect(x, y, 20, 30, 4);
+                        pCtx.fill();
+                        pCtx.strokeStyle = 'rgba(255,255,255,0.2)';
+                        pCtx.stroke();
+                    }
                 } else {
                     // Default Floating Ambient Orbs
                     pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
@@ -920,11 +952,21 @@
 
         function filterGames() {
             const query = searchInput.value.toLowerCase().trim();
+            const recentIds = JSON.parse(localStorage.getItem('recently_played') || '[]');
+
             cards.forEach(card => {
                 const name = card.dataset.name || '';
                 const category = card.dataset.category || '';
                 const matchesSearch = name.includes(query);
-                const matchesCategory = activeCategory === 'all' || category.includes(activeCategory);
+                
+                let matchesCategory = false;
+                if (activeCategory === 'all') {
+                    matchesCategory = true;
+                } else if (activeCategory === 'recent') {
+                    matchesCategory = recentIds.includes(card.getAttribute('href'));
+                } else {
+                    matchesCategory = category.includes(activeCategory);
+                }
 
                 card.style.display = (matchesSearch && matchesCategory) ? 'flex' : 'none';
             });
@@ -953,6 +995,38 @@
             });
         });
 
+        /* --- Recently Played Logic --- */
+        const RECENT_KEY = 'recently_played';
+        const MAX_RECENT = 4;
+
+        function recordPlay(href) {
+            let recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+            recent = recent.filter(item => item !== href);
+            recent.unshift(href);
+            if (recent.length > MAX_RECENT) recent.pop();
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+            updateRecentVisibility();
+        }
+
+        function updateRecentVisibility() {
+            const recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+            const btn = document.getElementById('recent-category-btn');
+            if (recent.length > 0) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        cards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                const href = card.getAttribute('href');
+                if (href) recordPlay(href);
+            });
+        });
+
+        updateRecentVisibility();
+
         /* --- Random Game Picker --- */
         const randomBtn = document.getElementById('random-btn');
         if (randomBtn) {
@@ -975,7 +1049,10 @@
 
                 setTimeout(() => {
                     const href = pick.getAttribute('href');
-                    if (href) window.location.href = href;
+                    if (href) {
+                        recordPlay(href);
+                        window.location.href = href;
+                    }
                 }, 220);
             });
         }

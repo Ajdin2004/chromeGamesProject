@@ -350,6 +350,24 @@ let startY = 0;
 let startTime = 0;
 let lastMoveX = 0;
 
+// --- Keyboard: Track held keys for smooth simultaneous input ---
+const keysPressed = new Set();
+const keyRepeatTimes = {};
+
+function handleKeyAction(key, isFirstPress) {
+    switch (key) {
+        case 'ArrowLeft': case 'a': moveLeft(); break;
+        case 'ArrowRight': case 'd': moveRight(); break;
+        case 'ArrowDown': case 's': moveDown(); break;
+        case 'ArrowUp': case 'w':
+            if (isFirstPress) rotatePiece();
+            break;
+        case ' ':
+            if (isFirstPress) hardDrop();
+            break;
+    }
+}
+
 window.addEventListener('keydown', e => {
     initAudio();
     if (isGameOver) {
@@ -357,14 +375,38 @@ window.addEventListener('keydown', e => {
         return;
     }
 
-    switch (e.key) {
-        case 'ArrowLeft': case 'a': moveLeft(); break;
-        case 'ArrowRight': case 'd': moveRight(); break;
-        case 'ArrowDown': case 's': moveDown(); break;
-        case 'ArrowUp': case 'w': rotatePiece(); break;
-        case ' ': e.preventDefault(); hardDrop(); break;
+    const key = e.key;
+    if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' ', 'a', 'd', 's', 'w'].includes(key)) {
+        e.preventDefault();
+    }
+
+    // Only act on the first press; held keys are repeated in the game loop
+    if (!keysPressed.has(key)) {
+        keysPressed.add(key);
+        keyRepeatTimes[key] = performance.now();
+        handleKeyAction(key, true);
     }
 });
+
+window.addEventListener('keyup', e => {
+    keysPressed.delete(e.key);
+    delete keyRepeatTimes[e.key];
+});
+
+function processKeys() {
+    if (isGameOver) return;
+    const now = performance.now();
+
+    keysPressed.forEach(key => {
+        const lastRepeat = keyRepeatTimes[key] || 0;
+        const repeatInterval = (key === 'ArrowDown' || key === 's') ? 50 : 120;
+
+        if (now - lastRepeat > repeatInterval) {
+            keyRepeatTimes[key] = now;
+            handleKeyAction(key, false);
+        }
+    });
+}
 
 // Gesture Handling directly on Window/Document
 window.addEventListener('touchstart', e => {
@@ -402,6 +444,13 @@ window.addEventListener('touchmove', e => {
     }
 }, { passive: false });
 
+// --- Double-tap detection for rotation (prevents accidental rotates) ---
+let lastTapTime = 0;
+let lastTapX = 0;
+let lastTapY = 0;
+const DOUBLE_TAP_DELAY = 300;
+const DOUBLE_TAP_DIST = 30;
+
 window.addEventListener('touchend', e => {
     if (isGameOver) return;
 
@@ -414,9 +463,20 @@ window.addEventListener('touchend', e => {
     if (totalY > 100 && duration < 250 && Math.abs(totalX) < 60) {
         hardDrop();
     } 
-    // Tap (short duration, minimal movement) triggers Rotate
+    // Tap (short duration, minimal movement) — double-tap triggers Rotate
     else if (Math.abs(totalX) < 15 && Math.abs(totalY) < 15 && duration < 250) {
-        rotatePiece();
+        const now = Date.now();
+        const timeSinceLastTap = now - lastTapTime;
+        const distFromLastTap = Math.hypot(touch.clientX - lastTapX, touch.clientY - lastTapY);
+
+        if (timeSinceLastTap < DOUBLE_TAP_DELAY && distFromLastTap < DOUBLE_TAP_DIST) {
+            rotatePiece();
+            lastTapTime = 0; // reset so a third tap doesn't rotate again
+        } else {
+            lastTapTime = now;
+            lastTapX = touch.clientX;
+            lastTapY = touch.clientY;
+        }
     }
 });
 
@@ -427,6 +487,9 @@ update();
 
 function update(time = 0) {
     const deltaTime = time - lastDropTime;
+
+    // Process held keys each frame so multiple inputs work simultaneously
+    processKeys();
 
     if (!isGameOver && deltaTime > dropInterval) {
         moveDown();
