@@ -998,6 +998,25 @@
                 </div>
             </a>
 
+            <!-- Blockudoku -->
+            <a href="games/blockudoku.html" class="game-card" data-category="arcade puzzle" data-name="blockudoku sudoku block puzzle" data-added="2026-08-08">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #4c1d95, #7e22ce, #a855f7, #6d28d9);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/blockudoku.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/blockudoku.html"></span>
+                    <canvas class="preview-canvas" data-type="falling-blocks"></canvas>
+                    <i class="fa-solid fa-th-large banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Blockudoku</h3>
+                    <p>Place blocks on a 9x9 grid. Clear rows, columns, and 3x3 blocks in this Sudoku-meets-Tetris puzzle.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Puzzle</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Chess -->
             <a href="games/chess.html" class="game-card" data-category="arcade action" data-name="chess" data-added="2024-01-01">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #334155, #475569, #0f172a, #1e293b);">
@@ -1383,6 +1402,48 @@
                     pCtx.fill();
                     pCtx.strokeStyle = 'rgba(255,255,255,0.3)';
                     pCtx.stroke();
+                } else if (type === 'blockudoku-grid') {
+                    // Animated 3x3 blockudoku grid preview
+                    const cell = Math.min(width, height) / 9;
+                    const offsetX = (width - cell * 9) / 2;
+                    const offsetY = (height - cell * 9) / 2;
+                    const colors = ['#a855f7', '#00f2fe', '#facc15', '#22c55e', '#ef4444', '#3b82f6'];
+                    // Draw grid
+                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                    pCtx.lineWidth = 1;
+                    for (let i = 0; i <= 9; i++) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX + i * cell, offsetY);
+                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
+                        pCtx.stroke();
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX, offsetY + i * cell);
+                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
+                        pCtx.stroke();
+                    }
+                    // Thicker sub-grid lines
+                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    pCtx.lineWidth = 2;
+                    for (let i = 0; i <= 9; i += 3) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX + i * cell, offsetY);
+                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
+                        pCtx.stroke();
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX, offsetY + i * cell);
+                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
+                        pCtx.stroke();
+                    }
+                    // Animated blocks filling in
+                    const blockCount = Math.floor(frame / 4) % 81;
+                    for (let i = 0; i < blockCount; i++) {
+                        const r = Math.floor(i / 9);
+                        const c = i % 9;
+                        pCtx.fillStyle = colors[(r + c) % colors.length];
+                        pCtx.globalAlpha = 0.7;
+                        pCtx.fillRect(offsetX + c * cell + 1, offsetY + r * cell + 1, cell - 2, cell - 2);
+                        pCtx.globalAlpha = 1;
+                    }
                 } else {
                     pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
                     let x = Math.sin(frame * 0.03) * 30 + width / 2;
@@ -1758,7 +1819,8 @@
             { name: 'Block Puzzler', key: 'blockpuzzler_highscore', icon: 'fa-cubes', href: 'games/blockpuzzler.html' },
             { name: 'Neon Pong', key: 'pong_highscore', icon: 'fa-table-tennis-paddle-ball', href: 'games/pong.html' },
             { name: 'Highway Racer', key: 'highway_highscore', icon: 'fa-car-side', href: 'games/highway.html' },
-            { name: 'Texas Hold\'em', key: 'poker_best_chips', icon: 'fa-diamond', href: 'games/poker.html' }
+            { name: 'Texas Hold\'em', key: 'poker_best_chips', icon: 'fa-diamond', href: 'games/poker.html' },
+            { name: 'Blockudoku', key: 'blockudoku_highscore', icon: 'fa-th-large', href: 'games/blockudoku.html' }
         ];
 
         function populateLeaderboard() {

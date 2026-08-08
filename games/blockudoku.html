@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Blockudoku | Chromium Games</title>
+    <link rel="icon" type="image/png" href="https://toppng.com/uploads/preview/tetris-blocks-115507227556qa8dp7yek.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0d19;
+            --card-bg: rgba(22, 27, 46, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-cyan: #00f2fe;
+            --primary-purple: #a855f7;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            overflow: hidden;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 560px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-cyan);
+        }
+
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 560px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .game-wrapper {
+            position: relative;
+            box-shadow: 0 20px 50px rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #101426;
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        canvas#gameCanvas {
+            display: block;
+        }
+
+        .top-panels {
+            display: flex;
+            gap: 0.75rem;
+            width: 100%;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            text-align: center;
+            flex: 1;
+        }
+
+        .panel h3 {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.2rem;
+        }
+
+        .panel-val {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary-cyan);
+        }
+
+        .panel-val.high {
+            color: var(--primary-purple);
+        }
+
+        .pieces-row {
+            display: flex;
+            gap: 0.75rem;
+            width: 100%;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .piece-slot {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            max-width: 120px;
+            min-height: 70px;
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .piece-slot.dragging {
+            opacity: 0.3;
+            transform: scale(0.95);
+        }
+
+        .piece-slot.empty {
+            opacity: 0.25;
+            cursor: default;
+        }
+
+        .piece-slot.selected {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+            transform: scale(1.05);
+        }
+
+        canvas.pieceCanvas {
+            display: block;
+            max-width: 100%;
+        }
+
+        .instructions {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-align: center;
+            flex-shrink: 0;
+            margin-top: 0.5rem;
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 10;
+            border-radius: 12px;
+        }
+
+        .game-over-overlay.visible {
+            display: flex;
+            animation: overlayIn 0.4s ease forwards;
+        }
+
+        @keyframes overlayIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .game-over-overlay h2 {
+            font-size: 1.8rem;
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            animation: titlePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+            50% { transform: scale(1.05); text-shadow: 0 0 35px rgba(239, 68, 68, 0.9); }
+        }
+
+        .game-over-overlay .final-score {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            animation: scoreIn 0.6s ease 0.2s both;
+        }
+
+        @keyframes scoreIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-over-overlay .final-score strong {
+            color: var(--primary-cyan);
+            font-size: 1.6rem;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-cyan));
+            border: none;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 0.75rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+            animation: btnIn 0.6s ease 0.4s both;
+        }
+
+        @keyframes btnIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <h2>Blockudoku</h2>
+    </div>
+
+    <div class="main-layout">
+        <div class="top-panels">
+            <div class="panel">
+                <h3>Score</h3>
+                <div id="score" class="panel-val">0</div>
+            </div>
+            <div class="panel">
+                <h3>High Score</h3>
+                <div id="highScore" class="panel-val high">0</div>
+            </div>
+        </div>
+
+        <div class="game-wrapper" id="wrapper">
+            <canvas id="gameCanvas"></canvas>
+            <div class="game-over-overlay" id="gameOverOverlay">
+                <h2>GAME OVER</h2>
+                <div class="final-score">Final Score: <strong id="finalScore">0</strong></div>
+                <button class="restart-btn" id="restartBtn"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+            </div>
+        </div>
+
+        <div class="pieces-row" id="piecesRow">
+            <div class="piece-slot" data-slot="0"><canvas class="pieceCanvas" id="pieceCanvas0"></canvas></div>
+            <div class="piece-slot" data-slot="1"><canvas class="pieceCanvas" id="pieceCanvas1"></canvas></div>
+            <div class="piece-slot" data-slot="2"><canvas class="pieceCanvas" id="pieceCanvas2"></canvas></div>
+        </div>
+    </div>
+
+    <p class="instructions">
+        <strong>Tap</strong> a piece to select, then <strong>tap the grid</strong> to place &nbsp;|&nbsp; or <strong>Drag & Drop</strong> &nbsp;|&nbsp; Clear <strong>rows</strong>, <strong>columns</strong> & <strong>3x3 blocks</strong>
+    </p>
+
+    <script src="blockudoku.js"></script>
+</body>
+</html>
