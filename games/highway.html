@@ -52,6 +52,53 @@
             align-items: center;
         }
         .stats i { color: #facc15; margin-right: 0.2rem; }
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255,255,255,0.04);
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.8rem;
+            margin-bottom: 0.6rem;
+        }
+        .volume-control i { color: #4facfe; }
+        .volume-control input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 70px;
+            height: 4px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.15);
+            outline: none;
+            cursor: pointer;
+        }
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00f2fe;
+            border: 2px solid #0b0d19;
+            box-shadow: 0 0 8px rgba(0,242,254,0.5);
+            cursor: pointer;
+        }
+        .volume-control input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00f2fe;
+            border: 2px solid #0b0d19;
+            box-shadow: 0 0 8px rgba(0,242,254,0.5);
+            cursor: pointer;
+        }
+        .volume-control input[type="range"]::-moz-range-track {
+            height: 4px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.15);
+        }
         .game-wrapper {
             position: relative;
             border-radius: 20px;
@@ -246,6 +293,10 @@
         <span><i class="fa-solid fa-coins"></i> <span id="currencyDisplay">0</span></span>
         <button class="shop-toggle" id="shopToggle"><i class="fa-solid fa-store"></i></button>
     </div>
+</div>
+<div class="volume-control">
+    <i class="fa-solid fa-volume-high" id="volumeIcon"></i>
+    <input type="range" id="volumeSlider" min="0" max="100" value="80">
 </div>
 <div class="game-wrapper">
     <canvas id="gameCanvas" width="400" height="600"></canvas>

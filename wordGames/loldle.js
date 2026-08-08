@@ -90,7 +90,7 @@ let confettiAnimId = null;
 // Configure audio element safely and add diagnostics
 if (bgMusic) {
     try { bgMusic.crossOrigin = 'anonymous'; } catch (e) { /* ignore */ }
-    bgMusic.volume = 0.15; // 15% low volume
+    bgMusic.volume = 0.05; // 5% low volume
 
     bgMusic.addEventListener('error', (ev) => {
         console.error('Background music failed to load or play', ev, bgMusic.error);

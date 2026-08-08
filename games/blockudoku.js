@@ -88,10 +88,14 @@ const PIECE_TYPES = [
     { name: 'tetromino-i', color: '#a855f7', matrix: [[1, 1, 1, 1]] },
     { name: 'tetromino-o', color: '#facc15', matrix: [[1, 1], [1, 1]] },
     { name: 'tetromino-l', color: '#ef4444', matrix: [[1, 0, 0], [1, 1, 1]] },
+    { name: 'tetromino-j', color: '#6366f1', matrix: [[0, 0, 1], [1, 1, 1]] },
     { name: 'tetromino-t', color: '#ec4899', matrix: [[0, 1, 0], [1, 1, 1]] },
     { name: 'tetromino-s', color: '#14b8a6', matrix: [[0, 1, 1], [1, 1, 0]] },
+    { name: 'tetromino-z', color: '#f43f5e', matrix: [[1, 1, 0], [0, 1, 1]] },
     { name: 'pentomino-p', color: '#8b5cf6', matrix: [[1, 1], [1, 1], [1, 0]] },
-    { name: 'pentomino-plus', color: '#06b6d4', matrix: [[0, 1, 0], [1, 1, 1], [0, 1, 0]] }
+    { name: 'pentomino-plus', color: '#06b6d4', matrix: [[0, 1, 0], [1, 1, 1], [0, 1, 0]] },
+    { name: 'pentomino-u', color: '#0ea5e9', matrix: [[1, 0, 1], [1, 1, 1]] },
+    { name: 'pentomino-v', color: '#eab308', matrix: [[1, 0], [1, 0], [1, 1]] }
 ];
 
 // --- Game State ---
@@ -133,10 +137,28 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 
 // --- Piece Helpers ---
+function rotateMatrix(matrix) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+    const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            rotated[c][rows - 1 - r] = matrix[r][c];
+        }
+    }
+    return rotated;
+}
+
 function getRandomPiece() {
     const p = PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
+    let matrix = p.matrix.map(row => [...row]);
+    // Apply 0-3 random rotations for variety
+    const rotations = Math.floor(Math.random() * 4);
+    for (let i = 0; i < rotations; i++) {
+        matrix = rotateMatrix(matrix);
+    }
     return {
-        matrix: p.matrix.map(row => [...row]),
+        matrix,
         color: p.color
     };
 }
@@ -495,7 +517,9 @@ function drawPieceOnCanvas(pieceCanvas, piece) {
     const maxW = slot.clientWidth - 8;
     const maxH = slot.clientHeight - 8;
     const { rows, cols } = getPieceSize(piece);
-    const size = Math.min(maxW / cols, maxH / rows);
+    // Use a consistent cell size across all pieces.
+    // Max piece is 4 cells wide (tetromino-i) and 3 cells tall (plus shape).
+    const size = Math.min(maxW / 4, maxH / 3);
     pieceCanvas.width = cols * size;
     pieceCanvas.height = rows * size;
 

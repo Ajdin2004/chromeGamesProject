@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box Office Showdown | Chromium Games</title>
+    <link rel="icon" type="image/x-icon" href="https://freepngimg.com/save/23057-popcorn-transparent-image/1483x1959">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0a0e1a;
+            --card-bg: rgba(15, 20, 38, 0.9);
+            --card-border: rgba(255, 255, 255, 0.13);
+            --primary-gold: #facc15;
+            --secondary-red: #ef4444;
+            --correct-green: #22c55e;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+            --accent-cyan: #00f2fe;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
+
+        body {
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(249, 24, 128, 0.05), transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 242, 254, 0.05), transparent 50%),
+                linear-gradient(rgba(10, 14, 26, 0.92), rgba(10, 14, 26, 0.97)),
+                url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.5rem 1rem;
+            overflow-x: hidden;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 1rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+        .back-btn:hover { color: var(--accent-cyan); }
+
+        .score-badge {
+            background: rgba(250, 204, 21, 0.12);
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .streak-badge {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid var(--secondary-red);
+            color: var(--secondary-red);
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .game-panel {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .round-info {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .round-chip {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--card-border);
+            padding: 0.45rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .round-chip span { color: var(--accent-cyan); }
+
+        .vs-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .movie-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 242, 254, 0.08);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .movie-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .movie-card:hover::after { opacity: 1; }
+
+        .movie-card:active { transform: scale(0.97); }
+
+        .movie-card.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--correct-green);
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
+        }
+
+        .movie-card.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--secondary-red);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .movie-card.disabled { pointer-events: none; }
+
+        .vs-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-gold);
+            text-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+            writing-mode: horizontal-tb;
+            padding: 0 0.5rem;
+        }
+
+        .poster {
+            width: 100%;
+            max-width: 180px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            line-height: 1.2;
+            min-height: 2.4em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .movie-year {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .result-box {
+            display: none;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            text-align: center;
+            flex-direction: column;
+            gap: 0.6rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .result-box.visible { display: flex; }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .result-title.correct-text { color: var(--correct-green); }
+        .result-title.overall-text { color: var(--primary-gold); }
+
+        .result-detail {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .result-detail strong { color: var(--text-main); }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--primary-gold), #f59e0b);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+
+        .btn-next:hover {
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+        }
+
+        .btn-next:active { transform: scale(0.96); }
+
+        .btn-next:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .toast {
+            text-align: center;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            min-height: 20px;
+            font-size: 0.95rem;
+        }
+
+        .fallback-poster {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(15, 20, 38, 0.95), rgba(0, 242, 254, 0.15));
+            border: 1px solid var(--accent-cyan);
+            padding: 1rem;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .fallback-icon {
+            font-size: 2.5rem;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .fallback-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .fallback-year {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shake { animation: shakeKeyframe 0.5s ease-in-out; }
+
+        @keyframes shakeKeyframe {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 720px) {
+            .vs-container { grid-template-columns: 1fr; gap: 0.75rem; }
+            .vs-badge { writing-mode: horizontal-tb; font-size: 1.5rem; padding: 0.25rem 0; }
+            .poster { max-width: 140px; height: 200px; }
+            .movie-title { font-size: 0.95rem; }
+            .game-panel { padding: 1rem; border-radius: 16px; }
+            body { padding: 1rem 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <h2>Box Office Showdown</h2>
+        <div class="header-controls">
+            <div class="score-badge"><i class="fa-solid fa-trophy"></i> <span id="score-val">0</span></div>
+            <div class="streak-badge"><i class="fa-solid fa-fire"></i> <span id="streak-val">0</span></div>
+        </div>
+    </div>
+
+    <div class="game-panel">
+        <div class="round-info">
+            <div class="round-chip">Round <span id="round-val">1</span></div>
+            <div class="round-chip">Highest Non-Inflation Adjusted Gross (Worldwide)</div>
+        </div>
+
+        <div id="vs-container" class="vs-container"></div>
+
+        <div id="result-box" class="result-box">
+            <div id="result-title" class="result-title"></div>
+            <div id="result-detail" class="result-detail"></div>
+            <button id="btn-next" class="btn-next"><i class="fa-solid fa-forward"></i> NEXT MATCHUP</button>
+        </div>
+
+        <div id="toast" class="toast">Loading box office dataset...</div>
+    </div>
+
+    <script src="boxoffice.js"></script>
+</body>
+</html>

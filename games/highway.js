@@ -14,10 +14,15 @@ let engineOsc1 = null;
 let engineOsc2 = null;
 let engineGain = null;
 let engineFilter = null;
+let masterGain = null;
+let gameVolume = parseFloat(localStorage.getItem('highway_volume')) || 0.8;
 
 function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(gameVolume, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
     startEngineSound();
@@ -44,7 +49,7 @@ function startEngineSound() {
     engineOsc1.connect(engineFilter);
     engineOsc2.connect(engineFilter);
     engineFilter.connect(engineGain);
-    engineGain.connect(audioCtx.destination);
+    engineGain.connect(masterGain);
 
     engineOsc1.start();
     engineOsc2.start();
@@ -86,7 +91,7 @@ const Sound = {
         osc.frequency.exponentialRampToValueAtTime(280, audioCtx.currentTime + 0.09);
         gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
-        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.connect(gain); gain.connect(masterGain);
         osc.start(); osc.stop(audioCtx.currentTime + 0.09);
     },
     crash() {
@@ -99,7 +104,7 @@ const Sound = {
         osc.frequency.exponentialRampToValueAtTime(20, now + 0.45);
         gain.gain.setValueAtTime(0.35, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.connect(gain); gain.connect(masterGain);
         osc.start(now); osc.stop(now + 0.45);
     },
     bump() {
@@ -111,7 +116,7 @@ const Sound = {
         osc.frequency.exponentialRampToValueAtTime(80, now + 0.15);
         gain.gain.setValueAtTime(0.2, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.connect(gain); gain.connect(masterGain);
         osc.start(now); osc.stop(now + 0.15);
     },
     honk() {
@@ -123,7 +128,7 @@ const Sound = {
         osc2.frequency.setValueAtTime(490, now);
         gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-        osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+        osc1.connect(gain); osc2.connect(gain); gain.connect(masterGain);
         osc1.start(now); osc2.start(now);
         osc1.stop(now + 0.25); osc2.stop(now + 0.25);
     },
@@ -136,7 +141,7 @@ const Sound = {
         osc.frequency.exponentialRampToValueAtTime(850, now + 0.2);
         gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.connect(gain); gain.connect(masterGain);
         osc.start(now); osc.stop(now + 0.2);
     },
     coin() {
@@ -148,7 +153,7 @@ const Sound = {
         osc.frequency.exponentialRampToValueAtTime(1200, now + 0.06);
         gain.gain.setValueAtTime(0.12, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.connect(gain); gain.connect(masterGain);
         osc.start(); osc.stop(now + 0.06);
     }
 };
@@ -1256,6 +1261,34 @@ document.getElementById('closeShop').addEventListener('click', () => {
 shopOverlay.addEventListener('click', (e) => {
     if (e.target === shopOverlay) shopOverlay.classList.remove('open');
 });
+
+// ----- VOLUME SLIDER CONTROL -----
+const volumeSlider = document.getElementById('volumeSlider');
+const volumeIcon = document.getElementById('volumeIcon');
+
+function updateVolumeIcon() {
+    if (!volumeIcon) return;
+    if (gameVolume <= 0) {
+        volumeIcon.className = 'fa-solid fa-volume-xmark';
+    } else if (gameVolume < 0.5) {
+        volumeIcon.className = 'fa-solid fa-volume-low';
+    } else {
+        volumeIcon.className = 'fa-solid fa-volume-high';
+    }
+}
+
+if (volumeSlider) {
+    volumeSlider.value = Math.round(gameVolume * 100);
+    volumeSlider.addEventListener('input', () => {
+        gameVolume = parseFloat(volumeSlider.value) / 100;
+        localStorage.setItem('highway_volume', gameVolume);
+        if (masterGain && audioCtx) {
+            masterGain.gain.setTargetAtTime(gameVolume, audioCtx.currentTime, 0.02);
+        }
+        updateVolumeIcon();
+    });
+}
+updateVolumeIcon();
 
 // ----- POLYFILL -----
 if (!CanvasRenderingContext2D.prototype.roundRect) {

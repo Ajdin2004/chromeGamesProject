@@ -309,4 +309,4 @@ guessInput.addEventListener('keydown', event => {
     }
 });
 
-initializeGame();
+initializeGame();   
