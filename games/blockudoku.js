@@ -105,7 +105,7 @@ let score = 0;
 let highScore = parseInt(localStorage.getItem('blockudoku_highscore')) || 0;
 let isGameOver = false;
 
-// --- Drag State ---
+// --- Drag & Preview State ---
 let dragging = null; // { slotIndex, piece, offsetX, offsetY }
 let hoverCell = null; // { row, col } or null
 let hoverValid = false;
@@ -125,7 +125,6 @@ highScoreEl.textContent = highScore;
 // --- Dynamic Scaling ---
 function resizeCanvas() {
     const rect = wrapper.getBoundingClientRect();
-    // Use the smaller dimension to fit the square grid inside the wrapper
     const size = Math.max(180, Math.min(rect.width, rect.height));
     cellSize = size / GRID_SIZE;
     canvas.width = cellSize * GRID_SIZE;
@@ -152,7 +151,6 @@ function rotateMatrix(matrix) {
 function getRandomPiece() {
     const p = PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
     let matrix = p.matrix.map(row => [...row]);
-    // Apply 0-3 random rotations for variety
     const rotations = Math.floor(Math.random() * 4);
     for (let i = 0; i < rotations; i++) {
         matrix = rotateMatrix(matrix);
@@ -187,7 +185,6 @@ function placePiece(piece, row, col) {
         for (let c = 0; c < cols; c++) {
             if (piece.matrix[r][c]) {
                 board[row + r][col + c] = piece.color;
-                // Add placement scale-in animation
                 placedAnimations.push({ row: row + r, col: col + c, color: piece.color, progress: 0 });
             }
         }
@@ -202,12 +199,10 @@ function placePiece(piece, row, col) {
 function checkClears() {
     const cleared = { rows: [], cols: [], subs: [] };
 
-    // Check rows
     for (let r = 0; r < GRID_SIZE; r++) {
         if (board[r].every(cell => cell !== 0)) cleared.rows.push(r);
     }
 
-    // Check columns
     for (let c = 0; c < GRID_SIZE; c++) {
         let full = true;
         for (let r = 0; r < GRID_SIZE; r++) {
@@ -216,7 +211,6 @@ function checkClears() {
         if (full) cleared.cols.push(c);
     }
 
-    // Check 3x3 sub-grids
     for (let sr = 0; sr < GRID_SIZE; sr += SUB_GRID) {
         for (let sc = 0; sc < GRID_SIZE; sc += SUB_GRID) {
             let full = true;
@@ -232,37 +226,29 @@ function checkClears() {
 
     const totalClears = cleared.rows.length + cleared.cols.length + cleared.subs.length;
     if (totalClears > 0) {
-        // Add score bonuses
         const lineBonus = (cleared.rows.length + cleared.cols.length) * 50;
         const subBonus = cleared.subs.length * 100;
         const comboBonus = totalClears > 1 ? (totalClears - 1) * 50 : 0;
         score += lineBonus + subBonus + comboBonus;
         updateScore();
 
-        // Play sound
         if (cleared.subs.length > 0) {
             Sound.subClear();
         } else {
             Sound.clear();
         }
 
-        // Animate clears
         clearAnimations = [];
         cleared.rows.forEach(r => clearAnimations.push({ type: 'row', index: r, progress: 0 }));
         cleared.cols.forEach(c => clearAnimations.push({ type: 'col', index: c, progress: 0 }));
         cleared.subs.forEach(s => clearAnimations.push({ type: 'sub', row: s.row, col: s.col, progress: 0 }));
 
-        // Spawn particle bursts at clear locations
         const burstColors = ['#00f2fe', '#a855f7', '#facc15', '#22c55e', '#ef4444', '#3b82f6'];
         cleared.rows.forEach(r => {
-            for (let c = 0; c < GRID_SIZE; c++) {
-                spawnParticleBurst(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, burstColors);
-            }
+            for (let c = 0; c < GRID_SIZE; c++) spawnParticleBurst(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, burstColors);
         });
         cleared.cols.forEach(c => {
-            for (let r = 0; r < GRID_SIZE; r++) {
-                spawnParticleBurst(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, burstColors);
-            }
+            for (let r = 0; r < GRID_SIZE; r++) spawnParticleBurst(c * cellSize + cellSize / 2, r * cellSize + cellSize / 2, burstColors);
         });
         cleared.subs.forEach(s => {
             const cx = s.col * cellSize + cellSize * 1.5;
@@ -270,13 +256,11 @@ function checkClears() {
             spawnParticleBurst(cx, cy, burstColors, 30);
         });
 
-        // Add floating score popup
         const popupText = `+${lineBonus + subBonus + comboBonus}`;
         const popupX = canvas.width / 2;
         const popupY = canvas.height / 2;
         scorePopups.push({ text: popupText, x: popupX, y: popupY, progress: 0, color: cleared.subs.length > 0 ? '#facc15' : '#00f2fe' });
 
-        // Actually clear after animation
         setTimeout(() => {
             cleared.rows.forEach(r => {
                 for (let c = 0; c < GRID_SIZE; c++) board[r][c] = 0;
@@ -286,9 +270,7 @@ function checkClears() {
             });
             cleared.subs.forEach(s => {
                 for (let r = s.row; r < s.row + SUB_GRID; r++) {
-                    for (let c = s.col; c < s.col + SUB_GRID; c++) {
-                        board[r][c] = 0;
-                    }
+                    for (let c = s.col; c < s.col + SUB_GRID; c++) board[r][c] = 0;
                 }
             });
             clearAnimations = [];
@@ -350,11 +332,9 @@ function drawBlock(x, y, color, size = cellSize, alpha = 1) {
     ctx.fillStyle = color;
     ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
 
-    // Highlight top edge
     ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
     ctx.fillRect(x * size + 1, y * size + 1, size - 2, Math.max(2, size * 0.12));
 
-    // Shadow bottom edge
     ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.fillRect(x * size + 1, y * size + size - Math.max(2, size * 0.12) - 1, size - 2, Math.max(2, size * 0.12));
     ctx.globalAlpha = 1;
@@ -364,7 +344,6 @@ function drawGrid() {
     ctx.fillStyle = '#0f1426';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw sub-grid backgrounds (3x3 blocks)
     for (let sr = 0; sr < GRID_SIZE; sr += SUB_GRID) {
         for (let sc = 0; sc < GRID_SIZE; sc += SUB_GRID) {
             const isDark = ((sr / SUB_GRID) + (sc / SUB_GRID)) % 2 === 0;
@@ -373,32 +352,18 @@ function drawGrid() {
         }
     }
 
-    // Grid lines
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= GRID_SIZE; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * cellSize, 0);
-        ctx.lineTo(i * cellSize, canvas.height);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, i * cellSize);
-        ctx.lineTo(canvas.width, i * cellSize);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i * cellSize, 0); ctx.lineTo(i * cellSize, canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * cellSize); ctx.lineTo(canvas.width, i * cellSize); ctx.stroke();
     }
 
-    // Thicker sub-grid lines
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.lineWidth = 2;
     for (let i = 0; i <= GRID_SIZE; i += SUB_GRID) {
-        ctx.beginPath();
-        ctx.moveTo(i * cellSize, 0);
-        ctx.lineTo(i * cellSize, canvas.height);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, i * cellSize);
-        ctx.lineTo(canvas.width, i * cellSize);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i * cellSize, 0); ctx.lineTo(i * cellSize, canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * cellSize); ctx.lineTo(canvas.width, i * cellSize); ctx.stroke();
     }
 }
 
@@ -421,11 +386,9 @@ function spawnParticleBurst(x, y, colors, count = 8) {
 function draw() {
     drawGrid();
 
-    // Draw board pieces with placement scale-in animation
     for (let r = 0; r < GRID_SIZE; r++) {
         for (let c = 0; c < GRID_SIZE; c++) {
             if (board[r][c]) {
-                // Check if this cell has a placement animation
                 const anim = placedAnimations.find(a => a.row === r && a.col === c);
                 if (anim) {
                     const scale = Math.min(1, anim.progress / 150);
@@ -450,7 +413,6 @@ function draw() {
         const row = hoverCell.row;
         const col = hoverCell.col;
 
-        // Draw ghost cells
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 if (piece.matrix[r][c]) {
@@ -468,7 +430,6 @@ function draw() {
         }
     }
 
-    // Draw clear animations
     clearAnimations.forEach(anim => {
         const alpha = 1 - (anim.progress / 300);
         if (anim.type === 'row') {
@@ -483,7 +444,6 @@ function draw() {
         }
     });
 
-    // Draw particles
     particles.forEach(p => {
         const alpha = 1 - (p.life / p.maxLife);
         ctx.globalAlpha = alpha;
@@ -494,7 +454,6 @@ function draw() {
     });
     ctx.globalAlpha = 1;
 
-    // Draw floating score popups
     scorePopups.forEach(popup => {
         const alpha = 1 - (popup.progress / 1000);
         const yOffset = -popup.progress * 0.05;
@@ -517,8 +476,6 @@ function drawPieceOnCanvas(pieceCanvas, piece) {
     const maxW = slot.clientWidth - 8;
     const maxH = slot.clientHeight - 8;
     const { rows, cols } = getPieceSize(piece);
-    // Use a consistent cell size across all pieces.
-    // Max piece is 4 cells wide (tetromino-i) and 3 cells tall (plus shape).
     const size = Math.min(maxW / 4, maxH / 3);
     pieceCanvas.width = cols * size;
     pieceCanvas.height = rows * size;
@@ -551,7 +508,7 @@ function drawAllPieces() {
     }
 }
 
-// --- Input: Mouse ---
+// --- Input & Coordinates Helpers ---
 function getGridPos(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
     const x = clientX - rect.left;
@@ -577,7 +534,6 @@ function selectPiece(slotIndex) {
     const piece = pieces[slotIndex];
     if (!piece) return;
 
-    // Toggle: if same slot tapped again, deselect
     if (selectedSlot === slotIndex) {
         clearSelection();
         hoverCell = null;
@@ -586,7 +542,6 @@ function selectPiece(slotIndex) {
         return;
     }
 
-    // Clear previous selection
     clearSelection();
 
     const slot = document.querySelector(`.piece-slot[data-slot="${slotIndex}"]`);
@@ -603,20 +558,17 @@ function startDrag(slotIndex, e) {
     const piece = pieces[slotIndex];
     if (!piece) return;
 
-    // If already dragging another piece, cancel it first
     if (dragging) {
         const prevSlot = document.querySelector(`.piece-slot[data-slot="${dragging.slotIndex}"]`);
         if (prevSlot) prevSlot.classList.remove('dragging');
     }
 
-    // Clear tap-to-place selection when starting a drag
     clearSelection();
 
     const slot = document.querySelector(`.piece-slot[data-slot="${slotIndex}"]`);
     const pieceCanvas = document.getElementById(`pieceCanvas${slotIndex}`);
     const pRect = pieceCanvas.getBoundingClientRect();
 
-    // Calculate offset from piece center
     const offsetX = e.clientX - pRect.left;
     const offsetY = e.clientY - pRect.top;
 
@@ -626,15 +578,18 @@ function startDrag(slotIndex, e) {
     hoverValid = false;
 }
 
-function updateDrag(e) {
-    if (!dragging) return;
-    const pos = getGridPos(e.clientX, e.clientY);
+// Universal update for rendering the preview based on touch/mouse coordinates
+function updatePreview(clientX, clientY) {
+    const piece = dragging ? dragging.piece : (selectedSlot !== null ? pieces[selectedSlot] : null);
+    if (!piece) return;
+
+    const pos = getGridPos(clientX, clientY);
     if (pos) {
-        const { rows, cols } = getPieceSize(dragging.piece);
+        const { rows, cols } = getPieceSize(piece);
         const row = pos.row - Math.floor(rows / 2);
         const col = pos.col - Math.floor(cols / 2);
         hoverCell = { row, col };
-        hoverValid = canPlace(dragging.piece, row, col);
+        hoverValid = canPlace(piece, row, col);
     } else {
         hoverCell = null;
         hoverValid = false;
@@ -642,7 +597,7 @@ function updateDrag(e) {
     draw();
 }
 
-function endDrag(e) {
+function endDrag() {
     if (!dragging) return;
     const slot = document.querySelector(`.piece-slot[data-slot="${dragging.slotIndex}"]`);
     if (slot) slot.classList.remove('dragging');
@@ -659,24 +614,38 @@ function endDrag(e) {
     draw();
 }
 
-// Mouse events
+// --- Input: Mouse Events ---
 canvas.addEventListener('mousemove', (e) => {
-    if (dragging) updateDrag(e);
+    if (dragging || selectedSlot !== null) {
+        updatePreview(e.clientX, e.clientY);
+    }
 });
 
 canvas.addEventListener('mouseup', (e) => {
-    if (dragging) endDrag(e);
-});
-
-canvas.addEventListener('mouseleave', () => {
     if (dragging) {
+        endDrag();
+    } else if (selectedSlot !== null) {
+        // Desktop click-to-place functionality
+        if (hoverCell && hoverValid) {
+            placePiece(pieces[selectedSlot], hoverCell.row, hoverCell.col);
+            removePiece(selectedSlot);
+            clearSelection();
+            checkGameOver();
+        }
         hoverCell = null;
         hoverValid = false;
         draw();
     }
 });
 
-// Piece slot mouse events
+canvas.addEventListener('mouseleave', () => {
+    if (dragging || selectedSlot !== null) {
+        hoverCell = null;
+        hoverValid = false;
+        draw();
+    }
+});
+
 document.querySelectorAll('.piece-slot').forEach(slot => {
     slot.addEventListener('mousedown', (e) => {
         e.preventDefault();
@@ -691,35 +660,7 @@ let touchStartY = 0;
 let touchStartTime = 0;
 let touchMoved = false;
 let touchMovedDist = 0;
-const TAP_DIST = 15; // max px movement to count as a tap
-
-function handleCanvasTap(touch) {
-    if (isGameOver) return;
-    initAudio();
-    const pos = getGridPos(touch.clientX, touch.clientY);
-    if (!pos) return;
-
-    if (selectedSlot !== null) {
-        const piece = pieces[selectedSlot];
-        if (!piece) return;
-
-        const { rows, cols } = getPieceSize(piece);
-        const row = pos.row - Math.floor(rows / 2);
-        const col = pos.col - Math.floor(cols / 2);
-
-        if (canPlace(piece, row, col)) {
-            // Place the selected piece
-            placePiece(piece, row, col);
-            removePiece(selectedSlot);
-            clearSelection();
-            hoverCell = null;
-            hoverValid = false;
-            draw();
-            checkGameOver();
-        }
-    }
-    // If no piece selected, tapping the grid does nothing
-}
+const TAP_DIST = 15;
 
 function handleSlotTap(slotIndex) {
     selectPiece(slotIndex);
@@ -752,20 +693,17 @@ document.querySelectorAll('.piece-slot').forEach(slot => {
         }
 
         if (touchMoved && dragging) {
-            updateDrag(touch);
+            updatePreview(touch.clientX, touch.clientY);
         }
     }, { passive: false });
 
     slot.addEventListener('touchend', (e) => {
         e.preventDefault();
-        const touch = e.changedTouches[0];
-
         if (!touchMoved && !slot._startedDrag) {
-            // It was a tap - select the piece
             const slotIndex = parseInt(slot.dataset.slot);
             handleSlotTap(slotIndex);
         } else if (dragging) {
-            endDrag(touch);
+            endDrag();
         }
         slot._startedDrag = false;
         touchMoved = false;
@@ -774,12 +712,18 @@ document.querySelectorAll('.piece-slot').forEach(slot => {
 
 canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
+    initAudio();
     const touch = e.touches[0];
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
     touchStartTime = Date.now();
     touchMoved = false;
     touchMovedDist = 0;
+    
+    // Show preview instantly where the finger lands if a piece is selected
+    if (selectedSlot !== null) {
+        updatePreview(touch.clientX, touch.clientY);
+    }
 }, { passive: false });
 
 canvas.addEventListener('touchmove', (e) => {
@@ -793,22 +737,33 @@ canvas.addEventListener('touchmove', (e) => {
         touchMoved = true;
     }
 
-    if (touchMoved && dragging) {
-        updateDrag(touch);
+    // Update the preview outline live as the user slides their finger
+    if (dragging || selectedSlot !== null) {
+        updatePreview(touch.clientX, touch.clientY);
     }
 }, { passive: false });
 
 canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
-    const touch = e.changedTouches[0];
-
-    if (!touchMoved) {
-        // It was a tap on the canvas - place selected piece if any
-        handleCanvasTap(touch);
-    } else if (dragging) {
-        endDrag(touch);
+    if (dragging) {
+        endDrag();
+    } else if (selectedSlot !== null) {
+        // Finalize the placement on touch release
+        if (hoverCell && hoverValid) {
+            placePiece(pieces[selectedSlot], hoverCell.row, hoverCell.col);
+            removePiece(selectedSlot);
+            clearSelection();
+            checkGameOver();
+            hoverCell = null;
+            hoverValid = false;
+            draw();
+        } else {
+            // Cancel preview but keep selection if dropped in an invalid area
+            hoverCell = null;
+            hoverValid = false;
+            draw();
+        }
     }
-
     touchMoved = false;
 }, { passive: false });
 
@@ -840,24 +795,17 @@ function animate(time) {
 
     let needsRedraw = false;
 
-    // Update clear animations
     if (clearAnimations.length > 0) {
-        clearAnimations.forEach(anim => {
-            anim.progress += delta;
-        });
+        clearAnimations.forEach(anim => anim.progress += delta);
         needsRedraw = true;
     }
 
-    // Update placement animations
     if (placedAnimations.length > 0) {
-        placedAnimations.forEach(anim => {
-            anim.progress += delta;
-        });
+        placedAnimations.forEach(anim => anim.progress += delta);
         placedAnimations = placedAnimations.filter(a => a.progress < 200);
         needsRedraw = true;
     }
 
-    // Update particles
     if (particles.length > 0) {
         particles.forEach(p => {
             p.x += p.vx;
@@ -871,11 +819,8 @@ function animate(time) {
         needsRedraw = true;
     }
 
-    // Update score popups
     if (scorePopups.length > 0) {
-        scorePopups.forEach(popup => {
-            popup.progress += delta;
-        });
+        scorePopups.forEach(popup => popup.progress += delta);
         scorePopups = scorePopups.filter(p => p.progress < 1000);
         needsRedraw = true;
     }
@@ -890,7 +835,6 @@ resizeCanvas();
 spawnPieces();
 requestAnimationFrame(animate);
 
-// Re-run resize after layout is fully computed to ensure correct scaling
 requestAnimationFrame(() => {
     resizeCanvas();
 });

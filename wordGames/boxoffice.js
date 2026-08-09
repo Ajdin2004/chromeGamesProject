@@ -85,12 +85,15 @@ function shuffleArray(arr) {
 async function fetchWikidataMovies() {
     toastEl.textContent = "Querying live movie data from Wikidata...";
 
-    // SPARQL Query: Get top 50 films with box office gross, release year, and image/poster
+    // SPARQL Query: Get top films with a box office gross > $50M to ensure they are major, recognizable movies
     const sparqlQuery = `
         SELECT DISTINCT ?filmLabel ?year ?boxoffice ?image WHERE {
-          ?film wdt:P31 wd:Q11424;           # Must be a film
-                wdt:P2142 ?boxoffice;         # Has box office gross
+          ?film wdt:P31 wd:Q11424;          # Must be a film
+                wdt:P2142 ?boxoffice;        # Has box office gross
                 wdt:P577 ?pubdate.            # Has publication date
+
+          # Filter out obscure/regional films by setting a blockbuster threshold ($50M+)
+          FILTER(?boxoffice > 50000000)
 
           OPTIONAL { ?film wdt:P18 ?image. }  # Optional Wikidata image/poster
 
@@ -124,7 +127,7 @@ async function fetchWikidataMovies() {
             worldwide: parseFloat(item.boxoffice.value),
             // Convert HTTP image links to HTTPS to avoid mixed content errors
             poster: item.image ? item.image.value.replace('http://', 'https://') : ''
-        }));
+        })).filter(movie => movie.title && !movie.title.startsWith('Q')); // Fallback safety filter
 
         if (MOVIES.length >= 2) {
             startGame();

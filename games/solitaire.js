@@ -1,7 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// ---- Responsive layout config (recalculated on resize) ----
+// ---- Responsive layout config ----
 let CARD_WIDTH = 80;
 let CARD_HEIGHT = 120;
 let CARD_RADIUS = 8;
@@ -21,6 +21,83 @@ const COLORS = {
 };
 
 const LERP_SPEED = 0.28;
+
+// ---- OFFSCREEN CANVAS CACHING ----
+const cardCache = new Map();
+
+function createCardSprite(suit, rank, faceUp) {
+    const dpr = window.devicePixelRatio || 1;
+    const pad = 15; // Extra padding for shadow blur bounds
+    
+    const offscreen = document.createElement('canvas');
+    offscreen.width = (CARD_WIDTH + pad * 2) * dpr;
+    offscreen.height = (CARD_HEIGHT + pad * 2) * dpr;
+    
+    const oCtx = offscreen.getContext('2d');
+    oCtx.scale(dpr, dpr);
+
+    // Bake the heavy shadow exactly once
+    oCtx.shadowColor = 'rgba(0,0,0,0.3)';
+    oCtx.shadowBlur = 5;
+    oCtx.shadowOffsetX = 2;
+    oCtx.shadowOffsetY = 2;
+
+    oCtx.fillStyle = faceUp ? '#ffffff' : '#1e3799';
+    oCtx.beginPath();
+    oCtx.roundRect(pad, pad, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
+    oCtx.fill();
+
+    // Turn off shadow for interior elements to speed up drawing
+    oCtx.shadowColor = 'transparent';
+
+    if (!faceUp) {
+        oCtx.strokeStyle = 'rgba(255,255,255,0.1)';
+        oCtx.lineWidth = 2;
+        oCtx.stroke();
+        oCtx.fillStyle = 'rgba(255,255,255,0.05)';
+        oCtx.fillRect(pad + CARD_WIDTH * 0.125, pad + CARD_HEIGHT * 0.083, CARD_WIDTH * 0.75, CARD_HEIGHT * 0.834);
+    } else {
+        oCtx.strokeStyle = '#dfe6e9';
+        oCtx.lineWidth = 1;
+        oCtx.stroke();
+
+        const rankFont = Math.max(10, CARD_WIDTH * 0.225);
+        const smallSuitFont = Math.max(9, CARD_WIDTH * 0.2);
+        const bigSuitFont = Math.max(18, CARD_WIDTH * 0.5);
+
+        oCtx.fillStyle = COLORS[suit];
+        oCtx.font = `bold ${rankFont}px Outfit, sans-serif`;
+        oCtx.textAlign = 'left';
+        oCtx.fillText(rank, pad + CARD_WIDTH * 0.1, pad + CARD_HEIGHT * 0.185);
+
+        const suitIcon = {
+            hearts: '♥',
+            diamonds: '♦',
+            clubs: '♣',
+            spades: '♠'
+        }[suit];
+
+        oCtx.font = `${smallSuitFont}px serif`;
+        oCtx.fillText(suitIcon, pad + CARD_WIDTH * 0.1, pad + CARD_HEIGHT * 0.335);
+
+        oCtx.font = `${bigSuitFont}px serif`;
+        oCtx.textAlign = 'center';
+        oCtx.fillText(suitIcon, pad + CARD_WIDTH / 2, pad + CARD_HEIGHT / 2 + bigSuitFont * 0.35);
+    }
+
+    return offscreen;
+}
+
+function generateCardCache() {
+    cardCache.clear();
+    cardCache.set('back', createCardSprite(null, null, false));
+    for (const suit of SUITS) {
+        for (const rank of RANKS) {
+            cardCache.set(`${suit}_${rank}`, createCardSprite(suit, rank, true));
+        }
+    }
+}
+// ----------------------------------
 
 class Card {
     constructor(suit, rank) {
@@ -42,15 +119,22 @@ class Card {
     }
 
     draw(ctx, x, y, isSelected = false, instant = false) {
+        let isMoving = false;
+        
         if (this.currentX === undefined || instant) {
             this.currentX = x;
             this.currentY = y;
         } else {
-            this.currentX += (x - this.currentX) * LERP_SPEED;
-            this.currentY += (y - this.currentY) * LERP_SPEED;
-            // Snap when close enough to avoid endless tiny jitter
-            if (Math.abs(x - this.currentX) < 0.5) this.currentX = x;
-            if (Math.abs(y - this.currentY) < 0.5) this.currentY = y;
+            const dx = x - this.currentX;
+            const dy = y - this.currentY;
+            if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+                this.currentX += dx * LERP_SPEED;
+                this.currentY += dy * LERP_SPEED;
+                isMoving = true;
+            } else {
+                this.currentX = x;
+                this.currentY = y;
+            }
         }
 
         const rx = this.currentX;
@@ -58,63 +142,28 @@ class Card {
         this.x = rx;
         this.y = ry;
 
-        ctx.save();
-        ctx.translate(rx, ry);
+        const key = this.faceUp ? `${this.suit}_${this.rank}` : 'back';
+        const cached = cardCache.get(key);
 
-        // Shadow
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = isSelected ? 15 : 5;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-
-        // Card Base
-        ctx.fillStyle = this.faceUp ? '#ffffff' : '#2d3436';
-        if (!this.faceUp) {
-            ctx.fillStyle = '#1e3799';
+        if (cached) {
+            // Apply the -15 offset from the padding used during pre-rendering
+            ctx.drawImage(cached, rx - 15, ry - 15, CARD_WIDTH + 30, CARD_HEIGHT + 30);
         }
 
-        ctx.beginPath();
-        ctx.roundRect(0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
-        ctx.fill();
-
-        if (!this.faceUp) {
-            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-            ctx.lineWidth = 2;
+        if (isSelected) {
+            ctx.save();
+            ctx.strokeStyle = '#00f2fe';
+            ctx.lineWidth = 3;
+            // A separate elevated glow for active selections
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.roundRect(rx, ry, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
             ctx.stroke();
-            ctx.fillStyle = 'rgba(255,255,255,0.05)';
-            ctx.fillRect(CARD_WIDTH * 0.125, CARD_HEIGHT * 0.083, CARD_WIDTH * 0.75, CARD_HEIGHT * 0.834);
-        } else {
-            ctx.strokeStyle = isSelected ? '#00f2fe' : '#dfe6e9';
-            ctx.lineWidth = isSelected ? 3 : 1;
-            ctx.stroke();
-
-            const rankFont = Math.max(10, CARD_WIDTH * 0.225);
-            const smallSuitFont = Math.max(9, CARD_WIDTH * 0.2);
-            const bigSuitFont = Math.max(18, CARD_WIDTH * 0.5);
-
-            // Draw Rank and Suit
-            ctx.fillStyle = this.color;
-            ctx.font = `bold ${rankFont}px Outfit`;
-            ctx.textAlign = 'left';
-            ctx.fillText(this.rank, CARD_WIDTH * 0.1, CARD_HEIGHT * 0.185);
-
-            const suitIcon = {
-                hearts: '♥',
-                diamonds: '♦',
-                clubs: '♣',
-                spades: '♠'
-            }[this.suit];
-
-            ctx.font = `${smallSuitFont}px serif`;
-            ctx.fillText(suitIcon, CARD_WIDTH * 0.1, CARD_HEIGHT * 0.335);
-
-            // Large center icon
-            ctx.font = `${bigSuitFont}px serif`;
-            ctx.textAlign = 'center';
-            ctx.fillText(suitIcon, CARD_WIDTH / 2, CARD_HEIGHT / 2 + bigSuitFont * 0.35);
+            ctx.restore();
         }
 
-        ctx.restore();
+        return isMoving;
     }
 }
 
@@ -135,9 +184,106 @@ let dragMoved = false;
 
 let history = [];
 let gameWon = false;
-
-// Confetti particles for the win celebration
 let confetti = [];
+
+// ---- Demand-Driven Render Engine ----
+let animFrameId = null;
+
+function requestRender() {
+    if (!animFrameId) {
+        animFrameId = requestAnimationFrame(drawLoop);
+    }
+}
+
+function drawLoop() {
+    let keepAnimating = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Foundations (Slots)
+    for (let i = 0; i < 4; i++) {
+        const x = LEFT_MARGIN + (i + 3) * (CARD_WIDTH + COLUMN_SPACING);
+        const y = TOP_MARGIN;
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        ctx.font = `${Math.max(18, CARD_WIDTH * 0.5)}px serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(['♥', '♦', '♣', '♠'][i], x + CARD_WIDTH / 2, y + CARD_HEIGHT / 2 + CARD_WIDTH * 0.18);
+
+        foundations[i].forEach(card => {
+            if (card.draw(ctx, x, y)) keepAnimating = true;
+        });
+    }
+
+    // Draw Stock
+    const stockX = LEFT_MARGIN;
+    const stockY = TOP_MARGIN;
+    if (stock.length > 0) {
+        if (stock[stock.length - 1].draw(ctx, stockX, stockY)) keepAnimating = true;
+    } else {
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.beginPath();
+        ctx.roundRect(stockX, stockY, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.font = `${Math.max(18, CARD_WIDTH * 0.35)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText('↻', stockX + CARD_WIDTH / 2, stockY + CARD_HEIGHT / 2 + CARD_WIDTH * 0.1);
+    }
+
+    // Draw Waste 
+    if (waste.length > 0) {
+        const topWasteCard = waste[waste.length - 1];
+        if (!isDragging || !draggedCards || !draggedCards.includes(topWasteCard)) {
+            if (topWasteCard.draw(ctx, LEFT_MARGIN + CARD_WIDTH + COLUMN_SPACING, stockY)) keepAnimating = true;
+        }
+    }
+
+    // Draw Tableau
+    for (let i = 0; i < 7; i++) {
+        const x = LEFT_MARGIN + i * (CARD_WIDTH + COLUMN_SPACING);
+        const yBase = TOP_MARGIN + CARD_HEIGHT + 40;
+
+        if (tableau[i].length === 0) {
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.beginPath();
+            ctx.roundRect(x, yBase, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
+            ctx.stroke();
+        }
+
+        tableau[i].forEach((card, j) => {
+            if (!isDragging || !draggedCards || !draggedCards.includes(card)) {
+                if (card.draw(ctx, x, tableauCardY(i, j))) keepAnimating = true;
+            }
+        });
+    }
+
+    // Draw Dragged Cards 
+    if (isDragging && draggedCards) {
+        draggedCards.forEach((card, i) => {
+            card.draw(ctx, mouseX - dragOffsetX, mouseY - dragOffsetY + i * STACK_SPACING, true, true);
+        });
+        keepAnimating = true; // Constantly update while dragging
+    }
+
+    // Confetti overlay
+    if (confetti.length > 0) {
+        updateAndDrawConfetti();
+        keepAnimating = true;
+    }
+
+    // Suspend loop if absolutely nothing is moving
+    if (keepAnimating) {
+        animFrameId = requestAnimationFrame(drawLoop);
+    } else {
+        animFrameId = null; 
+    }
+}
+// ---------------------------------------------
 
 function allCards() {
     return [
@@ -156,13 +302,11 @@ function initGame() {
         }
     }
 
-    // Shuffle
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [deck[i], deck[j]] = [deck[j], deck[i]];
     }
 
-    // Deal Tableau
     tableau = [[], [], [], [], [], [], []];
     let cardIdx = 0;
     for (let i = 0; i < 7; i++) {
@@ -173,14 +317,11 @@ function initGame() {
         }
     }
 
-    // Stock
     stock = deck.slice(cardIdx);
     stock.forEach(c => c.faceUp = false);
     waste = [];
     foundations = [[], [], [], []];
 
-    // Give every card a starting animation position at the stock pile
-    // so the initial deal glides into place.
     allCards().forEach(c => {
         c.currentX = LEFT_MARGIN;
         c.currentY = TOP_MARGIN;
@@ -189,9 +330,10 @@ function initGame() {
     gameWon = false;
     confetti = [];
     hideWinOverlay();
-
     history = [];
+    
     saveState();
+    requestRender();
 }
 
 function saveState() {
@@ -208,7 +350,7 @@ function saveState() {
 
 function undo() {
     if (history.length <= 1) return;
-    history.pop(); // Remove current state
+    history.pop(); 
     const prevState = JSON.parse(history[history.length - 1]);
 
     tableau = prevState.tableau.map(col => col.map(data => Object.assign(new Card(), data)));
@@ -218,6 +360,7 @@ function undo() {
 
     gameWon = false;
     hideWinOverlay();
+    requestRender();
 }
 
 function computeLayout() {
@@ -227,16 +370,16 @@ function computeLayout() {
     LEFT_MARGIN = Math.max(12, w * 0.03);
     COLUMN_SPACING = Math.max(8, w * 0.02);
 
-    // Dynamic width calculation with expanded max boundary
     let widthBased = (w - LEFT_MARGIN * 2 - COLUMN_SPACING * 6) / 7;
     CARD_WIDTH = Math.max(35, Math.min(widthBased, 160));
     CARD_HEIGHT = CARD_WIDTH * 1.45;
     CARD_RADIUS = CARD_WIDTH * 0.1;
     
-    // Scale stack spacing relative to available canvas height
     STACK_SPACING = Math.min(CARD_HEIGHT * 0.3, (h - CARD_HEIGHT - 60) / 12);
     HIDDEN_SPACING = CARD_HEIGHT * 0.12;
     TOP_MARGIN = Math.max(15, h * 0.03);
+    
+    generateCardCache();
 }
 
 function resize() {
@@ -248,11 +391,10 @@ function resize() {
     
     ctx.scale(dpr, dpr);
     computeLayout();
-    resizeConfettiCanvas();
+    requestRender();
 }
 
 window.addEventListener('resize', resize);
-resize();
 
 function tableauCardY(col, index) {
     let y = TOP_MARGIN + CARD_HEIGHT + 40;
@@ -268,87 +410,7 @@ function tableauStackHeight(col) {
     return tableauCardY(col, arr.length - 1) + CARD_HEIGHT;
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw Foundations (Slots)
-    for (let i = 0; i < 4; i++) {
-        const x = LEFT_MARGIN + (i + 3) * (CARD_WIDTH + COLUMN_SPACING);
-        const y = TOP_MARGIN;
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
-        ctx.stroke();
-
-        ctx.fillStyle = 'rgba(255,255,255,0.05)';
-        ctx.font = `${Math.max(18, CARD_WIDTH * 0.5)}px serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(['♥', '♦', '♣', '♠'][i], x + CARD_WIDTH / 2, y + CARD_HEIGHT / 2 + CARD_WIDTH * 0.18);
-
-        foundations[i].forEach(card => card.draw(ctx, x, y));
-    }
-
-    // Draw Stock
-    const stockX = LEFT_MARGIN;
-    const stockY = TOP_MARGIN;
-    if (stock.length > 0) {
-        stock[stock.length - 1].draw(ctx, stockX, stockY);
-    } else {
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-        ctx.beginPath();
-        ctx.roundRect(stockX, stockY, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        ctx.font = `${Math.max(18, CARD_WIDTH * 0.35)}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.fillText('↻', stockX + CARD_WIDTH / 2, stockY + CARD_HEIGHT / 2 + CARD_WIDTH * 0.1);
-    }
-
-    // Draw Waste (Skip top card if it is currently being dragged)
-    if (waste.length > 0) {
-        const topWasteCard = waste[waste.length - 1];
-        if (!isDragging || !draggedCards || !draggedCards.includes(topWasteCard)) {
-            topWasteCard.draw(ctx, LEFT_MARGIN + CARD_WIDTH + COLUMN_SPACING, stockY);
-        }
-    }
-
-    // Draw Tableau
-    for (let i = 0; i < 7; i++) {
-        const x = LEFT_MARGIN + i * (CARD_WIDTH + COLUMN_SPACING);
-        const yBase = TOP_MARGIN + CARD_HEIGHT + 40;
-
-        if (tableau[i].length === 0) {
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.beginPath();
-            ctx.roundRect(x, yBase, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
-            ctx.stroke();
-        }
-
-        tableau[i].forEach((card, j) => {
-            if (!isDragging || !draggedCards || !draggedCards.includes(card)) {
-                card.draw(ctx, x, tableauCardY(i, j));
-            }
-        });
-    }
-
-    // Draw Dragged Cards (instant, follows pointer directly)
-    if (isDragging && draggedCards) {
-        draggedCards.forEach((card, i) => {
-            card.draw(ctx, mouseX - dragOffsetX, mouseY - dragOffsetY + i * STACK_SPACING, true, true);
-        });
-    }
-
-    // Confetti overlay
-    if (confetti.length > 0) {
-        updateAndDrawConfetti();
-    }
-
-    requestAnimationFrame(draw);
-}
-
 function getCardAt(x, y) {
-    // Check Tableau (bottom to top)
     for (let i = 6; i >= 0; i--) {
         const col = tableau[i];
         for (let j = col.length - 1; j >= 0; j--) {
@@ -363,7 +425,6 @@ function getCardAt(x, y) {
         }
     }
 
-    // Check Waste
     if (waste.length > 0) {
         const xPos = LEFT_MARGIN + CARD_WIDTH + COLUMN_SPACING;
         const yPos = TOP_MARGIN;
@@ -372,7 +433,6 @@ function getCardAt(x, y) {
         }
     }
 
-    // Check Foundations
     for (let i = 0; i < 4; i++) {
         const xPos = LEFT_MARGIN + (i + 3) * (CARD_WIDTH + COLUMN_SPACING);
         const yPos = TOP_MARGIN;
@@ -415,8 +475,6 @@ function flipRevealedTableauCard(colIndex) {
     if (col.length > 0) col[col.length - 1].faceUp = true;
 }
 
-// Attempts to auto-send a single top card (from tableau or waste) to a valid foundation.
-// Used for double-click / double-tap interactions.
 function tryAutoFoundation(hit) {
     if (!hit || hit.cards.length !== 1) return false;
     const card = hit.cards[0];
@@ -433,6 +491,7 @@ function tryAutoFoundation(hit) {
         flipRevealedTableauCard(hit.colIndex);
     }
     saveState();
+    requestRender();
     return true;
 }
 
@@ -443,14 +502,11 @@ function checkWin() {
         gameWon = true;
         launchConfetti();
         showWinOverlay();
+        requestRender();
     }
 }
 
 // ---------------- Confetti ----------------
-function resizeConfettiCanvas() {
-    // Confetti is drawn directly onto the main canvas, nothing extra to size.
-}
-
 function launchConfetti() {
     confetti = [];
     const colors = ['#00f2fe', '#7928ca', '#ff0080', '#facc15', '#10b981', '#ff4d4d'];
@@ -499,13 +555,12 @@ function hideWinOverlay() {
     if (overlay) overlay.classList.add('hidden');
 }
 
-// ---------------- Pointer (mouse + touch) handling ----------------
+// ---------------- Pointer handling ----------------
 function handlePointerDown(x, y) {
     mouseX = x;
     mouseY = y;
     dragMoved = false;
 
-    // Check Stock Click
     const stockX = LEFT_MARGIN;
     const stockY = TOP_MARGIN;
     if (x >= stockX && x <= stockX + CARD_WIDTH && y >= stockY && y <= stockY + CARD_HEIGHT) {
@@ -521,6 +576,7 @@ function handlePointerDown(x, y) {
             }
         }
         saveState();
+        requestRender();
         return;
     }
 
@@ -533,6 +589,7 @@ function handlePointerDown(x, y) {
         const firstCard = draggedCards[0];
         dragOffsetX = x - firstCard.x;
         dragOffsetY = y - firstCard.y;
+        requestRender();
     }
 }
 
@@ -541,6 +598,7 @@ function handlePointerMove(x, y) {
         const dx = x - mouseX;
         const dy = y - mouseY;
         if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragMoved = true;
+        requestRender(); // Force update while actively holding
     }
     mouseX = x;
     mouseY = y;
@@ -553,7 +611,6 @@ function handlePointerUp() {
     const dropY = mouseY;
     let moved = false;
 
-    // Try Foundations (only if dragging 1 card)
     if (draggedCards.length === 1) {
         for (let i = 0; i < 4; i++) {
             const xPos = LEFT_MARGIN + (i + 3) * (CARD_WIDTH + COLUMN_SPACING);
@@ -570,7 +627,6 @@ function handlePointerUp() {
         }
     }
 
-    // Try Tableau
     if (!moved) {
         for (let i = 0; i < 7; i++) {
             const xPos = LEFT_MARGIN + i * (CARD_WIDTH + COLUMN_SPACING);
@@ -613,9 +669,9 @@ function handlePointerUp() {
     isDragging = false;
     draggedCards = null;
     dragSource = null;
+    requestRender();
 }
 
-// Mouse events
 canvas.addEventListener('mousedown', e => {
     const rect = canvas.getBoundingClientRect();
     handlePointerDown(e.clientX - rect.left, e.clientY - rect.top);
@@ -626,11 +682,8 @@ window.addEventListener('mousemove', e => {
     handlePointerMove(e.clientX - rect.left, e.clientY - rect.top);
 });
 
-window.addEventListener('mouseup', () => {
-    handlePointerUp();
-});
+window.addEventListener('mouseup', () => handlePointerUp());
 
-// Touch events
 canvas.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) return;
     const rect = canvas.getBoundingClientRect();
@@ -653,7 +706,6 @@ canvas.addEventListener('touchend', e => {
     e.preventDefault();
 }, { passive: false });
 
-// Double-click (desktop) -> auto move to foundation
 canvas.addEventListener('dblclick', e => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -662,7 +714,6 @@ canvas.addEventListener('dblclick', e => {
     if (hit) tryAutoFoundation(hit);
 });
 
-// Double-tap (mobile) -> auto move to foundation
 let lastTapTime = 0;
 let lastTapX = 0;
 let lastTapY = 0;
@@ -689,5 +740,8 @@ document.getElementById('undo-btn').addEventListener('click', undo);
 const winNewGameBtn = document.getElementById('win-new-game');
 if (winNewGameBtn) winNewGameBtn.addEventListener('click', initGame);
 
-initGame();
-draw();
+// Allow standard DOM fonts to load before first render caching
+document.fonts.ready.then(() => {
+    resize();
+    initGame();
+});
