@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Neon Asteroids | Chromium Games</title>
     <link rel="icon" type="image/png" href="https://png.pngtree.com/recommend-works/png-clipart/20240621/ourmid/pngtree-asteroid-cartoon-for-day-png-image_12813168.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
@@ -24,15 +24,22 @@
             font-family: 'Outfit', sans-serif;
         }
 
+        html, body {
+            overscroll-behavior: none;
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            overflow-x: hidden;
+            touch-action: manipulation;
         }
 
         .header-bar {
@@ -58,16 +65,54 @@
             color: var(--primary-cyan);
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .icon-btn:hover {
+            color: var(--primary-cyan);
+            border-color: var(--primary-cyan);
+        }
+
+        .icon-btn.active {
+            color: var(--primary-cyan);
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+        }
+
         .game-wrapper {
             position: relative;
             box-shadow: 0 20px 50px rgba(0, 242, 254, 0.15);
             border-radius: 16px;
             overflow: hidden;
             border: 1px solid var(--card-border);
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1 / 1;
         }
 
         canvas {
             display: block;
+            width: 100%;
+            height: 100%;
             background: #070913;
             touch-action: none;
         }
@@ -77,6 +122,84 @@
             color: var(--text-muted);
             font-size: 0.85rem;
             text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .instructions strong {
+            color: var(--primary-cyan);
+        }
+
+        /* Pause overlay */
+        .pause-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 25, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .pause-overlay.show {
+            display: flex;
+        }
+
+        .pause-overlay h2 {
+            font-size: 2rem;
+            color: var(--primary-cyan);
+            letter-spacing: 2px;
+        }
+
+        .pause-overlay p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .pause-btn {
+            background: linear-gradient(135deg, var(--primary-cyan), #4facfe);
+            color: #000;
+            border: none;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 0.8rem 2.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .pause-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.35);
+        }
+
+        .pause-btn.secondary {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+        }
+
+        .pause-btn.secondary:hover {
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+            .header-bar {
+                margin-bottom: 0.5rem;
+            }
+            .instructions {
+                font-size: 0.78rem;
+            }
         }
     </style>
 </head>
@@ -85,18 +208,28 @@
     <div class="header-bar">
         <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
         <h2>Neon Asteroids</h2>
+        <div class="header-actions">
+            <button class="icon-btn" id="pauseBtn" title="Pause (P)"><i class="fa-solid fa-pause"></i></button>
+        </div>
     </div>
 
-    <div class="game-wrapper">
+    <div class="game-wrapper" id="gameWrapper">
         <canvas id="gameCanvas" width="600" height="600"></canvas>
     </div>
 
     <p class="instructions">
-        <strong>← / →</strong> Rotate &nbsp;|&nbsp; <strong>↑</strong> Thrust &nbsp;|&nbsp; <strong>Space</strong> Shoot &nbsp;|&nbsp; <strong>Shift</strong> Hyperspace
-        <br><strong>Touch:</strong> Swipe left/right to steer, swipe up to thrust, tap to shoot.
+        <strong>← / →</strong> Rotate &nbsp;|&nbsp; <strong>↑</strong> Thrust &nbsp;|&nbsp; <strong>Space</strong> Shoot (hold for auto-fire) &nbsp;|&nbsp; <strong>Shift</strong> Hyperspace
+        <br><strong>Touch:</strong> Left half = joystick (drag to steer/thrust) &nbsp;•&nbsp; Right half = fire (hold to auto-fire)
         <br><span style="color: #00f2fe; font-weight: 600; display: inline-block; margin-top: 4px;">Collect Power-ups: 🛡️ Shield | ⚡ Triple | 🔥 Rapid | ❤️ Life</span>
         <br><span style="color: #ef4444; font-weight: 600; display: inline-block; margin-top: 2px;">⚠️ Enemy Alien UFOs attack after Wave 1!</span>
     </p>
+
+    <div class="pause-overlay" id="pauseOverlay">
+        <h2>PAUSED</h2>
+        <p>Take a breather, Commander.</p>
+        <button class="pause-btn" id="resumeBtn"><i class="fa-solid fa-play"></i> Resume</button>
+        <button class="pause-btn secondary" id="restartBtn"><i class="fa-solid fa-rotate-right"></i> Restart</button>
+    </div>
 
     <script src="asteroids.js"></script>
 </body>

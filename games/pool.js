@@ -97,7 +97,6 @@ class Ball {
             this.x += this.vx * 0.5;
             this.y += this.vy * 0.5;
             
-            // Fix: ensure velocity is explicitly killed so isTableStill() becomes true
             if (this.scale <= 0) {
                 this.active = false;
                 this.scale = 0;
@@ -187,7 +186,7 @@ class Ball {
         ctx.arc(0, 0, BALL_RADIUS, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.shadowColor = "transparent"; // disable shadow for inner elements
+        ctx.shadowColor = "transparent";
 
         // Stripe Fill
         if (this.stripe) {
@@ -205,7 +204,6 @@ class Ball {
             ctx.arc(0, 0, BALL_RADIUS * 0.5, 0, Math.PI * 2);
             ctx.fill();
 
-            // Counter-rotate text so it stays upright despite the ball spinning
             ctx.rotate(-this.rotation);
             ctx.fillStyle = '#000000';
             ctx.font = `800 ${BALL_RADIUS * 0.6}px Outfit, sans-serif`;
@@ -220,8 +218,8 @@ class Ball {
             ctx.fill();
         }
 
-        // Glossy Specular Highlight (Static to lighting)
-        ctx.rotate(-this.rotation); // Reset rotation for lighting
+        // Glossy Specular Highlight
+        ctx.rotate(-this.rotation);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.beginPath();
         ctx.ellipse(-BALL_RADIUS * 0.35, -BALL_RADIUS * 0.35, BALL_RADIUS * 0.3, BALL_RADIUS * 0.15, Math.PI / 4, 0, Math.PI * 2);
@@ -248,7 +246,7 @@ let aimStart = { x: 0, y: 0 };
 let aimCurrent = { x: 0, y: 0 };
 let cueBallInHand = true; 
 
-let currentTurn = 1; // 1 or 2
+let currentTurn = 1;
 let players = {
     1: { type: null, pottedThisTurn: false },
     2: { type: null, pottedThisTurn: false }
@@ -271,7 +269,6 @@ function setupTableDimensions() {
     canvas.width = w;
     canvas.height = h;
 
-    // Account for UI panels Overlaying bounds
     const uiPaddingTop = 60; 
     const uiPaddingBottom = 75; 
     const availableH = h - uiPaddingTop - uiPaddingBottom - 30;
@@ -280,7 +277,6 @@ function setupTableDimensions() {
     let tableW = availableW;
     let tableH = tableW / TABLE_RATIO;
 
-    // Constrain to available height if necessary
     if (tableH > availableH) {
         tableH = availableH;
         tableW = tableH * TABLE_RATIO;
@@ -308,7 +304,6 @@ function setupTableDimensions() {
         { x: bounds.right, y: bounds.bottom }
     ];
 
-    // Clamp existing active balls if screen resizes
     balls.forEach(b => {
         if (b.active) {
             b.x = Math.max(bounds.left + BALL_RADIUS, Math.min(b.x, bounds.right - BALL_RADIUS));
@@ -321,7 +316,7 @@ function initGame() {
     gameOverOverlay.classList.remove('active');
     
     currentTurn = 1;
-    players = { 1: { type: null }, 2: { type: null } };
+    players = { 1: { type: null, pottedThisTurn: false }, 2: { type: null, pottedThisTurn: false } };
     isTableOpen = true;
     foulCommitted = false;
     turnEnding = false;
@@ -363,7 +358,6 @@ function updateUI() {
     document.getElementById('p1Type').textContent = players[1].type ? players[1].type.toUpperCase() : "OPEN";
     document.getElementById('p2Type').textContent = players[2].type ? players[2].type.toUpperCase() : "OPEN";
 
-    // Count remaining balls
     const solidsLeft = balls.filter(b => b.active && b.id >= 1 && b.id <= 7).length;
     const stripesLeft = balls.filter(b => b.active && b.id >= 9 && b.id <= 15).length;
 
@@ -409,7 +403,6 @@ function checkTurnEnd() {
     if (!isTableStill() || turnEnding) return;
     turnEnding = true;
 
-    // Check first hit foul
     if (!firstHitBall && !foulCommitted) {
         foulCommitted = true;
         setStatus("Foul! Failed to hit a ball.");
@@ -450,7 +443,6 @@ function checkTurnEnd() {
 
     updateUI();
 
-    // Trigger Bot if applicable
     if (isPvE && currentTurn === 2 && !gameOverOverlay.classList.contains('active')) {
         setTimeout(playBotTurn, 1000);
     }
@@ -475,11 +467,9 @@ function resolveCollisions() {
             const dist = Math.hypot(dx, dy);
 
             if (dist < BALL_RADIUS * 2) {
-                // Record first hit for fouls
                 if (b1.id === 0 && !firstHitBall) firstHitBall = b2;
                 if (b2.id === 0 && !firstHitBall) firstHitBall = b1;
 
-                // Overlap Correction
                 const overlap = (BALL_RADIUS * 2 - dist) / 2;
                 const nx = dx / dist;
                 const ny = dy / dist;
@@ -489,7 +479,6 @@ function resolveCollisions() {
                 b2.x += nx * overlap;
                 b2.y += ny * overlap;
 
-                // Elastic Collision
                 const kx = b1.vx - b2.vx;
                 const ky = b1.vy - b2.vy;
                 const p = 2 * (nx * kx + ny * ky) / 2;
@@ -519,7 +508,6 @@ function getPrediction() {
     let ghostX = cueBall.x;
     let ghostY = cueBall.y;
 
-    // Ray vs Cushions bounds check
     const tx1 = dirX !== 0 ? ((bounds.left + BALL_RADIUS) - cueBall.x) / dirX : Infinity;
     const tx2 = dirX !== 0 ? ((bounds.right - BALL_RADIUS) - cueBall.x) / dirX : Infinity;
     const ty1 = dirY !== 0 ? ((bounds.top + BALL_RADIUS) - cueBall.y) / dirY : Infinity;
@@ -529,7 +517,6 @@ function getPrediction() {
         if (t > 0 && t < closestDist) closestDist = t;
     });
 
-    // Ray vs Balls (Quadratic intersection)
     balls.forEach(ball => {
         if (ball.id === 0 || !ball.active || ball.scale < 1) return;
         
@@ -569,7 +556,6 @@ function playBotTurn() {
 
     let bestShot = null;
 
-    // Basic logic: Picks first ball with direct line of sight
     for (let ball of targetBalls) {
         for (let pocket of pockets) {
             const angleToPocket = Math.atan2(pocket.y - ball.y, pocket.x - ball.x);
@@ -577,7 +563,6 @@ function playBotTurn() {
             const ghostY = ball.y - Math.sin(angleToPocket) * (BALL_RADIUS * 2);
 
             const angleToGhost = Math.atan2(ghostY - cueBall.y, ghostX - cueBall.x);
-            
             const dist = Math.hypot(ghostX - cueBall.x, ghostY - cueBall.y);
             let blocked = false;
             
@@ -603,7 +588,6 @@ function playBotTurn() {
 
     if (bestShot) {
         isAiming = true;
-        // Visualize bot aiming briefly
         aimStart = { x: cueBall.x, y: cueBall.y };
         aimCurrent = { 
             x: cueBall.x - Math.cos(bestShot.angle) * bestShot.power, 
@@ -632,15 +616,12 @@ function isBetween(a, b, c) {
 function drawTable() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fullscreen Woods rails covering canvas
-    ctx.fillStyle = '#1e1008';
+    ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Felt Cloth restricted to bounds
     ctx.fillStyle = '#065f33';
     ctx.fillRect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
 
-    // Pockets
     ctx.fillStyle = '#050505';
     pockets.forEach(p => {
         ctx.beginPath();
@@ -648,7 +629,6 @@ function drawTable() {
         ctx.fill();
     });
 
-    // Baulk Line (Head string)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -668,7 +648,6 @@ function drawCueAndPrediction() {
     const angle = Math.atan2(dy, dx);
     const power = Math.min(Math.hypot(dx, dy), 120);
 
-    // 1. Draw Prediction Line & Ghost Ball
     const prediction = getPrediction();
     
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
@@ -679,7 +658,6 @@ function drawCueAndPrediction() {
     ctx.lineTo(prediction.ghostX, prediction.ghostY);
     ctx.stroke();
     
-    // Ghost Ball
     ctx.setLineDash([]);
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.lineWidth = 1;
@@ -687,7 +665,6 @@ function drawCueAndPrediction() {
     ctx.arc(prediction.ghostX, prediction.ghostY, BALL_RADIUS, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Deflection Path (if hitting a ball)
     if (prediction.hitBall) {
         const tgtAngle = Math.atan2(prediction.hitBall.y - prediction.ghostY, prediction.hitBall.x - prediction.ghostX);
         ctx.strokeStyle = 'rgba(0, 242, 254, 0.6)';
@@ -697,7 +674,6 @@ function drawCueAndPrediction() {
         ctx.stroke();
     }
 
-    // 2. Draw Cue Stick
     const cueOffset = BALL_RADIUS + 10 + power * 0.2;
     const cueLength = canvas.width * 0.35;
 
@@ -705,7 +681,6 @@ function drawCueAndPrediction() {
     ctx.translate(cueBall.x, cueBall.y);
     ctx.rotate(angle + Math.PI);
 
-    // Stick Gradient
     const stickGrad = ctx.createLinearGradient(cueOffset, 0, cueOffset + cueLength, 0);
     stickGrad.addColorStop(0, '#e5e7eb');
     stickGrad.addColorStop(0.3, '#d97706');
@@ -714,7 +689,6 @@ function drawCueAndPrediction() {
     ctx.fillStyle = stickGrad;
     ctx.fillRect(cueOffset, -3, cueLength, 6);
     
-    // Tip
     ctx.fillStyle = '#00f2fe';
     ctx.fillRect(cueOffset, -3, 6, 6);
 
@@ -736,12 +710,11 @@ function getCanvasPos(e) {
 canvas.addEventListener('pointerdown', e => {
     initAudio();
     if (!isTableStill() || !cueBall.active || gameOverOverlay.classList.contains('active')) return;
-    if (isPvE && currentTurn === 2) return; // Block input on Bot's turn
+    if (isPvE && currentTurn === 2) return;
 
     const pos = getCanvasPos(e);
     
     if (cueBallInHand && Math.hypot(pos.x - cueBall.x, pos.y - cueBall.y) < BALL_RADIUS * 3) {
-        // Drag cue ball instead of aiming
         isAiming = false;
     } else {
         isAiming = true;
@@ -756,9 +729,7 @@ canvas.addEventListener('pointermove', e => {
     if (isAiming) {
         aimCurrent = pos;
     } else if (cueBallInHand && e.buttons > 0) {
-        // Move cue ball
         const headX = bounds.left + (bounds.right - bounds.left) * 0.25;
-        // If break shot, must stay behind head string. Otherwise, anywhere.
         const maxX = isTableOpen && balls.length === 16 ? headX : bounds.right - BALL_RADIUS;
         
         cueBall.x = Math.max(bounds.left + BALL_RADIUS, Math.min(pos.x, maxX));

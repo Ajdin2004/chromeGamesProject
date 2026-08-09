@@ -1,5 +1,28 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const wrapper = document.getElementById('gameWrapper');
+
+// --- Logical resolution (all game logic uses this space) ---
+const LOGICAL_W = 500;
+const LOGICAL_H = 600;
+
+// --- Responsive / DPR-aware scaling ---
+let dprScale = 1;
+function resize() {
+    const rect = wrapper.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const targetW = Math.max(1, Math.round(rect.width * dpr));
+    const targetH = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+    }
+    dprScale = targetW / LOGICAL_W;
+    ctx.setTransform(dprScale, 0, 0, dprScale, 0, 0);
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 100));
+resize();
 
 // --- Web Audio Synthesizer ---
 let audioCtx = null;
@@ -49,6 +72,21 @@ const Sound = {
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now); osc.stop(now + 0.2);
+    },
+    wave() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(660, now + 0.1);
+        osc.frequency.setValueAtTime(880, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now); osc.stop(now + 0.3);
     }
 };
 
@@ -64,14 +102,16 @@ let lives = 3;
 let wave = 1;
 
 const player = {
-    x: canvas.width / 2 - 22,
+    x: LOGICAL_W / 2 - 22,
     y: 530,
     w: 44,
     h: 30,
     speed: 6,
     color: '#00f2fe',
     tripleShotTimer: 0,
-    shieldActive: false
+    shieldActive: false,
+    invulnTimer: 0,
+    targetX: LOGICAL_W / 2 - 22
 };
 
 let bullets = [];
@@ -80,6 +120,7 @@ let invaders = [];
 let particles = [];
 let powerups = [];
 let bunkers = [];
+let stars = [];
 
 let invaderDirection = 1;
 let invaderSpeed = 1;
@@ -87,19 +128,37 @@ let lastShotTime = 0;
 let animationFrame = 0;
 const keys = {};
 
+// --- Pause state ---
+let paused = false;
+
+// --- Screen shake ---
+let shake = { x: 0, y: 0, power: 0 };
+
+// --- Wave banner ---
+let waveBanner = { text: '', timer: 0 };
+
+// --- Touch state (drag-to-move + auto-fire) ---
 const touchState = {
     active: false,
     pointerId: null,
-    startX: 0,
-    startY: 0,
-    moved: false,
-    downTime: 0
+    targetX: null,
+    firing: false
 };
 
-function resetInvadersTouchControls() {
-    keys['ArrowLeft'] = false;
-    keys['ArrowRight'] = false;
+// --- Starfield generation ---
+function generateStars() {
+    stars = [];
+    for (let i = 0; i < 60; i++) {
+        stars.push({
+            x: Math.random() * LOGICAL_W,
+            y: Math.random() * LOGICAL_H,
+            speed: 0.3 + Math.random() * 1.2,
+            size: Math.random() < 0.2 ? 2 : 1,
+            alpha: 0.3 + Math.random() * 0.7
+        });
+    }
 }
+generateStars();
 
 // --- Vector Graphics Rendering Helpers ---
 
@@ -234,7 +293,7 @@ function createInvaders() {
 function createBunkers() {
     bunkers = [];
     const bunkerCount = 3;
-    const spacing = canvas.width / (bunkerCount + 1);
+    const spacing = LOGICAL_W / (bunkerCount + 1);
 
     for (let i = 1; i <= bunkerCount; i++) {
         bunkers.push({
@@ -251,14 +310,18 @@ function resetGame() {
     score = 0;
     lives = 3;
     wave = 1;
-    player.x = canvas.width / 2 - 22;
+    player.x = LOGICAL_W / 2 - 22;
+    player.targetX = player.x;
     player.tripleShotTimer = 0;
     player.shieldActive = false;
+    player.invulnTimer = 0;
     bullets = [];
     enemyBullets = [];
     particles = [];
     powerups = [];
     invaderSpeed = 1;
+    shake.power = 0;
+    waveBanner.timer = 0;
     createInvaders();
     createBunkers();
     gameState = STATE_PLAYING;
@@ -283,21 +346,77 @@ function spawnPowerup(x, y) {
     powerups.push({ x, y, type, vy: 2, id: Math.random() });
 }
 
+// --- Shooting ---
+function fireBullet() {
+    const now = Date.now();
+    if (now - lastShotTime < 200) return;
+    Sound.laser();
+    if (player.tripleShotTimer > 0) {
+        bullets.push({ x: player.x + player.w / 2 - 12, y: player.y, id: Math.random() });
+        bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
+        bullets.push({ x: player.x + player.w / 2 + 12, y: player.y, id: Math.random() });
+    } else {
+        bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
+    }
+    lastShotTime = now;
+}
+
+// --- Pause control ---
+function setPaused(value) {
+    paused = value;
+    const overlay = document.getElementById('pauseOverlay');
+    const pauseBtn = document.getElementById('pauseBtn');
+    if (overlay) overlay.classList.toggle('show', paused);
+    if (pauseBtn) pauseBtn.classList.toggle('active', paused);
+}
+
+function togglePause() {
+    if (gameState !== STATE_PLAYING) return;
+    setPaused(!paused);
+}
+
 // --- Logic Update ---
 function update() {
-    if (gameState !== STATE_PLAYING) return;
+    if (gameState !== STATE_PLAYING || paused) return;
 
     animationFrame++;
 
-    // Player Movement
+    // Starfield scroll
+    stars.forEach(s => {
+        s.y += s.speed;
+        if (s.y > LOGICAL_H) {
+            s.y = -2;
+            s.x = Math.random() * LOGICAL_W;
+        }
+    });
+
+    // Player Movement (keyboard)
     if ((keys['ArrowLeft'] || keys['a'] || keys['A']) && player.x > 10) {
         player.x -= player.speed;
     }
-    if ((keys['ArrowRight'] || keys['d'] || keys['D']) && player.x < canvas.width - player.w - 10) {
+    if ((keys['ArrowRight'] || keys['d'] || keys['D']) && player.x < LOGICAL_W - player.w - 10) {
         player.x += player.speed;
     }
 
+    // Player Movement (touch drag - smooth lerp toward target)
+    if (touchState.active && touchState.targetX !== null) {
+        const target = Math.max(10, Math.min(LOGICAL_W - player.w - 10, touchState.targetX - player.w / 2));
+        player.x += (target - player.x) * 0.35;
+        if (Math.abs(target - player.x) < 0.5) player.x = target;
+    }
+
+    // Auto-fire while touching
+    if (touchState.active && touchState.firing) {
+        fireBullet();
+    }
+
+    // Auto-fire while holding Space
+    if (keys[' '] || keys['Space']) {
+        fireBullet();
+    }
+
     if (player.tripleShotTimer > 0) player.tripleShotTimer--;
+    if (player.invulnTimer > 0) player.invulnTimer--;
 
     // Update Player Bullets
     bullets = bullets.filter(b => {
@@ -317,15 +436,17 @@ function update() {
             if (player.shieldActive) {
                 player.shieldActive = false;
                 Sound.powerup();
-            } else {
+            } else if (player.invulnTimer <= 0) {
                 lives--;
                 Sound.explosion();
                 addExplosion(player.x + player.w / 2, player.y + player.h / 2, player.color);
+                shake.power = 6;
+                player.invulnTimer = 120; // 2s of invulnerability
                 if (lives <= 0) gameState = STATE_GAMEOVER;
             }
             return false; // Remove projectile safely
         }
-        return eb.y < canvas.height + 20;
+        return eb.y < LOGICAL_H + 20;
     });
 
     // Update Invaders Movement
@@ -336,12 +457,15 @@ function update() {
         wave++;
         invaderSpeed += 0.5;
         createInvaders();
+        waveBanner.text = `WAVE ${wave}`;
+        waveBanner.timer = 90;
+        Sound.wave();
         return;
     }
 
     activeInvaders.forEach(inv => {
         inv.x += invaderSpeed * invaderDirection;
-        if (inv.x <= 15 || inv.x + inv.w >= canvas.width - 15) edgeHit = true;
+        if (inv.x <= 15 || inv.x + inv.w >= LOGICAL_W - 15) edgeHit = true;
 
         // Enemy Fire
         if (Math.random() < 0.001 + wave * 0.0005) {
@@ -368,6 +492,7 @@ function update() {
                 score += inv.points;
                 Sound.explosion();
                 addExplosion(inv.x + inv.w / 2, inv.y + inv.h / 2, inv.color);
+                shake.power = Math.max(shake.power, 2);
 
                 if (score > highScore) {
                     highScore = score;
@@ -384,7 +509,7 @@ function update() {
     // Bullet vs Bunker Collisions
     bunkers.forEach(b => {
         if (b.hp <= 0) return;
-        
+
         bullets = bullets.filter(proj => {
             if (proj.x > b.x && proj.x < b.x + b.w && proj.y > b.y && proj.y < b.y + b.h) {
                 b.hp--; return false;
@@ -418,7 +543,7 @@ function update() {
             }
             return false;
         }
-        return p.y <= canvas.height;
+        return p.y <= LOGICAL_H;
     });
 
     // Update Particles
@@ -428,15 +553,45 @@ function update() {
         p.life--;
         return p.life > 0;
     });
+
+    // Decay screen shake
+    if (shake.power > 0) {
+        shake.power *= 0.85;
+        if (shake.power < 0.3) shake.power = 0;
+    }
+
+    // Decay wave banner
+    if (waveBanner.timer > 0) waveBanner.timer--;
 }
 
 // --- Drawing ---
 function draw() {
-    ctx.fillStyle = '#0d0614';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.setTransform(dprScale, 0, 0, dprScale, 0, 0);
 
-    // Draw Player Ship
-    drawPlayerShip(player.x, player.y, player.w, player.h, player.color);
+    // Apply screen shake
+    if (shake.power > 0) {
+        shake.x = (Math.random() - 0.5) * shake.power;
+        shake.y = (Math.random() - 0.5) * shake.power;
+        ctx.translate(shake.x, shake.y);
+    }
+
+    ctx.fillStyle = '#0d0614';
+    ctx.fillRect(-10, -10, LOGICAL_W + 20, LOGICAL_H + 20);
+
+    // Draw Starfield
+    stars.forEach(s => {
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+    ctx.globalAlpha = 1;
+
+    // Draw Player Ship (blink during invulnerability)
+    const blink = player.invulnTimer > 0 && Math.floor(player.invulnTimer / 6) % 2 === 0;
+    if (!blink) {
+        drawPlayerShip(player.x, player.y, player.w, player.h, player.color);
+    }
 
     if (player.shieldActive) {
         ctx.strokeStyle = '#00f2fe';
@@ -491,40 +646,80 @@ function draw() {
         ctx.fillRect(p.x, p.y, 3, 3);
     });
 
+    // Draw Touch Indicator (drag guide)
+    if (touchState.active && touchState.targetX !== null && gameState === STATE_PLAYING) {
+        const tx = touchState.targetX;
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.25)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 6]);
+        ctx.beginPath();
+        ctx.moveTo(tx, 0);
+        ctx.lineTo(tx, LOGICAL_H);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(tx, LOGICAL_H - 30, 14, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(0, 242, 254, 0.15)';
+        ctx.fill();
+    }
+
     // HUD
     ctx.fillStyle = '#fff';
     ctx.font = '800 18px Outfit, sans-serif';
     ctx.fillText(`SCORE: ${score}`, 20, 30);
-    ctx.fillText(`LIVES: ${lives}`, canvas.width - 100, 30);
-    ctx.fillText(`WAVE: ${wave}`, canvas.width / 2 - 30, 30);
+    ctx.fillText(`LIVES: ${lives}`, LOGICAL_W - 100, 30);
+    ctx.fillText(`WAVE: ${wave}`, LOGICAL_W / 2 - 30, 30);
+
+    // Wave Banner
+    if (waveBanner.timer > 0) {
+        const alpha = Math.min(1, waveBanner.timer / 20);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#00f2fe';
+        ctx.font = '800 34px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(waveBanner.text, LOGICAL_W / 2, 200);
+        ctx.textAlign = 'left';
+        ctx.globalAlpha = 1;
+    }
 
     // Overlays
     if (gameState === STATE_START) {
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
         ctx.fillStyle = '#00f2fe';
         ctx.font = '800 30px Outfit, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('NEON SPACE INVADERS', canvas.width / 2, 260);
+        ctx.fillText('NEON SPACE INVADERS', LOGICAL_W / 2, 240);
         ctx.font = '400 16px Outfit, sans-serif';
         ctx.fillStyle = '#fff';
-        ctx.fillText('Press Space or Arrow Keys to Play', canvas.width / 2, 310);
+        ctx.fillText('Press Space or Tap to Play', LOGICAL_W / 2, 290);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '400 14px Outfit, sans-serif';
+        ctx.fillText('Drag to Move • Auto-Fire', LOGICAL_W / 2, 320);
+        ctx.textAlign = 'left';
     } else if (gameState === STATE_GAMEOVER) {
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
         ctx.fillStyle = '#ff0055';
         ctx.font = '800 36px Outfit, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER', canvas.width / 2, 250);
+        ctx.fillText('GAME OVER', LOGICAL_W / 2, 250);
         ctx.font = '600 18px Outfit, sans-serif';
         ctx.fillStyle = '#fff';
-        ctx.fillText(`Final Score: ${score}`, canvas.width / 2, 295);
-        ctx.fillText(`Best Score: ${highScore}`, canvas.width / 2, 325);
-        ctx.fillText('Press Space to Restart', canvas.width / 2, 370);
+        ctx.fillText(`Final Score: ${score}`, LOGICAL_W / 2, 295);
+        ctx.fillText(`Best Score: ${highScore}`, LOGICAL_W / 2, 325);
+        ctx.fillText('Press Space or Tap to Restart', LOGICAL_W / 2, 370);
+        ctx.textAlign = 'left';
     }
+
+    ctx.restore();
 }
 
-// --- Controls ---
+// --- Controls: Keyboard ---
 window.addEventListener('keydown', e => {
     initAudio();
     keys[e.key] = true;
@@ -535,27 +730,29 @@ window.addEventListener('keydown', e => {
             resetGame();
             return;
         }
+        fireBullet();
+    }
 
-        const now = Date.now();
-        if (now - lastShotTime > 200) {
-            Sound.laser();
-            if (player.tripleShotTimer > 0) {
-                bullets.push({ x: player.x + player.w / 2 - 12, y: player.y, id: Math.random() });
-                bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
-                bullets.push({ x: player.x + player.w / 2 + 12, y: player.y, id: Math.random() });
-            } else {
-                bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
-            }
-            lastShotTime = now;
-        }
+    if (e.code === 'KeyP' || e.code === 'Escape') {
+        togglePause();
     }
 });
 
 window.addEventListener('keyup', e => keys[e.key] = false);
 
+// --- Controls: Touch (drag-to-move + auto-fire) ---
 const canvasElement = document.getElementById('gameCanvas');
 
 canvasElement.style.touchAction = 'none';
+
+// Convert client coords to logical game coords
+function toLogical(clientX, clientY) {
+    const rect = canvasElement.getBoundingClientRect();
+    return {
+        x: (clientX - rect.left) / rect.width * LOGICAL_W,
+        y: (clientY - rect.top) / rect.height * LOGICAL_H
+    };
+}
 
 canvasElement.addEventListener('pointerdown', e => {
     initAudio();
@@ -563,64 +760,65 @@ canvasElement.addEventListener('pointerdown', e => {
         resetGame();
         return;
     }
+    if (paused) return;
 
     canvasElement.setPointerCapture(e.pointerId);
-    touchState.active = true;
-    touchState.pointerId = e.pointerId;
-    touchState.startX = e.clientX;
-    touchState.startY = e.clientY;
-    touchState.moved = false;
-    touchState.downTime = Date.now();
+    const pos = toLogical(e.clientX, e.clientY);
 
-    const rect = canvasElement.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    keys['ArrowLeft'] = x < rect.width / 2;
-    keys['ArrowRight'] = x > rect.width / 2;
+    // First finger = move + auto-fire
+    if (!touchState.active) {
+        touchState.active = true;
+        touchState.pointerId = e.pointerId;
+        touchState.targetX = pos.x;
+        touchState.firing = true;
+    } else {
+        // Additional finger = immediate fire burst
+        fireBullet();
+    }
 });
 
 canvasElement.addEventListener('pointermove', e => {
     if (!touchState.active || e.pointerId !== touchState.pointerId) return;
     e.preventDefault();
-
-    const rect = canvasElement.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    touchState.moved = Math.abs(e.clientX - touchState.startX) > 12 || Math.abs(e.clientY - touchState.startY) > 12;
-
-    keys['ArrowLeft'] = x < rect.width / 2;
-    keys['ArrowRight'] = x > rect.width / 2;
+    const pos = toLogical(e.clientX, e.clientY);
+    touchState.targetX = pos.x;
 });
 
 canvasElement.addEventListener('pointerup', e => {
     if (!touchState.active || e.pointerId !== touchState.pointerId) return;
     e.preventDefault();
     canvasElement.releasePointerCapture(e.pointerId);
-
-    const duration = Date.now() - touchState.downTime;
-    if (!touchState.moved && duration < 300 && gameState === STATE_PLAYING) {
-        const now = Date.now();
-        if (now - lastShotTime > 200) {
-            Sound.laser();
-            if (player.tripleShotTimer > 0) {
-                bullets.push({ x: player.x + player.w / 2 - 12, y: player.y, id: Math.random() });
-                bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
-                bullets.push({ x: player.x + player.w / 2 + 12, y: player.y, id: Math.random() });
-            } else {
-                bullets.push({ x: player.x + player.w / 2, y: player.y, id: Math.random() });
-            }
-            lastShotTime = now;
-        }
-    }
-
     touchState.active = false;
     touchState.pointerId = null;
-    resetInvadersTouchControls();
+    touchState.targetX = null;
+    touchState.firing = false;
 });
 
 canvasElement.addEventListener('pointercancel', e => {
     if (touchState.active && e.pointerId === touchState.pointerId) {
         touchState.active = false;
         touchState.pointerId = null;
-        resetInvadersTouchControls();
+        touchState.targetX = null;
+        touchState.firing = false;
+    }
+});
+
+// --- Pause UI ---
+const pauseBtn = document.getElementById('pauseBtn');
+const resumeBtn = document.getElementById('resumeBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
+if (resumeBtn) resumeBtn.addEventListener('click', () => setPaused(false));
+if (restartBtn) restartBtn.addEventListener('click', () => {
+    setPaused(false);
+    resetGame();
+});
+
+// Auto-pause when tab loses focus
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && gameState === STATE_PLAYING && !paused) {
+        setPaused(true);
     }
 });
 

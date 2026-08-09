@@ -1,0 +1,3797 @@
+[
+    {
+        "word": "ESSENCE",
+        "clue": "The inherent nature of a thing or idea.",
+        "related": [
+            "CENTER",
+            "BURDEN",
+            "PERFUME",
+            "EFFECT",
+            "KERNEL"
+        ]
+    },
+    {
+        "word": "NATURAL",
+        "clue": "Existing in nature.",
+        "related": [
+            "INNATE",
+            "INBRED",
+            "FRESH",
+            "NORMAL",
+            "INBORN"
+        ]
+    },
+    {
+        "word": "MEANING",
+        "clue": "The denotation, referent, or idea connected with a word, expression, or symbol.",
+        "related": [
+            "NOTION",
+            "PHRASE",
+            "SENSE",
+            "IMPORT",
+            "CONCEPT"
+        ]
+    },
+    {
+        "word": "FEATURE",
+        "clue": "An important or main item.",
+        "related": [
+            "PATTERN",
+            "BASIS",
+            "ASPECT",
+            "SPORT",
+            "BOAST"
+        ]
+    },
+    {
+        "word": "CAPABLE",
+        "clue": "Able and efficient; having the ability needed for a specific task; having the disposition to do something; permitting or being susceptible to something.",
+        "related": [
+            "ADEPT",
+            "ENABLE"
+        ]
+    },
+    {
+        "word": "PURPOSE",
+        "clue": "The end for which something is done, is made or exists.",
+        "related": [
+            "PROPOSE",
+            "PURPORT",
+            "INTENT",
+            "RESOLVE",
+            "DESIGN"
+        ]
+    },
+    {
+        "word": "QUALITY",
+        "clue": "(uncountable) level of excellence.",
+        "related": [
+            "SELECT",
+            "PRIME",
+            "CHOICE",
+            "CALIBRE",
+            "PRIZE"
+        ]
+    },
+    {
+        "word": "PROFILE",
+        "clue": "(countable) the outermost shape, view, or edge of an object.",
+        "related": [
+            "CONTOUR",
+            "OUTLINE",
+            "EFFIGY",
+            "IMAGE",
+            "SKETCH"
+        ]
+    },
+    {
+        "word": "CONTENT",
+        "clue": "Satisfaction, contentment; pleasure.",
+        "related": [
+            "PLEASED",
+            "SUBJECT",
+            "MESSAGE",
+            "PLACID",
+            "HAPPY"
+        ]
+    },
+    {
+        "word": "FLAVOUR",
+        "clue": "British standard spelling of flavor.",
+        "related": [
+            "SAVOR",
+            "SMACK",
+            "FLAVOR",
+            "RELISH",
+            "SAVOUR"
+        ]
+    },
+    {
+        "word": "ECOLOGY",
+        "clue": "(biology) the branch of biology dealing with the relationships of organisms with their environment and with each other.",
+        "related": [
+            "GREEN",
+            "ORGANIC",
+            "HABITAT",
+            "BIOLOGY",
+            "NATURE"
+        ]
+    },
+    {
+        "word": "ELEMENT",
+        "clue": "(chemistry) any one of the types of atom distinguished by having a certain number of protons in its nucleus.",
+        "related": [
+            "FACET",
+            "FILTER",
+            "STONE",
+            "FACTOR",
+            "MATTER"
+        ]
+    },
+    {
+        "word": "WHETHER",
+        "clue": "(obsolete, dialect) the retention of the afterbirth in cows or sheep.",
+        "related": [
+            "EITHER",
+            "DALLI",
+            "ALONG",
+            "ALREADY",
+            "BECAUSE"
+        ]
+    },
+    {
+        "word": "HABITAT",
+        "clue": "(countable, biology) a range; a place where a species naturally occurs.",
+        "related": [
+            "AQUATIC",
+            "SPECIES",
+            "FAUNA",
+            "ECOLOGY",
+            "WATER"
+        ]
+    },
+    {
+        "word": "SCENERY",
+        "clue": "View, natural features, landscape.",
+        "related": [
+            "PIECE",
+            "SKYLINE",
+            "SCENE",
+            "STYLE",
+            "PICTURE"
+        ]
+    },
+    {
+        "word": "MAJESTY",
+        "clue": "The quality of being impressive, great, dignified, powerful, sovereign, or any combination thereof.",
+        "related": [
+            "EMPRESS",
+            "ROYAL",
+            "GRACE",
+            "GLORY",
+            "QUEEN"
+        ]
+    },
+    {
+        "word": "CULTURE",
+        "clue": "The arts, customs, lifestyles, background, and habits that characterize humankind, or a particular society or nation.",
+        "related": [
+            "MINDSET",
+            "SPIRIT",
+            "BOUND",
+            "ETHOS",
+            "KULTUR"
+        ]
+    },
+    {
+        "word": "ASPECTS",
+        "clue": "Any specific feature, part, or element of something.",
+        "related": [
+            "FACET",
+            "ANGLES",
+            "VISTA",
+            "SCENE",
+            "AFFAIRS"
+        ]
+    },
+    {
+        "word": "HISTORY",
+        "clue": "The aggregate of past events.",
+        "related": [
+            "CONTEXT",
+            "PROFILE",
+            "ACCOUNT",
+            "ANNALS",
+            "STORY"
+        ]
+    },
+    {
+        "word": "GENERAL",
+        "clue": "(military) the holder of a senior military title, originally designating the commander of an army and now a specific rank falling under field marshal (in the british army) and below general of the army or general of the air force in the us army and air forces.",
+        "related": [
+            "BROAD",
+            "GENERIC",
+            "COMMON",
+            "OVERALL",
+            "POPULAR"
+        ]
+    },
+    {
+        "word": "SCIENCE",
+        "clue": "(countable) a particular discipline or branch of knowledge that is natural, measurable or consisting of systematic principles rather than intuition or technical skill.",
+        "related": [
+            "LESSON",
+            "SEARCH",
+            "GUISE",
+            "SKILL",
+            "STUDIES"
+        ]
+    },
+    {
+        "word": "BIOLOGY",
+        "clue": "The study of all life or living matter.",
+        "related": [
+            "SCIENCE",
+            "ORGANIC",
+            "BIOTA",
+            "ECOLOGY",
+            "LIVING"
+        ]
+    },
+    {
+        "word": "DUALITY",
+        "clue": "A classification into two subclasses or opposed parts.",
+        "related": [
+            "DUPLEX",
+            "DOUBLE",
+            "DUALIST",
+            "TWONESS",
+            "DUALISM"
+        ]
+    },
+    {
+        "word": "REALITY",
+        "clue": "The state of being actual or real; realness.",
+        "related": [
+            "REALISM",
+            "ESSENCE",
+            "TRUTH",
+            "WORLD",
+            "ACTUAL"
+        ]
+    },
+    {
+        "word": "SPECIES",
+        "clue": "(biology) a group of sexually reproducing organisms of which any two individuals of the appropriate sexes or mating types can produce fertile offspring, typically by sexual reproduction, usually having similar appearance.",
+        "related": [
+            "BIOTA",
+            "HABITAT",
+            "TAXON",
+            "VARIETY",
+            "GENUS"
+        ]
+    },
+    {
+        "word": "INBEING",
+        "clue": "The fact or state of being in; existence in something else.",
+        "related": [
+            "ENTITY",
+            "UBIETY",
+            "ESSENT",
+            "BEING",
+            "ISNESS"
+        ]
+    },
+    {
+        "word": "COMPLEX",
+        "clue": "Made up of multiple parts; composite; not simple.",
+        "related": [
+            "GORDIAN",
+            "NUANCED",
+            "KNOTTY",
+            "TANGLED"
+        ]
+    },
+    {
+        "word": "CONTROL",
+        "clue": "(transitive) to exercise influence over; to suggest or dictate the behavior of.",
+        "related": [
+            "VERIFY",
+            "ENSURE",
+            "MASTERY",
+            "COMMAND",
+            "OPERATE"
+        ]
+    },
+    {
+        "word": "GENERIC",
+        "clue": "(pharmacology) of a product or drug, not having a brand name; nonproprietary in design or contents; fungible with the rest of its class.",
+        "related": [
+            "BROAD",
+            "GENERAL",
+            "COMMON",
+            "OVERALL",
+            "PUBLIC"
+        ]
+    },
+    {
+        "word": "LIMITED",
+        "clue": "With certain (often specified) limits placed upon it.",
+        "related": [
+            "MINOR",
+            "SPECIAL",
+            "NARROW",
+            "SMALL",
+            "MODEST"
+        ]
+    },
+    {
+        "word": "NAUGHTY",
+        "clue": "Mischievous; tending to misbehave or act badly (especially of a child).",
+        "related": [
+            "RISQUE",
+            "ROGUE",
+            "SPICY",
+            "GAMEY",
+            "JUICY"
+        ]
+    },
+    {
+        "word": "PHANTOM",
+        "clue": "A ghost or apparition.",
+        "related": [
+            "SPOOK",
+            "SHADOW",
+            "SPECTRE",
+            "SPECTER",
+            "UNREAL"
+        ]
+    },
+    {
+        "word": "SERIOUS",
+        "clue": "Important; weighty; not insignificant.",
+        "related": [
+            "SEVERE",
+            "SOBER",
+            "SEDATE",
+            "SINCERE",
+            "EARNEST"
+        ]
+    },
+    {
+        "word": "SIMILAR",
+        "clue": "Having traits or characteristics in common; alike, allied, comparable.",
+        "related": [
+            "ALIKE",
+            "RELATED",
+            "KINDRED",
+            "QUASI",
+            "SIAMESE"
+        ]
+    },
+    {
+        "word": "ANIMIST",
+        "clue": "A believer in animism.",
+        "related": [
+            "PAGAN"
+        ]
+    },
+    {
+        "word": "DUALISM",
+        "clue": "(philosophy) the view that the world consists of, or is explicable in terms of, two fundamental principles, such as mind and matter or good and evil.",
+        "related": [
+            "DOUBLET",
+            "DUALITY",
+            "DOUBLE",
+            "BINARY",
+            "TWONESS"
+        ]
+    },
+    {
+        "word": "PURPORT",
+        "clue": "To convey, imply, or profess (often falsely or inaccurately). [(usually) with to (+ infinitive)].",
+        "related": [
+            "DRIFT",
+            "PROPOSE",
+            "PURPOSE",
+            "SPIRIT",
+            "INTENT"
+        ]
+    },
+    {
+        "word": "ABILITY",
+        "clue": "(uncountable) the quality or state of being able; capacity to do or of doing something; having the necessary power.",
+        "related": [
+            "PROWESS",
+            "SKILL",
+            "POWER",
+            "TALENT",
+            "CAPABLE"
+        ]
+    },
+    {
+        "word": "ACEROSE",
+        "clue": "(botany) needle-shaped, having a sharp, rigid point, as the leaf of the pine.",
+        "related": [
+            "SIMPLE",
+            "ACERATE",
+            "CHAFFY",
+            "ACEROUS",
+            "POINTED"
+        ]
+    },
+    {
+        "word": "ADDRESS",
+        "clue": "Direction.",
+        "related": [
+            "HANDLE",
+            "TREAT",
+            "SPEAK",
+            "ACCOST",
+            "SPEECH"
+        ]
+    },
+    {
+        "word": "ADVANCE",
+        "clue": "To help the progress of (something); to further.",
+        "related": [
+            "ELEVATE",
+            "PROMOTE",
+            "RAISE",
+            "FURTHER",
+            "FRONT"
+        ]
+    },
+    {
+        "word": "AERIOUS",
+        "clue": "(obsolete) pertaining to air, airy.",
+        "related": [
+            "ATMOTIC",
+            "AERIAL",
+            "AERIED",
+            "AERIAN",
+            "AEOLIC"
+        ]
+    },
+    {
+        "word": "ALOETIC",
+        "clue": "Consisting chiefly of aloes; of the nature of aloes.",
+        "related": [
+            "ALVELOZ",
+            "ALDIOXA",
+            "APOZEM",
+            "ALOIN",
+            "CORDIAL"
+        ]
+    },
+    {
+        "word": "ALUMINA",
+        "clue": "Aluminum oxide, especially when used in mining, material sciences or ceramics, a refractory solid compound.",
+        "related": [
+            "EMERY",
+            "BAUXITE",
+            "ALUMINE",
+            "ALUNDUM",
+            "ALOXITE"
+        ]
+    },
+    {
+        "word": "AMIABLE",
+        "clue": "Friendly; kind; sweet; gracious.",
+        "related": [
+            "POLITE",
+            "AFFABLE",
+            "CORDIAL",
+            "GENIAL",
+            "GENTLE"
+        ]
+    },
+    {
+        "word": "ANALYZE",
+        "clue": "(transitive) to subject to analysis.",
+        "related": [
+            "ANALYSE",
+            "EXAMINE",
+            "REVIEW",
+            "DISSECT",
+            "STUDY"
+        ]
+    },
+    {
+        "word": "ANGELIC",
+        "clue": "Very sweet-natured, well-behaved, or beautiful.",
+        "related": [
+            "SAINTED",
+            "LOVABLE",
+            "SWEET",
+            "SAINTLY",
+            "DIVINE"
+        ]
+    },
+    {
+        "word": "ANILINE",
+        "clue": "(organic chemistry) the simplest aromatic amine, c\u2086h\u2085nh\u2082, synthesized by the reduction of nitrobenzene; it is a colourless oily basic poisonous liquid used in the manufacture of dyes and pharmaceuticals.",
+        "related": [
+            "ANILIDE",
+            "ANILIN",
+            "ANILINO",
+            "ANILIDO"
+        ]
+    },
+    {
+        "word": "ANIMISM",
+        "clue": "A belief that spirits inhabit some or all classes of natural objects or phenomena.",
+        "related": [
+            "ANIMA",
+            "SPIRIT",
+            "ESPRIT",
+            "CONTROL",
+            "ENTITY"
+        ]
+    },
+    {
+        "word": "ANOTHER",
+        "clue": "A japanese mystery horror novel by yukito ayatsuji, published on october 29, 2009 by kadokawa shoten.",
+        "related": [
+            "EITHER",
+            "ADDED",
+            "OTHER",
+            "FINAL",
+            "AUTRE"
+        ]
+    },
+    {
+        "word": "APROPOS",
+        "clue": "Of an appropriate or pertinent nature.",
+        "related": [
+            "TOPICAL",
+            "FITTING",
+            "TIMELY",
+            "GERMANE",
+            "POINTED"
+        ]
+    },
+    {
+        "word": "APSIDAL",
+        "clue": "(architecture, astronomy) of, pertaining to, or in the form of an apse or apsis.",
+        "related": [
+            "APICAL",
+            "SIDELY",
+            "ADIPSIC",
+            "LATERAL",
+            "APELY"
+        ]
+    },
+    {
+        "word": "AQUEOUS",
+        "clue": "Of or relating to water.",
+        "related": [
+            "LIQUID",
+            "ALKALI",
+            "FLUID",
+            "WATERY",
+            "WATER"
+        ]
+    },
+    {
+        "word": "ARCANUM",
+        "clue": "A mystery or deep secret.",
+        "related": [
+            "SECRET",
+            "OCCULT",
+            "MYSTERY",
+            "PARADOX",
+            "ENIGMA"
+        ]
+    },
+    {
+        "word": "BASHFUL",
+        "clue": "Shy; not liking to be noticed; socially timid.",
+        "related": [
+            "BLATE",
+            "TIMID",
+            "ASHAMED",
+            "SHAME",
+            "FEEBLE"
+        ]
+    },
+    {
+        "word": "BEASTLY",
+        "clue": "Pertaining to, or having the form, nature, or habits of, a beast.",
+        "related": [
+            "HELLISH",
+            "BRUTE",
+            "BRUTISH",
+            "FERAL",
+            "BESTIAL"
+        ]
+    },
+    {
+        "word": "BELIEVE",
+        "clue": "(transitive) to accept as true, particularly without absolute certainty (i.e., as opposed to knowing).",
+        "related": [
+            "THINK",
+            "FAITH",
+            "ADVICE",
+            "TRUST",
+            "BELIEF"
+        ]
+    },
+    {
+        "word": "BERRIED",
+        "clue": "Consisting of a berry; baccate.",
+        "related": [
+            "ELDER",
+            "HOLLY",
+            "BACCATE",
+            "BROOMY",
+            "SEEDED"
+        ]
+    },
+    {
+        "word": "BETULIN",
+        "clue": "(biochemistry) a naturally-abundant triterpene, commonly isolated from the bark of birch trees, that can be converted to betulinic acid.",
+        "related": [
+            "BETANIN",
+            "BUSSEIN",
+            "BORNEOL",
+            "BETITOL",
+            "ABIETIN"
+        ]
+    },
+    {
+        "word": "BIGOTRY",
+        "clue": "The condition or the characteristic quality of a bigot, especially religious, anti-religious or racial intolerant prejudice; opinionatedness; fanaticism; fanatic intolerance.",
+        "related": [
+            "BIGOT",
+            "RACISM"
+        ]
+    },
+    {
+        "word": "BILIOUS",
+        "clue": "Peevishly ill-humored, irritable or bad tempered; irascible.",
+        "related": [
+            "CHOLIC",
+            "BELCHY",
+            "BULIMIC",
+            "BILIARY",
+            "LIVERY"
+        ]
+    },
+    {
+        "word": "BOOKING",
+        "clue": "A reservation for a service, such as travel or hotel accommodation.",
+        "related": [
+            "HIRING",
+            "LEASE",
+            "RENTING",
+            "RENTAL",
+            "CUSTODY"
+        ]
+    },
+    {
+        "word": "BRAHMAN",
+        "clue": "(hinduism) the unchanging, infinite, immanent, and transcendent reality which is the divine ground of all matter, energy, time, space, being, and everything beyond in this universe. the nature of brahman is described as transpersonal, personal and impersonal by different philosophical schools.",
+        "related": [
+            "ATMAN",
+            "GODHEAD",
+            "BRAMAN",
+            "BRAHMIN",
+            "BRAHMA"
+        ]
+    },
+    {
+        "word": "BREADTH",
+        "clue": "The extent or measure of how broad or wide something is; width.",
+        "related": [
+            "EXTENT",
+            "BROAD",
+            "SCOPE",
+            "WIDTH",
+            "WIDELY"
+        ]
+    },
+    {
+        "word": "BRUTISM",
+        "clue": "Behaviour or action characteristic of a brute.",
+        "related": [
+            "BRUNT",
+            "BRUTE",
+            "BRATH",
+            "BRASH",
+            "CRUELTY"
+        ]
+    },
+    {
+        "word": "BUBONIC",
+        "clue": "Of or pertaining to buboes.",
+        "related": [
+            "BULLOUS",
+            "BULBAR",
+            "PLAGUE",
+            "PYEMIC"
+        ]
+    },
+    {
+        "word": "BUGGERY",
+        "clue": "(commonwealth, uk, ireland) anal sex.",
+        "related": [
+            "SODOMY",
+            "BANGER",
+            "BEGGAR",
+            "BUGGER",
+            "BOGGER"
+        ]
+    },
+    {
+        "word": "BULLISH",
+        "clue": "Optimistic, confident; overly or foolishly optimistic or hopeful.",
+        "related": [
+            "BUOYANT",
+            "UPWARDS",
+            "BRIGHT",
+            "HOPEFUL",
+            "UPWARD"
+        ]
+    },
+    {
+        "word": "BUOYANT",
+        "clue": "Having buoyancy; able to float.",
+        "related": [
+            "LIGHT",
+            "RISING",
+            "CHIRPY",
+            "PERKY",
+            "FLOATY"
+        ]
+    },
+    {
+        "word": "CADENCE",
+        "clue": "Balanced, rhythmic flow.",
+        "related": [
+            "METER",
+            "STROKE",
+            "MEASURE",
+            "CADENCY",
+            "SPEED"
+        ]
+    },
+    {
+        "word": "CANZONE",
+        "clue": "An italian or proven\u00e7al song or ballad.",
+        "related": [
+            "CANSO",
+            "TONADA",
+            "CORRIDO",
+            "VILLOTA",
+            "TALIAN"
+        ]
+    },
+    {
+        "word": "CHANGED",
+        "clue": "Having undergone a change.",
+        "related": [
+            "ALTERED",
+            "ADAPTED",
+            "ALTER",
+            "AMEND",
+            "VARIED"
+        ]
+    },
+    {
+        "word": "CHANGES",
+        "clue": "(music) ellipsis of chord changes. [(more specifically) a chord progression.].",
+        "related": [
+            "DEEPEN",
+            "CONVERT",
+            "ALTER",
+            "VARIETY",
+            "COMMUTE"
+        ]
+    },
+    {
+        "word": "CHAOTIC",
+        "clue": "Filled with chaos.",
+        "related": [
+            "WANTON",
+            "MESSY",
+            "HECTIC",
+            "RESTIVE",
+            "MAYHEM"
+        ]
+    },
+    {
+        "word": "CHARISM",
+        "clue": "(christianity, theology, rare) a power or authority, generally of a spiritual nature, believed to be a freely given gift by the grace of god.",
+        "related": [
+            "CHARM",
+            "CACHET",
+            "CHARME",
+            "GRACE",
+            "CHARITY"
+        ]
+    },
+    {
+        "word": "CHOPPED",
+        "clue": "Cut or diced into small pieces.",
+        "related": [
+            "CROPPED",
+            "MINCED",
+            "SLICED",
+            "CLIPPED",
+            "TRIMMED"
+        ]
+    },
+    {
+        "word": "CHOREIC",
+        "clue": "(pathology) of, pertaining to, or exhibiting chorea.",
+        "related": [
+            "CHOREAL"
+        ]
+    },
+    {
+        "word": "CLAYISH",
+        "clue": "Resembling clay.",
+        "related": [
+            "CLAYED",
+            "MUDLIKE",
+            "GRASSY",
+            "CHALKY",
+            "EARTHY"
+        ]
+    },
+    {
+        "word": "CLEARED",
+        "clue": "Rid of objects or obstructions such as e.g. trees and brush.",
+        "related": [
+            "ACQUITS",
+            "ALLAYED",
+            "ADOPTED",
+            "AUDITED",
+            "ALLOWED"
+        ]
+    },
+    {
+        "word": "CLIPPER",
+        "clue": "(chiefly in the plural) a tool used for clipping something, such as hair, coins, or fingernails.",
+        "related": [
+            "YACHT",
+            "EARCLIP",
+            "SNIPPER",
+            "LIMITER",
+            "SAILING"
+        ]
+    },
+    {
+        "word": "CLOACAL",
+        "clue": "Of or pertaining to the cloaca.",
+        "related": [
+            "LOCHIAL",
+            "CLADIC",
+            "CELOMIC",
+            "CAECAL",
+            "LACUNAL"
+        ]
+    },
+    {
+        "word": "COGNATE",
+        "clue": "(linguistics) descended from the same source lexemes (same etymons) of an ancestor language.",
+        "related": [
+            "ALLIED",
+            "RELATED",
+            "KINDRED",
+            "AGNATE",
+            "CONNATE"
+        ]
+    },
+    {
+        "word": "COLICAL",
+        "clue": "Resembling or relating to colic.",
+        "related": [
+            "COLIC",
+            "COLITIC",
+            "COLONIC",
+            "COLICKY"
+        ]
+    },
+    {
+        "word": "COLICKY",
+        "clue": "Of, pertaining to, or suffering from colic.",
+        "related": [
+            "COLITIC",
+            "COLONIC",
+            "GASSY",
+            "COLICAL",
+            "COLIC"
+        ]
+    },
+    {
+        "word": "COLLOID",
+        "clue": "(physical chemistry) a stable system of two phases, one of which is dispersed in the other in the form of very small droplets or particles.",
+        "related": [
+            "SLIME",
+            "GLUEY",
+            "MILIUM",
+            "GLUGGY",
+            "AEROSOL"
+        ]
+    },
+    {
+        "word": "COLOURS",
+        "clue": "(nautical) flag denoting the nationality of a vessel, flown from the stern.",
+        "related": [
+            "CHIPS",
+            "COLORS",
+            "SHADES",
+            "FLAGS",
+            "COLOR"
+        ]
+    },
+    {
+        "word": "COLTISH",
+        "clue": "Lively, playful and undisciplined (often in a manner judged to be immature).",
+        "related": [
+            "COWLIKE",
+            "VEALY",
+            "CALFY",
+            "CURLIKE",
+            "PLAYFUL"
+        ]
+    },
+    {
+        "word": "COMEDIC",
+        "clue": "Relating to comedy.",
+        "related": [
+            "COMICAL",
+            "RISIBLE",
+            "COMATIC",
+            "COM\u0152DIC",
+            "COMIC"
+        ]
+    },
+    {
+        "word": "COMMAND",
+        "clue": "An order to do something.",
+        "related": [
+            "BIDDING",
+            "MASTERY",
+            "REQUIRE",
+            "COMPEL",
+            "CONTROL"
+        ]
+    },
+    {
+        "word": "CONDIGN",
+        "clue": "Fitting, appropriate, deserved, especially denoting punishment.",
+        "related": [
+            "AIGHT",
+            "MORAL",
+            "DAMNING",
+            "GUILTY",
+            "MERITED"
+        ]
+    },
+    {
+        "word": "CONFORM",
+        "clue": "(transitive, intransitive) to adapt to something by more closely matching it, especially something normative.",
+        "related": [
+            "COMPLY",
+            "ADAPT",
+            "AGREE",
+            "SATISFY",
+            "ADJUST"
+        ]
+    },
+    {
+        "word": "CONNATE",
+        "clue": "Of the same or a similar nature; proceeding from the same stock or root.",
+        "related": [
+            "SIMILAR",
+            "RELATED",
+            "PNEUMA",
+            "COGNATE",
+            "BASALLY"
+        ]
+    },
+    {
+        "word": "CONVERT",
+        "clue": "(transitive) to transform or change (something) into another form, substance, state, or product.",
+        "related": [
+            "PROCESS",
+            "RENDER",
+            "ALTER",
+            "COMMUTE",
+            "CHANGE"
+        ]
+    },
+    {
+        "word": "COPULAR",
+        "clue": "(grammar) being or relating to a copula.",
+        "related": [
+            "COITIVE"
+        ]
+    },
+    {
+        "word": "CRABBIT",
+        "clue": "(scotland) grouchy, cantankerous.",
+        "related": [
+            "WABBIT",
+            "SNAGGY",
+            "CROSS",
+            "GURLY",
+            "CHIPPY"
+        ]
+    },
+    {
+        "word": "CRUNCHY",
+        "clue": "Likely to crunch, especially with reference to food when it is eaten.",
+        "related": [
+            "CRISPY",
+            "FRESH",
+            "GRANOLA",
+            "CRUMBY",
+            "CRISP"
+        ]
+    },
+    {
+        "word": "CRUSTAL",
+        "clue": "Of, pertaining to, or forming a crust, especially the crust of the earth or other planet.",
+        "related": [
+            "CRUSTY",
+            "CRANIAL",
+            "TACKY"
+        ]
+    },
+    {
+        "word": "CRYPTIC",
+        "clue": "Having hidden (unapparent) meaning.",
+        "related": [
+            "ARCANE",
+            "UNCLEAR",
+            "MYSTERY",
+            "CONCISE",
+            "OBSCURE"
+        ]
+    },
+    {
+        "word": "CYNICAL",
+        "clue": "Skeptical of the integrity, sincerity, or motives of others.",
+        "related": [
+            "JADED",
+            "IRONIC",
+            "CALLOUS",
+            "NASTY",
+            "CYNIC"
+        ]
+    },
+    {
+        "word": "DEATHLY",
+        "clue": "Deadly, fatal, causing death.",
+        "related": [
+            "FATALLY",
+            "FATAL",
+            "DEADLY",
+            "MORTAL",
+            "DEATHY"
+        ]
+    },
+    {
+        "word": "DEFINED",
+        "clue": "Having a definition or value.",
+        "related": [
+            "STATED",
+            "BASED",
+            "FORMED",
+            "SETTLED",
+            "PLANNED"
+        ]
+    },
+    {
+        "word": "DEICIDE",
+        "clue": "(christianity, theology) the crucifixion of jesus, viewed as a crime.",
+        "related": [
+            "SLAYING"
+        ]
+    },
+    {
+        "word": "DEISTIC",
+        "clue": "Of or relating to deism.",
+        "related": [
+            "DEIIST",
+            "DEIFIC",
+            "DEICTIC"
+        ]
+    },
+    {
+        "word": "DEMIGOD",
+        "clue": "(mythology) a half-god or hero; the offspring of a deity and a mortal.",
+        "related": [
+            "DAEMON",
+            "GODLING",
+            "SEMIGOD",
+            "HALFGOD",
+            "DHAMPIR"
+        ]
+    },
+    {
+        "word": "DESCENT",
+        "clue": "An instance of descending; act of coming down.",
+        "related": [
+            "ORIGIN",
+            "STOCK",
+            "LINEAGE",
+            "DECLINE",
+            "BLOOD"
+        ]
+    },
+    {
+        "word": "DISSENT",
+        "clue": "(intransitive) to disagree; to withhold assent. construed with from (or, formerly, to).",
+        "related": [
+            "DEVIANT",
+            "DISCORD",
+            "RESIST",
+            "CENSURE",
+            "PROTEST"
+        ]
+    },
+    {
+        "word": "DIVINED",
+        "clue": "Made divine, made holy.",
+        "related": [
+            "CREATE",
+            "REFINED",
+            "ENTHEAN",
+            "ELICIT",
+            "ENTHEAL"
+        ]
+    },
+    {
+        "word": "DRASTIC",
+        "clue": "Having a strong or far-reaching effect; extreme, severe.",
+        "related": [
+            "TOUGH",
+            "SEVERE",
+            "SHARPLY",
+            "ROBUST",
+            "STERN"
+        ]
+    },
+    {
+        "word": "DUBNIUM",
+        "clue": "A transuranic chemical element (symbol db) with atomic number 105.",
+        "related": [
+            "UDPGA",
+            "DELTA",
+            "DWORD",
+            "DIATRON",
+            "DABCO"
+        ]
+    },
+    {
+        "word": "EARNEST",
+        "clue": "Gravity; serious purpose; earnestness.",
+        "related": [
+            "DEVOUT",
+            "SOLEMN",
+            "SERIOUS",
+            "SINCERE",
+            "HONEST"
+        ]
+    },
+    {
+        "word": "ECLIPSE",
+        "clue": "(astronomy) an alignment of astronomical objects whereby one object comes between the observer (or notional observer) and another object, thus obscuring the latter.",
+        "related": [
+            "SURPASS",
+            "SHROUD",
+            "OCCULT",
+            "TRUMP",
+            "OBSCURE"
+        ]
+    },
+    {
+        "word": "ECONOMY",
+        "clue": "The system of production and distribution and consumption. the overall measure of a currency system; as the national economy.",
+        "related": [
+            "FINANCE",
+            "COUNTRY",
+            "SAVING",
+            "MARKET",
+            "TRADE"
+        ]
+    },
+    {
+        "word": "EGOTISM",
+        "clue": "A tendency to talk excessively about oneself.",
+        "related": [
+            "EGOISM",
+            "NARCISM",
+            "CONCEIT"
+        ]
+    },
+    {
+        "word": "ELECTED",
+        "clue": "One who is elected.",
+        "related": [
+            "SELECT",
+            "CHOOSE",
+            "CHOICE",
+            "NAMED",
+            "SWORN"
+        ]
+    },
+    {
+        "word": "EMERSON",
+        "clue": "Ralph waldo emerson, american writer.",
+        "related": [
+            "AUTHOR",
+            "ORATOR",
+            "WRITER",
+            "CARLYLE",
+            "THINKER"
+        ]
+    },
+    {
+        "word": "ENCHANT",
+        "clue": "To attract and delight, to charm.",
+        "related": [
+            "BECHARM",
+            "ENAMOR",
+            "GLAMOUR",
+            "BEWITCH",
+            "CHARM"
+        ]
+    },
+    {
+        "word": "ENDOWED",
+        "clue": "Provided or furnished with something.",
+        "related": [
+            "FITTED",
+            "BLESSED",
+            "DOWERED",
+            "STAFFED",
+            "ADEPT"
+        ]
+    },
+    {
+        "word": "EPOCHAL",
+        "clue": "(figurative) highly important or significant; monumental, epoch-making.",
+        "related": [
+            "CHRONAL",
+            "APOGEIC"
+        ]
+    },
+    {
+        "word": "ESTHETE",
+        "clue": "Alternative spelling of aesthete. [(often derogatory) someone who cultivates an unusually high sensitivity to beauty, as in art or nature, often in a manner perceived to prioritize beauty over other qualities such as virtue and utility.].",
+        "related": [
+            "\u00c6STHETE",
+            "EPICURE",
+            "STYLIST",
+            "ARTISTE"
+        ]
+    },
+    {
+        "word": "ETHERIC",
+        "clue": "Of or pertaining to the ether (all-pervading medium); composed of ether; inhabiting the ether.",
+        "related": [
+            "ELYSIAN",
+            "\u00c6THERIC",
+            "ETHENIC",
+            "AERIAL",
+            "AERIAN"
+        ]
+    },
+    {
+        "word": "EXALTED",
+        "clue": "Praised, honored.",
+        "related": [
+            "EMINENT",
+            "NOBLE",
+            "MIGHTY",
+            "LOFTY",
+            "LEASED"
+        ]
+    },
+    {
+        "word": "EXOTICA",
+        "clue": "Curious, strange, unusual and exotic things.",
+        "related": [
+            "EXTACY",
+            "EXSTACY",
+            "EXTASY",
+            "SEXCESS",
+            "EXSTASY"
+        ]
+    },
+    {
+        "word": "FACTUAL",
+        "clue": "True, accurate, corresponding to reality.",
+        "related": [
+            "PRECISE",
+            "TRUTH",
+            "FACTO",
+            "ACTUAL",
+            "GENUINE"
+        ]
+    },
+    {
+        "word": "FAILURE",
+        "clue": "State or condition of not meeting a desirable or intended objective, opposite of success.",
+        "related": [
+            "DEFICIT",
+            "FAULTY",
+            "LOSER",
+            "FAILED",
+            "NEGLECT"
+        ]
+    },
+    {
+        "word": "FALLACY",
+        "clue": "(logic) an argument, or apparent argument, which professes to be decisive of the matter at issue, while in reality it is not; a specious argument.",
+        "related": [
+            "MIRAGE",
+            "MISTAKE",
+            "ERROR",
+            "DECEIT",
+            "BLUNDER"
+        ]
+    },
+    {
+        "word": "FALSITY",
+        "clue": "(uncountable) the characteristic of being untrue.",
+        "related": [
+            "MISLEAD",
+            "MISFACT",
+            "UNTRUTH",
+            "FALSISM",
+            "DENIAL"
+        ]
+    },
+    {
+        "word": "FASTING",
+        "clue": "Abstinence or mortification for religious reasons, especially abstinence from food.",
+        "related": [
+            "SOBER",
+            "STRIKE",
+            "ABROSIA",
+            "YOUNG",
+            "INEDIA"
+        ]
+    },
+    {
+        "word": "FEARFUL",
+        "clue": "Frightening; causing fear.",
+        "related": [
+            "DREAD",
+            "TREPID",
+            "DREADED",
+            "DIREFUL",
+            "AFRAID"
+        ]
+    },
+    {
+        "word": "FEATHER",
+        "clue": "A branching, hair-like structure that grows on the bodies of birds, used for flight, swimming, protection and display.",
+        "related": [
+            "PLUMAGE",
+            "SQUARE",
+            "FLEDGE",
+            "QUILL",
+            "PLUME"
+        ]
+    },
+    {
+        "word": "FELLING",
+        "clue": "The act by which something is felled.",
+        "related": [
+            "SAVAGE",
+            "VANISH",
+            "CRUEL",
+            "VICIOUS",
+            "BRUTAL"
+        ]
+    },
+    {
+        "word": "FIDGETY",
+        "clue": "Having, or pertaining to, a tendency to fidget; restless.",
+        "related": [
+            "UNQUIET",
+            "FIDDLY",
+            "FRETFUL",
+            "FIGENT",
+            "ITCHY"
+        ]
+    },
+    {
+        "word": "FLESHLY",
+        "clue": "Of or relating to pleasurable (often sexual) sensations.",
+        "related": [
+            "SOMATIC",
+            "BODILY",
+            "CARNAL",
+            "ANIMAL",
+            "SENSUAL"
+        ]
+    },
+    {
+        "word": "FLYPAST",
+        "clue": "(uk, ireland) a low-level flight of a ceremonial nature; a flyover (us).",
+        "related": [
+            "FLIPE",
+            "FLYOVER",
+            "FLYMAN",
+            "FLYBY",
+            "FLYPE"
+        ]
+    },
+    {
+        "word": "FOLIAGE",
+        "clue": "The leaves of plants.",
+        "related": [
+            "WILLOW",
+            "NEEDLE",
+            "LEAFAGE",
+            "FOLIAR",
+            "SHEET"
+        ]
+    },
+    {
+        "word": "FOOTAGE",
+        "clue": "(usually uncountable) an amount of film or tape that has been used to record something.",
+        "related": [
+            "RECORD",
+            "VIDEO",
+            "MOVIE",
+            "PHOTO",
+            "FILMING"
+        ]
+    },
+    {
+        "word": "FOREIGN",
+        "clue": "Located outside a country or place, especially one's own.",
+        "related": [
+            "ABROAD",
+            "EXOTIC",
+            "OUTSIDE",
+            "ALIEN",
+            "STRANGE"
+        ]
+    },
+    {
+        "word": "FOULING",
+        "clue": "The adhesion of a foreign material onto a surface, especially so as to reduce its functionality.",
+        "related": [
+            "SOILED",
+            "UNCLEAN",
+            "DIRTY",
+            "POLLUTE",
+            "FILTHY"
+        ]
+    },
+    {
+        "word": "FUNGOUS",
+        "clue": "Of or pertaining to fungi.",
+        "related": [
+            "FUNGIC",
+            "MYCOTIC",
+            "FUNGOID",
+            "MYCOSIC",
+            "FUNGAL"
+        ]
+    },
+    {
+        "word": "GASEOUS",
+        "clue": "Relating to, or existing as gas (matter in an intermediate state between liquid and plasma).",
+        "related": [
+            "AIRLIKE",
+            "GASSY",
+            "FOAMY",
+            "VAPOUR",
+            "FROTHY"
+        ]
+    },
+    {
+        "word": "GLORIES",
+        "clue": "Honour, admiration, or distinction, accorded by common consent to a person or thing; high reputation; renown.",
+        "related": [
+            "RENOWN",
+            "WONDERS",
+            "MAJESTY",
+            "HONORS",
+            "LAURELS"
+        ]
+    },
+    {
+        "word": "GLUCOSE",
+        "clue": "(biochemistry) a simple monosaccharide (sugar) with a molecular formula of c\u2086h\u2081\u2082o\u2086; a principle source of energy for cellular metabolism.",
+        "related": [
+            "SUCRE",
+            "HEXOSE",
+            "GLYCOSE",
+            "SUGAR",
+            "INSULIN"
+        ]
+    },
+    {
+        "word": "GODHEAD",
+        "clue": "The divine nature of god as an abstract entity.",
+        "related": [
+            "GODKIND",
+            "JEHOVAH",
+            "BODILY",
+            "CREATOR",
+            "DIVINE"
+        ]
+    },
+    {
+        "word": "GODHOOD",
+        "clue": "Synonym of divinity: the state of being a god or god.",
+        "related": [
+            "GODKIND",
+            "GODHEAD",
+            "GODSHIP",
+            "DIETY",
+            "DEITY"
+        ]
+    },
+    {
+        "word": "GODLIKE",
+        "clue": "Having the characteristics of a god.",
+        "related": [
+            "GREAT",
+            "ROYAL",
+            "HEROIC",
+            "EXALTED",
+            "DIVINE"
+        ]
+    },
+    {
+        "word": "GRAVITY",
+        "clue": "(physics) the phenomenon that, on earth, objects have weight; the similar phenomenon on other celestial bodies such as the moon.",
+        "related": [
+            "EXTENT",
+            "SCOPE",
+            "BREADTH",
+            "BURDEN",
+            "DEPTH"
+        ]
+    },
+    {
+        "word": "GRUBBER",
+        "clue": "(rugby) an attacking short-distance kick in behind the defence in which the ball is bounced along the ground, using the uneven bounce of the ball to make it difficult for the defence to retrieve.",
+        "related": [
+            "GULPER",
+            "GRUNTER",
+            "GRUDGER",
+            "GROUSER",
+            "GROUTER"
+        ]
+    },
+    {
+        "word": "HAHNIUM",
+        "clue": "(chemistry) (obsolete) a rejected name for dubnium.",
+        "related": [
+            "HYDRIUM",
+            "HAFNIUM",
+            "HYDRION",
+            "HOOKIUM",
+            "HAFNATE"
+        ]
+    },
+    {
+        "word": "HALFWAY",
+        "clue": "Half of the way between two points.",
+        "related": [
+            "CENTER",
+            "MIDST",
+            "MIDWAY",
+            "CENTRAL",
+            "MIDDLE"
+        ]
+    },
+    {
+        "word": "HEDONIC",
+        "clue": "Of or relating to pleasure.",
+        "related": [
+            "FLESHLY",
+            "EMOTIVE",
+            "ALGESIC",
+            "SENSUAL",
+            "ORECTIC"
+        ]
+    },
+    {
+        "word": "HEXAGON",
+        "clue": "(geometry) a polygon with six sides and six angles.",
+        "related": [
+            "OCTOGON",
+            "SEXAGON",
+            "HENAGON",
+            "POLYHEX",
+            "OCTAGON"
+        ]
+    },
+    {
+        "word": "HONESTY",
+        "clue": "(uncountable, countable) the act, quality, or condition of being honest.",
+        "related": [
+            "FAIRLY",
+            "TRUTH",
+            "SINCERE",
+            "EARNEST",
+            "HONEST"
+        ]
+    },
+    {
+        "word": "IDYLLIC",
+        "clue": "Extremely happy, peaceful, or picturesque.",
+        "related": [
+            "NYMPHIC",
+            "BUCOLIC",
+            "IDOLIC",
+            "PERFECT",
+            "EIDOLIC"
+        ]
+    },
+    {
+        "word": "IGNEOUS",
+        "clue": "(geology) resulting from, or produced by, great heat. with rocks, it could also mean formed from lava or magma.",
+        "related": [
+            "MOLTEN",
+            "MAGMA",
+            "FLAMING",
+            "BURNING",
+            "FIERY"
+        ]
+    },
+    {
+        "word": "INDWELL",
+        "clue": "To exist within, especially as a spirit or driving force.",
+        "related": [
+            "INWONE",
+            "DWELL",
+            "BEDWELL",
+            "INWARD",
+            "INHABIT"
+        ]
+    },
+    {
+        "word": "INGRAIN",
+        "clue": "(transitive, figuratively) to make (something) deeply part of something else.",
+        "related": [
+            "GRAIN",
+            "CRIMSON",
+            "OVERDYE",
+            "IMPRESS",
+            "INSTILL"
+        ]
+    },
+    {
+        "word": "INHERIT",
+        "clue": "(transitive) to receive (property, a title, etc.), by legal succession or bequest after the previous owner's death.",
+        "related": [
+            "RECEIVE",
+            "HEIRS",
+            "LEGACY",
+            "SUCCEED",
+            "ESTATE"
+        ]
+    },
+    {
+        "word": "INSCAPE",
+        "clue": "The distinctive design that constitutes individual identity; a concept derived by gerard manley hopkins from the ideas of the medieval philosopher duns scotus.",
+        "related": [
+            "SCENE",
+            "SCENIC"
+        ]
+    },
+    {
+        "word": "INSIGHT",
+        "clue": "Power of acute observation and deduction.",
+        "related": [
+            "ACUMEN",
+            "SIGHT",
+            "CLARITY",
+            "APER\u00c7U",
+            "WISDOM"
+        ]
+    },
+    {
+        "word": "INSTILL",
+        "clue": "(transitive) to cause a quality to become part of someone's nature.",
+        "related": [
+            "INGRAIN",
+            "CREATE",
+            "IMPRESS",
+            "INFUSE",
+            "INSTIL"
+        ]
+    },
+    {
+        "word": "INSULAR",
+        "clue": "Separate or isolated from the surroundings; having little regard for others opinions or prejudices; provincial.",
+        "related": [
+            "ISLAND",
+            "PRIVATE",
+            "CLOSED",
+            "BIGOTED",
+            "NARROW"
+        ]
+    },
+    {
+        "word": "INVERSE",
+        "clue": "Opposite in effect, nature or order.",
+        "related": [
+            "VERSA",
+            "COMPUTE",
+            "ADVERSE",
+            "AUCTION",
+            "REVERSE"
+        ]
+    },
+    {
+        "word": "JASPERY",
+        "clue": "Resembling jasper.",
+        "related": [
+            "JIGGY",
+            "JETLIKE",
+            "JAMMY",
+            "JEWELLY",
+            "JARLIKE"
+        ]
+    },
+    {
+        "word": "JOCULAR",
+        "clue": "Humorous, amusing or joking.",
+        "related": [
+            "JOCOSE",
+            "JESTING",
+            "LAUGHY",
+            "AMUSING",
+            "JOKING"
+        ]
+    },
+    {
+        "word": "KINDRED",
+        "clue": "(often plural only) distant and close relatives, collectively; kin.",
+        "related": [
+            "SIMILAR",
+            "RELATED",
+            "COGNATE",
+            "TRIBAL",
+            "TRIBE"
+        ]
+    },
+    {
+        "word": "KINGDOM",
+        "clue": "A realm having a king or queen as its actual or nominal sovereign.",
+        "related": [
+            "DYNASTY",
+            "ROYAL",
+            "ROYALTY",
+            "REIGN",
+            "REALM"
+        ]
+    },
+    {
+        "word": "KINSHIP",
+        "clue": "Relation or connection by blood, marriage or adoption.",
+        "related": [
+            "DESCENT",
+            "FAMILY",
+            "LINKAGE",
+            "BLOOD",
+            "LINKS"
+        ]
+    },
+    {
+        "word": "KITSCHY",
+        "clue": "Having the nature of kitsch: excessively sentimental, overdone or vulgar.",
+        "related": [
+            "CHEESY",
+            "TACKY",
+            "CAMPISH",
+            "MAWKISH",
+            "CAMPY"
+        ]
+    },
+    {
+        "word": "KROEBER",
+        "clue": "A surname.",
+        "related": [
+            "KROHN",
+            "KROENIG",
+            "KROEKER",
+            "KROGER",
+            "KROEGER"
+        ]
+    },
+    {
+        "word": "LAMINAL",
+        "clue": "(phonetics, of a sound) produced with the blade of the tongue.",
+        "related": [
+            "LAMINAR"
+        ]
+    },
+    {
+        "word": "LAUNDER",
+        "clue": "To wash; to wash, and to smooth with a flatiron or mangle; to wash and iron.",
+        "related": [
+            "CLEANSE",
+            "RECYCLE",
+            "RETRAIN",
+            "WHITEN",
+            "CLEAR"
+        ]
+    },
+    {
+        "word": "LAWLESS",
+        "clue": "Not governed by any law.",
+        "related": [
+            "ILLEGAL",
+            "OUTLAW",
+            "UNRULY",
+            "ANARCHY",
+            "ILLICIT"
+        ]
+    },
+    {
+        "word": "LECTURE",
+        "clue": "A spoken lesson or exposition, usually delivered to a group.",
+        "related": [
+            "REBUKE",
+            "REPROOF",
+            "SPEECH",
+            "CHIDE",
+            "SCOLD"
+        ]
+    },
+    {
+        "word": "LIKABLE",
+        "clue": "(of a person) having qualities tending to result in being liked; friendly, personable.",
+        "related": [
+            "AIMABLE",
+            "HATABLE",
+            "LIKED"
+        ]
+    },
+    {
+        "word": "LOGICAL",
+        "clue": "Reasonable.",
+        "related": [
+            "FORMAL",
+            "ORDERED",
+            "LUCID",
+            "VALID",
+            "ORDERLY"
+        ]
+    },
+    {
+        "word": "LOVABLE",
+        "clue": "Inspiring or deserving love or affection; adorable or cute.",
+        "related": [
+            "CUDDLY",
+            "ANGELIC",
+            "SWEET",
+            "LOVELY",
+            "LOVING"
+        ]
+    },
+    {
+        "word": "LUNATIC",
+        "clue": "An insane person.",
+        "related": [
+            "MADMAN",
+            "MANIAC",
+            "INSANE",
+            "HOTHEAD",
+            "MADCAP"
+        ]
+    },
+    {
+        "word": "MANKIND",
+        "clue": "The human race in its entirety.",
+        "related": [
+            "PEOPLE",
+            "HUMANS",
+            "MENSCH",
+            "HUMANE",
+            "WORLD"
+        ]
+    },
+    {
+        "word": "MANLIKE",
+        "clue": "Of or characteristic of grown men, as opposed to women or children; macho, mannish, virile.",
+        "related": [
+            "MANFUL",
+            "DOUGHTY",
+            "MANLY",
+            "VIRILE",
+            "HARDY"
+        ]
+    },
+    {
+        "word": "MANNISH",
+        "clue": "(of a woman) resembling or characteristic of a man, masculine.",
+        "related": [
+            "MANFUL",
+            "UNMANLY",
+            "MENNISH",
+            "MANLY",
+            "MAIDISH"
+        ]
+    },
+    {
+        "word": "MARITAL",
+        "clue": "Pertaining to marriage.",
+        "related": [
+            "SPOUSAL",
+            "WEDLOCK",
+            "FAMILY",
+            "MARRIED",
+            "COUPLE"
+        ]
+    },
+    {
+        "word": "MEASURE",
+        "clue": "A prescribed quantity or extent.",
+        "related": [
+            "VALUE",
+            "METER",
+            "ASSESS",
+            "CADENCE",
+            "AMOUNT"
+        ]
+    },
+    {
+        "word": "MELODIC",
+        "clue": "Melodious, tuneful.",
+        "related": [
+            "ARIOSE",
+            "SINGING",
+            "MUSICAL",
+            "SONGFUL",
+            "LYRICAL"
+        ]
+    },
+    {
+        "word": "MIMESIS",
+        "clue": "The representation of aspects of the real world, especially human actions, in literature and art.",
+        "related": [
+            "FIGURE",
+            "MIMICRY",
+            "REALISM",
+            "ICONISM",
+            "IMAGERY"
+        ]
+    },
+    {
+        "word": "MIMETIC",
+        "clue": "Imitative.",
+        "related": [
+            "MIMIC",
+            "MIRAGY",
+            "APELIKE",
+            "MIMICAL",
+            "ICASTIC"
+        ]
+    },
+    {
+        "word": "MINERAL",
+        "clue": "(geology) any naturally occurring material that has a (more or less) definite chemical composition and characteristic physical properties; especially, an inorganic one.",
+        "related": [
+            "MINING",
+            "STONE",
+            "METAL",
+            "FOSSIL",
+            "IOLITE"
+        ]
+    },
+    {
+        "word": "MIRACLE",
+        "clue": "An event that appears inexplicable by the laws of nature and so is held to be supernatural in origin.",
+        "related": [
+            "MARVEL",
+            "LEGEND",
+            "ANOMY",
+            "MAGICAL",
+            "MAGIC"
+        ]
+    },
+    {
+        "word": "MIXTURE",
+        "clue": "Something produced by mixing.",
+        "related": [
+            "MOTLEY",
+            "MIXING",
+            "BLEND",
+            "BLENDED",
+            "VARIETY"
+        ]
+    },
+    {
+        "word": "MODESTY",
+        "clue": "The quality of being modest; having a limited and not overly high opinion of oneself and one's abilities.",
+        "related": [
+            "SHAME",
+            "RESERVE",
+            "ASSAULT",
+            "HUMBLE",
+            "MODEST"
+        ]
+    },
+    {
+        "word": "MONADIC",
+        "clue": "(mathematics, logic) having an arity of one (taking a single argument or operand).",
+        "related": [
+            "MONERIC",
+            "MONKISH",
+            "MONODIC"
+        ]
+    },
+    {
+        "word": "MONGREL",
+        "clue": "(often derogatory) someone or something of mixed kind or uncertain origin, especially a dog.",
+        "related": [
+            "PASSING",
+            "CREEP",
+            "SCRUB",
+            "MIXED",
+            "PEASANT"
+        ]
+    },
+    {
+        "word": "MOONING",
+        "clue": "The act of showing one's buttocks.",
+        "related": [
+            "MOONIE",
+            "MOUND",
+            "MOONEY",
+            "MOONERY",
+            "MOPING"
+        ]
+    },
+    {
+        "word": "MUMMERY",
+        "clue": "(figuratively) a ridiculous or ostentatious ceremony, formerly especially of a religious nature; extravagant or hypocritical performance.",
+        "related": [
+            "MIMMER",
+            "MUMIE",
+            "MOMMERY",
+            "MIMING",
+            "MUMMIA"
+        ]
+    },
+    {
+        "word": "MUSICAL",
+        "clue": "Of, belonging or relating to music, or to its performance or notation.",
+        "related": [
+            "MELODIC",
+            "ARIOSE",
+            "SINGING",
+            "SONGFUL",
+            "LYRICAL"
+        ]
+    },
+    {
+        "word": "MUTABLE",
+        "clue": "Changeable, dynamic, evolutive; inclined to change, evolve, mutate.",
+        "related": [
+            "DYNAMIC",
+            "MOBILE",
+            "FLUID",
+            "VAGILE",
+            "LABILE"
+        ]
+    },
+    {
+        "word": "MYSTERY",
+        "clue": "Something secret or unexplainable; an unknown.",
+        "related": [
+            "ENIGMA",
+            "SECRET",
+            "VAGUE",
+            "CRYPTIC",
+            "OBSCURE"
+        ]
+    },
+    {
+        "word": "NAIVETE",
+        "clue": "Alternative spelling of na\u00efvet\u00e9. [lack of sophistication, experience, judgement or worldliness; artlessness; gullibility; credulity.].",
+        "related": [
+            "NAIVE",
+            "HUBRIS",
+            "NAIVETY",
+            "NAIVITY"
+        ]
+    },
+    {
+        "word": "NATURED",
+        "clue": "(in combination) having or possessing the specified disposition or temperament.",
+        "related": [
+            "HUMORED",
+            "MINDED",
+            "GIVEN",
+            "PRONE",
+            "LIABLE"
+        ]
+    },
+    {
+        "word": "NEBULAR",
+        "clue": "(astronomy) of or pertaining to a nebula.",
+        "related": [
+            "NIOBOUS",
+            "NODICAL",
+            "NUCLEAR",
+            "CLOUDY",
+            "NODULAR"
+        ]
+    },
+    {
+        "word": "NERVOUS",
+        "clue": "Easily agitated or alarmed; edgy, on edge.",
+        "related": [
+            "NEURAL",
+            "NERVY",
+            "JUMPY",
+            "SPOOKY",
+            "JITTERY"
+        ]
+    },
+    {
+        "word": "NESTING",
+        "clue": "An arrangement by which one thing is nested inside another.",
+        "related": [
+            "BIRDS",
+            "BREED",
+            "BRIDGE",
+            "CLUTCH",
+            "BROOD"
+        ]
+    },
+    {
+        "word": "NIEBUHR",
+        "clue": "A surname from german.",
+        "related": [
+            "BUEHRER",
+            "BUHRMAN",
+            "BUEHRLE",
+            "BUEHNER",
+            "BUEHLER"
+        ]
+    },
+    {
+        "word": "NURTURE",
+        "clue": "The act or process of encouraging the growth or development of something.",
+        "related": [
+            "PARENT",
+            "NOURISH",
+            "RAISING",
+            "REARING",
+            "FOSTER"
+        ]
+    },
+    {
+        "word": "ONGOING",
+        "clue": "Presently or currently happening; being in progress.",
+        "related": [
+            "ABIDING",
+            "ALWAYS",
+            "CURRENT",
+            "LASTING",
+            "DURABLE"
+        ]
+    },
+    {
+        "word": "OPENING",
+        "clue": "An act or instance of making or becoming open.",
+        "related": [
+            "STARTUP",
+            "FIRST",
+            "ORIFICE",
+            "SCUTTLE",
+            "MAIDEN"
+        ]
+    },
+    {
+        "word": "OPPOSED",
+        "clue": "Acting in opposition; opposing.",
+        "related": [
+            "COUNTER",
+            "HOSTILE",
+            "ADVERSE",
+            "BLOCKED",
+            "CONTRA"
+        ]
+    },
+    {
+        "word": "ORGANIC",
+        "clue": "(agriculture) of food or food products, grown in an environment free from artificial agrichemicals, and possibly certified by a regulatory body.",
+        "related": [
+            "NATURAL",
+            "BIOLOGY",
+            "ECOLOGY",
+            "BIOTIC",
+            "ABIOTIC"
+        ]
+    },
+    {
+        "word": "OSSEOUS",
+        "clue": "Of, relating to, or made of bone; bony.",
+        "related": [
+            "OSTEAL",
+            "BODILY",
+            "OSSEUS",
+            "OSTEOID"
+        ]
+    },
+    {
+        "word": "OVERALL",
+        "clue": "Generally; with everything considered.",
+        "related": [
+            "BROADLY",
+            "GROSS",
+            "GENERAL",
+            "GENERIC",
+            "TOTAL"
+        ]
+    },
+    {
+        "word": "PACIFIC",
+        "clue": "Calm, peaceful.",
+        "related": [
+            "SWIRE",
+            "QUIET",
+            "PEACE",
+            "SILENT",
+            "REGION"
+        ]
+    },
+    {
+        "word": "PAGEANT",
+        "clue": "An elaborate public display, especially a parade in historical or traditional costume.",
+        "related": [
+            "CONTEST",
+            "DISPLAY",
+            "SIGHT",
+            "PARADE",
+            "BEAUTY"
+        ]
+    },
+    {
+        "word": "PAINFUL",
+        "clue": "Causing pain or distress, either physical or mental.",
+        "related": [
+            "BITTER",
+            "ACHING",
+            "TENDER",
+            "BITING",
+            "AWFUL"
+        ]
+    },
+    {
+        "word": "ENGLISH",
+        "clue": "Of or pertaining to england.",
+        "related": [
+            "FRENCH",
+            "ENGLAND",
+            "BRITISH",
+            "DEUTSCH",
+            "BRITAIN"
+        ]
+    },
+    {
+        "word": "CLUSTER",
+        "clue": "A bunch or group of several discrete items that are close to each other.",
+        "related": [
+            "CLUMP",
+            "MERGING",
+            "BUNDLE",
+            "BUNCH",
+            "FLOCK"
+        ]
+    },
+    {
+        "word": "DIALECT",
+        "clue": "(linguistics, broad sense) a variety of a language that is characteristic of a particular area, community, or social group, differing from other varieties of the same language in relatively minor ways as regards grammar, phonology, and lexicon.",
+        "related": [
+            "ACCENT",
+            "IDIOM",
+            "JARGON",
+            "SPEECH",
+            "LINGO"
+        ]
+    },
+    {
+        "word": "STUDIES",
+        "clue": "An academic field of study concerning the given subject.",
+        "related": [
+            "DEGREE",
+            "SCIENCE",
+            "PROGRAM",
+            "COLLEGE",
+            "CEGEP"
+        ]
+    },
+    {
+        "word": "INQUIRY",
+        "clue": "The act of inquiring; a seeking of information by asking questions; interrogation; a question or questioning.",
+        "related": [
+            "QUERY",
+            "ENQUIRY",
+            "INQUIRE",
+            "VETTING",
+            "REQUEST"
+        ]
+    },
+    {
+        "word": "PHYSICS",
+        "clue": "The branch of science concerned with the study of the properties and interactions of space, time, matter and energy.",
+        "related": [
+            "OPTICS",
+            "FITNESS",
+            "NATURAL",
+            "QUARTET",
+            "LOOKS"
+        ]
+    },
+    {
+        "word": "FICTION",
+        "clue": "(literature) literary type using invented or imaginative writing, instead of real facts, usually written as prose.",
+        "related": [
+            "FABLE",
+            "ROMAN",
+            "FEATURE",
+            "DRAMA",
+            "STORY"
+        ]
+    },
+    {
+        "word": "ZOOLOGY",
+        "clue": "The part of biology relating to the animal kingdom, including the structure, embryology, evolution, classification, habits, and distribution of all animals, both living and extinct.",
+        "related": [
+            "ZOONOMY",
+            "ZOOTOMY",
+            "ANIMAL",
+            "ANIMALS",
+            "ZO\u00d6LOGY"
+        ]
+    },
+    {
+        "word": "GEOLOGY",
+        "clue": "The science that studies the structure of the earth (or other planets), together with its origin and development, especially by examination of its rocks.",
+        "related": [
+            "GEOGONY",
+            "GEONOMY"
+        ]
+    },
+    {
+        "word": "SCEINCE",
+        "clue": "Misspelling of science. [(countable) a particular discipline or branch of knowledge that is natural, measurable or consisting of systematic principles rather than intuition or technical skill.].",
+        "related": [
+            "SCIENCE",
+            "STUDYS",
+            "STEMM",
+            "CRAFT",
+            "STUDY"
+        ]
+    },
+    {
+        "word": "SCIENDA",
+        "clue": "(in the social and political philosophy of erik von kuehnelt-leddihn) the sum of all the political, economic, technological, scientific, military, geographical, and psychological knowledge that a governing body must possess to allow it to reach logically, rationally, and morally sound conclusions.",
+        "related": [
+            "POLSCI",
+            "SCIENCE",
+            "SCITA",
+            "SCEPSIS",
+            "SCEINCE"
+        ]
+    },
+    {
+        "word": "TECHNIC",
+        "clue": "(us) technique.",
+        "related": [
+            "WORKS",
+            "ACTION",
+            "TACTICS",
+            "CONTROL",
+            "TOUCH"
+        ]
+    },
+    {
+        "word": "ACADEMY",
+        "clue": "An institution for the study of higher learning; a college or a university; typically a private school.",
+        "related": [
+            "AFRICAN",
+            "CAMPUS",
+            "COLLEGE",
+            "FACULTY",
+            "CENTRE"
+        ]
+    },
+    {
+        "word": "STUDENT",
+        "clue": "A person who is formally enrolled at a school, a college or university, or another educational institution.",
+        "related": [
+            "CAMPUS",
+            "SCHOLAR",
+            "PUPIL",
+            "COLLEGE",
+            "ALUMNUS"
+        ]
+    },
+    {
+        "word": "SUBJECT",
+        "clue": "The main topic of a paper, work of art, discussion, field of study, etc.",
+        "related": [
+            "TAXABLE",
+            "THEME",
+            "TOPIC",
+            "CONTENT",
+            "STUDY"
+        ]
+    },
+    {
+        "word": "SOCIALS",
+        "clue": "(british columbia) clipping of social studies. [the study of history, geography, civics, sociology, economics, and other social-science subjects, especially in primary and secondary school.].",
+        "related": [
+            "MIXER",
+            "HERDING",
+            "ETHNIC",
+            "SOIREES",
+            "DINNERS"
+        ]
+    },
+    {
+        "word": "GRAMMAR",
+        "clue": "(countable and uncountable, linguistics) a system of rules and principles for the structure of a language, or of languages in general.",
+        "related": [
+            "USAGE",
+            "SYNTAX",
+            "PRIMARY",
+            "DICTION",
+            "RULES"
+        ]
+    },
+    {
+        "word": "SECTION",
+        "clue": "A cutting; a part cut out from the rest of something.",
+        "related": [
+            "PIECE",
+            "PHASE",
+            "TRANCHE",
+            "SEGMENT",
+            "SECTOR"
+        ]
+    },
+    {
+        "word": "SCHOLAR",
+        "clue": "A student; one who studies at school or college, typically having a scholarship.",
+        "related": [
+            "MASTER",
+            "STUDENT",
+            "OFFICER",
+            "ATTACH\u00c9",
+            "LEARNER"
+        ]
+    },
+    {
+        "word": "MEDICAL",
+        "clue": "Of or pertaining to the practice of medicine.",
+        "related": [
+            "MEDICO",
+            "MEDIC",
+            "IATRIC",
+            "CHECKUP",
+            "MEDICS"
+        ]
+    },
+    {
+        "word": "PROJECT",
+        "clue": "A planned endeavor, usually with a specific goal and accomplished in several steps or stages.",
+        "related": [
+            "FANCY",
+            "PROPOSE",
+            "IMAGE",
+            "LABOR",
+            "DESIGN"
+        ]
+    },
+    {
+        "word": "PROGRAM",
+        "clue": "(computing) a computer program.",
+        "related": [
+            "SERIES",
+            "PROJECT",
+            "AGENDA",
+            "STUDIES"
+        ]
+    },
+    {
+        "word": "ACOLOGY",
+        "clue": "(obsolete) materia medica; the science of medical remedies, or of therapeutics.",
+        "related": [
+            "OTOLOGY",
+            "MEDICS"
+        ]
+    },
+    {
+        "word": "ADAPTER",
+        "clue": "A device or application used to achieve operative compatibility between devices that otherwise are incompatible.",
+        "related": [
+            "ADAPT",
+            "ADAPTOR",
+            "FITTING",
+            "ROUTER",
+            "DONGLE"
+        ]
+    },
+    {
+        "word": "ALCHEMY",
+        "clue": "(uncountable) the premodern and early modern study of physical changes, particularly in europe, arabia, and china; and chiefly in pursuit of an elixir of immortality, a universal panacea, and/or a philosopher's stone able to transmute base metals into gold, eventually developing into chemistry.",
+        "related": [
+            "THEURGY",
+            "SORCERY",
+            "MAGERY",
+            "ARCANA",
+            "MAGIC"
+        ]
+    },
+    {
+        "word": "ALGEBRA",
+        "clue": "(uncountable, mathematics) elementary algebra: a system for representing and manipulating unknown quantities (variables) in equations.",
+        "related": []
+    },
+    {
+        "word": "AMATEUR",
+        "clue": "A person attached to a particular pursuit, study, science, or art (such as music or painting), especially one who cultivates any study, interest, taste, or attachment without engaging in it professionally.",
+        "related": [
+            "DABBLER",
+            "HOBBY",
+            "LOVER",
+            "ADEPT",
+            "UNPAID"
+        ]
+    },
+    {
+        "word": "ANATOMY",
+        "clue": "The science that deals with the form and structure of organic bodies; anatomical structure or organization.",
+        "related": [
+            "FIGURE",
+            "CHASSIS",
+            "FLESH",
+            "FRAME",
+            "BUILD"
+        ]
+    },
+    {
+        "word": "ANDROID",
+        "clue": "A robot that is designed to look and act like a human being (not necessarily a male one).",
+        "related": [
+            "MANBOT",
+            "PORNBOT",
+            "MALEBOT",
+            "ROBOT",
+            "DROID"
+        ]
+    },
+    {
+        "word": "APPLIED",
+        "clue": "Put into practical use.",
+        "related": [
+            "ADAPTED",
+            "DEMAND",
+            "VALID",
+            "EFFECT",
+            "REQUEST"
+        ]
+    },
+    {
+        "word": "ARABIAN",
+        "clue": "Related to arabia.",
+        "related": [
+            "ARABIC",
+            "SAUDI",
+            "PERSIAN",
+            "MONARCH",
+            "ARABIA"
+        ]
+    },
+    {
+        "word": "ARABIST",
+        "clue": "(anthropology, linguistics) a scholar who studies arab or arabic culture, politics, or language.",
+        "related": [
+            "ARABS"
+        ]
+    },
+    {
+        "word": "ARCHIVE",
+        "clue": "A place for storing earlier, and often historical, material. an archive usually contains documents (letters, records, newspapers, etc.) or other types of media kept for historical interest.",
+        "related": [
+            "FILER",
+            "RECORD",
+            "BACKS",
+            "PHOTO",
+            "STORE"
+        ]
+    },
+    {
+        "word": "ARRAYED",
+        "clue": "In ceremonial attire and paraphernalia.",
+        "related": [
+            "ADORNED",
+            "MASSED",
+            "CLOTHED",
+            "RINGED",
+            "STACKED"
+        ]
+    },
+    {
+        "word": "BERGSON",
+        "clue": "A surname.",
+        "related": [
+            "BERGMAN",
+            "BERGNER",
+            "BERGH",
+            "BERGREN",
+            "BERGSMA"
+        ]
+    },
+    {
+        "word": "BIOCHEM",
+        "clue": "(informal) biochemistry (science or industry).",
+        "related": [
+            "BIOSE",
+            "INSECT"
+        ]
+    },
+    {
+        "word": "BIONICS",
+        "clue": "The design of engineering systems, especially electronic ones, based on that of biological systems.",
+        "related": [
+            "BIOBOT",
+            "BIONEER"
+        ]
+    },
+    {
+        "word": "BROWSER",
+        "clue": "(computing, by extension) any other type of information browser.",
+        "related": [
+            "REVIEW",
+            "SKIPPER",
+            "SCANNER",
+            "FINDER",
+            "SERVER"
+        ]
+    },
+    {
+        "word": "BUFFING",
+        "clue": "Material removed by the action of someone who buffs.",
+        "related": [
+            "COLORED",
+            "BURNISH",
+            "FURBISH",
+            "FLUSH",
+            "BUFFET"
+        ]
+    },
+    {
+        "word": "BUGGING",
+        "clue": "Electronic surveillance.",
+        "related": [
+            "BORING",
+            "TAPPING",
+            "LISTEN",
+            "WIRED",
+            "WIRETAP"
+        ]
+    },
+    {
+        "word": "CABBALA",
+        "clue": "Alternative spelling of kabbalah. [(judaism) a body of mystical jewish teachings based on an esoteric reading of the hebrew scriptures.].",
+        "related": [
+            "MASORAH",
+            "CABALA",
+            "KABALA",
+            "KABBALA",
+            "AGGADAH"
+        ]
+    },
+    {
+        "word": "CABINET",
+        "clue": "A group of advisors to a government or business entity.",
+        "related": [
+            "DRAWER",
+            "SHELF",
+            "CONSOLE",
+            "LOCKER",
+            "CLOSET"
+        ]
+    },
+    {
+        "word": "CADAVER",
+        "clue": "(literary, medicine) a dead body; especially the corpse of a human to be dissected.",
+        "related": [
+            "CARCASE",
+            "STIFF",
+            "REMAINS",
+            "CARCASS",
+            "CORPSE"
+        ]
+    },
+    {
+        "word": "CAMBIST",
+        "clue": "A banker; a money changer or broker; one who deals in bills of exchange, or who is skilled in the science of exchange.",
+        "related": [
+            "BANKER",
+            "CASHER",
+            "TRADER",
+            "SWAPPER",
+            "CHANGER"
+        ]
+    },
+    {
+        "word": "CANDELA",
+        "clue": "In the international system of units, the base unit of luminous intensity; the luminous intensity, in a given direction, of a source that emits monochromatic radiation of frequency 540 \u00d7 10\u00b9\u00b2 hertz and that has a radiant intensity in that direction of 1/683 watt per steradian. symbol: cd.",
+        "related": [
+            "LAMBERT",
+            "VIOLLE",
+            "STILB",
+            "LUMEN",
+            "CANDLE"
+        ]
+    },
+    {
+        "word": "CHANNEL",
+        "clue": "Something through which another thing passes; a means of conveying or transmitting.",
+        "related": [
+            "CARRY",
+            "CONDUIT",
+            "CANAL",
+            "CONVEY",
+            "SOURCE"
+        ]
+    },
+    {
+        "word": "CHEMIST",
+        "clue": "A person who specializes in the science of chemistry, especially at a professional level.",
+        "related": [
+            "CHYMIST",
+            "ANALYST"
+        ]
+    },
+    {
+        "word": "CLONING",
+        "clue": "The production of an exact copy of an object.",
+        "related": [
+            "ECHOING",
+            "COPYING"
+        ]
+    },
+    {
+        "word": "COMMENT",
+        "clue": "A spoken or written remark.",
+        "related": [
+            "NOTICE",
+            "MENTION",
+            "GOSSIP",
+            "GLOSS",
+            "REMARK"
+        ]
+    },
+    {
+        "word": "COMPILE",
+        "clue": "(transitive, programming) to use a compiler to process source code and produce executable code.",
+        "related": [
+            "COMPOSE",
+            "AMASS",
+            "HOARD",
+            "BUILD",
+            "COLLECT"
+        ]
+    },
+    {
+        "word": "CONFINE",
+        "clue": "(transitive) to restrict (someone or something) to a particular scope or area; to keep in or within certain bounds.",
+        "related": [
+            "LIMIT",
+            "ENCLOSE",
+            "DETAIN",
+            "BOUND",
+            "TRAMMEL"
+        ]
+    },
+    {
+        "word": "CORRUPT",
+        "clue": "Willing to act dishonestly for personal gain; accepting bribes.",
+        "related": [
+            "SNEAKY",
+            "PERVERT",
+            "DEBASE",
+            "BRIBE",
+            "SPOIL"
+        ]
+    },
+    {
+        "word": "COUNTER",
+        "clue": "One who counts.",
+        "related": [
+            "RESPOND",
+            "ANSWER",
+            "FORESEE",
+            "PARRY",
+            "BUFFET"
+        ]
+    },
+    {
+        "word": "DEFAULT",
+        "clue": "(electronics, computing) the original software programming settings as set by the factory.",
+        "related": [
+            "FAILURE",
+            "FAULT",
+            "MISSING",
+            "ABSENT",
+            "ABSENCE"
+        ]
+    },
+    {
+        "word": "DEFENSE",
+        "clue": "The action of defending or protecting from attack, danger, or injury.",
+        "related": [
+            "DEFEND",
+            "DEFENCE",
+            "GUARD",
+            "PROTECT",
+            "DENIAL"
+        ]
+    },
+    {
+        "word": "DENSITY",
+        "clue": "(physics) a measure of the mass of matter contained by a unit volume.",
+        "related": [
+            "SPARSE",
+            "DENSE",
+            "VOLUME",
+            "DENSELY",
+            "FABRIC"
+        ]
+    },
+    {
+        "word": "DESKTOP",
+        "clue": "(computing, graphical user interface) the main graphical user interface of an operating system, usually displaying icons, windows and background wallpaper.",
+        "related": [
+            "TABLE",
+            "LAPTOP",
+            "SCREEN",
+            "BUREAU",
+            "MOTHER"
+        ]
+    },
+    {
+        "word": "DIALING",
+        "clue": "The act by which a number is dialed.",
+        "related": [
+            "MARKED",
+            "DIALUP",
+            "TAGGING",
+            "FLAGGED",
+            "MARKING"
+        ]
+    },
+    {
+        "word": "DIGITAL",
+        "clue": "Of or relating to computers or the information age.",
+        "related": [
+            "VIRTUAL",
+            "SEVERAL",
+            "ONLINE",
+            "FINGER",
+            "TOUCH"
+        ]
+    },
+    {
+        "word": "DIORAMA",
+        "clue": "A three-dimensional display of a scenery, often having a painted background in front of which models are arranged, e.g. in a museum where stuffed animals are presented against a painted landscape.",
+        "related": [
+            "DEPTHIE",
+            "DEEPIE",
+            "DIAZOMA",
+            "DOLLDOM",
+            "SCENE"
+        ]
+    },
+    {
+        "word": "DISPLAY",
+        "clue": "(computing) an electronic screen that shows graphics or text.",
+        "related": [
+            "GESTURE",
+            "SHOWING",
+            "REVEAL",
+            "EXPOSE",
+            "EXHIBIT"
+        ]
+    },
+    {
+        "word": "DISSECT",
+        "clue": "(transitive) to analyze an idea in detail by separating it into its parts.",
+        "related": [
+            "ANALYSE",
+            "DRESS",
+            "DEPIECE",
+            "DISCIDE",
+            "ANALYZE"
+        ]
+    },
+    {
+        "word": "DROPOUT",
+        "clue": "Someone who has left an educational institution without completing the course.",
+        "related": [
+            "LEAVE",
+            "LOSER",
+            "TRUANCY",
+            "LEAVER",
+            "ABANDON"
+        ]
+    },
+    {
+        "word": "DUMPING",
+        "clue": "The disposal of something no longer needed, or of no value.",
+        "related": [
+            "UNLOAD",
+            "RELEASE",
+            "WASTE",
+            "PLUNGE",
+            "FLOOR"
+        ]
+    },
+    {
+        "word": "DYNAMIC",
+        "clue": "Changing; active; in motion.",
+        "related": [
+            "KINETIC",
+            "ACTIVE",
+            "TREND",
+            "DRIVING",
+            "ENERGY"
+        ]
+    },
+    {
+        "word": "EMULATE",
+        "clue": "To copy or imitate, especially a person.",
+        "related": [
+            "MIMIC",
+            "IMITATE",
+            "INSPIRE",
+            "LEARN",
+            "STUDY"
+        ]
+    },
+    {
+        "word": "ENCRYPT",
+        "clue": "To conceal information by means of a code or cipher.",
+        "related": [
+            "CODING",
+            "CIPHER",
+            "ENCODE",
+            "CRYPTO",
+            "CYPHER"
+        ]
+    },
+    {
+        "word": "ENOLOGY",
+        "clue": "(american spelling) alternative form of oenology. [the scientific study of wines and winemaking.].",
+        "related": [
+            "O\u00d6LOGY",
+            "ZO\u00d6NOMY",
+            "\u0152NOLOGY"
+        ]
+    },
+    {
+        "word": "ESCAPED",
+        "clue": "Having escaped, especially from prison or another place of confinement.",
+        "related": [
+            "RUNAWAY",
+            "LOOSE",
+            "FAILED",
+            "LEAKED",
+            "DROPPED"
+        ]
+    },
+    {
+        "word": "EUGENIC",
+        "clue": "Of or relating to eugenics.",
+        "related": [
+            "EKISTIC",
+            "EDGETIC"
+        ]
+    },
+    {
+        "word": "EXECUTE",
+        "clue": "(transitive) to carry out; to put into effect.",
+        "related": [
+            "CARRY",
+            "FULFILL",
+            "FULFIL",
+            "PERFORM",
+            "DELIVER"
+        ]
+    },
+    {
+        "word": "FACULTY",
+        "clue": "(chiefly canada, us, philippines) the academic staff at schools, colleges, universities or not-for-profit research institutes, as opposed to the students or support staff.",
+        "related": [
+            "TEACHER",
+            "MODULE",
+            "STAFF",
+            "COLLEGE",
+            "PURVIEW"
+        ]
+    },
+    {
+        "word": "FANZINE",
+        "clue": "A magazine, normally produced by amateurs, intended for people who share a common interest.",
+        "related": [
+            "LITMAG",
+            "LITZINE",
+            "PROZINE",
+            "APAZINE",
+            "JOURNAL"
+        ]
+    },
+    {
+        "word": "FINANCE",
+        "clue": "The management of money and other assets.",
+        "related": [
+            "MONEY",
+            "CAPITAL",
+            "FUNDS",
+            "BANKING",
+            "FISCAL"
+        ]
+    },
+    {
+        "word": "FLAGGED",
+        "clue": "Marked with a flag.",
+        "related": [
+            "MARKED",
+            "LABELED",
+            "TIRED",
+            "TAGGED",
+            "MARKING"
+        ]
+    },
+    {
+        "word": "FLUSHED",
+        "clue": "Red in the face because of embarrassment, exertion, etc.",
+        "related": [
+            "AFLAME",
+            "COLORED",
+            "ROUGE",
+            "CRIMSON",
+            "HEALTHY"
+        ]
+    },
+    {
+        "word": "FORMULA",
+        "clue": "A plan or method for dealing with a problem or for achieving a result.",
+        "related": [
+            "FORMAT",
+            "CHART",
+            "RECIPE",
+            "PATTERN",
+            "NORMAL"
+        ]
+    },
+    {
+        "word": "FOUNDRY",
+        "clue": "A facility that melts metals in special furnaces and pours the molten metal into molds to make products. foundries are usually specified according to the type of metal dealt with: iron foundry, brass foundry, etc.",
+        "related": [
+            "MELTING",
+            "FACTORY",
+            "SMELTER",
+            "METAL",
+            "CASTING"
+        ]
+    },
+    {
+        "word": "GARBAGE",
+        "clue": "Useless or disposable material; waste material of any kind.",
+        "related": [
+            "TOILET",
+            "REFUSE",
+            "DUSTBIN",
+            "SCRAPS",
+            "DEBRIS"
+        ]
+    },
+    {
+        "word": "GENETIC",
+        "clue": "(genetics) relating to genetics or genes.",
+        "related": [
+            "GENIC",
+            "GENOMIC",
+            "JENNY",
+            "GENIE",
+            "GENOME"
+        ]
+    },
+    {
+        "word": "GEODESY",
+        "clue": "(sciences, geography) the discipline which deals with the measurement and representation of earth, its gravitational field and geodynamic phenomena (polar motion, earth tides, and crustal motion) in three-dimensional, time-varying space.",
+        "related": [
+            "GEOGONY",
+            "GEONOMY",
+            "GEOLOGY",
+            "DATUM"
+        ]
+    },
+    {
+        "word": "GEOGONY",
+        "clue": "(obsolete, uncountable) the branch of science dealing with the formation of the earth.",
+        "related": [
+            "OROLOGY",
+            "GEODESY",
+            "GEOLOGY",
+            "GEOGENY",
+            "GEONOMY"
+        ]
+    },
+    {
+        "word": "GIGABIT",
+        "clue": "(computing) one billion (10\u2079, or 1,000,000,000) bits or 1,000 megabits.",
+        "related": [
+            "GIGABEL",
+            "GIGAMP",
+            "GIBIBIT",
+            "GIGAOP"
+        ]
+    },
+    {
+        "word": "GUNNERY",
+        "clue": "(uncountable) the firing of guns.",
+        "related": [
+            "RANGE",
+            "FIRING",
+            "GUNNAGE",
+            "MANHOOD",
+            "GUNNY"
+        ]
+    },
+    {
+        "word": "HARMONY",
+        "clue": "Agreement or accord.",
+        "related": [
+            "CONCERT",
+            "ACCORD",
+            "CONCORD",
+            "UNITY"
+        ]
+    },
+    {
+        "word": "HUBBARD",
+        "clue": "A surname.",
+        "related": [
+            "RACKET",
+            "SQUASH",
+            "NISBET",
+            "UPROAR",
+            "TUMULT"
+        ]
+    },
+    {
+        "word": "HYGIENE",
+        "clue": "Those conditions and practices that promote and preserve health.",
+        "related": [
+            "TOILET",
+            "HEALTH",
+            "CLEANER",
+            "HEALTHY",
+            "BIRTH"
+        ]
+    },
+    {
+        "word": "ILLEGAL",
+        "clue": "Contrary to, forbidden, or not authorized by law, especially criminal law.",
+        "related": [
+            "OUTLAW",
+            "BANNED",
+            "DIRTY",
+            "PENAL",
+            "ILLICIT"
+        ]
+    },
+    {
+        "word": "IMAGING",
+        "clue": "The technique or practice of creating images of otherwise invisible aspects of an object, especially of body parts.",
+        "related": [
+            "CAMERA",
+            "IMAGERY",
+            "PHOTO",
+            "FILMING",
+            "PICTURE"
+        ]
+    },
+    {
+        "word": "INDEXED",
+        "clue": "Having an index, or arranged in an index.",
+        "related": [
+            "INDICE",
+            "POWER",
+            "LINKED",
+            "LISTED",
+            "SORTED"
+        ]
+    },
+    {
+        "word": "IRENICS",
+        "clue": "Synonym of irenicism (\u201cbehaviour or belief that tends to resolve disputes between denominations or religions\u201d).",
+        "related": [
+            "ICARIAN",
+            "ARIAN",
+            "ECTENIA",
+            "NICAEAN"
+        ]
+    },
+    {
+        "word": "KILOBIT",
+        "clue": "(computing) one thousand (10\u00b3, or 1,000) bits.",
+        "related": [
+            "TBYTE",
+            "TEBIBIT",
+            "PETABIT",
+            "EXABIT",
+            "TERABIT"
+        ]
+    },
+    {
+        "word": "LATENCY",
+        "clue": "(electronics) a delay, an interval between the initiation of something and the occurrence.",
+        "related": [
+            "LATENT",
+            "DELAY",
+            "LAPSE",
+            "WINDOW",
+            "DORMANT"
+        ]
+    },
+    {
+        "word": "LINKING",
+        "clue": "Serving to connect other things together.",
+        "related": [
+            "LIAISON",
+            "NEXUS",
+            "CONNECT",
+            "UNITE",
+            "LINKUP"
+        ]
+    },
+    {
+        "word": "LISTING",
+        "clue": "An entry in a list or directory.",
+        "related": [
+            "QUOTING",
+            "POSTING",
+            "MARKING",
+            "CITING"
+        ]
+    },
+    {
+        "word": "LOCKING",
+        "clue": "(computing) the use of a lock or a mutex to restrict access to a part of the code to at most one process.",
+        "related": [
+            "SIEGE",
+            "LOCKUP",
+            "LATCH",
+            "GATING",
+            "SEALING"
+        ]
+    },
+    {
+        "word": "LOOPING",
+        "clue": "Something that loops; a looped pattern or action.",
+        "related": [
+            "CHAIN",
+            "CRINGLE",
+            "CIRCUIT",
+            "GROMMET",
+            "EYELET"
+        ]
+    },
+    {
+        "word": "LUSTING",
+        "clue": "The act of one who lusts.",
+        "related": [
+            "THIRST",
+            "CRAVE",
+            "HUNGER",
+            "STARVE",
+            "LUXURIA"
+        ]
+    },
+    {
+        "word": "LYSENKO",
+        "clue": "A surname from ukrainian.",
+        "related": [
+            "MADALA",
+            "FISSI"
+        ]
+    },
+    {
+        "word": "MARTIAN",
+        "clue": "Of or relating to the planet mars, or (science fiction) its imagined inhabitants.",
+        "related": [
+            "MARTIAL",
+            "CIRCUM",
+            "MARCH",
+            "ALIEN",
+            "SAMPLE"
+        ]
+    },
+    {
+        "word": "MASKING",
+        "clue": "The act by which something is masked; the act of masking, of concealing or disguising.",
+        "related": [
+            "FRONTAL",
+            "UNSHARP",
+            "HIDING",
+            "COATING",
+            "COVER"
+        ]
+    },
+    {
+        "word": "MEGABIT",
+        "clue": "(computing) one million (10\u2076, or 1,000,000) bits or 1,000 kilobits. equals 125,000 bytes (125 kilobytes).",
+        "related": [
+            "MEBIBIT",
+            "MICRON",
+            "DRAMS"
+        ]
+    },
+    {
+        "word": "METRICS",
+        "clue": "The statistical analysis of data sets or big data.",
+        "related": [
+            "EXTENT",
+            "FIGURES",
+            "MEASURE",
+            "SCALES",
+            "ACTION"
+        ]
+    },
+    {
+        "word": "MONITOR",
+        "clue": "(computing) a device similar to a television set used as to give a graphical display of the output from a computer.",
+        "related": [
+            "PROVIDE",
+            "VARAN",
+            "MANAGE",
+            "WATCHER",
+            "PROCTOR"
+        ]
+    },
+    {
+        "word": "MYOLOGY",
+        "clue": "(anatomy) the physiological study of muscles.",
+        "related": []
+    },
+    {
+        "word": "NETWORK",
+        "clue": "Any interconnected group or system.",
+        "related": [
+            "CHAIN",
+            "LATTICE",
+            "LACIS",
+            "ARRAY",
+            "BUCKET"
+        ]
+    },
+    {
+        "word": "NOEMICS",
+        "clue": "(rare) the science of the understanding; intellectual science.",
+        "related": [
+            "NOMISM",
+            "ENOLOGY",
+            "NOOLOGY",
+            "ONOMAST"
+        ]
+    },
+    {
+        "word": "NOOLOGY",
+        "clue": "The systematic study and organization of everything dealing with knowing and knowledge.",
+        "related": [
+            "NOEMICS",
+            "SCIENCE",
+            "OLOGY",
+            "KENLORE"
+        ]
+    },
+    {
+        "word": "OFFLOAD",
+        "clue": "(transitive) to get rid of things, work, or problems by passing them on to someone or something else.",
+        "related": [
+            "UNLOAD",
+            "LOADING",
+            "BURDEN",
+            "RELIEF",
+            "RELIEVE"
+        ]
+    },
+    {
+        "word": "OPTICAL",
+        "clue": "Of or relating to sight; visual.",
+        "related": [
+            "OUTLOOK",
+            "VISUAL",
+            "OCULAR",
+            "VISION",
+            "OPTIC"
+        ]
+    },
+    {
+        "word": "ORGANON",
+        "clue": "A set of principles that are used in science or philosophy.",
+        "related": [
+            "LOGOS",
+            "LOGIC",
+            "ORGANUM",
+            "NOMOS",
+            "SYSTEM"
+        ]
+    },
+    {
+        "word": "OROLOGY",
+        "clue": "(geomorphology, obsolete, rare) the study or science of mountains and their formation.",
+        "related": [
+            "GEOLOGY",
+            "OOLOGY",
+            "ODOLOGY",
+            "GEOGONY",
+            "OTOLOGY"
+        ]
+    },
+    {
+        "word": "OTOLOGY",
+        "clue": "(medicine) the branch of medicine that deals with the ear, its structure, function and pathology.",
+        "related": [
+            "OOLOGY",
+            "OCULISM"
+        ]
+    },
+    {
+        "word": "PACKAGE",
+        "clue": "Something which is packed, a parcel, a box, an envelope.",
+        "related": [
+            "PACKET",
+            "PACKING",
+            "PACKED",
+            "BUNDLE",
+            "PARCEL"
+        ]
+    },
+    {
+        "word": "PANDECT",
+        "clue": "(by extension, also figuratively) a treatise or similar work that is comprehensive as to a particular topic; specifically (christianity) a manuscript of the entire bible.",
+        "related": [
+            "PAIDEIA",
+            "PAPYROS",
+            "PLEBS",
+            "PANDITA",
+            "P\u00c6DION"
+        ]
+    },
+    {
+        "word": "PARSING",
+        "clue": "(uncountable) the act or process in which an agent (person or computer) parses something (a text, a program).",
+        "related": [
+            "ANALYSE",
+            "DISCUSS",
+            "PARSER",
+            "LEXER",
+            "ANALYZE"
+        ]
+    },
+    {
+        "word": "PARTIES",
+        "clue": "(law) a person or group of people constituting one side in a legal proceeding, such as in a legal action or a contract.",
+        "related": [
+            "AFIELD",
+            "ACTORS",
+            "ASPECTS",
+            "ACCEDED",
+            "AREAS"
+        ]
+    },
+    {
+        "word": "PASTING",
+        "clue": "The act of applying paste to something, or affixing something using paste.",
+        "related": [
+            "QUONDAM",
+            "EARLIER",
+            "BYGONE",
+            "BYPAST",
+            "FORMER"
+        ]
+    },
+    {
+        "word": "PEPTICS",
+        "clue": "The science of digestion.",
+        "related": [
+            "PEPSIN",
+            "PEPTASE",
+            "PEPSINE",
+            "PEPTONE"
+        ]
+    },
+    {
+        "word": "PHONICS",
+        "clue": "A method of teaching elementary reading based on the phonetic interpretation of normal spelling.",
+        "related": [
+            "SYNTAX"
+        ]
+    },
+    {
+        "word": "PHOTICS",
+        "clue": "The science of light.",
+        "related": [
+            "SONICS",
+            "PHYSIC",
+            "OPTICS"
+        ]
+    },
+    {
+        "word": "PINNING",
+        "clue": "The action of the verb pin in any sense.",
+        "related": [
+            "MOORING",
+            "STAPLED",
+            "PLACE",
+            "PINHOLD",
+            "PREEN"
+        ]
+    },
+    {
+        "word": "POINTER",
+        "clue": "Anything that points or is used for pointing.",
+        "related": [
+            "SWEEP",
+            "NEEDLE",
+            "AIMER",
+            "CURSOR",
+            "ARROW"
+        ]
+    },
+    {
+        "word": "POLITIC",
+        "clue": "Shrewd, prudent and expedient; showing policy.",
+        "related": [
+            "SMOOTH",
+            "STATE",
+            "PRUDENT",
+            "SUAVE",
+            "POLICY"
+        ]
+    },
+    {
+        "word": "PRINTER",
+        "clue": "(computer hardware) a device, usually attached to a computer, used to print text or images onto paper; an analogous device capable of producing three-dimensional objects.",
+        "related": [
+            "VERSION",
+            "PRINTED",
+            "FIXTURE",
+            "COPIER",
+            "PRINT"
+        ]
+    },
+    {
+        "word": "PROFESS",
+        "clue": "(ambitransitive) to declare; to assert, affirm.",
+        "related": [
+            "CONFESS",
+            "AFFIRM",
+            "ASSERT",
+            "CONCEDE",
+            "PREACH"
+        ]
+    },
+    {
+        "word": "PROSODY",
+        "clue": "(linguistics) the study of rhythm, intonation, stress, and related attributes in speech.",
+        "related": [
+            "SYNTAX"
+        ]
+    },
+    {
+        "word": "PSYCHIC",
+        "clue": "A person who possesses, or appears to possess, extra-sensory abilities such as precognition, clairvoyance, and telepathy, or who appears to be susceptible to paranormal or supernatural influences.",
+        "related": [
+            "MENTAL",
+            "FLASHY",
+            "WIZARD",
+            "OBVIOUS",
+            "SIGHTED"
+        ]
+    },
+    {
+        "word": "READOUT",
+        "clue": "A display, particularly one that presents numerical data.",
+        "related": [
+            "CANAL",
+            "SCREEN",
+            "READER",
+            "READING",
+            "LECTURE"
+        ]
+    },
+    {
+        "word": "REDLINE",
+        "clue": "The maximum speed, temperature, pressure, etc., at which a device (such as the engine in a car, aircraft, etc.) is designed to operate.",
+        "related": [
+            "ERRATA",
+            "DRAFT",
+            "GUIDE",
+            "CRAYON",
+            "REVISE"
+        ]
+    },
+    {
+        "word": "REFRESH",
+        "clue": "(computing, ambitransitive) to reload (a document, especially a webpage) and show any new changes.",
+        "related": [
+            "REVIEW",
+            "RENEWAL",
+            "REVIVE",
+            "FRESHEN",
+            "RENEW"
+        ]
+    },
+    {
+        "word": "REWRITE",
+        "clue": "(transitive) to write again, differently; to modify; to revise.",
+        "related": [
+            "REWORK",
+            "REDRAFT",
+            "RECAST",
+            "ADAPT",
+            "REVISE"
+        ]
+    },
+    {
+        "word": "RIPPING",
+        "clue": "The action of one who rips (in any sense).",
+        "related": [
+            "TEARING",
+            "RENDING",
+            "DUBBING",
+            "PERFECT",
+            "COPYING"
+        ]
+    },
+    {
+        "word": "ROUTINE",
+        "clue": "A course of action to be followed regularly; a standard procedure.",
+        "related": [
+            "NUMBER",
+            "REGULAR",
+            "MUNDANE",
+            "CUSTOM",
+            "HABIT"
+        ]
+    },
+    {
+        "word": "SCANNED",
+        "clue": "Converted to a digital format using a scanner.",
+        "related": [
+            "DASHED",
+            "DIGITAL",
+            "CRAWLED",
+            "SCANNER",
+            "SORTED"
+        ]
+    },
+    {
+        "word": "SICKBAY",
+        "clue": "A place used as a hospital on board a ship, or on a spaceship (in science fiction).",
+        "related": [
+            "MEDIC",
+            "COCKPIT",
+            "NURSERY",
+            "NURSE",
+            "CLINIC"
+        ]
+    },
+    {
+        "word": "SILVICS",
+        "clue": "(forestry) the study of the characteristics of trees, including especially their role in the ecology of their forest habitats; such information collected about individual trees and tree species.",
+        "related": [
+            "ECOLOGY",
+            "SOCIALS"
+        ]
+    },
+    {
+        "word": "STACKED",
+        "clue": "Arranged in a stack.",
+        "related": [
+            "CLOUDED",
+            "BUILT",
+            "SKEWED",
+            "PACKED",
+            "SHAPELY"
+        ]
+    },
+    {
+        "word": "STATICS",
+        "clue": "(physics) the branch of mechanics concerned with forces in static equilibrium.",
+        "related": [
+            "STABLE",
+            "STILL",
+            "PHYSICS"
+        ]
+    },
+    {
+        "word": "STORAGE",
+        "clue": "(uncountable) the act of storing goods; the state of being stored.",
+        "related": [
+            "MEMORY",
+            "CACHE",
+            "STORING",
+            "DEPOT",
+            "STORE"
+        ]
+    },
+    {
+        "word": "STRINGS",
+        "clue": "(music) collectively, the stringed instruments in an orchestra.",
+        "related": [
+            "TWINE",
+            "STRAND",
+            "CHAIN",
+            "TRAIN",
+            "THREAD"
+        ]
+    },
+    {
+        "word": "SURGERY",
+        "clue": "(medicine, usually uncountable) a procedure involving major incisions to remove, repair, or replace a part of a body.",
+        "related": [
+            "MAMMARY",
+            "BLOCK",
+            "SURGEON",
+            "KNIFE",
+            "PLASTIC"
+        ]
+    },
+    {
+        "word": "TACTICS",
+        "clue": "A system of mode or procedure.",
+        "related": [
+            "STYLES",
+            "METHODS",
+            "MEANS",
+            "BATTLE",
+            "TRAPS"
+        ]
+    },
+    {
+        "word": "TAGGING",
+        "clue": "The act by which something is tagged.",
+        "related": [
+            "LABEL",
+            "MARKED",
+            "LABELED",
+            "BANDING",
+            "MARKING"
+        ]
+    },
+    {
+        "word": "THEURGY",
+        "clue": "A form of magic designed to allow for worship or conjuration of, or communication with spirits or deities.",
+        "related": [
+            "THEISM",
+            "THEION",
+            "THEOSIS",
+            "THEURGE"
+        ]
+    }
+]

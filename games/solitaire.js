@@ -9,6 +9,7 @@ let STACK_SPACING = 30;
 let HIDDEN_SPACING = 12;
 let COLUMN_SPACING = 20;
 let TOP_MARGIN = 40;
+let TABLEAU_GAP = 40;
 let LEFT_MARGIN = 40;
 
 const SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
@@ -246,7 +247,7 @@ function drawLoop() {
     // Draw Tableau
     for (let i = 0; i < 7; i++) {
         const x = LEFT_MARGIN + i * (CARD_WIDTH + COLUMN_SPACING);
-        const yBase = TOP_MARGIN + CARD_HEIGHT + 40;
+        const yBase = TOP_MARGIN + CARD_HEIGHT + TABLEAU_GAP;
 
         if (tableau[i].length === 0) {
             ctx.strokeStyle = 'rgba(255,255,255,0.05)';
@@ -363,22 +364,56 @@ function undo() {
     requestRender();
 }
 
+// ----------------------------------------------------
+// COMPLETELY REDESIGNED UNIVERSAL LAYOUT ENGINE
+// ----------------------------------------------------
 function computeLayout() {
     const w = canvas.width / (window.devicePixelRatio || 1);
     const h = canvas.height / (window.devicePixelRatio || 1);
 
-    LEFT_MARGIN = Math.max(12, w * 0.03);
-    COLUMN_SPACING = Math.max(8, w * 0.02);
+    // Ensure we leave a small safe margin (96% of the screen utilized)
+    const maxSafeWidth = w * 0.96;
+    const maxSafeHeight = h * 0.96;
 
-    let widthBased = (w - LEFT_MARGIN * 2 - COLUMN_SPACING * 6) / 7;
-    CARD_WIDTH = Math.max(35, Math.min(widthBased, 160));
-    CARD_HEIGHT = CARD_WIDTH * 1.45;
-    CARD_RADIUS = CARD_WIDTH * 0.1;
+    // Define column spacing proportionally to the card's width (15%)
+    const columnSpaceRatio = 0.15; 
+    // The total grid width is 7 cards + 6 spaces between them
+    const totalGridUnits = 7 + (6 * columnSpaceRatio); // 7.9 units total
     
-    STACK_SPACING = Math.min(CARD_HEIGHT * 0.3, (h - CARD_HEIGHT - 60) / 12);
-    HIDDEN_SPACING = CARD_HEIGHT * 0.12;
-    TOP_MARGIN = Math.max(15, h * 0.03);
+    // Calculate maximum card size allowed by screen WIDTH
+    const maxCardWidthByWidth = maxSafeWidth / totalGridUnits;
     
+    // Calculate maximum card size allowed by screen HEIGHT
+    // Vertical layout formula: TopMargin(0.25) + StockCard(1) + Gap(0.3) + 13 Stacks(13*0.22) + BottomCard(1)
+    // Equals roughly 5.4 times the card's height needed to guarantee no overflow.
+    const cardAspectRatio = 1.4; 
+    const maxCardHeightByHeight = maxSafeHeight / 5.4; 
+    const maxCardWidthByHeight = maxCardHeightByHeight / cardAspectRatio;
+
+    // Choose the dimension that strictly prevents both horizontal and vertical clipping.
+    // Clamp the absolute max width to 140px so cards don't get comically huge on large desktop monitors.
+    CARD_WIDTH = Math.max(35, Math.min(140, maxCardWidthByWidth, maxCardWidthByHeight));
+    CARD_HEIGHT = CARD_WIDTH * cardAspectRatio;
+    CARD_RADIUS = Math.max(4, CARD_WIDTH * 0.08);
+
+    // Apply the exact calculated proportional spacing
+    COLUMN_SPACING = CARD_WIDTH * columnSpaceRatio;
+    
+    // Calculate the absolute size of the play area and perfectly center it horizontally
+    const actualGridWidth = (7 * CARD_WIDTH) + (6 * COLUMN_SPACING);
+    LEFT_MARGIN = (w - actualGridWidth) / 2;
+
+    // Scale vertical margins dynamically based on card dimensions
+    TOP_MARGIN = Math.max(10, CARD_HEIGHT * 0.25);
+    TABLEAU_GAP = Math.max(15, CARD_HEIGHT * 0.3);
+
+    // Calculate maximum remaining height to aggressively compress stacks on short screens
+    const bottomY = TOP_MARGIN + (2 * CARD_HEIGHT) + TABLEAU_GAP;
+    const remainingHeight = Math.max(0, h - bottomY - 10); // 10px safety padding at the bottom
+    
+    STACK_SPACING = Math.max(8, Math.min(CARD_HEIGHT * 0.22, remainingHeight / 13));
+    HIDDEN_SPACING = Math.max(4, STACK_SPACING * 0.35);
+
     generateCardCache();
 }
 
@@ -386,18 +421,31 @@ function resize() {
     const container = document.getElementById('game-container');
     const dpr = window.devicePixelRatio || 1;
     
-    canvas.width = container.clientWidth * dpr;
-    canvas.height = container.clientHeight * dpr;
+    // Use bounding rect to get precise viewport measurements upon rotation/resize
+    const rect = container.getBoundingClientRect();
+    const width = rect.width || container.clientWidth;
+    const height = rect.height || container.clientHeight;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
     
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform matrix before scaling
     ctx.scale(dpr, dpr);
+    
     computeLayout();
     requestRender();
 }
 
-window.addEventListener('resize', resize);
+// Ensure resize triggers correctly on orientation changes as well as window resizing
+window.addEventListener('resize', () => {
+    setTimeout(resize, 50);
+});
+window.addEventListener('orientationchange', () => {
+    setTimeout(resize, 100);
+});
 
 function tableauCardY(col, index) {
-    let y = TOP_MARGIN + CARD_HEIGHT + 40;
+    let y = TOP_MARGIN + CARD_HEIGHT + TABLEAU_GAP;
     for (let k = 0; k < index; k++) {
         y += tableau[col][k] && tableau[col][k].faceUp ? STACK_SPACING : HIDDEN_SPACING;
     }
@@ -406,7 +454,7 @@ function tableauCardY(col, index) {
 
 function tableauStackHeight(col) {
     const arr = tableau[col];
-    if (arr.length === 0) return TOP_MARGIN + CARD_HEIGHT + 40;
+    if (arr.length === 0) return TOP_MARGIN + CARD_HEIGHT + TABLEAU_GAP;
     return tableauCardY(col, arr.length - 1) + CARD_HEIGHT;
 }
 
@@ -632,7 +680,7 @@ function handlePointerUp() {
             const xPos = LEFT_MARGIN + i * (CARD_WIDTH + COLUMN_SPACING);
             const col = tableau[i];
             const stackTop = tableauStackHeight(i);
-            const yPos = col.length === 0 ? (TOP_MARGIN + CARD_HEIGHT + 40) : (stackTop - CARD_HEIGHT);
+            const yPos = col.length === 0 ? (TOP_MARGIN + CARD_HEIGHT + TABLEAU_GAP) : (stackTop - CARD_HEIGHT);
             const dropZoneBottom = stackTop + 100;
 
             if (dropX >= xPos && dropX <= xPos + CARD_WIDTH && dropY >= yPos && dropY <= dropZoneBottom) {

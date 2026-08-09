@@ -131,7 +131,7 @@ function update() {
     if (keys['w'] || keys['W']) player1.y = Math.max(0, player1.y - player1.speed);
     if (keys['s'] || keys['S']) player1.y = Math.min(canvas.height - paddleHeight, player1.y + player1.speed);
 
-    // Player 2 Movement (Fixes the Downward Superspeed Bug)
+    // Player 2 Movement
     if (gameMode === 'pvp') {
         if (keys['ArrowUp']) player2.y = Math.max(0, player2.y - player2.speed);
         if (keys['ArrowDown']) player2.y = Math.min(canvas.height - paddleHeight, player2.y + player2.speed);
@@ -269,11 +269,11 @@ function draw() {
 
         ctx.fillStyle = '#fff';
         ctx.font = '400 16px Outfit, sans-serif';
-        ctx.fillText('Press Space or Click to Restart', canvas.width / 2, 225);
+        ctx.fillText('Press Space or Tap to Restart', canvas.width / 2, 225);
     }
 }
 
-// --- Event Listeners ---
+// --- Event Listeners (Keyboard & Touch) ---
 window.addEventListener('keydown', e => {
     initAudio();
     keys[e.key] = true;
@@ -292,6 +292,37 @@ canvas.addEventListener('click', () => {
     if (isGameOver) resetGame();
 });
 
+// Touch controls support mapping
+canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    initAudio();
+    if (isGameOver) {
+        resetGame();
+        return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleY = canvas.height / rect.height;
+
+    for (let i = 0; i < e.touches.length; i++) {
+        const touch = e.touches[i];
+        const touchX = (touch.clientX - rect.left);
+        const touchY = (touch.clientY - rect.top) * scaleY;
+
+        // Left half controls Player 1, Right half controls Player 2 (if PvP mode)
+        if (touchX < rect.width / 2) {
+            player1.y = Math.max(0, Math.min(canvas.height - paddleHeight, touchY - paddleHeight / 2));
+        } else if (gameMode === 'pvp') {
+            player2.y = Math.max(0, Math.min(canvas.height - paddleHeight, touchY - paddleHeight / 2));
+        }
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchstart', e => {
+    initAudio();
+    if (isGameOver) resetGame();
+}, { passive: true });
+
 // Settings Handlers
 modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -301,10 +332,10 @@ modeBtns.forEach(btn => {
 
         if (gameMode === 'ai') {
             aiDiffBox.style.display = 'flex';
-            hint.innerHTML = 'P1: <strong>W/S</strong> &nbsp;|&nbsp; AI Controlled Right Paddle';
+            hint.innerHTML = 'P1: <strong>W/S or Touch Drag</strong> &nbsp;|&nbsp; AI Controlled Right Paddle';
         } else {
             aiDiffBox.style.display = 'none';
-            hint.innerHTML = 'P1: <strong>W/S</strong> &nbsp;|&nbsp; P2: <strong>Up/Down Arrows</strong>';
+            hint.innerHTML = 'P1: <strong>Left Touch</strong> &nbsp;|&nbsp; P2: <strong>Right Touch / Arrows</strong>';
         }
 
         resetGame();

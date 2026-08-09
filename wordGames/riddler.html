@@ -38,22 +38,23 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 1rem;
+            padding: clamp(1rem, 3vw, 3rem);
         }
 
         .header-bar {
             width: 100%;
-            max-width: 860px;
+            max-width: 1400px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .back-btn {
             color: var(--text-main);
             text-decoration: none;
             font-weight: 600;
+            font-size: clamp(1rem, 1.2vw, 1.25rem);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
@@ -65,16 +66,16 @@
         }
 
         .page-title {
-            font-size: 1.8rem;
+            font-size: clamp(1.8rem, 2.5vw, 2.8rem);
             font-weight: 800;
         }
 
         .layout {
             width: 100%;
-            max-width: 860px;
+            max-width: 1400px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.25rem;
+            grid-template-columns: minmax(320px, 1fr) minmax(380px, 1.2fr);
+            gap: clamp(1.25rem, 2.5vw, 2.5rem);
             align-items: start;
         }
 
@@ -82,7 +83,7 @@
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 24px;
-            padding: 1.25rem;
+            padding: clamp(1.25rem, 2vw, 2.25rem);
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
             backdrop-filter: blur(20px);
         }
@@ -90,11 +91,11 @@
         .riddle-panel {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         .panel-label {
-            font-size: 0.75rem;
+            font-size: clamp(0.75rem, 0.9vw, 0.95rem);
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -104,14 +105,15 @@
         .riddle-card {
             border: 1px solid rgba(0, 242, 254, 0.2);
             border-radius: 20px;
-            padding: 1rem;
+            padding: clamp(1rem, 1.8vw, 1.75rem);
             background: rgba(2, 12, 28, 0.85);
         }
 
         .riddle-clue {
-            font-size: 1rem;
+            font-size: clamp(1rem, 1.3vw, 1.4rem);
             line-height: 1.6;
             color: var(--text-main);
+            margin-top: 0.75rem;
         }
 
         .status-row {
@@ -130,20 +132,22 @@
             border: 1px solid rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.04);
             color: var(--text-main);
-            font-size: 0.8rem;
+            font-size: clamp(0.8rem, 0.9vw, 1rem);
             font-weight: 700;
         }
 
         .board-panel {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         .board-grid {
             display: grid;
             gap: 0.6rem;
             width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
         }
 
         .board-row {
@@ -154,41 +158,24 @@
 
         .tile {
             aspect-ratio: 1 / 1;
-            border-radius: 14px;
+            border-radius: 12px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.08);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 1.8vw, 1.8rem);
             font-weight: 800;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             color: var(--text-main);
             transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
         }
 
-        .tile.empty {
-            opacity: 0.5;
-        }
-
-        .tile.correct {
-            background: var(--correct-green);
-            border-color: transparent;
-            color: #fff;
-        }
-
-        .tile.present {
-            background: var(--present-yellow);
-            border-color: transparent;
-            color: #000;
-        }
-
-        .tile.absent {
-            background: var(--absent-gray);
-            border-color: transparent;
-            color: #cbd5e1;
-        }
+        .tile.empty { opacity: 0.5; }
+        .tile.correct { background: var(--correct-green); border-color: transparent; color: #fff; }
+        .tile.present { background: var(--present-yellow); border-color: transparent; color: #000; }
+        .tile.absent { background: var(--absent-gray); border-color: transparent; color: #cbd5e1; }
 
         .hint-panel {
             display: grid;
@@ -204,16 +191,11 @@
             border-radius: 16px;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
+            font-size: clamp(0.85rem, 1vw, 1.05rem);
         }
 
-        .hint-row span {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .hint-row strong {
-            color: var(--text-main);
-        }
+        .hint-row span { color: var(--text-muted); }
+        .hint-row strong { color: var(--text-main); }
 
         .guess-form {
             display: flex;
@@ -230,12 +212,16 @@
             border: 1px solid rgba(255,255,255,0.12);
             background: rgba(255,255,255,0.04);
             color: var(--text-main);
-            font-size: 1rem;
+            font-size: clamp(1rem, 1.1vw, 1.2rem);
             outline: none;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
 
         .guess-input::placeholder {
             color: var(--text-muted);
+            letter-spacing: normal;
+            text-transform: none;
         }
 
         .guess-button {
@@ -243,16 +229,14 @@
             color: #000;
             border: none;
             border-radius: 16px;
-            padding: 0.95rem 1.2rem;
-            font-size: 1rem;
+            padding: 0.95rem 1.5rem;
+            font-size: clamp(1rem, 1.1vw, 1.2rem);
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
-        .guess-button:hover {
-            transform: translateY(-1px);
-        }
+        .guess-button:hover { transform: translateY(-1px); }
 
         .message {
             padding: 0.95rem 1rem;
@@ -260,7 +244,7 @@
             border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.08);
             color: var(--text-main);
-            font-size: 0.95rem;
+            font-size: clamp(0.95rem, 1.05vw, 1.15rem);
             min-height: 3rem;
             display: flex;
             align-items: center;
@@ -270,10 +254,8 @@
         .message.error { background: rgba(248, 113, 113, 0.15); color: #ffe5e5; }
         .message.warning { background: rgba(251, 191, 36, 0.15); color: #fff6d1; }
 
-        @media (max-width: 820px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -290,7 +272,7 @@
             <div class="riddle-card">
                 <div class="status-row">
                     <span class="badge">Today's clue</span>
-                    <span class="badge" id="length-badge">5 letters</span>
+                    <span class="badge" id="length-badge">7 letters</span>
                 </div>
                 <p id="riddle-text" class="riddle-clue">Solve the riddle to reveal the secret word.</p>
             </div>
@@ -308,7 +290,7 @@
                 <div class="hint-row"><span>Related guess status</span><strong id="related-hint">Submit a guess to see if it connects.</strong></div>
             </div>
             <form id="guess-form" class="guess-form">
-                <input id="guess-input" class="guess-input" type="text" maxlength="5" placeholder="Type your guess here" autocomplete="off" spellcheck="false">
+                <input id="guess-input" class="guess-input" type="text" maxlength="7" placeholder="Type your 7-letter guess..." autocomplete="off" spellcheck="false">
                 <button type="submit" class="guess-button">Guess</button>
             </form>
             <div id="message" class="message">Good luck! Try to solve the riddle in 5 guesses.</div>

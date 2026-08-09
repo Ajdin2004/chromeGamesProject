@@ -656,6 +656,108 @@
         .rank-3 { background: #cd7f32; color: #fff; }
         .rank-n { background: rgba(255,255,255,0.1); color: var(--text-muted); }
 
+        /* --- Feedback Modal --- */
+        .feedback-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feedback-form label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .feedback-form label i { color: var(--accent-cyan); }
+
+        .feedback-form textarea {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+            min-height: 120px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .feedback-form textarea:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .feedback-form textarea::placeholder { color: var(--text-muted); }
+
+        .feedback-skeleton {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--card-border);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .feedback-skeleton code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.1rem 0.35rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .feedback-submit-btn {
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            border: none;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .feedback-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 128, 0.4);
+        }
+
+        .feedback-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .feedback-type-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.45rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .feedback-type-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            border-color: transparent;
+        }
+
         /* --- Toast System --- */
         .toast-container {
             position: fixed;
@@ -754,10 +856,428 @@
             font-size: 0.7rem;
         }
 
+        /* --- Development Disclaimer Banner --- */
+        .dev-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            background: linear-gradient(135deg, rgba(121, 40, 202, 0.25), rgba(255, 0, 128, 0.25));
+            border: 1px solid var(--card-border);
+            border-left: 4px solid var(--secondary-glow);
+            border-radius: 14px;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(12px);
+            animation: bannerPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes bannerPulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(255, 0, 128, 0.15); }
+            50% { box-shadow: 0 0 20px rgba(255, 0, 128, 0.35); }
+        }
+
+        .dev-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex: 1;
+        }
+
+        .dev-banner-content i {
+            font-size: 1.3rem;
+            color: var(--secondary-glow);
+            animation: spinSlow 4s linear infinite;
+        }
+
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .dev-banner-content strong {
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .dev-banner-content span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .dev-banner-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .dev-banner-close:hover {
+            background: var(--secondary-glow);
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .dev-banner.hidden { display: none; }
+
+        /* --- About Us Section --- */
+        .about-section {
+            margin-top: 3rem;
+            padding: 2.5rem 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 50%);
+            opacity: 0.08;
+            animation: aboutGlow 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes aboutGlow {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(5%, 5%) rotate(5deg); }
+        }
+
+        .about-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .about-icon {
+            font-size: 2rem;
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 10px var(--accent-cyan));
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+
+        .about-icon:nth-child(2) { animation-delay: 0.5s; color: var(--primary-glow); filter: drop-shadow(0 0 10px var(--primary-glow)); }
+        .about-icon:nth-child(3) { animation-delay: 1s; color: var(--secondary-glow); filter: drop-shadow(0 0 10px var(--secondary-glow)); }
+        .about-icon:nth-child(4) { animation-delay: 1.5s; color: var(--star-color); filter: drop-shadow(0 0 10px var(--star-color)); }
+        .about-icon:nth-child(5) { animation-delay: 2s; color: #22c55e; filter: drop-shadow(0 0 10px #22c55e); }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(10deg); }
+        }
+
+        .about-title {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-glow), var(--secondary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradientText 4s ease infinite;
+        }
+
+        @keyframes gradientText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .about-text {
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .about-features {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        .about-feature:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .about-feature i { color: var(--accent-cyan); }
+
+        .about-made-with {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .about-made-with i {
+            color: var(--secondary-glow);
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.2); }
+        }
+
+        /* --- What's New / Changelog --- */
+        .changelog-section {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .section-heading i { color: var(--accent-cyan); }
+
+        .changelog-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .changelog-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .changelog-item:hover {
+            border-color: var(--accent-cyan);
+            transform: translateX(4px);
+        }
+
+        .changelog-tag {
+            flex-shrink: 0;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .changelog-tag.new { background: var(--accent-cyan); color: #000; }
+        .changelog-tag.fix { background: #22c55e; color: #000; }
+        .changelog-tag.update { background: var(--primary-glow); color: #fff; }
+
+        .changelog-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .changelog-item strong { color: var(--text-main); }
+
+        /* --- Coming Soon --- */
+        .coming-soon-section {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px dashed var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+        }
+
+        .coming-soon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .coming-soon-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coming-soon-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-glow);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .coming-soon-card i {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            opacity: 0.5;
+        }
+
+        .coming-soon-card h4 {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .coming-soon-card p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .coming-soon-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--primary-glow);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- Enhanced Footer --- */
+        .footer {
+            margin-top: 3rem;
+            padding: 2rem 0 1.5rem;
+            border-top: 1px solid var(--card-border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-stat i { color: var(--accent-cyan); }
+        .footer-stat strong { color: var(--text-main); }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .footer-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .footer-link:hover {
+            color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+
+        .footer-link i { color: var(--accent-cyan); }
+
+        .footer-tech {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .tech-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tech-badge i { color: var(--accent-cyan); }
+
+        .footer-credit { opacity: 0.7; }
+        .footer-version {
+            font-size: 0.7rem;
+            opacity: 0.5;
+            margin-top: 0.5rem;
+        }
+
         @media (max-width: 600px) {
             .kbd-hint { display: none; }
-            .header-top-bar { padding: 0.5rem; }
+            .header-top-bar { padding: 0.5rem; justify-content: center; }
+            .theme-selector { justify-content: center; }
+            .header-actions { justify-content: center; }
+            .controls-bar { justify-content: center; text-align: center; }
+            .search-box { justify-content: center; }
+            .category-tags { justify-content: center; }
+            .controls-right { justify-content: center; }
             .hero { padding: 1rem 0 0.5rem; }
+            .dev-banner-content span { display: none; }
+            .about-section { padding: 1.5rem 1rem; }
         }
     </style>
 </head>
@@ -782,6 +1302,16 @@
                     <i class="fa-solid fa-trophy"></i> Leaderboard
                 </button>
             </div>
+        </div>
+
+        <!-- Development Disclaimer Banner -->
+        <div id="dev-banner" class="dev-banner">
+            <div class="dev-banner-content">
+                <i class="fa-solid fa-helmet-safety"></i>
+                <strong>🚧 Under Active Development</strong>
+                <span>This site is in constant change — new games, features, and fixes are added regularly!</span>
+            </div>
+            <button id="dev-banner-close" class="dev-banner-close" title="Dismiss"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <!-- Hero -->
@@ -924,6 +1454,44 @@
                 </div>
             </a>
 
+            <!-- Box Office Showdown Card -->
+            <a href="wordGames/boxoffice.html" class="game-card" data-category="word puzzle" data-name="box office showdown movie guessing game" data-added="2026-08-08">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #b45309, #f59e0b, #78350f);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="wordGames/boxoffice.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="wordGames/boxoffice.html"></span>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
+                    <i class="fa-solid fa-film banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Box Office Showdown</h3>
+                    <p>Which movie earned more at the box office? Battle through random movie matchups in this fun movie trivia game.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Movie Trivia</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Game Showdown Card -->
+            <a href="wordGames/videogames.html" class="game-card" data-category="word puzzle" data-name="box office showdown movie guessing game" data-added="2026-08-08">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #b45309, #f59e0b, #78350f);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="wordGames/videogames.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="wordGames/videogames.html"></span>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
+                    <i class="fa-solid fa-gamepad banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Game Showdown</h3>
+                    <p>Which game sold more copies? Battle through random game matchups in this fun video game trivia game.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Video Game Trivia</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Boggle-like Card -->
             <a href="wordGames/boggle.html" class="game-card" data-category="word" data-name="boggle word search grid" data-added="2024-06-01">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #0b1220);">
@@ -943,6 +1511,43 @@
                 </div>
             </a>
 
+                        <!-- Solitaire -->
+            <a href="games/solitaire.html" class="game-card" data-category="arcade retro" data-name="solitaire classic card game" data-added="2024-01-01">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #065f46, #10b981, #064e3b, #022c22);">
+                    <button class="fav-star" data-href="games/solitaire.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/solitaire.html"></span>
+                    <canvas class="preview-canvas" data-type="card-shuffle"></canvas>
+                    <i class="fa-solid fa-clover banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Solitaire</h3>
+                    <p>Classic Klondike solitaire. Build four stacks of cards by suit from Ace to King.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Card Game</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Poker -->
+            <a href="games/poker.html" class="game-card" data-category="arcade retro" data-name="poker texas holdem card game" data-added="2026-08-07">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #f97316, #431407, #1c1917);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/poker.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/poker.html"></span>
+                    <canvas class="preview-canvas" data-type="poker-cards"></canvas>
+                    <i class="fa-solid fa-diamond banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Texas Hold'em</h3>
+                    <p>Play poker against 3 AI opponents. Bluff, raise, and win the pot with the best hand.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Card Game</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Flappy Bird Clone -->
             <a href="games/flappybird.html" class="game-card" data-category="arcade retro" data-name="flappy bird clone" data-added="2024-01-01">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #38bdf8, #0369a1, #0c4a6e);">
@@ -955,6 +1560,25 @@
                 <div class="card-details">
                     <h3>Flappy Bird Clone</h3>
                     <p>Navigate through obstacles in this classic physics-based arcade challenge.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Arcade</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Pool -->
+            <a href="games/pool.html" class="game-card" data-category="arcade" data-name="pool" data-added="2024-01-01">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #38bdf8, #0369a1, #0c4a6e);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/pool.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/pool.html"></span>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
+                    <i class="fa-solid fa-circle banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>8-Ball Pool</h3>
+                    <p>Classic pool game with 1v1 and Bot modes.</p>
                     <div class="card-footer">
                         <span class="genre-tag">Arcade</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
@@ -993,6 +1617,25 @@
                     <p>Tetris-style puzzle game with ghost pieces and line-clearing mechanics.</p>
                     <div class="card-footer">
                         <span class="genre-tag">Arcade</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Blockudoku -->
+            <a href="games/blockudoku.html" class="game-card" data-category="arcade puzzle" data-name="blockudoku sudoku block puzzle" data-added="2026-08-08">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #4c1d95, #7e22ce, #a855f7, #6d28d9);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/blockudoku.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/blockudoku.html"></span>
+                    <canvas class="preview-canvas" data-type="blockudoku-grid"></canvas>
+                    <i class="fa-solid fa-th-large banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Blockudoku</h3>
+                    <p>Place blocks on a 9x9 grid. Clear rows, columns, and 3x3 blocks in this Sudoku-meets-Tetris puzzle.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Puzzle</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
@@ -1088,42 +1731,6 @@
                 </div>
             </a>
 
-            <!-- Solitaire -->
-            <a href="games/solitaire.html" class="game-card" data-category="arcade retro" data-name="solitaire classic card game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #065f46, #10b981, #064e3b, #022c22);">
-                    <button class="fav-star" data-href="games/solitaire.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/solitaire.html"></span>
-                    <canvas class="preview-canvas" data-type="card-shuffle"></canvas>
-                    <i class="fa-solid fa-clover banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Solitaire</h3>
-                    <p>Classic Klondike solitaire. Build four stacks of cards by suit from Ace to King.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Card Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Poker -->
-            <a href="games/poker.html" class="game-card" data-category="arcade retro" data-name="poker texas holdem card game" data-added="2026-08-07">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #f97316, #431407, #1c1917);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/poker.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/poker.html"></span>
-                    <canvas class="preview-canvas" data-type="poker-cards"></canvas>
-                    <i class="fa-solid fa-diamond banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Texas Hold'em</h3>
-                    <p>Play poker against 3 AI opponents. Bluff, raise, and win the pot with the best hand.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Card Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
         </section>
 
         <!-- Empty State -->
@@ -1158,6 +1765,125 @@
             </div>
         </div>
 
+        <!-- Feedback Modal -->
+        <div id="feedback-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h2 id="feedback-modal-title"><i class="fa-solid fa-bug"></i> Report a Bug</h2>
+                    <button id="close-feedback-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form class="feedback-form" id="feedback-form">
+                        <div class="feedback-type-selector">
+                            <button type="button" class="feedback-type-btn active" data-feedback-type="bug">
+                                <i class="fa-solid fa-bug"></i> Bug
+                            </button>
+                            <button type="button" class="feedback-type-btn" data-feedback-type="suggestion">
+                                <i class="fa-solid fa-lightbulb"></i> Suggestion
+                            </button>
+                        </div>
+                        <label for="feedback-message"><i class="fa-solid fa-message"></i> Your message:</label>
+                        <textarea id="feedback-message" placeholder="Describe the bug you found or the game you'd like to suggest..."></textarea>
+                        <div class="feedback-skeleton">
+                            <strong>Your email will have this skeleton:</strong><br>
+                            <code>Subject: [Bug Report] / [Game Suggestion] - from Chromium Games</code><br>
+                            <code>Body: Hi Ajdin, ... (your message)</code>
+                        </div>
+                        <button type="submit" class="feedback-submit-btn">
+                            <i class="fa-solid fa-envelope"></i> Open Email Client
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Us Section -->
+        <section class="about-section">
+            <div class="about-icons">
+                <i class="fa-solid fa-gamepad about-icon"></i>
+                <i class="fa-solid fa-dice about-icon"></i>
+                <i class="fa-solid fa-chess about-icon"></i>
+                <i class="fa-solid fa-star about-icon"></i>
+                <i class="fa-solid fa-rocket about-icon"></i>
+            </div>
+            <h2 class="about-title">About Chromium Games</h2>
+            <p class="about-text">
+                Chromium Games is a growing collection of free browser arcade games — no downloads, no installs,
+                just pure fun. From daily word challenges to classic arcade hits, there's something for everyone.
+                We're constantly adding new games and improving existing ones!
+            </p>
+            <div class="about-features">
+                <span class="about-feature"><i class="fa-solid fa-bolt"></i> Instant Play</span>
+                <span class="about-feature"><i class="fa-solid fa-calendar-day"></i> Daily Games</span>
+                <span class="about-feature"><i class="fa-solid fa-free-code-camp"></i> 100% Free</span>
+                <span class="about-feature"><i class="fa-solid fa-bookmark"></i> Favorites</span>
+                <span class="about-feature"><i class="fa-solid fa-trophy"></i> Leaderboards</span>
+            </div>
+            <p class="about-made-with">Made to cure boredom</p>
+        </section>
+
+        <!-- What's New / Changelog -->
+        <section class="changelog-section">
+            <h2 class="section-heading"><i class="fa-solid fa-fire"></i> What's New</h2>
+            <ul class="changelog-list">
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
+                    <p><strong>Game Showdown</strong> — Guess which video game earned more at the box office in this video game trivia game!</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
+                    <p><strong>Poool</strong> — Pool is now available in the arcade!</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
+                    <p><strong>Texas Hold'em</strong> — Play poker against 3 AI opponents in this new card game!</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag fix">FIX</span>
+                    <p><strong>Favorites bug fixed</strong> — Favorite games now appear correctly in the Favorites category.</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag update">UPDATE</span>
+                    <p><strong>Daily games</strong> — Wordle, Earthdle, Riddler, Loldle, and Tunetile now reset daily.</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag update">UPDATE</span>
+                    <p><strong>What's New section</strong> — Track the latest updates and improvements right here!</p>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Coming Soon -->
+        <section class="coming-soon-section">
+            <h2 class="section-heading"><i class="fa-solid fa-clock"></i> Coming Soon</h2>
+            <div class="coming-soon-grid">
+                <div class="coming-soon-card">
+                    <span class="coming-soon-badge">Soon</span>
+                    <i class="fa-solid fa-ghost"></i>
+                    <h4>Pac-Man</h4>
+                    <p>Classic maze chase</p>
+                </div>
+                <div class="coming-soon-card">
+                    <span class="coming-soon-badge">Soon</span>
+                    <i class="fa-solid fa-jet-fighter"></i>
+                    <h4>Jet Fighter</h4>
+                    <p>Fast-paced aerial combat</p>
+                </div>
+                <div class="coming-soon-card">
+                    <span class="coming-soon-badge">Soon</span>
+                    <i class="fa-solid fa-basketball"></i>
+                    <h4>Basketball</h4>
+                    <p>Shoot hoops & score</p>
+                </div>
+                <div class="coming-soon-card">
+                    <span class="coming-soon-badge">Soon</span>
+                    <i class="fa-solid fa-keyboard"></i>
+                    <h4>Typing Rush</h4>
+                    <p>Test your typing speed</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Footer -->
         <footer class="footer">
             <div class="footer-stats">
@@ -1165,7 +1891,19 @@
                 <span class="footer-stat"><i class="fa-solid fa-fire"></i> <strong id="footer-plays">0</strong> Total Plays</span>
                 <span class="footer-stat"><i class="fa-solid fa-star"></i> <strong id="footer-favs">0</strong> Favorites</span>
             </div>
-            <p class="footer-credit">Chromium Games · Browser arcade powered by boredom · <span id="footer-year"></span></p>
+            <div class="footer-links">
+                <a href="#" id="report-bug-link" class="footer-link" title="Report a bug"><i class="fa-solid fa-bug"></i> Report a Bug</a>
+                <a href="#" id="suggest-game-link" class="footer-link" title="Suggest a game"><i class="fa-solid fa-lightbulb"></i> Suggest a Game</a>
+                <a href="https://github.com/Ajdin2004/chromeGamesProject" target="_blank" rel="noopener" class="footer-link" title="GitHub repository"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+            <div class="footer-tech">
+                <span class="tech-badge"><i class="fa-brands fa-html5"></i> HTML</span>
+                <span class="tech-badge"><i class="fa-brands fa-css3-alt"></i> CSS</span>
+                <span class="tech-badge"><i class="fa-brands fa-js"></i> JavaScript</span>
+                <span class="tech-badge"><i class="fa-brands fa-netlify"></i> Netlify</span>
+            </div>
+            <p class="footer-credit">Chromium Games · Browser arcade powered by boredom · Built by Ajdin · <span id="footer-year"></span></p>
+            <p class="footer-version">v1.0.0 · Beta</p>
         </footer>
     </div>
 
@@ -1383,6 +2121,48 @@
                     pCtx.fill();
                     pCtx.strokeStyle = 'rgba(255,255,255,0.3)';
                     pCtx.stroke();
+                } else if (type === 'blockudoku-grid') {
+                    // Animated 3x3 blockudoku grid preview
+                    const cell = Math.min(width, height) / 9;
+                    const offsetX = (width - cell * 9) / 2;
+                    const offsetY = (height - cell * 9) / 2;
+                    const colors = ['#a855f7', '#00f2fe', '#facc15', '#22c55e', '#ef4444', '#3b82f6'];
+                    // Draw grid
+                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                    pCtx.lineWidth = 1;
+                    for (let i = 0; i <= 9; i++) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX + i * cell, offsetY);
+                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
+                        pCtx.stroke();
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX, offsetY + i * cell);
+                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
+                        pCtx.stroke();
+                    }
+                    // Thicker sub-grid lines
+                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    pCtx.lineWidth = 2;
+                    for (let i = 0; i <= 9; i += 3) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX + i * cell, offsetY);
+                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
+                        pCtx.stroke();
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX, offsetY + i * cell);
+                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
+                        pCtx.stroke();
+                    }
+                    // Animated blocks filling in
+                    const blockCount = Math.floor(frame / 4) % 81;
+                    for (let i = 0; i < blockCount; i++) {
+                        const r = Math.floor(i / 9);
+                        const c = i % 9;
+                        pCtx.fillStyle = colors[(r + c) % colors.length];
+                        pCtx.globalAlpha = 0.7;
+                        pCtx.fillRect(offsetX + c * cell + 1, offsetY + r * cell + 1, cell - 2, cell - 2);
+                        pCtx.globalAlpha = 1;
+                    }
                 } else {
                     pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
                     let x = Math.sin(frame * 0.03) * 30 + width / 2;
@@ -1448,11 +2228,25 @@
         });
 
         /* ============================================================
+           DEV BANNER DISMISS
+           ============================================================ */
+        const devBanner = document.getElementById('dev-banner');
+        const devBannerClose = document.getElementById('dev-banner-close');
+        const DEV_BANNER_KEY = 'dev_banner_dismissed';
+        if (localStorage.getItem(DEV_BANNER_KEY) === '1') {
+            devBanner.classList.add('hidden');
+        }
+        devBannerClose.addEventListener('click', () => {
+            devBanner.classList.add('hidden');
+            localStorage.setItem(DEV_BANNER_KEY, '1');
+        });
+
+        /* ============================================================
            SEARCH, FILTER, SORT
            ============================================================ */
         const searchInput = document.getElementById('search-input');
         const categoryBtns = document.querySelectorAll('.category-btn');
-        const cards = document.querySelectorAll('.game-card');
+        const cards = Array.from(document.querySelectorAll('.game-card'));
         const sortSelect = document.getElementById('sort-select');
         const emptyState = document.getElementById('empty-state');
         const clearFiltersBtn = document.getElementById('clear-filters-btn');
@@ -1670,12 +2464,17 @@
            ============================================================ */
         const continueBtn = document.getElementById('continue-btn');
         function updateContinue() {
-            const recent = getJSON(RECENT_KEY, []);
-            if (recent.length > 0) {
-                continueBtn.classList.remove('hidden');
-                const name = cards.find(c => c.getAttribute('href') === recent[0])?.querySelector('h3')?.textContent || 'last game';
-                continueBtn.innerHTML = `<i class="fa-solid fa-play"></i> ${name}`;
-            } else {
+            try {
+                const recent = getJSON(RECENT_KEY, []);
+                if (recent.length > 0) {
+                    continueBtn.classList.remove('hidden');
+                    const name = cards.find(c => c.getAttribute('href') === recent[0])?.querySelector('h3')?.textContent || 'last game';
+                    continueBtn.innerHTML = `<i class="fa-solid fa-play"></i> ${name}`;
+                } else {
+                    continueBtn.classList.add('hidden');
+                }
+            } catch (e) {
+                console.warn('updateContinue failed:', e);
                 continueBtn.classList.add('hidden');
             }
         }
@@ -1758,7 +2557,9 @@
             { name: 'Block Puzzler', key: 'blockpuzzler_highscore', icon: 'fa-cubes', href: 'games/blockpuzzler.html' },
             { name: 'Neon Pong', key: 'pong_highscore', icon: 'fa-table-tennis-paddle-ball', href: 'games/pong.html' },
             { name: 'Highway Racer', key: 'highway_highscore', icon: 'fa-car-side', href: 'games/highway.html' },
-            { name: 'Texas Hold\'em', key: 'poker_best_chips', icon: 'fa-diamond', href: 'games/poker.html' }
+            { name: 'Texas Hold\'em', key: 'poker_best_chips', icon: 'fa-diamond', href: 'games/poker.html' },
+            { name: 'Blockudoku', key: 'blockudoku_highscore', icon: 'fa-th-large', href: 'games/blockudoku.html' },
+            { name: 'Box Office', key: 'boxoffice_best_streak', icon: 'fa-film', href: 'wordGames/boxoffice.html' }
         ];
 
         function populateLeaderboard() {
@@ -1786,6 +2587,88 @@
         openModalBtn.addEventListener('click', () => { populateLeaderboard(); modal.classList.remove('hidden'); });
         closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+
+        /* ============================================================
+           FEEDBACK MODAL (Report a Bug / Suggest a Game)
+           ============================================================ */
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackModalTitle = document.getElementById('feedback-modal-title');
+        const closeFeedbackBtn = document.getElementById('close-feedback-btn');
+        const reportBugLink = document.getElementById('report-bug-link');
+        const suggestGameLink = document.getElementById('suggest-game-link');
+        const feedbackForm = document.getElementById('feedback-form');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const feedbackTypeBtns = document.querySelectorAll('.feedback-type-btn');
+        const FEEDBACK_EMAIL = 'ajdin.hasic56@gmail.com';
+        let feedbackType = 'bug';
+
+        function openFeedbackModal(type) {
+            feedbackType = type;
+            feedbackTypeBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.feedbackType === type);
+            });
+            if (type === 'bug') {
+                feedbackModalTitle.innerHTML = '<i class="fa-solid fa-bug"></i> Report a Bug';
+                feedbackMessage.placeholder = 'Describe the bug you found... What happened? What did you expect?';
+            } else {
+                feedbackModalTitle.innerHTML = '<i class="fa-solid fa-lightbulb"></i> Suggest a Game';
+                feedbackMessage.placeholder = 'What game would you like to see? Describe the concept...';
+            }
+            feedbackMessage.value = '';
+            feedbackModal.classList.remove('hidden');
+            setTimeout(() => feedbackMessage.focus(), 100);
+        }
+
+        function closeFeedbackModal() {
+            feedbackModal.classList.add('hidden');
+        }
+
+        reportBugLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openFeedbackModal('bug');
+        });
+
+        suggestGameLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openFeedbackModal('suggestion');
+        });
+
+        closeFeedbackBtn.addEventListener('click', closeFeedbackModal);
+        feedbackModal.addEventListener('click', (e) => { if (e.target === feedbackModal) closeFeedbackModal(); });
+
+        feedbackTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                feedbackType = btn.dataset.feedbackType;
+                feedbackTypeBtns.forEach(b => b.classList.toggle('active', b.dataset.feedbackType === feedbackType));
+                if (feedbackType === 'bug') {
+                    feedbackModalTitle.innerHTML = '<i class="fa-solid fa-bug"></i> Report a Bug';
+                    feedbackMessage.placeholder = 'Describe the bug you found... what happened? What did you expect?';
+                } else {
+                    feedbackModalTitle.innerHTML = '<i class="fa-solid fa-lightbulb"></i> Suggest a Game';
+                    feedbackMessage.placeholder = 'What game would you like to see? Describe it...';
+                }
+            });
+        });
+
+        feedbackForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = feedbackMessage.value.trim();
+            const typeLabel = feedbackType === 'bug' ? 'Bug Report' : 'Game Suggestion';
+            const subject = encodeURIComponent(`[${typeLabel}] - from Chromium Games`);
+            const body = encodeURIComponent(
+                `Hi Ajdin,\n\n` +
+                `I'm writing to you from Chromium Games.\n\n` +
+                `Type: ${typeLabel}\n` +
+                `Message:\n${message || '(no message provided)'}\n\n` +
+                `---\n` +
+                `Sent from Chromium Games website\n` +
+                `Browser: ${navigator.userAgent}\n` +
+                `Date: ${new Date().toLocaleString()}`
+            );
+            window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
+            closeFeedbackModal();
+            showToast('Opening your email client...', 'fa-envelope');
+        });
 
         /* ============================================================
            STATS + FOOTER
@@ -1816,21 +2699,26 @@
 
             cards.forEach(card => {
                 const href = card.getAttribute('href');
-                const badge = card.querySelector('.badge');
+                let badge = card.querySelector('.badge');
                 const added = card.dataset.added;
                 const isNew = added && (Date.now() - new Date(added).getTime()) < 14 * 24 * 60 * 60 * 1000;
                 const isPopular = top3.includes(href);
 
-                if (badge) {
-                    if (isPopular) {
-                        badge.textContent = 'Popular';
-                        badge.className = 'badge popular';
-                    } else if (isNew) {
-                        badge.textContent = 'New';
-                        badge.className = 'badge new';
-                    } else {
-                        badge.remove();
-                    }
+                // Re-create badge if it was previously removed
+                if (!badge) {
+                    badge = document.createElement('div');
+                    badge.className = 'badge';
+                    card.querySelector('.card-banner').appendChild(badge);
+                }
+
+                if (isPopular) {
+                    badge.textContent = 'Popular';
+                    badge.className = 'badge popular';
+                } else if (isNew) {
+                    badge.textContent = 'New';
+                    badge.className = 'badge new';
+                } else {
+                    badge.remove();
                 }
             });
         }

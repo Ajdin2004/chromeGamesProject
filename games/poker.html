@@ -4,178 +4,552 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Poker · Texas Hold'em</title>
+     <link rel="icon" type="image/png" href="https://static.vecteezy.com/system/resources/thumbnails/008/854/548/small/poker-card-casino-3d-design-elements-free-png.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
-        body {
-            background: #0b0d19;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 1rem;
-            color: #f0f4f8;
-            overflow: hidden;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 1000px;
-            margin-bottom: 1rem;
-        }
-        .back {
-            color: #f0f4f8;
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: 0.2s;
-        }
-        .back:hover { color: #00f2fe; }
+:root {
+    --header-h: 54px;
+    --controls-h: 104px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+}
 
-        #game-container {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
-            height: 80vh;
-            background: #101426;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            user-select: none;
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Outfit', sans-serif;
+}
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050810;
+    color: #f8fafc;
+}
 
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(11, 13, 25, 0.85);
-            backdrop-filter: blur(8px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            z-index: 10;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
+body {
+    min-height: 100dvh;
+}
 
-        .overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+.header {
+    position: fixed;
+    transition: transform 0.3s ease;
+    will-change: transform;
+    inset: var(--safe-top) 0 auto 0;
+    height: var(--header-h);
+    z-index: 30;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 14px;
+    background: rgba(5,8,16,.84);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(16px);
+}
 
-        .overlay h1 {
-            font-size: clamp(1.8rem, 6vw, 3rem);
-            background: linear-gradient(135deg, #00f2fe, #7928ca, #ff0080);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-        }
+.header h2 {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+}
+/* Hidden state in landscape */
+.header.hidden-landscape {
+    transform: translateY(calc(-100% - var(--safe-top)));
+}
+/* Collapse top offset when header hides */
+    .header.hidden-landscape + #game-container,
+    body:has(.header.hidden-landscape) #game-container {
+        top: var(--safe-top);
+    }
 
-        .overlay p {
-            color: #9ca3af;
-            font-size: 1rem;
-            text-align: center;
-            max-width: 80%;
-        }
 
-        .controls {
-            margin-top: 1rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+/* Pull-down gesture handle indicator */
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.header.hidden-landscape::after {
+    opacity: 1;
+}
+.back {
+    justify-self: start;
+    color: #e2e8f0;
+    text-decoration: none;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
 
-        .btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
+.back:hover { color: #67e8f9; }
 
-        .btn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: #00f2fe;
-        }
+#hand-history-btn { justify-self: end; }
 
-        .btn.primary {
-            background: linear-gradient(135deg, #00f2fe, #7928ca);
-            border: none;
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
-        }
+.hud-btn {
+    color: #f8fafc;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 10px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-weight: 800;
+}
 
-        .btn.primary:hover {
-            box-shadow: 0 4px 25px rgba(0, 242, 254, 0.5);
-            transform: translateY(-2px);
-        }
+#game-container {
+    position: fixed;
+    top: calc(var(--header-h) + var(--safe-top));
+    left: var(--safe-left);
+    right: var(--safe-right);
+    bottom: calc(var(--controls-h) + var(--safe-bottom));
+    overflow: hidden;
+    background: #070b14;
+    isolation: isolate;
+    transition: top 0.3s ease;
+}
 
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none !important;
-        }
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
 
-        @media (max-width: 600px) {
-            #game-container {
-                height: 70vh;
-            }
-        }
-    </style>
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .85rem;
+    padding: 20px;
+    background: rgba(3,7,14,.82);
+    backdrop-filter: blur(12px);
+    opacity: 1;
+    transition: opacity .25s ease;
+}
+
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.overlay h1 {
+    max-width: 92%;
+    text-align: center;
+    font-size: clamp(1.7rem, 6vw, 3rem);
+    background: linear-gradient(135deg, #67e8f9, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.overlay p {
+    max-width: 90%;
+    color: #94a3b8;
+    text-align: center;
+}
+
+.controls {
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    right: 0;
+    bottom: var(--safe-bottom);
+    height: var(--controls-h);
+    padding: 8px 10px 10px;
+    display: grid;
+    grid-template-rows: 38px 1fr;
+    gap: 7px;
+    background: rgba(5,8,16,.94);
+    border-top: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(18px);
+}
+
+.raise-panel {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 0 10px;
+}
+
+.raise-label {
+    color: #94a3b8;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+}
+
+#raise-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    outline: none;
+    transition: background 0.2s ease;
+}
+/* Custom Webkit Slider Thumb (Chrome, Safari, Edge) */
+#raise-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22d3ee, #06b6d4);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+#raise-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 14px rgba(34, 211, 238, 0.9);
+}
+/* Custom Firefox Slider Thumb */
+#raise-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22d3ee, #06b6d4);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#raise-slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 14px rgba(34, 211, 238, 0.9);
+}
+
+#raise-slider:disabled::-webkit-slider-thumb {
+    background: #64748b;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#raise-value {
+    min-width: 62px;
+    color: #67e8f9;
+    text-align: right;
+    font-size: .82rem;
+}
+
+.action-row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.btn {
+    min-width: 0;
+    min-height: 38px;
+    padding: .45rem .55rem;
+    border-radius: 10px;
+    color: #f8fafc;
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.10);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: .78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn:hover {
+    border-color: rgba(34,211,238,.65);
+    background: rgba(255,255,255,.09);
+}
+
+.btn.primary {
+    border: 0;
+    background: linear-gradient(135deg, #06b6d4, #7c3aed);
+    box-shadow: 0 6px 20px rgba(6,182,212,.18);
+}
+
+.btn:disabled {
+    opacity: .36;
+    cursor: not-allowed;
+}
+
+.history-panel {
+    position: fixed;
+    z-index: 50;
+    top: calc(var(--header-h) + var(--safe-top));
+    right: 0;
+    bottom: calc(var(--controls-h) + var(--safe-bottom));
+    width: min(420px, 94vw);
+    display: flex;
+    flex-direction: column;
+    background: rgba(5,8,16,.98);
+    border-left: 1px solid rgba(255,255,255,.10);
+    box-shadow: -24px 0 60px rgba(0,0,0,.45);
+    transform: translateX(102%);
+    transition: transform .25s ease;
+}
+
+.history-panel.open { transform: translateX(0); }
+
+.history-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.history-list {
+    overflow: auto;
+    padding: 12px;
+}
+
+.history-item {
+    padding: 11px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    background: rgba(255,255,255,.035);
+}
+
+.history-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.history-item small {
+    display: block;
+    margin-top: 3px;
+    color: #94a3b8;
+    font-size: .72rem;
+}
+
+.history-actions {
+    margin-top: 7px;
+    color: #cbd5e1;
+    font-size: .74rem;
+    line-height: 1.35;
+}
+
+.history-result.win { color: #34d399; }
+.history-result.loss { color: #fb7185; }
+.history-result.push { color: #facc15; }
+
+/* Device orientation notice */
+.orientation-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(5, 8, 16, 0.95);
+    backdrop-filter: blur(16px);
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
+
+.orientation-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.orientation-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.orientation-icon {
+    font-size: 2.2rem;
+    color: #67e8f9;
+    animation: rotateHint 2s infinite ease-in-out;
+}
+
+.orientation-card h3 {
+    font-size: 1.1rem;
+    color: #f8fafc;
+}
+
+.orientation-card p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
+@keyframes rotateHint {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+}
+
+@media (max-width: 700px) {
+    :root {
+        --header-h: 48px;
+        --controls-h: 118px;
+    }
+
+    .header {
+        padding: 0 9px;
+    }
+
+    .header h2 { font-size: .84rem; }
+    .back { font-size: .76rem; }
+    .hud-btn { padding: 6px 8px; font-size: .72rem; }
+
+    .controls {
+        padding: 7px 7px 9px;
+        grid-template-rows: 34px 1fr;
+    }
+
+    .action-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .btn {
+        min-height: 34px;
+        font-size: .74rem;
+        padding: .35rem .4rem;
+    }
+
+    .history-panel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    :root {
+        --controls-h: 124px;
+    }
+
+    .back span { display: none; }
+    .header h2 { font-size: .78rem; }
+
+    .raise-panel {
+        grid-template-columns: 40px 1fr 58px;
+        gap: 7px;
+    }
+
+    #raise-value { min-width: 58px; font-size: .74rem; }
+    .btn { font-size: .70rem; }
+}
+/* Adjust game container layout when header is auto-hidden in landscape */
+@media (orientation: landscape) and (max-height: 520px) {
+    #game-container {
+        top: var(--safe-top);
+    }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+    :root {
+        --header-h: 42px;
+        --controls-h: 78px;
+    }
+
+    .controls {
+        grid-template-rows: 28px 1fr;
+        padding: 5px 8px;
+    }
+
+    .btn {
+        min-height: 28px;
+        font-size: .68rem;
+        padding: .25rem .4rem;
+    }
+}
+</style>
 </head>
 <body>
-<div class="header">
-    <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-    <h2 style="font-weight: 600; font-size: 1.2rem; letter-spacing: 0.5px;">Texas Hold'em</h2>
-    <div style="width: 50px;"></div> <!-- Spacer -->
+    
+<div id="orientation-overlay" class="orientation-overlay hidden" aria-hidden="true">
+    <div class="orientation-card">
+        <i class="fa-solid fa-mobile-screen-button orientation-icon"></i>
+        <h3>Rotate Your Device</h3>
+        <p>For the best gameplay experience on mobile, please turn your device sideways to landscape mode.</p>
+        <button class="btn primary" id="dismiss-orientation-btn">Continue Anyway</button>
+    </div>
 </div>
+    
+<header class="header">
+    <a href="../index.html" class="back">
+        <i class="fa-solid fa-arrow-left"></i><span>Hub</span>
+    </a>
+    <h2>Texas Hold'em</h2>
+    <button class="hud-btn" id="hand-history-btn">
+        <i class="fa-solid fa-clock-rotate-left"></i> History
+    </button>
+</header>
 
-<div id="game-container">
+<main id="game-container">
     <canvas id="gameCanvas"></canvas>
+
     <div id="result-overlay" class="overlay hidden">
-        <h1 id="result-title"><i class="fa-solid fa-trophy" style="color:#facc15;"></i> You Win!</h1>
+        <h1 id="result-title"><i class="fa-solid fa-trophy"></i> You Win!</h1>
         <p id="result-desc">You won the pot!</p>
         <button class="btn primary" id="result-new-game">Play Again</button>
     </div>
-</div>
+</main>
 
-<div class="controls">
-    <button class="btn primary" id="new-game">New Hand</button>
-    <button class="btn" id="fold-btn" disabled>Fold</button>
-    <button class="btn" id="check-btn" disabled>Check</button>
-    <button class="btn" id="call-btn" disabled>Call</button>
-    <button class="btn" id="raise-min-btn" disabled>Min Raise</button>
-    <button class="btn" id="raise-half-btn" disabled>½ Pot</button>
-    <button class="btn" id="raise-pot-btn" disabled>Pot</button>
-    <button class="btn" id="raise-all-btn" disabled>All-In</button>
-</div>
+<section class="controls" aria-label="Poker controls">
+    <div class="raise-panel">
+        <span class="raise-label">Raise</span>
+        <input id="raise-slider" type="range" min="0" max="100" step="1" value="0" disabled>
+        <strong id="raise-value">—</strong>
+    </div>
+
+    <div class="action-row">
+        <button class="btn primary" id="new-game">New Hand</button>
+        <button class="btn" id="fold-btn" disabled>Fold</button>
+        <button class="btn" id="check-btn" disabled>Check</button>
+        <button class="btn" id="call-btn" disabled>Call</button>
+        <button class="btn" id="raise-slider-btn" disabled>Raise</button>
+        <button class="btn" id="raise-all-btn" disabled>All-In</button>
+    </div>
+</section>
+
+<aside class="history-panel" id="history-panel" aria-hidden="true">
+    <div class="history-head">
+        <strong>Hand History</strong>
+        <button class="hud-btn" id="history-close" aria-label="Close history">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <div class="history-list" id="history-list"></div>
+</aside>
 
 <script src="poker.js"></script>
 </body>

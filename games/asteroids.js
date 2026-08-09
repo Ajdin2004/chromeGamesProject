@@ -1,5 +1,28 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const wrapper = document.getElementById('gameWrapper');
+
+// --- Logical resolution (all game logic uses this space) ---
+const LOGICAL_W = 600;
+const LOGICAL_H = 600;
+
+// --- Responsive / DPR-aware scaling ---
+let dprScale = 1;
+function resize() {
+    const rect = wrapper.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const targetW = Math.max(1, Math.round(rect.width * dpr));
+    const targetH = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+    }
+    dprScale = targetW / LOGICAL_W;
+    ctx.setTransform(dprScale, 0, 0, dprScale, 0, 0);
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 100));
+resize();
 
 // --- Web Audio Synthesizer ---
 let audioCtx = null;
@@ -90,6 +113,21 @@ const Sound = {
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start(now); osc.stop(now + 0.28);
+    },
+    wave() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(660, now + 0.1);
+        osc.frequency.setValueAtTime(880, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now); osc.stop(now + 0.3);
     }
 };
 
@@ -106,8 +144,8 @@ let wave = 1;
 let survivalTime = 0; // Elapsed Game Time in Seconds
 
 const ship = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
+    x: LOGICAL_W / 2,
+    y: LOGICAL_H / 2,
     r: 12,
     angle: -Math.PI / 2,
     rotationSpeed: 0.085,
@@ -132,20 +170,37 @@ let enemySpawnTimer = 0;
 let lastShotTime = 0;
 const keys = {};
 
-const touchState = {
-    active: false,
-    pointerId: null,
-    startX: 0,
-    startY: 0,
-    moved: false,
-    downTime: 0
-};
+// --- Pause state ---
+let paused = false;
 
-function resetAsteroidsTouchControls() {
-    keys['ArrowLeft'] = false;
-    keys['ArrowRight'] = false;
-    keys['ArrowUp'] = false;
+// --- Screen shake ---
+let shake = { x: 0, y: 0, power: 0 };
+
+// --- Wave banner ---
+let waveBanner = { text: '', timer: 0 };
+
+// --- Starfield ---
+let stars = [];
+function generateStars() {
+    stars = [];
+    for (let i = 0; i < 70; i++) {
+        stars.push({
+            x: Math.random() * LOGICAL_W,
+            y: Math.random() * LOGICAL_H,
+            speed: 0.2 + Math.random() * 0.8,
+            size: Math.random() < 0.2 ? 2 : 1,
+            alpha: 0.3 + Math.random() * 0.7
+        });
+    }
 }
+generateStars();
+
+// --- Touch state (virtual joystick + fire zone) ---
+const touchState = {
+    joystick: { active: false, pointerId: null, baseX: 0, baseY: 0, dx: 0, dy: 0 },
+    fire: { active: false, pointerId: null },
+    hyperspace: { active: false, pointerId: null }
+};
 
 const POWERUP_TYPES = [
     { type: 'shield', color: '#00f2fe', label: '🛡️ SHIELD', duration: 360 },
@@ -155,10 +210,10 @@ const POWERUP_TYPES = [
 ];
 
 function wrapBounds(obj, radius = 0) {
-    if (obj.x < -radius) obj.x = canvas.width + radius;
-    if (obj.x > canvas.width + radius) obj.x = -radius;
-    if (obj.y < -radius) obj.y = canvas.height + radius;
-    if (obj.y > canvas.height + radius) obj.y = -radius;
+    if (obj.x < -radius) obj.x = LOGICAL_W + radius;
+    if (obj.x > LOGICAL_W + radius) obj.x = -radius;
+    if (obj.y < -radius) obj.y = LOGICAL_H + radius;
+    if (obj.y > LOGICAL_H + radius) obj.y = -radius;
 }
 
 function spawnAsteroid(x, y, radius, level = 3) {
@@ -173,8 +228,8 @@ function spawnAsteroid(x, y, radius, level = 3) {
     const colors = ['#00f2fe', '#ff0080', '#a855f7', '#22c55e'];
 
     asteroids.push({
-        x: x !== undefined ? x : (Math.random() < 0.5 ? 0 : canvas.width),
-        y: y !== undefined ? y : Math.random() * canvas.height,
+        x: x !== undefined ? x : (Math.random() < 0.5 ? 0 : LOGICAL_W),
+        y: y !== undefined ? y : Math.random() * LOGICAL_H,
         r: radius,
         level: level,
         vx: Math.cos(angle) * speed,
@@ -188,10 +243,10 @@ function spawnAsteroid(x, y, radius, level = 3) {
 }
 
 function spawnEnemyShip() {
-    const side = Math.random() < 0.5 ? 0 : canvas.width;
+    const side = Math.random() < 0.5 ? 0 : LOGICAL_W;
     enemyShip = {
         x: side,
-        y: Math.random() * (canvas.height - 100) + 50,
+        y: Math.random() * (LOGICAL_H - 100) + 50,
         r: 16,
         vx: side === 0 ? 2 : -2,
         vy: (Math.random() - 0.5) * 1.5,
@@ -226,8 +281,8 @@ function createWave() {
     for (let i = 0; i < count; i++) {
         let x, y, dist;
         do {
-            x = Math.random() * canvas.width;
-            y = Math.random() * canvas.height;
+            x = Math.random() * LOGICAL_W;
+            y = Math.random() * LOGICAL_H;
             dist = Math.hypot(x - ship.x, y - ship.y);
         } while (dist < 130);
 
@@ -255,8 +310,8 @@ function resetGame() {
     lives = 3;
     wave = 1;
     survivalTime = 0;
-    ship.x = canvas.width / 2;
-    ship.y = canvas.height / 2;
+    ship.x = LOGICAL_W / 2;
+    ship.y = LOGICAL_H / 2;
     ship.vx = 0;
     ship.vy = 0;
     ship.angle = -Math.PI / 2;
@@ -270,8 +325,11 @@ function resetGame() {
     particles = [];
     enemyShip = null;
     enemySpawnTimer = 300;
-    touchState.active = false;
-    resetAsteroidsTouchControls();
+    shake.power = 0;
+    waveBanner.timer = 0;
+    touchState.joystick.active = false;
+    touchState.fire.active = false;
+    touchState.hyperspace.active = false;
     createWave();
     gameState = STATE_PLAYING;
 }
@@ -279,8 +337,8 @@ function resetGame() {
 function hyperspaceTeleport() {
     addExplosion(ship.x, ship.y, '#00f2fe', 12);
     Sound.teleport();
-    ship.x = Math.random() * canvas.width;
-    ship.y = Math.random() * canvas.height;
+    ship.x = Math.random() * LOGICAL_W;
+    ship.y = Math.random() * LOGICAL_H;
     ship.vx = 0;
     ship.vy = 0;
     ship.invulnerableTimer = 60;
@@ -319,14 +377,53 @@ function formatTime(seconds) {
     return `${mm}:${ss}`;
 }
 
+// --- Pause control ---
+function setPaused(value) {
+    paused = value;
+    const overlay = document.getElementById('pauseOverlay');
+    const pauseBtn = document.getElementById('pauseBtn');
+    if (overlay) overlay.classList.toggle('show', paused);
+    if (pauseBtn) pauseBtn.classList.toggle('active', paused);
+}
+
+function togglePause() {
+    if (gameState !== STATE_PLAYING) return;
+    setPaused(!paused);
+}
+
 // --- Logic Update ---
 function update() {
-    if (gameState !== STATE_PLAYING) return;
+    if (gameState !== STATE_PLAYING || paused) return;
 
+    // Starfield scroll
+    stars.forEach(s => {
+        s.y += s.speed;
+        if (s.y > LOGICAL_H) {
+            s.y = -2;
+            s.x = Math.random() * LOGICAL_W;
+        }
+    });
+
+    // Keyboard rotation
     if (keys['ArrowLeft'] || keys['a'] || keys['A']) ship.angle -= ship.rotationSpeed;
     if (keys['ArrowRight'] || keys['d'] || keys['D']) ship.angle += ship.rotationSpeed;
 
+    // Joystick rotation (touch)
+    if (touchState.joystick.active) {
+        const j = touchState.joystick;
+        const deadzone = 8;
+        if (Math.abs(j.dx) > deadzone) {
+            ship.angle += (j.dx / 40) * ship.rotationSpeed * 1.6;
+        }
+    }
+
+    // Keyboard thrust
     ship.isThrusting = keys['ArrowUp'] || keys['w'] || keys['W'];
+
+    // Joystick thrust (touch)
+    if (touchState.joystick.active && touchState.joystick.dy < -8) {
+        ship.isThrusting = true;
+    }
 
     if (ship.isThrusting) {
         ship.vx += Math.cos(ship.angle) * ship.thrust;
@@ -358,6 +455,16 @@ function update() {
     if (ship.tripleShotTimer > 0) ship.tripleShotTimer--;
     if (ship.rapidFireTimer > 0) ship.rapidFireTimer--;
 
+    // Auto-fire while holding fire zone or Space
+    const fireCooldown = ship.rapidFireTimer > 0 ? 80 : 160;
+    if (touchState.fire.active || keys[' '] || keys['Space']) {
+        const now = Date.now();
+        if (now - lastShotTime > fireCooldown) {
+            fireBullets();
+            lastShotTime = now;
+        }
+    }
+
     // Enemy Ship Spawning Logic (After Wave 1)
     if (wave > 1 && !enemyShip) {
         enemySpawnTimer--;
@@ -379,7 +486,7 @@ function update() {
         }
 
         // Despawn Enemy Ship if it leaves bounds
-        if (enemyShip.x < -30 || enemyShip.x > canvas.width + 30) {
+        if (enemyShip.x < -30 || enemyShip.x > LOGICAL_W + 30) {
             enemyShip = null;
         } else {
             enemyShip.fireTimer--;
@@ -421,11 +528,12 @@ function update() {
                 lives--;
                 Sound.explosion(0.6);
                 addExplosion(ship.x, ship.y, '#00f2fe', 25);
+                shake.power = 6;
 
                 if (lives <= 0) gameState = STATE_GAMEOVER;
                 else {
-                    ship.x = canvas.width / 2;
-                    ship.y = canvas.height / 2;
+                    ship.x = LOGICAL_W / 2;
+                    ship.y = LOGICAL_H / 2;
                     ship.vx = 0; ship.vy = 0;
                     ship.angle = -Math.PI / 2;
                     ship.invulnerableTimer = 120;
@@ -470,6 +578,9 @@ function update() {
         wave++;
         ship.invulnerableTimer = 60;
         createWave();
+        waveBanner.text = `WAVE ${wave}`;
+        waveBanner.timer = 90;
+        Sound.wave();
     }
 
     // Player Bullets vs Enemy Ship & Asteroids
@@ -499,6 +610,7 @@ function update() {
                 hit = true;
                 Sound.explosion(4 - a.level);
                 addExplosion(a.x, a.y, a.color, 12);
+                shake.power = Math.max(shake.power, 2);
 
                 score += (4 - a.level) * 20;
                 if (score > highScore) {
@@ -530,12 +642,13 @@ function update() {
                 lives--;
                 Sound.explosion(0.6);
                 addExplosion(ship.x, ship.y, '#00f2fe', 25);
+                shake.power = 6;
 
                 if (lives <= 0) {
                     gameState = STATE_GAMEOVER;
                 } else {
-                    ship.x = canvas.width / 2;
-                    ship.y = canvas.height / 2;
+                    ship.x = LOGICAL_W / 2;
+                    ship.y = LOGICAL_H / 2;
                     ship.vx = 0;
                     ship.vy = 0;
                     ship.angle = -Math.PI / 2;
@@ -553,6 +666,15 @@ function update() {
         p.life--;
         return p.life > 0;
     });
+
+    // Decay screen shake
+    if (shake.power > 0) {
+        shake.power *= 0.85;
+        if (shake.power < 0.3) shake.power = 0;
+    }
+
+    // Decay wave banner
+    if (waveBanner.timer > 0) waveBanner.timer--;
 }
 
 // --- Drawing Functions ---
@@ -695,9 +817,74 @@ function drawActivePowerupBars() {
     });
 }
 
+// Draw virtual joystick + fire zone + hyperspace button (touch controls)
+function drawTouchControls() {
+    if (gameState !== STATE_PLAYING) return;
+
+    // Fire zone indicator (right half)
+    ctx.strokeStyle = 'rgba(255, 0, 85, 0.25)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(LOGICAL_W * 0.78, LOGICAL_H * 0.82, 42, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = touchState.fire.active ? 'rgba(255, 0, 85, 0.25)' : 'rgba(255, 0, 85, 0.08)';
+    ctx.fill();
+    ctx.fillStyle = touchState.fire.active ? '#ff0055' : 'rgba(255, 255, 255, 0.6)';
+    ctx.font = '800 14px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('FIRE', LOGICAL_W * 0.78, LOGICAL_H * 0.82 + 5);
+
+    // Hyperspace button (top-right)
+    ctx.strokeStyle = 'rgba(167, 139, 250, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(LOGICAL_W - 45, 55, 24, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = touchState.hyperspace.active ? 'rgba(167, 139, 250, 0.3)' : 'rgba(167, 139, 250, 0.1)';
+    ctx.fill();
+    ctx.fillStyle = '#a78bfa';
+    ctx.font = '800 11px Outfit, sans-serif';
+    ctx.fillText('WARP', LOGICAL_W - 45, 59);
+
+    // Joystick (left half)
+    if (touchState.joystick.active) {
+        const j = touchState.joystick;
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(j.baseX, j.baseY, 40, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(0, 242, 254, 0.25)';
+        ctx.beginPath();
+        ctx.arc(j.baseX + j.dx, j.baseY + j.dy, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.7)';
+        ctx.stroke();
+    }
+}
+
 function draw() {
+    ctx.save();
+    ctx.setTransform(dprScale, 0, 0, dprScale, 0, 0);
+
+    // Apply screen shake
+    if (shake.power > 0) {
+        shake.x = (Math.random() - 0.5) * shake.power;
+        shake.y = (Math.random() - 0.5) * shake.power;
+        ctx.translate(shake.x, shake.y);
+    }
+
     ctx.fillStyle = '#070913';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(-10, -10, LOGICAL_W + 20, LOGICAL_H + 20);
+
+    // Draw Starfield
+    stars.forEach(s => {
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+    ctx.globalAlpha = 1;
 
     drawAsteroids();
     drawPowerups();
@@ -732,44 +919,62 @@ function draw() {
     });
     ctx.globalAlpha = 1.0;
 
+    // Draw Touch Controls (joystick, fire, hyperspace)
+    drawTouchControls();
+
     // --- Centered Top HUD Bar ---
     ctx.fillStyle = '#fff';
     ctx.font = '800 18px Outfit, sans-serif';
     ctx.textAlign = 'center';
-    
+
     // Displays Centered Score, Survival Time, Lives, Wave
     const hudText = `SCORE: ${score}   |   TIME: ${formatTime(survivalTime)}   |   LIVES: ${lives}   |   WAVE: ${wave}`;
-    ctx.fillText(hudText, canvas.width / 2, 32);
+    ctx.fillText(hudText, LOGICAL_W / 2, 32);
 
     if (gameState === STATE_PLAYING) {
         drawActivePowerupBars();
     }
 
+    // Wave Banner
+    if (waveBanner.timer > 0) {
+        const alpha = Math.min(1, waveBanner.timer / 20);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#00f2fe';
+        ctx.font = '800 34px Outfit, sans-serif';
+        ctx.fillText(waveBanner.text, LOGICAL_W / 2, 200);
+        ctx.globalAlpha = 1;
+    }
+
     // Overlays
     if (gameState === STATE_START) {
         ctx.fillStyle = 'rgba(0,0,0,0.65)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
         ctx.fillStyle = '#00f2fe';
         ctx.font = '800 32px Outfit, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('NEON ASTEROIDS', canvas.width / 2, 260);
+        ctx.fillText('NEON ASTEROIDS', LOGICAL_W / 2, 250);
         ctx.font = '400 16px Outfit, sans-serif';
         ctx.fillStyle = '#fff';
-        ctx.fillText('Press Space or Arrow Keys to Engage', canvas.width / 2, 310);
+        ctx.fillText('Press Space or Tap to Engage', LOGICAL_W / 2, 300);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '400 14px Outfit, sans-serif';
+        ctx.fillText('Left: Joystick • Right: Fire', LOGICAL_W / 2, 330);
     } else if (gameState === STATE_GAMEOVER) {
         ctx.fillStyle = 'rgba(0,0,0,0.75)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
         ctx.fillStyle = '#ff0055';
         ctx.font = '800 36px Outfit, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('SHIP DESTROYED', canvas.width / 2, 230);
+        ctx.fillText('SHIP DESTROYED', LOGICAL_W / 2, 230);
         ctx.font = '600 18px Outfit, sans-serif';
         ctx.fillStyle = '#fff';
-        ctx.fillText(`Final Score: ${score}`, canvas.width / 2, 275);
-        ctx.fillText(`Survived Time: ${formatTime(survivalTime)}`, canvas.width / 2, 305);
-        ctx.fillText(`Best Score: ${highScore}`, canvas.width / 2, 335);
-        ctx.fillText('Press Space to Restart', canvas.width / 2, 385);
+        ctx.fillText(`Final Score: ${score}`, LOGICAL_W / 2, 275);
+        ctx.fillText(`Survived Time: ${formatTime(survivalTime)}`, LOGICAL_W / 2, 305);
+        ctx.fillText(`Best Score: ${highScore}`, LOGICAL_W / 2, 335);
+        ctx.fillText('Press Space or Tap to Restart', LOGICAL_W / 2, 385);
     }
+
+    ctx.restore();
 }
 
 // Controls Listener
@@ -783,18 +988,14 @@ window.addEventListener('keydown', e => {
             resetGame();
             return;
         }
-
-        const now = Date.now();
-        const fireCooldown = ship.rapidFireTimer > 0 ? 80 : 160;
-
-        if (now - lastShotTime > fireCooldown) {
-            fireBullets();
-            lastShotTime = now;
-        }
     }
 
     if ((e.key === 'Shift' || e.code === 'ShiftLeft') && gameState === STATE_PLAYING) {
         hyperspaceTeleport();
+    }
+
+    if (e.code === 'KeyP' || e.code === 'Escape') {
+        togglePause();
     }
 });
 
@@ -804,85 +1005,136 @@ const canvasElement = document.getElementById('gameCanvas');
 
 canvasElement.style.touchAction = 'none';
 
+// Convert client coords to logical game coords
+function toLogical(clientX, clientY) {
+    const rect = canvasElement.getBoundingClientRect();
+    return {
+        x: (clientX - rect.left) / rect.width * LOGICAL_W,
+        y: (clientY - rect.top) / rect.height * LOGICAL_H
+    };
+}
+
+// Hyperspace button hit area (logical coords)
+const HYPERSPACE_BTN = { x: LOGICAL_W - 45, y: 55, r: 30 };
+
 canvasElement.addEventListener('pointerdown', e => {
     initAudio();
     if (gameState !== STATE_PLAYING) {
         resetGame();
         return;
     }
+    if (paused) return;
 
     canvasElement.setPointerCapture(e.pointerId);
-    touchState.active = true;
-    touchState.pointerId = e.pointerId;
-    touchState.startX = e.clientX;
-    touchState.startY = e.clientY;
-    touchState.moved = false;
-    touchState.downTime = Date.now();
+    const pos = toLogical(e.clientX, e.clientY);
 
-    const dx = e.clientX - canvasElement.getBoundingClientRect().left - canvasElement.width / 2;
-    if (Math.abs(dx) > 20) {
-        keys['ArrowLeft'] = dx < 0;
-        keys['ArrowRight'] = dx > 0;
+    // Check hyperspace button first
+    const distHyper = Math.hypot(pos.x - HYPERSPACE_BTN.x, pos.y - HYPERSPACE_BTN.y);
+    if (distHyper < HYPERSPACE_BTN.r) {
+        touchState.hyperspace.active = true;
+        touchState.hyperspace.pointerId = e.pointerId;
+        hyperspaceTeleport();
+        return;
+    }
+
+    // Left half = joystick, right half = fire
+    if (pos.x < LOGICAL_W / 2) {
+        if (!touchState.joystick.active) {
+            touchState.joystick.active = true;
+            touchState.joystick.pointerId = e.pointerId;
+            touchState.joystick.baseX = pos.x;
+            touchState.joystick.baseY = pos.y;
+            touchState.joystick.dx = 0;
+            touchState.joystick.dy = 0;
+        }
+    } else {
+        if (!touchState.fire.active) {
+            touchState.fire.active = true;
+            touchState.fire.pointerId = e.pointerId;
+        }
     }
 });
 
 canvasElement.addEventListener('pointermove', e => {
-    if (!touchState.active || e.pointerId !== touchState.pointerId) return;
-    e.preventDefault();
+    const pos = toLogical(e.clientX, e.clientY);
 
-    const dx = e.clientX - touchState.startX;
-    const dy = e.clientY - touchState.startY;
-    touchState.moved = Math.abs(dx) > 12 || Math.abs(dy) > 12;
-
-    keys['ArrowLeft'] = dx < -20;
-    keys['ArrowRight'] = dx > 20;
-    keys['ArrowUp'] = dy < -20;
+    if (touchState.joystick.active && e.pointerId === touchState.joystick.pointerId) {
+        e.preventDefault();
+        let dx = pos.x - touchState.joystick.baseX;
+        let dy = pos.y - touchState.joystick.baseY;
+        const maxDist = 40;
+        const dist = Math.hypot(dx, dy);
+        if (dist > maxDist) {
+            dx = dx / dist * maxDist;
+            dy = dy / dist * maxDist;
+        }
+        touchState.joystick.dx = dx;
+        touchState.joystick.dy = dy;
+    }
 });
 
 canvasElement.addEventListener('pointerup', e => {
-    if (!touchState.active || e.pointerId !== touchState.pointerId) return;
-    e.preventDefault();
-    canvasElement.releasePointerCapture(e.pointerId);
-
-    const dx = e.clientX - touchState.startX;
-    const dy = e.clientY - touchState.startY;
-    const duration = Date.now() - touchState.downTime;
-
-    if (!touchState.moved && duration < 300 && gameState === STATE_PLAYING) {
-        const now = Date.now();
-        const fireCooldown = ship.rapidFireTimer > 0 ? 80 : 160;
-        if (now - lastShotTime > fireCooldown) {
-            fireBullets();
-            lastShotTime = now;
-        }
+    if (touchState.joystick.active && e.pointerId === touchState.joystick.pointerId) {
+        e.preventDefault();
+        canvasElement.releasePointerCapture(e.pointerId);
+        touchState.joystick.active = false;
+        touchState.joystick.pointerId = null;
+        touchState.joystick.dx = 0;
+        touchState.joystick.dy = 0;
     }
-
-    touchState.active = false;
-    touchState.pointerId = null;
-    resetAsteroidsTouchControls();
+    if (touchState.fire.active && e.pointerId === touchState.fire.pointerId) {
+        e.preventDefault();
+        canvasElement.releasePointerCapture(e.pointerId);
+        touchState.fire.active = false;
+        touchState.fire.pointerId = null;
+    }
+    if (touchState.hyperspace.active && e.pointerId === touchState.hyperspace.pointerId) {
+        e.preventDefault();
+        canvasElement.releasePointerCapture(e.pointerId);
+        touchState.hyperspace.active = false;
+        touchState.hyperspace.pointerId = null;
+    }
 });
 
 canvasElement.addEventListener('pointercancel', e => {
-    if (touchState.active && e.pointerId === touchState.pointerId) {
-        touchState.active = false;
-        touchState.pointerId = null;
-        resetAsteroidsTouchControls();
+    if (touchState.joystick.active && e.pointerId === touchState.joystick.pointerId) {
+        touchState.joystick.active = false;
+        touchState.joystick.pointerId = null;
+        touchState.joystick.dx = 0;
+        touchState.joystick.dy = 0;
+    }
+    if (touchState.fire.active && e.pointerId === touchState.fire.pointerId) {
+        touchState.fire.active = false;
+        touchState.fire.pointerId = null;
+    }
+    if (touchState.hyperspace.active && e.pointerId === touchState.hyperspace.pointerId) {
+        touchState.hyperspace.active = false;
+        touchState.hyperspace.pointerId = null;
     }
 });
 
-setInterval(() => {
-    if (gameState === STATE_PLAYING && keys[' '] && ship.rapidFireTimer > 0) {
-        const now = Date.now();
-        if (now - lastShotTime > 80) {
-            fireBullets();
-            lastShotTime = now;
-        }
+// --- Pause UI ---
+const pauseBtn = document.getElementById('pauseBtn');
+const resumeBtn = document.getElementById('resumeBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
+if (resumeBtn) resumeBtn.addEventListener('click', () => setPaused(false));
+if (restartBtn) restartBtn.addEventListener('click', () => {
+    setPaused(false);
+    resetGame();
+});
+
+// Auto-pause when tab loses focus
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && gameState === STATE_PLAYING && !paused) {
+        setPaused(true);
     }
-}, 30);
+});
 
 // Survival Timer Incrementer
 setInterval(() => {
-    if (gameState === STATE_PLAYING) {
+    if (gameState === STATE_PLAYING && !paused) {
         survivalTime++;
     }
 }, 1000);

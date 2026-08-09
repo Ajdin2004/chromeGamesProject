@@ -46,8 +46,11 @@ class Card {
         }
 
         ctx.save();
+        // x/y are always the card CENTER. This keeps all seats and animations
+        // in the same coordinate system and prevents top-left drift.
         ctx.translate(x, y);
         ctx.scale(sx, 1);
+        ctx.translate(-w / 2, -h / 2);
 
         // Shadow
         ctx.shadowColor = glow ? 'rgba(250,204,21,0.8)' : 'rgba(0,0,0,0.35)';
@@ -90,9 +93,9 @@ class Card {
             ctx.lineWidth = 1;
             ctx.stroke();
 
-            const rankFont = Math.max(8, w * 0.225);
-            const smallSuitFont = Math.max(7, w * 0.2);
-            const bigSuitFont = Math.max(14, w * 0.5);
+            const rankFont = Math.max(9, w * 0.22);
+            const smallSuitFont = Math.max(8, w * 0.19);
+            const bigSuitFont = Math.max(16, w * 0.46);
 
             ctx.fillStyle = this.color;
             ctx.globalAlpha = dim ? 0.45 : 1;
@@ -215,59 +218,190 @@ let CARD_WIDTH = 70;
 let CARD_HEIGHT = 100;
 let CARD_RADIUS = 8;
 
+function viewportSize() {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        w: Math.max(1, rect.width),
+        h: Math.max(1, rect.height)
+    };
+}
+
 function computeLayout() {
     if (!canvas) return;
-    const w = canvas.width / (window.devicePixelRatio || 1);
-    const h = canvas.height / (window.devicePixelRatio || 1);
-    // Card size is constrained by BOTH width and the vertical space available
-    // between the AI row, community cards, and the player row. This keeps
-    // everything inside the visible play area on any aspect ratio.
-    const widthCap = w * 0.070;
-    const heightCap = h * 0.165;   // cards occupy at most ~16.5% of container height
-    CARD_WIDTH = Math.max(26, Math.min(widthCap, heightCap / 1.45, 80));
+
+    const { w, h } = viewportSize();
+    const portrait = h > w * 1.08;
+    const veryShort = h < 480;
+
+    // Five community cards are the hardest horizontal constraint.
+    const communityCap = (w - 28 - 4 * 7) / 5;
+    const widthCap = portrait ? w * 0.115 : w * 0.075;
+    const heightCap = portrait ? h * 0.135 : h * 0.18;
+
+    CARD_WIDTH = Math.max(
+        30,
+        Math.min(communityCap, widthCap, heightCap / 1.45, portrait ? 58 : 86)
+    );
     CARD_HEIGHT = CARD_WIDTH * 1.45;
-    CARD_RADIUS = CARD_WIDTH * 0.1;
+    CARD_RADIUS = Math.max(5, CARD_WIDTH * 0.095);
+
+    // Store the values on the canvas for debugging/inspection.
+    canvas.__pokerViewport = { w, h, portrait, veryShort };
 }
 
 function resize() {
     if (!canvas) return;
     const container = document.getElementById('game-container');
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = container.clientWidth * dpr;
-    canvas.height = container.clientHeight * dpr;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
+
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     computeLayout();
+    updateHeaderVisibility();
+}
+
+function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+}
+
+function seatCardScale(seatIdx) {
+    const v = canvas.__pokerViewport || viewportSize();
+    if (seatIdx === 0) return v.portrait ? 1.05 : 1.08;
+    return v.portrait ? 0.86 : 0.92;
+}
+
+function cardSizeForSeat(seatIdx) {
+    const scale = seatCardScale(seatIdx);
+    return { w: CARD_WIDTH * scale, h: CARD_HEIGHT * scale };
 }
 
 function layout() {
-    const w = canvas.width / (window.devicePixelRatio || 1);
-    const h = canvas.height / (window.devicePixelRatio || 1);
+    const { w, h } = viewportSize();
+    const v = canvas.__pokerViewport || { portrait: h > w * 1.08, veryShort: h < 480 };
+    const portrait = v.portrait;
+    const veryShort = v.veryShort;
 
-    // Vertical bands — all derived from card height so labels never clip
-    // into cards or fall off-screen.
-    const AI_CARDS_Y = Math.max(h * 0.055 + CARD_HEIGHT * 0.5 + 44, h * 0.17); // AI hand centers
-    const PLAYER_CARDS_Y = Math.min(h * 0.86, h - CARD_HEIGHT * 0.5 - 52);     // player hand centers
+    const playerCard = cardSizeForSeat(0);
+    const aiCard = cardSizeForSeat(1);
+
+    // Dynamic top safe boundary depending on whether header is currently hidden
+    const headerEl = document.querySelector('.header');
+    const isHeaderHidden = headerEl && headerEl.classList.contains('hidden-landscape');
+    
+    // In landscape with hidden header, start content below screen notches (safe-area)
+    const topOffset = (!portrait && isHeaderHidden) ? 8 : 12;
+
+    const left = Math.max(12, w * 0.035);
+    const right = w - left;
+
+    // Adjust Opponent Band Y position to stay fully visible on screen
+    const aiNameY = portrait 
+        ? Math.max(28, h * 0.075) 
+        : Math.max(topOffset + 14, h * 0.10);
+
+    const aiCardY = portrait
+        ? clamp(h * 0.255, aiNameY + aiCard.h * 0.72, h * 0.31)
+        : clamp(h * 0.28, aiNameY + aiCard.h * 0.70, h * 0.35);
+
+    const playerCardY = clamp(
+        h * (portrait ? 0.80 : 0.80),
+        h * 0.68,
+        h - playerCard.h * 0.55 - 24
+    );
+
+    const boardY = clamp(
+        (aiCardY + playerCardY) * 0.52,
+        aiCardY + CARD_HEIGHT * 0.95,
+        playerCardY - CARD_HEIGHT * 1.15
+    );
+
+    const potY = clamp(boardY - CARD_HEIGHT * 0.85, aiNameY + 20, h * 0.54);
+
+    const sideX = clamp(w * (portrait ? 0.20 : 0.18), aiCard.w * 0.72 + 8, w * 0.30);
+    const centerX = w * 0.5;
+    const sideRightX = w - sideX;
+
     return {
-        w, h,
-        AI_NAME_Y: h * 0.075,                 // AI name labels
-        AI_CHIPS_Y: h * 0.075 + 18,           // AI chip counts
-        AI_CARDS_Y,
-        COMMUNITY_Y: h * 0.50,                // community cards center
-        POT_Y: h * 0.39,                      // pot label
-        PLAYER_CARDS_Y,
-        PLAYER_LABEL_Y: PLAYER_CARDS_Y - CARD_HEIGHT * 0.5 - 14, // readout above player cards
-        FEED_Y: h * 0.42,                     // action feed start (left column)
-        deck: { x: w * 0.07, y: h * 0.39 },
-        pot: { x: w / 2, y: h * 0.39 },
-        community: { x: w / 2, y: h * 0.50 },
+        w, h, portrait, veryShort,
+        left, right,
+        AI_NAME_Y: aiNameY,
+        AI_CHIPS_Y: aiNameY + (portrait ? 16 : 18),
+        AI_CARDS_Y: aiCardY,
+        COMMUNITY_Y: boardY,
+        POT_Y: potY,
+        PLAYER_CARDS_Y: playerCardY,
+        PLAYER_LABEL_Y: playerCardY - playerCard.h * 0.5 - 16,
+        FEED_Y: aiCardY + aiCard.h * 0.5 + 12,
+
+        deck: { x: left + 10, y: potY },
+        pot: { x: centerX, y: potY },
+        community: { x: centerX, y: boardY },
+
         seats: [
-            { x: w * 0.5, y: PLAYER_CARDS_Y },
-            { x: w * 0.14, y: AI_CARDS_Y },
-            { x: w * 0.5, y: AI_CARDS_Y },
-            { x: w * 0.86, y: AI_CARDS_Y }
+            { x: centerX, y: playerCardY },
+            { x: sideX, y: aiCardY },
+            { x: centerX, y: aiCardY },
+            { x: sideRightX, y: aiCardY }
         ]
     };
 }
+
+// ---------------------------------------------------------------------------
+// Header Auto-Hide & Gesture Controls
+// ---------------------------------------------------------------------------
+let headerManuallyRevealed = false;
+let headerTouchStartY = 0;
+let headerHideTimeout = null;
+
+function updateHeaderVisibility() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const isGameActive = mode === 'dealing' || mode === 'betting' || mode === 'street' || mode === 'showdown';
+
+    const shouldHide = isLandscape && isGameActive && !headerManuallyRevealed;
+
+    if (shouldHide !== header.classList.contains('hidden-landscape')) {
+        header.classList.toggle('hidden-landscape', shouldHide);
+        
+        // Trigger resize and re-layout immediately after header state changes
+        setTimeout(() => {
+            resize();
+            repositionActiveCards();
+        }, 50);
+    }
+}
+
+// Touch gesture listener to swipe header down
+window.addEventListener('touchstart', (e) => {
+    headerTouchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+    const touchY = e.touches[0].clientY;
+    const deltaY = touchY - headerTouchStartY;
+
+    // Detect pull-down from top edge (< 40px)
+    if (headerTouchStartY < 40 && deltaY > 30) {
+        headerManuallyRevealed = true;
+        updateHeaderVisibility();
+
+        // Auto-hide header again after 4 seconds of inactivity
+        clearTimeout(headerHideTimeout);
+        headerHideTimeout = setTimeout(() => {
+            headerManuallyRevealed = false;
+            updateHeaderVisibility();
+        }, 4000);
+    }
+}, { passive: true });
 
 // ---------------------------------------------------------------------------
 // Game state
@@ -311,6 +445,8 @@ let floatingChips = [];
 let lastNow = performance.now();
 let resultShown = false;
 let gameOverMsg = '';
+let handHistory = [];
+
 
 function makeSeat(name, isPlayer, personality) {
     return { name, isPlayer, personality, chips: 1000, bet: 0, totalBet: 0, folded: false, hand: [] };
@@ -357,11 +493,11 @@ function newHand() {
     actionFeed = []; floatingChips = []; confetti = [];
     seats.forEach(s => { s.hand = []; s.bet = 0; s.totalBet = 0; s.folded = false; });
     handNumber++;
-    phaseLabel = 'Pre-Flop';
     dealHoleCards();
     mode = 'dealing';
     dealingT = 0;
     updateOverlay();
+    updateHeaderVisibility();
 }
 
 function dealHoleCards() {
@@ -392,7 +528,10 @@ function seatCardPos(seatIdx, cardIdx) {
     const L = layout();
     const s = L.seats[seatIdx];
     const n = seats[seatIdx].hand.length || 2;
-    const spacing = seatIdx === 0 ? CARD_WIDTH + 8 : CARD_WIDTH * 0.55;
+    const scale = seatCardScale(seatIdx);
+    const spacing = seatIdx === 0
+        ? CARD_WIDTH * scale + Math.max(6, CARD_WIDTH * 0.10)
+        : CARD_WIDTH * scale * 0.62;
     return {
         x: s.x - ((n - 1) * spacing) / 2 + cardIdx * spacing,
         y: s.y
@@ -403,6 +542,7 @@ function startBettingRound(firstToAct) {
     mode = 'betting';
     buildActionQueue(firstToAct);
     runTurn();
+    updateHeaderVisibility();
 }
 
 function buildActionQueue(firstToAct) {
@@ -480,9 +620,10 @@ function burnAndStreet(count, label) {
     phaseLabel = label;
     deck.pop(); // burn
     const L = layout();
-    const startX = L.community.x - ((community.length + count - 1) * (CARD_WIDTH + 8)) / 2;
+    const spacing = CARD_WIDTH + Math.max(5, CARD_WIDTH * 0.10);
+    const startX = L.community.x - ((community.length + count - 1) * spacing) / 2;
     community.forEach((c, i) => {
-        c.tx = startX + i * (CARD_WIDTH + 8);
+        c.tx = startX + i * spacing;
         c.ty = L.community.y;
     });
     for (let i = 0; i < count; i++) {
@@ -490,7 +631,7 @@ function burnAndStreet(count, label) {
         card.faceUp = true;
         card.x = L.deck.x; card.y = L.deck.y;
         const idx = community.length;
-        card.tx = startX + idx * (CARD_WIDTH + 8);
+        card.tx = startX + idx * spacing;
         card.ty = L.community.y;
         card.flipStart = performance.now() + i * 250;
         card.flipDur = 420;
@@ -621,6 +762,7 @@ function finishHand(wonAmount) {
     dealerPos = (dealerPos + 1) % 4;
     showResultOverlay(wonAmount);
     updateButtons();
+    updateHeaderVisibility();
 }
 
 function showResultOverlay(wonAmount) {
@@ -1024,82 +1166,133 @@ function updateConfetti(now) {
 // ---------------------------------------------------------------------------
 // Rendering
 // ---------------------------------------------------------------------------
-function drawTable(L) {
-    const { w, h } = L;
-    // Felt gradient
-    const g = ctx.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, Math.max(w, h) * 0.55);
-    g.addColorStop(0, '#16304f');
-    g.addColorStop(0.55, '#101c33');
-    g.addColorStop(1, '#0b0f1f');
-    ctx.fillStyle = g;
+function roundedPanel(x, y, w, h, r, fill, stroke = null, lineWidth = 1) {
     ctx.beginPath();
-    ctx.ellipse(w / 2, h / 2, w * 0.46, h * 0.44, 0, 0, Math.PI * 2);
+    ctx.roundRect(x, y, w, h, r);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+    }
+}
+
+function fitText(text, maxWidth, startSize, minSize = 9, weight = 700) {
+    let size = startSize;
+    while (size > minSize) {
+        ctx.font = `${weight} ${size}px Outfit`;
+        if (ctx.measureText(text).width <= maxWidth) return size;
+        size -= 1;
+    }
+    return minSize;
+}
+
+function drawTable(L) {
+    const { w, h, portrait } = L;
+
+    // Full-viewport background.
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#070d19');
+    bg.addColorStop(0.48, '#0d1627');
+    bg.addColorStop(1, '#070b14');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Main table is sized from BOTH dimensions so it never touches the edges.
+    const tableRx = Math.min(w * 0.46, portrait ? w * 0.46 : w * 0.44);
+    const tableRy = Math.min(h * 0.44, portrait ? h * 0.39 : h * 0.40);
+    const tableCy = h * 0.51;
+
+    // Outer glow.
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,242,254,.16)';
+    ctx.shadowBlur = 28;
+    ctx.fillStyle = '#10243a';
+    ctx.beginPath();
+    ctx.ellipse(w / 2, tableCy, tableRx, tableRy, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Felt.
+    const felt = ctx.createRadialGradient(w / 2, tableCy, 20, w / 2, tableCy, Math.max(tableRx, tableRy));
+    felt.addColorStop(0, '#183a48');
+    felt.addColorStop(0.58, '#102c39');
+    felt.addColorStop(1, '#0b1a29');
+
+    ctx.fillStyle = felt;
+    ctx.beginPath();
+    ctx.ellipse(w / 2, tableCy, tableRx, tableRy, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Felt rim
-    ctx.strokeStyle = 'rgba(0,242,254,0.18)';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.ellipse(w / 2, h / 2, w * 0.46, h * 0.44, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,242,254,.24)';
+    ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Inner subtle ring
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.strokeStyle = 'rgba(255,255,255,.07)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.ellipse(w / 2, h / 2, w * 0.36, h * 0.35, 0, 0, Math.PI * 2);
+    ctx.ellipse(w / 2, tableCy, tableRx * .90, tableRy * .88, 0, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Phase banner
-    ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.font = `800 ${Math.max(14, w * 0.018)}px Outfit`;
+    // Phase pill.
+    const phase = phaseLabel ? phaseLabel.toUpperCase() : 'TEXAS HOLD’EM';
+    const phaseW = Math.min(190, w * .42);
+    roundedPanel(
+        w / 2 - phaseW / 2, 10, phaseW, 28, 14,
+        'rgba(5,10,18,.72)', 'rgba(255,255,255,.10)'
+    );
+    ctx.fillStyle = '#dbeafe';
     ctx.textAlign = 'center';
-    ctx.fillText(phaseLabel.toUpperCase(), w / 2, h * 0.06);
+    ctx.font = `800 ${Math.max(10, Math.min(13, w * .018))}px Outfit`;
+    ctx.fillText(phase, w / 2, 29);
 
-    // Decorative suit watermarks
-    ctx.globalAlpha = 0.05;
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `${Math.max(40, w * 0.06)}px serif`;
-    ctx.fillText('♠', w * 0.08, h * 0.92);
-    ctx.fillText('♥', w * 0.92, h * 0.9);
-    ctx.fillText('♣', w * 0.06, h * 0.12);
-    ctx.fillText('♦', w * 0.93, h * 0.14);
+    // Subtle suit decoration, safely inside the viewport.
+    ctx.globalAlpha = .055;
+    ctx.fillStyle = '#fff';
+    ctx.font = `${Math.max(34, Math.min(72, w * .08))}px serif`;
+    ctx.fillText('♠', w * .07, h * .88);
+    ctx.fillText('♥', w * .93, h * .88);
+    ctx.fillText('♣', w * .07, h * .15);
+    ctx.fillText('♦', w * .93, h * .15);
     ctx.globalAlpha = 1;
 }
 
 function drawPot(L, now) {
-    ctx.fillStyle = '#facc15';
-    ctx.font = `800 ${Math.max(13, L.w * 0.019)}px Outfit`;
-    ctx.textAlign = 'center';
-    ctx.fillText(`POT  ${Math.round(displayPot)}`, L.pot.x, L.pot.y - 10);
+    const w = Math.min(180, L.w * .34);
+    const h = 42;
+    const x = L.pot.x - w / 2;
+    const y = L.pot.y - h / 2;
 
-    // small chip icon
+    roundedPanel(x, y, w, h, 21, 'rgba(5,10,18,.78)', 'rgba(250,204,21,.20)');
     ctx.fillStyle = '#facc15';
-    ctx.beginPath();
-    ctx.arc(L.pot.x - 14, L.pot.y - 26, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#b8860b';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.font = `800 ${Math.max(12, Math.min(17, L.w * .022))}px Outfit`;
+    ctx.fillText(`POT  ${Math.round(displayPot)}`, L.pot.x, y + 27);
 }
 
 function drawCommunity(L, now) {
-    const spacing = CARD_WIDTH + 8;
+    const spacing = CARD_WIDTH + Math.max(5, CARD_WIDTH * .10);
     const total = 5;
     const startX = L.community.x - ((total - 1) * spacing) / 2;
-    // Empty slots
+
     for (let i = 0; i < total; i++) {
         const x = startX + i * spacing;
-        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-        ctx.lineWidth = 2;
+        ctx.fillStyle = 'rgba(255,255,255,.025)';
+        ctx.strokeStyle = 'rgba(255,255,255,.12)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.roundRect(x, L.community.y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
+        ctx.roundRect(
+            x - CARD_WIDTH / 2,
+            L.community.y - CARD_HEIGHT / 2,
+            CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS
+        );
+        ctx.fill();
         ctx.stroke();
     }
-    // Actual cards
-    community.forEach((card, i) => {
-        const flipT = cardFlipT(card, now);
-        card.draw(card.x, card.y, { flipT });
+
+    community.forEach(card => {
+        card.draw(card.x, card.y, { flipT: cardFlipT(card, now) });
     });
 }
 
@@ -1107,123 +1300,225 @@ function drawSeat(idx, L, now) {
     const s = seats[idx];
     const pos = L.seats[idx];
     const isPlayer = idx === 0;
-    const acting = (mode === 'betting' && (playerTurn && isPlayer) || (pendingAIPlayer === idx)) && !s.folded;
-    const isWinnerHighlight = bestSeatIdx === idx && (mode === 'payout' || mode === 'gameover' || resultShown);
-    const pulse = 0.5 + 0.5 * Math.sin(now * 0.005);
-    const cardTop = pos.y - CARD_HEIGHT * 0.5;
-    const badgeH = Math.max(16, CARD_HEIGHT * 0.16);
+    const scale = seatCardScale(idx);
+    const dims = cardSizeForSeat(idx);
+    const acting = (
+        mode === 'betting' &&
+        ((playerTurn && isPlayer) || pendingAIPlayer === idx)
+    ) && !s.folded;
+    const winner = bestSeatIdx === idx &&
+        (mode === 'payout' || mode === 'gameover' || resultShown);
+    const pulse = 0.5 + 0.5 * Math.sin(now * .005);
 
-    // Active pulsing ring
-    if (acting) {
-        ctx.strokeStyle = isPlayer ? `rgba(0,242,254,${0.35 + pulse * 0.4})` : `rgba(255,0,128,${0.35 + pulse * 0.4})`;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y - 6, CARD_HEIGHT * 0.62 + pulse * 4, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-    if (isWinnerHighlight) {
-        ctx.strokeStyle = `rgba(250,204,21,${0.5 + pulse * 0.4})`;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y - 6, CARD_HEIGHT * 0.62 + 6, 0, Math.PI * 2);
-        ctx.stroke();
+    // Player information — floating ABOVE the cards
+    // -----------------------------------------------------------------------
+// Floating player information panel — ABOVE the cards
+// -----------------------------------------------------------------------
+const panelGap = isPlayer ? 20 : 16;
+
+// Card dimensions
+const cardTop = pos.y - dims.h / 2;
+
+// Panel dimensions
+const infoWidth = isPlayer
+    ? Math.min(250, L.w * 0.68)
+    : Math.min(155, L.w * 0.32);
+
+const infoHeight = s.bet > 0 && !s.folded ? 62 : 46;
+
+// Put the panel completely above the cards.
+const panelX = pos.x - infoWidth / 2;
+const panelY = cardTop - panelGap - infoHeight;
+
+// Panel background
+roundedPanel(
+    panelX,
+    panelY,
+    infoWidth,
+    infoHeight,
+    14,
+    isPlayer
+        ? 'rgba(0,242,254,.065)'
+        : 'rgba(255,255,255,.045)',
+    isPlayer
+        ? 'rgba(0,242,254,.28)'
+        : 'rgba(255,255,255,.14)',
+    1
+);
+
+// Subtle inner highlight
+ctx.strokeStyle = isPlayer
+    ? 'rgba(0,242,254,.08)'
+    : 'rgba(255,255,255,.05)';
+ctx.lineWidth = 1;
+
+ctx.beginPath();
+ctx.roundRect(
+    panelX + 1,
+    panelY + 1,
+    infoWidth - 2,
+    infoHeight - 2,
+    13
+);
+ctx.stroke();
+
+ctx.textAlign = 'center';
+
+// -----------------------------------------------------------------------
+// Turn indicator
+// -----------------------------------------------------------------------
+if (acting) {
+    ctx.fillStyle = isPlayer
+        ? '#67e8f9'
+        : '#f472b6';
+
+    ctx.font = `800 ${Math.max(
+        9,
+        Math.min(11, L.w * .014)
+    )}px Outfit`;
+
+    ctx.fillText(
+        isPlayer ? 'YOUR TURN' : 'THINKING…',
+        pos.x,
+        panelY - 7
+    );
+}
+
+// -----------------------------------------------------------------------
+// Player name
+// -----------------------------------------------------------------------
+const nameMax = infoWidth - 18;
+
+const nameSize = fitText(
+    s.name,
+    nameMax,
+    isPlayer ? 16 : 13,
+    9,
+    800
+);
+
+ctx.fillStyle = s.folded
+    ? '#64748b'
+    : (isPlayer ? '#67e8f9' : '#f8fafc');
+
+ctx.font = `800 ${nameSize}px Outfit`;
+
+ctx.fillText(
+    s.name,
+    pos.x,
+    panelY + 20
+);
+
+// -----------------------------------------------------------------------
+// Chip count
+// -----------------------------------------------------------------------
+ctx.fillStyle = '#facc15';
+
+ctx.font = `700 ${Math.max(
+    10,
+    Math.min(12, infoWidth * .07)
+)}px Outfit`;
+
+ctx.fillText(
+    `${s.chips} chips`,
+    pos.x,
+    panelY + 37
+);
+
+// -----------------------------------------------------------------------
+// Current bet
+// -----------------------------------------------------------------------
+if (s.bet > 0 && !s.folded) {
+    const badgeW = Math.min(
+        82,
+        infoWidth * .48
+    );
+
+    roundedPanel(
+        pos.x - badgeW / 2,
+        panelY + 42,
+        badgeW,
+        18,
+        9,
+        'rgba(250,204,21,.10)',
+        'rgba(250,204,21,.20)',
+        1
+    );
+
+    ctx.fillStyle = '#fde68a';
+
+    ctx.font = `800 ${Math.max(
+        9,
+        Math.min(10, badgeW * .13)
+    )}px Outfit`;
+
+    ctx.fillText(
+            `Bet ${s.bet}`,
+            pos.x,
+            panelY + 55
+        );
     }
 
-    // Labels — AI seats use fixed top bands (never collide with phase banner
-    // or clip off-screen); player seat stacks labels above its cards.
-    ctx.font = `800 ${Math.max(11, L.w * 0.015)}px Outfit`;
-    ctx.textAlign = 'center';
-    if (isPlayer) {
-        ctx.fillStyle = s.folded ? '#4b5563' : '#00f2fe';
-        ctx.fillText(s.name, pos.x, cardTop - 18);
-        ctx.fillStyle = '#facc15';
-        ctx.font = `${Math.max(10, L.w * 0.013)}px Outfit`;
-        ctx.fillText(`${s.chips} chips`, pos.x, cardTop - 36);
-    } else {
-        ctx.fillStyle = s.folded ? '#4b5563' : '#f0f4f8';
-        ctx.fillText(s.name, pos.x, L.AI_NAME_Y);
-        ctx.fillStyle = '#facc15';
-        ctx.font = `${Math.max(10, L.w * 0.013)}px Outfit`;
-        ctx.fillText(`${s.chips} chips`, pos.x, L.AI_CHIPS_Y);
-    }
-
-    // Bet badge — below the cards, sized relative to card height
-    if (s.bet > 0 && !s.folded) {
-        const by = isPlayer ? pos.y + CARD_HEIGHT * 0.5 + 8 : pos.y + CARD_HEIGHT * 0.5 + 6;
-        ctx.fillStyle = 'rgba(250,204,21,0.12)';
-        ctx.beginPath();
-        ctx.roundRect(pos.x - 30, by, 60, badgeH, 9);
-        ctx.fill();
-        ctx.fillStyle = '#facc15';
-        ctx.font = `700 ${Math.max(9, L.w * 0.012)}px Outfit`;
-        ctx.fillText(`${s.bet}`, pos.x, by + badgeH * 0.72);
-    }
-
-    // Folded label
-    if (s.folded) {
-        ctx.fillStyle = 'rgba(255,80,80,0.85)';
-        ctx.font = `800 ${Math.max(11, L.w * 0.016)}px Outfit`;
-        ctx.fillText('FOLDED', pos.x, pos.y + 4);
-    }
-
-    // "Thinking..." indicator — above the name band
-    if (pendingAIPlayer === idx) {
-        ctx.fillStyle = `rgba(255,0,128,${0.6 + pulse * 0.4})`;
-        ctx.font = `700 ${Math.max(9, L.w * 0.012)}px Outfit`;
-        ctx.fillText('● thinking…', pos.x, isPlayer ? cardTop - 54 : L.AI_NAME_Y - 12);
-    }
-
-    // Cards
-    s.hand.forEach((card, j) => {
-        const flipT = cardFlipT(card, now);
-        const isWinCard = winningKeys.includes(card.key());
+    // FIX: Render the hole cards for this seat
+    s.hand.forEach(card => {
+        const glow = winningKeys.includes(card.key());
+        const dim = s.folded;
         card.draw(card.x, card.y, {
-            flipT,
-            glow: isWinCard && (mode === 'payout' || resultShown || gameOverMsg === 'win' || gameOverMsg === 'lose'),
-            dim: s.folded
+            scale: scale,
+            glow: glow,
+            dim: dim,
+            flipT: cardFlipT(card, now)
         });
     });
-
-    // Player's best-hand readout — above name, clear of card tops
-    if (isPlayer && community.length >= 3 && !s.folded) {
-        const ev = evaluateCards([...s.hand, ...community]);
-        ctx.fillStyle = 'rgba(0,242,254,0.85)';
-        ctx.font = `700 ${Math.max(10, L.w * 0.013)}px Outfit`;
-        ctx.textAlign = 'center';
-        ctx.fillText(handLabel(ev), pos.x, cardTop - 54);
-    }
 }
+
 
 function drawDealerButton(L, now) {
     const pos = L.seats[dealerPos];
-    const pulse = 0.5 + 0.5 * Math.sin(now * 0.004);
-    ctx.fillStyle = '#e5e7eb';
+    const scale = seatCardScale(dealerPos);
+    const dims = cardSizeForSeat(dealerPos);
+    const r = Math.max(9, Math.min(14, CARD_WIDTH * .18));
+
+    const x = clamp(
+        pos.x - dims.w * .62,
+        r + 4,
+        L.w - r - 4
+    );
+    const y = clamp(
+        pos.y - dims.h * .60,
+        r + 4,
+        L.h - r - 4
+    );
+
+    const pulse = 0.5 + 0.5 * Math.sin(now * .004);
+    ctx.fillStyle = '#f8fafc';
     ctx.beginPath();
-    ctx.arc(pos.x - CARD_WIDTH * 0.82, pos.y - CARD_HEIGHT * 0.62, 15, 0, Math.PI * 2);
+    ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = `rgba(0,242,254,${0.5 + pulse * 0.5})`;
+    ctx.strokeStyle = `rgba(0,242,254,${.45 + pulse * .5})`;
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.fillStyle = '#111827';
-    ctx.font = `800 12px Outfit`;
+    ctx.font = `800 ${Math.max(9, r * .9)}px Outfit`;
     ctx.textAlign = 'center';
-    ctx.fillText('D', pos.x - CARD_WIDTH * 0.82, pos.y - CARD_HEIGHT * 0.62 + 4);
+    ctx.fillText('D', x, y + r * .32);
 }
 
 function drawActionFeed(L, now) {
-    // Feed lives in the empty space between the AI cards and the community
-    // cards, on the left so it never collides with the pot or center cards.
-    const shown = actionFeed.slice(-4);
-    const feedX = Math.max(8, L.w * 0.02);
-    const feedY = L.AI_CARDS_Y + CARD_HEIGHT * 0.5 + 10;
+    if (L.portrait) return; // Mobile has too little spare space; history owns this.
+    const shown = actionFeed.slice(-3);
+    const feedX = Math.max(12, L.w * .035);
+    const feedY = L.h * .48;
+    const maxWidth = Math.min(250, L.w * .27);
+
     shown.forEach((item, i) => {
         const age = now - item.t;
-        let alpha = 1;
-        if (age > 2600) alpha = Math.max(0, 1 - (age - 2600) / 900);
+        let alpha = age > 2600 ? Math.max(0, 1 - (age - 2600) / 900) : 1;
         ctx.globalAlpha = alpha;
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        ctx.font = `${Math.max(10, L.w * 0.013)}px Outfit`;
+        const size = fitText(item.text, maxWidth, 11, 8, 600);
+        ctx.font = `600 ${size}px Outfit`;
         ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(226,232,240,.82)';
         ctx.fillText(item.text, feedX, feedY + i * 18);
     });
     ctx.globalAlpha = 1;
@@ -1238,16 +1533,15 @@ function drawFloatingChips(now) {
         const y = ch.y + (ch.ty - ch.y) * e - Math.sin(t * Math.PI) * 40;
         ctx.save();
         ctx.translate(x, y);
-        // chip stack: 3 ellipses
         for (let k = 0; k < 3; k++) {
             ctx.fillStyle = ch.color;
             ctx.beginPath();
             ctx.ellipse(0, -k * 3, 8, 11, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.strokeStyle = 'rgba(0,0,0,.3)';
             ctx.lineWidth = 1;
             ctx.stroke();
-            ctx.fillStyle = 'rgba(255,255,255,0.35)';
+            ctx.fillStyle = 'rgba(255,255,255,.35)';
             ctx.beginPath();
             ctx.ellipse(0, -k * 3, 8, 3.5, 0, 0, Math.PI * 2);
             ctx.fill();
@@ -1262,15 +1556,21 @@ function drawConfetti() {
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
         ctx.fillStyle = p.color;
-        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * .6);
         ctx.restore();
     });
 }
 
 function draw(now) {
     if (!ctx || !canvas) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     const L = layout();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    // All game drawing is in CSS-pixel coordinates.
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     drawTable(L);
     drawPot(L, now);
@@ -1280,6 +1580,112 @@ function draw(now) {
     drawActionFeed(L, now);
     drawFloatingChips(now);
     if (confetti.length > 0) drawConfetti();
+
+    ctx.restore();
+}
+
+// ---------------------------------------------------------------------------
+// Raise slider + hand history UI
+// ---------------------------------------------------------------------------
+function getRaiseBounds() {
+    const p = seats[0];
+    const maxRaiseTo = p.chips + p.bet;
+    const minRaiseTo = currentBet + bigBlind;
+    return {
+        min: Math.min(minRaiseTo, maxRaiseTo),
+        max: maxRaiseTo
+    };
+}
+
+function updateRaiseSlider() {
+    const slider = document.getElementById('raise-slider');
+    const value = document.getElementById('raise-value');
+    const raiseBtn = document.getElementById('raise-slider-btn');
+    if (!slider || !value || !raiseBtn || !seats[0]) return;
+
+    const canAct = playerTurn && mode === 'betting' && !seats[0].folded;
+    const bounds = getRaiseBounds();
+    const canRaise = canAct && bounds.max > currentBet && bounds.max >= bounds.min;
+
+    slider.disabled = !canRaise;
+    raiseBtn.disabled = !canRaise;
+
+    if (!canRaise) {
+        value.textContent = '—';
+        return;
+    }
+
+    slider.min = String(bounds.min);
+    slider.max = String(bounds.max);
+
+    let current = Number(slider.value);
+    if (!Number.isFinite(current) || current < bounds.min || current > bounds.max) {
+        current = Math.min(bounds.max, Math.max(bounds.min, currentBet + bigBlind));
+        slider.value = String(current);
+    }
+
+    value.textContent = `to ${current}`;
+    raiseBtn.textContent = current >= bounds.max ? 'All-In' : 'Raise';
+}
+
+function commitSliderRaise() {
+    const slider = document.getElementById('raise-slider');
+    if (!slider) return;
+    const amount = Number(slider.value);
+    if (Number.isFinite(amount)) playerRaiseTo(amount);
+}
+
+function recordCompletedHand(result, wonAmount) {
+    handHistory.unshift({
+        number: handNumber,
+        result,
+        amount: wonAmount,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        hand: seats[0].hand.map(c => `${c.rank}${SUIT_ICONS[c.suit]}`),
+        board: community.map(c => `${c.rank}${SUIT_ICONS[c.suit]}`),
+        actions: actionFeed.map(x => x.text).slice(-5)
+    });
+    handHistory = handHistory.slice(0, 30);
+    renderHandHistory();
+}
+
+function renderHandHistory() {
+    const list = document.getElementById('history-list');
+    if (!list) return;
+
+    if (!handHistory.length) {
+        list.innerHTML = '<div class="history-item"><small>No completed hands yet.</small></div>';
+        return;
+    }
+
+    list.innerHTML = handHistory.map(h => {
+        const cls = h.result === 'Win' ? 'win' : h.result === 'Loss' ? 'loss' : 'push';
+        const signed = h.amount > 0 ? `+${h.amount}` : `${h.amount}`;
+        return `
+            <div class="history-item">
+                <div class="history-line">
+                    <strong>Hand #${h.number}</strong>
+                    <strong class="history-result ${cls}">${h.result} ${signed}</strong>
+                </div>
+                <small>${h.time} · ${h.hand.join(' ')}</small>
+                <small>Board: ${h.board.join(' ') || '—'}</small>
+                <div class="history-actions">${h.actions.join(' · ')}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function finishHand(wonAmount) {
+    dealerPos = (dealerPos + 1) % 4;
+
+    let result = 'Push';
+    if (gameOverMsg === 'win') result = 'Win';
+    else if (gameOverMsg === 'lose') result = 'Loss';
+
+    recordCompletedHand(result, wonAmount);
+    showResultOverlay(wonAmount);
+    updateButtons();
+    updateHeaderVisibility();
 }
 
 // ---------------------------------------------------------------------------
@@ -1289,10 +1695,6 @@ function updateButtons() {
     const fold = document.getElementById('fold-btn');
     const check = document.getElementById('check-btn');
     const call = document.getElementById('call-btn');
-    const btnMin = document.getElementById('raise-min-btn');
-    const btnHalf = document.getElementById('raise-half-btn');
-    const btnPot = document.getElementById('raise-pot-btn');
-    const btnAll = document.getElementById('raise-all-btn');
     const newGame = document.getElementById('new-game');
     if (!fold) return;
 
@@ -1301,23 +1703,12 @@ function updateButtons() {
     fold.disabled = !canAct;
     check.disabled = !canAct || seats[0].bet < currentBet;
     call.disabled = !canAct || seats[0].bet >= currentBet;
-    if (seats[0].bet >= currentBet) call.textContent = 'Call';
-    else call.textContent = `Call ${Math.min(currentBet - seats[0].bet, seats[0].chips)}`;
-
-    const toCall = currentBet - seats[0].bet;
-    const maxRaiseTo = seats[0].chips + seats[0].bet;
-    const minRaiseTo = currentBet + bigBlind;
-    const halfTo = Math.max(minRaiseTo, currentBet + Math.floor(pot / 2));
-    const potTo = Math.max(minRaiseTo, currentBet + pot);
-    const allTo = maxRaiseTo;
-
-    const canRaise = canAct && maxRaiseTo > currentBet;
-    btnMin.disabled = !canRaise;
-    btnHalf.disabled = !canRaise || halfTo >= maxRaiseTo;
-    btnPot.disabled = !canRaise || potTo >= maxRaiseTo;
-    btnAll.disabled = !canRaise;
+    call.textContent = seats[0].bet >= currentBet
+        ? 'Call'
+        : `Call ${Math.min(currentBet - seats[0].bet, seats[0].chips)}`;
 
     newGame.disabled = (mode === 'dealing' || mode === 'betting' || mode === 'street');
+    updateRaiseSlider();
 }
 
 function updateOverlay() {
@@ -1337,19 +1728,34 @@ if (typeof document !== 'undefined' && document.getElementById('gameCanvas')) {
         document.getElementById('fold-btn').addEventListener('click', playerFoldAct);
         document.getElementById('check-btn').addEventListener('click', playerCheckAct);
         document.getElementById('call-btn').addEventListener('click', playerCallAct);
-        document.getElementById('raise-min-btn').addEventListener('click', () => {
-            const minRaiseTo = currentBet + bigBlind;
-            playerRaiseTo(minRaiseTo);
-        });
-        document.getElementById('raise-half-btn').addEventListener('click', () => {
-            playerRaiseTo(Math.max(currentBet + bigBlind, currentBet + Math.floor(pot / 2)));
-        });
-        document.getElementById('raise-pot-btn').addEventListener('click', () => {
-            playerRaiseTo(Math.max(currentBet + bigBlind, currentBet + pot));
-        });
+
+        const raiseSlider = document.getElementById('raise-slider');
+        const raiseSliderBtn = document.getElementById('raise-slider-btn');
+        if (raiseSlider) raiseSlider.addEventListener('input', updateRaiseSlider);
+        if (raiseSliderBtn) raiseSliderBtn.addEventListener('click', commitSliderRaise);
+
         document.getElementById('raise-all-btn').addEventListener('click', () => {
             playerRaiseTo(seats[0].chips + seats[0].bet);
         });
+
+        const historyPanel = document.getElementById('history-panel');
+        const historyBtn = document.getElementById('hand-history-btn');
+        const historyClose = document.getElementById('history-close');
+
+        if (historyBtn) {
+            historyBtn.addEventListener('click', () => {
+                historyPanel.classList.add('open');
+                historyPanel.setAttribute('aria-hidden', 'false');
+                renderHandHistory();
+            });
+        }
+
+        if (historyClose) {
+            historyClose.addEventListener('click', () => {
+                historyPanel.classList.remove('open');
+                historyPanel.setAttribute('aria-hidden', 'true');
+            });
+        }
         const resultBtn = document.getElementById('result-new-game');
         if (resultBtn) {
             resultBtn.addEventListener('click', () => {
@@ -1381,6 +1787,87 @@ if (typeof document !== 'undefined' && document.getElementById('gameCanvas')) {
         requestAnimationFrame(frame);
     })();
 }
+
+// ---------------------------------------------------------------------------
+// Device Orientation & Screen Size Detector
+// ---------------------------------------------------------------------------
+let orientationDismissed = false;
+
+function checkOrientation() {
+    const overlay = document.getElementById('orientation-overlay');
+
+    // Detect small device in portrait mode
+    const isSmallDevice = window.innerWidth <= 768;
+    const isPortrait = window.innerHeight > window.innerWidth;
+
+    if (overlay) {
+        if (isSmallDevice && isPortrait && !orientationDismissed) {
+            overlay.classList.remove('hidden');
+            overlay.setAttribute('aria-hidden', 'false');
+        } else {
+            overlay.classList.add('hidden');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    // 1. Recalculate canvas and layout dimensions
+    resize();
+    updateHeaderVisibility();
+    // 2. Reposition dealt cards to match updated table coordinates
+    repositionActiveCards();
+}
+
+function repositionActiveCards() {
+    const L = layout();
+
+    // Recalculate player and AI hole card targets
+    seats.forEach((seat, seatIdx) => {
+        seat.hand.forEach((card, cardIdx) => {
+            const tgt = seatCardPos(seatIdx, cardIdx);
+            card.tx = tgt.x;
+            card.ty = tgt.y;
+            
+            // Instantly snap cards if dealing animation isn't in progress
+            if (mode !== 'dealing') {
+                card.x = tgt.x;
+                card.y = tgt.y;
+            }
+        });
+    });
+
+    // Recalculate community cards
+    if (community.length > 0) {
+        const spacing = CARD_WIDTH + Math.max(5, CARD_WIDTH * 0.10);
+        const startX = L.community.x - ((community.length - 1) * spacing) / 2;
+        
+        community.forEach((card, i) => {
+            card.tx = startX + i * spacing;
+            card.ty = L.community.y;
+            
+            if (mode !== 'dealing') {
+                card.x = card.tx;
+                card.y = card.ty;
+            }
+        });
+    }
+}
+
+// Listen to window size and orientation shifts
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+
+// Screen Orientation API fallback for modern browsers
+if (screen.orientation) {
+    screen.orientation.addEventListener('change', checkOrientation);
+}
+
+document.getElementById('dismiss-orientation-btn')?.addEventListener('click', () => {
+    orientationDismissed = true;
+    checkOrientation();
+});
+
+// Run detection on page initialization
+checkOrientation();
 
 // ---------------------------------------------------------------------------
 // Node testability

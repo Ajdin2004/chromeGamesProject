@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wutherdle | Chromium Games</title>
+    <link rel="icon" type="image/x-icon" href="https://cdn2.steamgriddb.com/icon_thumb/9d435d2e017f7a7384f4e1c6a6f2d169.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0a0e1a;
+            --card-bg: rgba(12, 18, 36, 0.88);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --primary-cyan: #00d4ff;
+            --primary-teal: #0ea5e9;
+            --correct-green: #22c55e;
+            --partial-yellow: #eab308;
+            --wrong-red: #ef4444;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+            --accent-purple: #8b5cf6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
+
+        body {
+            background: linear-gradient(rgba(10, 14, 26, 0.8), rgba(10, 14, 26, 0.92)),
+                        url('https://preview.redd.it/none-of-the-recent-official-wuwa-art-has-gagged-me-as-much-v0-mo2y3j8vlene1.jpeg?width=1080&crop=smart&auto=webp&s=7d3612dea209b2dc8b30cec3f8d0422dce10e747') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.5rem 1rem;
+            overflow-x: hidden;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 920px;
+            margin-bottom: 1rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+        .back-btn:hover { color: var(--primary-cyan); }
+
+        .music-btn {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .music-btn:hover {
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+        }
+
+        .music-btn.playing {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+        }
+
+        .score-badge {
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid var(--primary-cyan);
+            color: var(--primary-cyan);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .game-panel {
+            width: 100%;
+            max-width: 920px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .search-container { position: relative; }
+        .input-box { display: flex; gap: 0.5rem; }
+
+        .input-box input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            padding: 0.85rem 1.25rem;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-box input:focus {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .shake { animation: shakeKeyframe 0.4s ease-in-out; }
+
+        @keyframes shakeKeyframe {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--accent-purple));
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 0 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .btn-submit:active { transform: scale(0.96); }
+
+        .suggestions {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: rgba(15, 18, 35, 0.98);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 50;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .suggestion-info { display: flex; align-items: center; gap: 0.75rem; }
+
+        .suggestion-item img {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--primary-cyan);
+        }
+
+        .tab-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .suggestion-item.active,
+        .suggestion-item:hover {
+            background: rgba(0, 212, 255, 0.18);
+            color: var(--primary-cyan);
+        }
+
+        .table-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 180px repeat(6, 100px);
+            gap: 6px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 0.2rem 0.5rem 0.2rem;
+            min-width: 780px;
+        }
+
+        .guesses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            perspective: 1000px;
+            min-width: 780px;
+        }
+
+        .guess-row {
+            display: grid;
+            grid-template-columns: 180px repeat(6, 100px);
+            gap: 6px;
+            align-items: center;
+        }
+
+        .attribute-box {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.6rem 0.3rem;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+            text-transform: capitalize;
+            line-height: 1.2;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .animate-flip {
+            opacity: 0;
+            animation: smoothFlip 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes smoothFlip {
+            0% { transform: rotateX(90deg) scale(0.95); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: rotateX(0deg) scale(1); opacity: 1; }
+        }
+
+        .attribute-box.correct {
+            background: rgba(34, 197, 94, 0.4);
+            border-color: var(--correct-green);
+            color: #fff;
+        }
+
+        .attribute-box.partial {
+            background: rgba(234, 179, 8, 0.4);
+            border-color: var(--partial-yellow);
+            color: #fff;
+        }
+
+        .attribute-box.wrong {
+            background: rgba(239, 68, 68, 0.4);
+            border-color: var(--wrong-red);
+            color: #fff;
+        }
+
+        .resonator-card {
+            background: rgba(0, 212, 255, 0.12);
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0.4rem 0.6rem;
+            gap: 0.6rem;
+            text-align: left;
+        }
+
+        .resonator-avatar {
+            width: 42px; height: 42px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--primary-cyan);
+            flex-shrink: 0;
+        }
+
+        .hint-box {
+            display: none;
+            background: rgba(234, 179, 8, 0.15);
+            border: 1px solid var(--partial-yellow);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: #fef08a;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 600;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toast {
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            min-height: 20px;
+            font-size: 0.95rem;
+        }
+
+        .celebration-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10, 14, 26, 0.88);
+            backdrop-filter: blur(12px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .celebration-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .win-card {
+            background: var(--card-bg);
+            border: 2px solid var(--correct-green);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 440px;
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .celebration-modal.active .win-card {
+            transform: scale(1);
+        }
+
+        .win-title {
+            color: var(--correct-green);
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .win-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 3px solid var(--correct-green);
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        }
+
+        .win-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .win-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .win-stats div strong {
+            color: var(--primary-cyan);
+        }
+
+        .btn-close-win {
+            background: var(--correct-green);
+            color: #000;
+            font-weight: 800;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: filter 0.2s ease;
+        }
+
+        .btn-close-win:hover { filter: brightness(1.1); }
+
+        #confetti-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+        }
+
+        @media (max-width: 920px) {
+            .game-panel { padding: 1rem; border-radius: 16px; }
+            .header-bar { max-width: 920px; }
+            body { padding: 1rem 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <h2>Wutherdle</h2>
+        <div class="header-controls">
+            <button id="btn-music" class="music-btn"><i class="fa-solid fa-music"></i> Music</button>
+        </div>
+    </div>
+
+    <div class="game-panel">
+        <div class="search-container">
+            <div class="input-box" id="input-wrapper">
+                <input type="text" id="resonator-input" placeholder="Loading resonators dataset..." autocomplete="off">
+                <button id="btn-guess" class="btn-submit">GUESS</button>
+            </div>
+            <div id="suggestions" class="suggestions"></div>
+        </div>
+
+        <div id="hint-box" class="hint-box"></div>
+
+        <div class="table-scroll-wrapper">
+            <div class="grid-header">
+                <span>Resonator</span>
+                <span>Element</span>
+                <span>Weapon</span>
+                <span>Rarity</span>
+                <span>Role</span>
+                <span>Faction</span>
+                <span>Gender</span>
+            </div>
+
+            <div id="guesses-container" class="guesses-list"></div>
+        </div>
+
+        <div id="toast" class="toast">Loading resonator data...</div>
+    </div>
+
+    <div id="celebration-modal" class="celebration-modal">
+        <canvas id="confetti-canvas"></canvas>
+        <div class="win-card">
+            <div class="win-title">Victory!</div>
+            <img id="win-avatar" class="win-avatar" src="" alt="Resonator">
+            <div id="win-name" class="win-name">---</div>
+
+            <div class="win-stats">
+                <div><strong>Element:</strong> <span id="win-element"></span></div>
+                <div><strong>Weapon:</strong> <span id="win-weapon"></span></div>
+                <div><strong>Rarity:</strong> <span id="win-rarity"></span></div>
+                <div><strong>Role:</strong> <span id="win-role"></span></div>
+                <div><strong>Faction:</strong> <span id="win-faction"></span></div>
+                <div><strong>Gender:</strong> <span id="win-gender"></span></div>
+            </div>
+
+            <button id="btn-close-win" class="btn-close-win">CONTINUE</button>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
+        <source src="../music/wuwatrack.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="wuthering.js"></script>
+</body>
+</html>

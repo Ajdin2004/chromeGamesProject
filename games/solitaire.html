@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Solitaire · Classic</title>
+    <link rel="icon" type="image/png" href="https://www.pngarts.com/files/3/Cards-PNG-Image-Transparent.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,12 +16,13 @@
         }
         body {
             background: #0b0d19;
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding: 1rem;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
             color: #f0f4f8;
             overflow: hidden;
         }
@@ -29,8 +31,8 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            max-width: 1000px;
-            margin-bottom: 1rem;
+            max-width: 1600px;
+            margin-bottom: 0.25rem;
         }
         .back {
             color: #f0f4f8;
@@ -46,14 +48,16 @@
         #game-container {
             position: relative;
             width: 100%;
-            max-width: 1000px;
-            height: 80vh;
+            max-width: 1600px;
+            flex: 1;
+            min-height: 0;
             background: #101426;
-            border-radius: 20px;
+            border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.06);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             user-select: none;
+            margin-bottom: 0.5rem;
         }
 
         canvas {
@@ -99,10 +103,13 @@
             font-size: 1rem;
         }
 
-
         .controls {
-            margin-top: 1rem;
+            width: 100%;
+            max-width: 1600px;
             display: flex;
+            justify-content: center;
+            margin-top: 0;
+            margin-bottom: 0.25rem;
             gap: 1rem;
         }
 
@@ -122,18 +129,80 @@
             border-color: #00f2fe;
         }
 
-        @media (max-width: 600px) {
-            #game-container {
-                height: 70vh;
+        /* Landscape warning banner overlay for small portrait devices */
+        #orientation-warning {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 25, 0.95);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        #orientation-warning i {
+            font-size: 3rem;
+            color: #00f2fe;
+            margin-bottom: 1rem;
+            animation: rotatePhone 2s infinite ease-in-out;
+        }
+
+        #orientation-warning h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: #f0f4f8;
+        }
+
+        #orientation-warning p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            max-width: 300px;
+        }
+
+        @keyframes rotatePhone {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            #orientation-warning {
+                display: flex;
             }
         }
+        
+        /* Optimize header padding and controls for landscape viewports */
+        @media (orientation: landscape) and (max-height: 500px) {
+            body {
+                padding: 0.2rem 0.5rem;
+            }
+            .header {
+                margin-bottom: 0.1rem;
+            }
+            .controls {
+                margin-bottom: 0.1rem;
+            }
+            .btn {
+                padding: 0.25rem 0.75rem;
+                font-size: 0.85rem;
+            }
+        }        
     </style>
 </head>
 <body>
+
+<div id="orientation-warning">
+    <i class="fa-solid fa-mobile-screen-button"></i>
+    <h3>Please Rotate Your Device</h3>
+    <p>For the best Solitaire card-playing experience, please turn your device sideways into landscape mode.</p>
+</div>
+
 <div class="header">
     <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
     <h2 style="font-weight: 600; font-size: 1.2rem; letter-spacing: 0.5px;">Solitaire</h2>
-    <div style="width: 50px;"></div> <!-- Spacer -->
+    <div style="width: 50px;"></div> 
 </div>
 
 <div id="game-container">
@@ -144,7 +213,6 @@
         <button class="btn" id="win-new-game">Play Again</button>
     </div>
 </div>
-
 
 <div class="controls">
     <button class="btn" id="new-game">New Game</button>

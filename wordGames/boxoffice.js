@@ -54,6 +54,28 @@ let answeredThisRound = false;
 let gameActive = true;
 let currentBatch = [];
 
+// Poster cache to avoid repeated API calls for the same movie
+const posterCache = new Map();
+
+// Fetch a movie poster directly from the iTunes Search API (supports CORS, no key needed)
+async function fetchMoviePoster(title) {
+    if (posterCache.has(title)) return posterCache.get(title);
+
+    try {
+        const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(title)}&media=movie&entity=movie&limit=1&country=US`);
+        const data = await response.json();
+        const posterUrl = data.results && data.results.length > 0 && data.results[0].artworkUrl100
+            ? data.results[0].artworkUrl100.replace('100x100', '600x600')
+            : null;
+        posterCache.set(title, posterUrl);
+        return posterUrl;
+    } catch (err) {
+        console.error('Error fetching movie poster:', err);
+        posterCache.set(title, null);
+        return null;
+    }
+}
+
 // DOM Elements
 const vsContainer = document.getElementById('vs-container');
 const resultBox = document.getElementById('result-box');
@@ -233,7 +255,22 @@ function renderMatchup() {
             card.appendChild(poster);
         } else {
             // Append fallback card immediately when no poster URL exists
-            card.appendChild(createStyledFallbackCard(movie.title, movie.year));
+            const fallback = createStyledFallbackCard(movie.title, movie.year);
+            card.appendChild(fallback);
+
+            // Fetch a poster from iTunes asynchronously and replace the fallback when it arrives
+            fetchMoviePoster(movie.title).then(posterUrl => {
+                if (posterUrl && card.contains(fallback)) {
+                    const poster = document.createElement('img');
+                    poster.className = 'poster';
+                    poster.src = posterUrl;
+                    poster.alt = movie.title;
+                    poster.onerror = () => {
+                        poster.replaceWith(createStyledFallbackCard(movie.title, movie.year));
+                    };
+                    fallback.replaceWith(poster);
+                }
+            });
         }
 
         const title = document.createElement('div');

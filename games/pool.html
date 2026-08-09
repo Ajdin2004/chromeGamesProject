@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>8-Ball Pool Pro | Chromium Games</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3233/3233483.png">
+    <link rel="icon" type="image/png" href="https://static.vecteezy.com/system/resources/thumbnails/020/575/858/small/3d-icon-illustration-billiard-ball-number-eight-png.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -33,6 +33,49 @@
             height: 100dvh;
             width: 100vw;
             overflow: hidden;
+        }
+
+        /* Landscape orientation recommendation notice for small portrait phones */
+        #orientation-warning {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 25, 0.96);
+            z-index: 300;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        #orientation-warning i {
+            font-size: 3rem;
+            color: var(--primary-cyan);
+            margin-bottom: 1rem;
+            animation: rotatePhone 2s infinite ease-in-out;
+        }
+
+        #orientation-warning h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #orientation-warning p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 300px;
+        }
+
+        @keyframes rotatePhone {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            #orientation-warning {
+                display: flex;
+            }
         }
 
         /* Floating Header Overlay */
@@ -85,7 +128,7 @@
             top: 0; left: 0;
             width: 100vw;
             height: 100vh;
-            background: #1e1008;
+            background: #000000;
             z-index: 1;
         }
 
@@ -147,7 +190,7 @@
             transition: opacity 0.3s;
         }
         .overlay.active { opacity: 1; pointer-events: auto; }
-        .overlay h2 { color: #fff; font-size: 2.5rem; margin-bottom: 1.5rem; }
+        .overlay h2 { color: #fff; font-size: 2.5rem; margin-bottom: 1.5rem; text-align: center; padding: 0 1rem; }
 
         @media (max-width: 600px) {
             .header-bar h2 { display: none; }
@@ -157,6 +200,12 @@
     </style>
 </head>
 <body>
+
+    <div id="orientation-warning">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <h3>Rotate Your Device</h3>
+        <p>For the best pool-cue aiming experience, please turn your device sideways into landscape mode.</p>
+    </div>
 
     <div class="header-bar">
         <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>

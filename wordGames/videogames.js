@@ -53,6 +53,36 @@ let answeredThisRound = false;
 let gameActive = true;
 let currentBatch = [];
 
+// Poster cache to avoid repeated API calls for the same game
+const posterCache = new Map();
+
+// Fetch a game poster directly from the Wikipedia API (supports CORS, no key needed)
+async function fetchGamePoster(title) {
+    if (posterCache.has(title)) return posterCache.get(title);
+
+    try {
+        const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=600&origin=*`);
+        const data = await response.json();
+        const pages = data.query && data.query.pages ? data.query.pages : {};
+        let posterUrl = null;
+
+        for (const pageId in pages) {
+            const page = pages[pageId];
+            if (page.thumbnail && page.thumbnail.source) {
+                posterUrl = page.thumbnail.source;
+                break;
+            }
+        }
+
+        posterCache.set(title, posterUrl);
+        return posterUrl;
+    } catch (err) {
+        console.error('Error fetching game poster:', err);
+        posterCache.set(title, null);
+        return null;
+    }
+}
+
 // Elements
 const vsContainer = document.getElementById('vs-container');
 const resultBox = document.getElementById('result-box');
@@ -222,7 +252,23 @@ function renderMatchup() {
             };
             card.appendChild(img);
         } else {
-            card.appendChild(createStyledFallbackCard(game.title, game.year));
+            // Append fallback card immediately when no poster URL exists
+            const fallback = createStyledFallbackCard(game.title, game.year);
+            card.appendChild(fallback);
+
+            // Fetch a poster asynchronously and replace the fallback when it arrives
+            fetchGamePoster(game.title).then(posterUrl => {
+                if (posterUrl && card.contains(fallback)) {
+                    const img = document.createElement('img');
+                    img.className = 'poster';
+                    img.src = posterUrl;
+                    img.alt = game.title;
+                    img.onerror = () => {
+                        img.replaceWith(createStyledFallbackCard(game.title, game.year));
+                    };
+                    fallback.replaceWith(img);
+                }
+            });
         }
 
         const title = document.createElement('div');

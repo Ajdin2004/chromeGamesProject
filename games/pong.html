@@ -34,6 +34,7 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            overflow-x: hidden;
         }
 
         .header-bar {
@@ -127,11 +128,16 @@
             border-radius: 16px;
             overflow: hidden;
             border: 1px solid var(--card-border);
+            width: 100%;
+            max-width: 600px;
         }
 
         canvas {
             display: block;
             background: #101426;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 3 / 2;
         }
 
         .instructions {
@@ -140,9 +146,58 @@
             font-size: 0.85rem;
             text-align: center;
         }
+
+        /* Landscape warning banner overlay for small portrait devices */
+        #orientation-warning {
+            position: fixed;
+            inset: 0;
+            background: rgba(11, 13, 25, 0.95);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        #orientation-warning i {
+            font-size: 3rem;
+            color: var(--primary-cyan);
+            margin-bottom: 1rem;
+            animation: rotatePhone 2s infinite ease-in-out;
+        }
+
+        #orientation-warning h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #orientation-warning p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 300px;
+        }
+
+        @keyframes rotatePhone {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            #orientation-warning {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <div id="orientation-warning">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <h3>Please Rotate Your Device</h3>
+        <p>For the best gaming experience, please turn your device sideways into landscape mode.</p>
+    </div>
 
     <div class="header-bar">
         <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
@@ -179,7 +234,7 @@
         <canvas id="gameCanvas" width="600" height="400"></canvas>
     </div>
 
-    <p class="instructions" id="control-hint">P1: <strong>W/S</strong> &nbsp;|&nbsp; AI Controlled Right Paddle</p>
+    <p class="instructions" id="control-hint">P1: <strong>W/S or Touch Drag</strong> &nbsp;|&nbsp; AI Controlled Right Paddle</p>
 
     <script src="pong.js"></script>
 </body>

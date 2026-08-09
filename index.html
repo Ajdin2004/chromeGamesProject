@@ -395,7 +395,8 @@
             transform: translateY(20px);
             animation: cardIn 0.5s ease forwards;
             transform-style: preserve-3d;
-            will-change: transform;
+            content-visibility: auto;
+            contain-intrinsic-size: 320px;
         }
 
         @keyframes cardIn {
@@ -1279,6 +1280,20 @@
             .dev-banner-content span { display: none; }
             .about-section { padding: 1.5rem 1rem; }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            .game-card { animation: none; opacity: 1; transform: none; }
+            .game-card:hover { transform: none; }
+            .card-banner { animation: none; }
+            .logo-wrapper { animation: none; }
+            .about-icon { animation: none; }
+            .about-section::before { animation: none; }
+            .dev-banner { animation: none; }
+            .dev-banner-content i { animation: none; }
+            .about-title { animation: none; }
+            .about-made-with i { animation: none; }
+            .theme-btn, .category-btn, .random-btn, .leaderboard-trigger, .continue-btn, .fav-star, .banner-glyph { transition: none; }
+        }
     </style>
 </head>
 <body>
@@ -1454,6 +1469,25 @@
                 </div>
             </a>
 
+            <!-- Wutherdle Card -->
+            <a href="wordGames/wuthering.html" class="game-card" data-category="word retro" data-name="wutherdle daily wuthering waves game" data-added="2026-08-09">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #0c4a6e, #0ea5e9, #1e3a8a, #0a0e1a);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="wordGames/wuthering.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="wordGames/wuthering.html"></span>
+                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
+                    <i class="fa-solid fa-wind banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Daily Wutherdle</h3>
+                    <p>Guess the Wuthering Waves resonator in 8 tries. Reset every single day.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">WuWa Game</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Box Office Showdown Card -->
             <a href="wordGames/boxoffice.html" class="game-card" data-category="word puzzle" data-name="box office showdown movie guessing game" data-added="2026-08-08">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #b45309, #f59e0b, #78350f);">
@@ -1506,6 +1540,43 @@
                     <p>Find as many words as you can on a 4x4 letter grid. Words must be adjacent and at least 3 letters long.</p>
                     <div class="card-footer">
                         <span class="genre-tag">Word Game</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+                        <!-- Solitaire -->
+            <a href="games/solitaire.html" class="game-card" data-category="arcade retro" data-name="solitaire classic card game" data-added="2024-01-01">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #065f46, #10b981, #064e3b, #022c22);">
+                    <button class="fav-star" data-href="games/solitaire.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/solitaire.html"></span>
+                    <canvas class="preview-canvas" data-type="card-shuffle"></canvas>
+                    <i class="fa-solid fa-clover banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Solitaire</h3>
+                    <p>Classic Klondike solitaire. Build four stacks of cards by suit from Ace to King.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Card Game</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Poker -->
+            <a href="games/poker.html" class="game-card" data-category="arcade retro" data-name="poker texas holdem card game" data-added="2026-08-07">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #f97316, #431407, #1c1917);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/poker.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/poker.html"></span>
+                    <canvas class="preview-canvas" data-type="poker-cards"></canvas>
+                    <i class="fa-solid fa-diamond banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Texas Hold'em</h3>
+                    <p>Play poker against 3 AI opponents. Bluff, raise, and win the pot with the best hand.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Card Game</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
@@ -1694,42 +1765,6 @@
                 </div>
             </a>
 
-            <!-- Solitaire -->
-            <a href="games/solitaire.html" class="game-card" data-category="arcade retro" data-name="solitaire classic card game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #065f46, #10b981, #064e3b, #022c22);">
-                    <button class="fav-star" data-href="games/solitaire.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/solitaire.html"></span>
-                    <canvas class="preview-canvas" data-type="card-shuffle"></canvas>
-                    <i class="fa-solid fa-clover banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Solitaire</h3>
-                    <p>Classic Klondike solitaire. Build four stacks of cards by suit from Ace to King.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Card Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Poker -->
-            <a href="games/poker.html" class="game-card" data-category="arcade retro" data-name="poker texas holdem card game" data-added="2026-08-07">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #f97316, #431407, #1c1917);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/poker.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/poker.html"></span>
-                    <canvas class="preview-canvas" data-type="poker-cards"></canvas>
-                    <i class="fa-solid fa-diamond banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Texas Hold'em</h3>
-                    <p>Play poker against 3 AI opponents. Bluff, raise, and win the pot with the best hand.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Card Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
         </section>
 
         <!-- Empty State -->
@@ -1827,23 +1862,23 @@
             <ul class="changelog-list">
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
-                    <p><strong>Game Showdown</strong> — Guess which video game earned more at the box office in this video game trivia game!</p>
+                    <p><strong>Game Showdown</strong> — Guess which video game sold more copies in this video game trivia game!</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
-                    <p><strong>Poool</strong> — Pool is now available in the arcade!</p>
-                </li>
-                <li class="changelog-item">
-                    <span class="changelog-tag new">New</span>
-                    <p><strong>Texas Hold'em</strong> — Play poker against 3 AI opponents in this new card game!</p>
+                    <p><strong>Daily Wutherdle</strong> — Wutherdle is now available in the arcade! Try and guess the resonator.</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag fix">FIX</span>
-                    <p><strong>Favorites bug fixed</strong> — Favorite games now appear correctly in the Favorites category.</p>
+                    <p><strong>Optimizations</strong> — Several games were optimized for better performance and gameplay.</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag fix">FIX</span>
+                    <p><strong>Low-end device optimization</strong> — The front page is now optimized for lower end devices.</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag update">UPDATE</span>
-                    <p><strong>Daily games</strong> — Wordle, Earthdle, Riddler, Loldle, and Tunetile now reset daily.</p>
+                    <p><strong>Mobile Update</strong> — Meny games are now playable on the phone with gesture controls.</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag update">UPDATE</span>
@@ -1924,10 +1959,19 @@
         const ctx = canvas.getContext('2d');
         let particles = [];
         let mouse = { x: null, y: null, radius: 150 };
+        let animId = null;
+        let isVisible = true;
+        let lastFrameTime = 0;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Detect low-end devices: fewer cores or small screens
+        const isLowEnd = (navigator.hardwareConcurrency || 8) <= 4 || window.innerWidth < 768;
+        const FPS_CAP = isLowEnd ? 20 : 30;
+        const FRAME_INTERVAL = 1000 / FPS_CAP;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            if (particles.length > 0) initParticles();
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -1935,6 +1979,15 @@
         window.addEventListener('mousemove', (e) => {
             mouse.x = e.x;
             mouse.y = e.y;
+        });
+
+        // Pause animation when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            isVisible = !document.hidden;
+            if (isVisible && !prefersReducedMotion) {
+                lastFrameTime = 0;
+                requestAnimationFrame(animate);
+            }
         });
 
         class Particle {
@@ -1951,10 +2004,7 @@
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fillStyle = primaryColor;
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = primaryColor;
                 ctx.fill();
-                ctx.shadowBlur = 0;
             }
 
             update() {
@@ -1980,7 +2030,9 @@
 
         function initParticles() {
             particles = [];
-            const count = Math.floor((canvas.width * canvas.height) / 12000);
+            // Adaptive particle count: fewer on low-end devices
+            const divisor = isLowEnd ? 30000 : 12000;
+            const count = Math.min(Math.floor((canvas.width * canvas.height) / divisor), isLowEnd ? 20 : 60);
             for (let i = 0; i < count; i++) {
                 particles.push(new Particle());
             }
@@ -2007,14 +2059,23 @@
             ctx.globalAlpha = 1;
         }
 
-        function animate() {
+        function animate(now) {
+            if (!isVisible || prefersReducedMotion) return;
+            // Cap FPS to reduce main thread load
+            if (now - lastFrameTime < FRAME_INTERVAL) {
+                animId = requestAnimationFrame(animate);
+                return;
+            }
+            lastFrameTime = now;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
             drawConnections();
-            requestAnimationFrame(animate);
+            animId = requestAnimationFrame(animate);
         }
         initParticles();
-        animate();
+        if (!prefersReducedMotion) {
+            animId = requestAnimationFrame(animate);
+        }
 
         /* ============================================================
            PREVIEW CANVAS ANIMATIONS (with IntersectionObserver + throttle)
@@ -2200,6 +2261,13 @@
             try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* ignore */ }
         }
 
+        /* --- Path normalization (Netlify-safe) --- */
+        function normalizePath(href) {
+            if (!href) return '';
+            // Strip leading/trailing slashes and any query/hash for consistent comparison
+            return String(href).replace(/^\/+|\/+$/g, '').split('?')[0].split('#')[0];
+        }
+
         /* ============================================================
            THEME PERSISTENCE
            ============================================================ */
@@ -2253,17 +2321,17 @@
 
         function getPlayCount(href) {
             const counts = getJSON(PLAYS_KEY, {});
-            return counts[href] || 0;
+            return counts[normalizePath(href)] || 0;
         }
 
         function getLastPlayed(href) {
-            const recent = getJSON(RECENT_KEY, []);
-            const idx = recent.indexOf(href);
+            const recent = getJSON(RECENT_KEY, []).map(normalizePath);
+            const idx = recent.indexOf(normalizePath(href));
             return idx === -1 ? null : idx;
         }
 
         function isFavorite(href) {
-            return getJSON(FAV_KEY, []).includes(href);
+            return getJSON(FAV_KEY, []).map(normalizePath).includes(normalizePath(href));
         }
 
         function relativeTime(epoch) {
@@ -2281,7 +2349,7 @@
 
         function updateCardMeta() {
             cards.forEach(card => {
-                const href = card.getAttribute('href');
+                const href = normalizePath(card.getAttribute('href'));
                 const star = card.querySelector('.fav-star');
                 const lastPlayed = card.querySelector('.last-played');
 
@@ -2290,7 +2358,7 @@
 
                 // Last played chip
                 if (lastPlayed) {
-                    const recent = getJSON(RECENT_KEY, []);
+                    const recent = getJSON(RECENT_KEY, []).map(normalizePath);
                     const idx = recent.indexOf(href);
                     if (idx !== -1) {
                         // We store timestamps in a separate map for accuracy
@@ -2312,11 +2380,12 @@
 
         function filterGames() {
             const query = searchInput.value.toLowerCase().trim();
-            const recentIds = getJSON(RECENT_KEY, []);
-            const favIds = getJSON(FAV_KEY, []);
+            const recentIds = getJSON(RECENT_KEY, []).map(normalizePath);
+            const favIds = getJSON(FAV_KEY, []).map(normalizePath);
             let visibleCount = 0;
 
             cards.forEach(card => {
+                const hrefPath = normalizePath(card.getAttribute('href'));
                 const name = card.dataset.name || '';
                 const category = card.dataset.category || '';
                 const title = card.querySelector('h3')?.textContent || '';
@@ -2328,9 +2397,9 @@
                 if (activeCategory === 'all') {
                     matchesCategory = true;
                 } else if (activeCategory === 'recent') {
-                    matchesCategory = recentIds.includes(card.getAttribute('href'));
+                    matchesCategory = recentIds.includes(hrefPath);
                 } else if (activeCategory === 'favorites') {
-                    matchesCategory = favIds.includes(card.getAttribute('href'));
+                    matchesCategory = favIds.includes(hrefPath);
                 } else {
                     matchesCategory = category.includes(activeCategory);
                 }
@@ -2373,7 +2442,12 @@
             });
         }
 
-        searchInput.addEventListener('input', filterGames);
+        // Debounce search input for performance
+        let searchDebounceTimer = null;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(filterGames, 150);
+        });
         categoryBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 categoryBtns.forEach(b => b.classList.remove('active'));
@@ -2400,8 +2474,8 @@
             star.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const href = star.dataset.href;
-                let favs = getJSON(FAV_KEY, []);
+                const href = normalizePath(star.dataset.href);
+                let favs = getJSON(FAV_KEY, []).map(normalizePath);
                 const isFav = favs.includes(href);
                 if (isFav) {
                     favs = favs.filter(f => f !== href);
@@ -2421,21 +2495,22 @@
            PLAY TRACKING + RECENTLY PLAYED
            ============================================================ */
         function recordPlay(href) {
+            const path = normalizePath(href);
             // Recently played
-            let recent = getJSON(RECENT_KEY, []);
-            recent = recent.filter(item => item !== href);
-            recent.unshift(href);
+            let recent = getJSON(RECENT_KEY, []).map(normalizePath);
+            recent = recent.filter(item => item !== path);
+            recent.unshift(path);
             if (recent.length > MAX_RECENT) recent.pop();
             setJSON(RECENT_KEY, recent);
 
             // Timestamps
             const times = getJSON('last_played_times', {});
-            times[href] = Date.now();
+            times[path] = Date.now();
             setJSON('last_played_times', times);
 
             // Play counts
             const counts = getJSON(PLAYS_KEY, {});
-            counts[href] = (counts[href] || 0) + 1;
+            counts[path] = (counts[path] || 0) + 1;
             setJSON(PLAYS_KEY, counts);
 
             updateRecentVisibility();
@@ -2444,7 +2519,7 @@
         }
 
         function updateRecentVisibility() {
-            const recent = getJSON(RECENT_KEY, []);
+            const recent = getJSON(RECENT_KEY, []).map(normalizePath);
             const btn = document.getElementById('recent-category-btn');
             btn.classList.toggle('hidden', recent.length === 0);
         }
@@ -2464,10 +2539,10 @@
         const continueBtn = document.getElementById('continue-btn');
         function updateContinue() {
             try {
-                const recent = getJSON(RECENT_KEY, []);
+                const recent = getJSON(RECENT_KEY, []).map(normalizePath);
                 if (recent.length > 0) {
                     continueBtn.classList.remove('hidden');
-                    const name = cards.find(c => c.getAttribute('href') === recent[0])?.querySelector('h3')?.textContent || 'last game';
+                    const name = cards.find(c => normalizePath(c.getAttribute('href')) === recent[0])?.querySelector('h3')?.textContent || 'last game';
                     continueBtn.innerHTML = `<i class="fa-solid fa-play"></i> ${name}`;
                 } else {
                     continueBtn.classList.add('hidden');
@@ -2478,7 +2553,7 @@
             }
         }
         continueBtn.addEventListener('click', () => {
-            const recent = getJSON(RECENT_KEY, []);
+            const recent = getJSON(RECENT_KEY, []).map(normalizePath);
             if (recent.length > 0) window.location.href = recent[0];
         });
 
@@ -2672,18 +2747,26 @@
         /* ============================================================
            STATS + FOOTER
            ============================================================ */
+        // Cache DOM references to avoid re-querying on every update
+        const statGamesEl = document.getElementById('stat-games');
+        const statPlaysEl = document.getElementById('stat-plays');
+        const statFavsEl = document.getElementById('stat-favs');
+        const footerGamesEl = document.getElementById('footer-games');
+        const footerPlaysEl = document.getElementById('footer-plays');
+        const footerFavsEl = document.getElementById('footer-favs');
+
         function updateStats() {
             const totalGames = cards.length;
             const counts = getJSON(PLAYS_KEY, {});
             const totalPlays = Object.values(counts).reduce((a, b) => a + b, 0);
-            const favs = getJSON(FAV_KEY, []).length;
+            const favs = getJSON(FAV_KEY, []).map(normalizePath).length;
 
-            document.getElementById('stat-games').textContent = totalGames;
-            document.getElementById('stat-plays').textContent = totalPlays;
-            document.getElementById('stat-favs').textContent = favs;
-            document.getElementById('footer-games').textContent = totalGames;
-            document.getElementById('footer-plays').textContent = totalPlays;
-            document.getElementById('footer-favs').textContent = favs;
+            statGamesEl.textContent = totalGames;
+            statPlaysEl.textContent = totalPlays;
+            statFavsEl.textContent = favs;
+            footerGamesEl.textContent = totalGames;
+            footerPlaysEl.textContent = totalPlays;
+            footerFavsEl.textContent = favs;
         }
 
         document.getElementById('footer-year').textContent = new Date().getFullYear();
