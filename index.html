@@ -1460,7 +1460,7 @@
                     <div class="badge new">New</div>
                     <button class="fav-star" data-href="wordGames/boxoffice.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
                     <span class="last-played" data-href="wordGames/boxoffice.html"></span>
-                    <canvas class="preview-canvas" data-type="movie-reels"></canvas>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
                     <i class="fa-solid fa-film banner-glyph"></i>
                 </div>
                 <div class="card-details">
@@ -1479,7 +1479,7 @@
                     <div class="badge new">New</div>
                     <button class="fav-star" data-href="wordGames/videogames.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
                     <span class="last-played" data-href="wordGames/videogames.html"></span>
-                    <canvas class="preview-canvas" data-type="movie-reels"></canvas>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
                     <i class="fa-solid fa-gamepad banner-glyph"></i>
                 </div>
                 <div class="card-details">
@@ -1523,6 +1523,25 @@
                 <div class="card-details">
                     <h3>Flappy Bird Clone</h3>
                     <p>Navigate through obstacles in this classic physics-based arcade challenge.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Arcade</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Pool -->
+            <a href="games/pool.html" class="game-card" data-category="arcade" data-name="pool" data-added="2024-01-01">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #38bdf8, #0369a1, #0c4a6e);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/pool.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/pool.html"></span>
+                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
+                    <i class="fa-solid fa-circle banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>8-Ball Pool</h3>
+                    <p>Classic pool game with 1v1 and Bot modes.</p>
                     <div class="card-footer">
                         <span class="genre-tag">Arcade</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
@@ -1808,11 +1827,11 @@
             <ul class="changelog-list">
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
-                    <p><strong>Box Office Showdown</strong> — Guess which movie earned more at the box office in this movie trivia game!</p>
+                    <p><strong>Game Showdown</strong> — Guess which video game earned more at the box office in this video game trivia game!</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
-                    <p><strong>Blockudoku</strong> — Sudoku-meets-Tetris block puzzle added to the arcade!</p>
+                    <p><strong>Poool</strong> — Pool is now available in the arcade!</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
@@ -2143,79 +2162,6 @@
                         pCtx.fillRect(offsetX + c * cell + 1, offsetY + r * cell + 1, cell - 2, cell - 2);
                         pCtx.globalAlpha = 1;
                     }
-                } else if (type === 'movie-reels') {
-                    // Two reels and a popcorn burst for Box Office Showdown
-                    const reelW = width * 0.14;
-                    const reelH = height * 0.45;
-                    const cx1 = width * 0.32;
-                    const cx2 = width * 0.68;
-                    const cy = height / 2;
-                    const color1 = '#facc15';
-                    const color2 = '#00f2fe';
-
-                    // Circle mask for reel aperture
-                    pCtx.save();
-                    pCtx.beginPath();
-                    pCtx.arc(cx1, cy, reelW * 0.65, 0, Math.PI * 2);
-                    pCtx.clip();
-                    pCtx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-                    pCtx.fillRect(cx1 - reelW, cy - reelW, reelW * 2, reelW * 2);
-                    // Sliding "filmstrip" inside
-                    pCtx.fillStyle = color1;
-                    pCtx.globalAlpha = 0.9;
-                    const stripOffset = (frame * 1.5) % 26;
-                    for (let sy = -26 + stripOffset; sy < reelW * 2; sy += 12) {
-                        pCtx.fillRect(cx1 - reelW * 0.55, cy - reelW * 0.65 + sy, reelW * 1.1, 8);
-                    }
-                    pCtx.globalAlpha = 1;
-                    pCtx.restore();
-                    pCtx.strokeStyle = color1;
-                    pCtx.lineWidth = 2;
-                    pCtx.beginPath();
-                    pCtx.arc(cx1, cy, reelW * 0.65, 0, Math.PI * 2);
-                    pCtx.stroke();
-
-                    pCtx.save();
-                    pCtx.beginPath();
-                    pCtx.arc(cx2, cy, reelW * 0.65, 0, Math.PI * 2);
-                    pCtx.clip();
-                    pCtx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-                    pCtx.fillRect(cx2 - reelW, cy - reelW, reelW * 2, reelW * 2);
-                    pCtx.fillStyle = color2;
-                    pCtx.globalAlpha = 0.9;
-                    const stripOffset2 = (frame * 1.5 + 13) % 26;
-                    for (let sy = -26 + stripOffset2; sy < reelW * 2; sy += 12) {
-                        pCtx.fillRect(cx2 - reelW * 0.55, cy - reelW * 0.65 + sy, reelW * 1.1, 8);
-                    }
-                    pCtx.globalAlpha = 1;
-                    pCtx.restore();
-                    pCtx.strokeStyle = color2;
-                    pCtx.lineWidth = 2;
-                    pCtx.beginPath();
-                    pCtx.arc(cx2, cy, reelW * 0.65, 0, Math.PI * 2);
-                    pCtx.stroke();
-
-                    // VS text between reels
-                    pCtx.fillStyle = 'rgba(255,255,255,0.85)';
-                    pCtx.font = 'bold ' + Math.max(12, width * 0.07) + 'px Outfit, sans-serif';
-                    pCtx.textAlign = 'center';
-                    pCtx.textBaseline = 'middle';
-                    pCtx.fillText('VS', width / 2, cy);
-
-                    // Popcorn burst particles
-                    const seeds = [0, 15, 30, 45];
-                    seeds.forEach((offset, i) => {
-                        const angle = (frame * 0.05 + offset) * (Math.PI * 2 / seeds.length) + offset * 0.5;
-                        const radius = 20 + ((frame + i * 20) % 40);
-                        const px = width / 2 + Math.cos(angle) * radius;
-                        const py = cy - 20 + Math.sin(angle) * radius;
-                        pCtx.fillStyle = i % 2 === 0 ? '#facc15' : '#fff';
-                        pCtx.globalAlpha = 0.7;
-                        pCtx.beginPath();
-                        pCtx.arc(px, py, 4, 0, Math.PI * 2);
-                        pCtx.fill();
-                        pCtx.globalAlpha = 1;
-                    });
                 } else {
                     pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
                     let x = Math.sin(frame * 0.03) * 30 + width / 2;
@@ -2652,7 +2598,7 @@
         const feedbackForm = document.getElementById('feedback-form');
         const feedbackMessage = document.getElementById('feedback-message');
         const feedbackTypeBtns = document.querySelectorAll('.feedback-type-btn');
-        const FEEDBACK_EMAIL = 'ajdin2004@gmail.com';
+        const FEEDBACK_EMAIL = 'ajdin.hasic56@gmail.com';
         let feedbackType = 'bug';
 
         function openFeedbackModal(type) {
