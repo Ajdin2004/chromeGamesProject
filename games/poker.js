@@ -116,6 +116,78 @@ class Card {
 }
 
 // ---------------------------------------------------------------------------
+// Web Audio Synthesizer
+// ---------------------------------------------------------------------------
+let audioCtx = null;
+let soundMuted = false;
+
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+const Sound = {
+    _play(freq, dur, type = 'sine', vol = 0.2, slideTo = null) {
+        if (!audioCtx || soundMuted) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, audioCtx.currentTime + dur);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + dur);
+    },
+    _noise(dur, vol = 0.12, filterFreq = 700, filterType = 'bandpass') {
+        if (!audioCtx || soundMuted) return;
+        const bufferSize = Math.max(1, Math.floor(audioCtx.sampleRate * dur));
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+        }
+        const src = audioCtx.createBufferSource();
+        src.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = filterType;
+        filter.frequency.value = filterFreq;
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        src.start();
+    },
+    card() {
+        // Low "shuffle" whoosh — filtered noise + soft low thump like cards sliding
+        this._noise(0.10, 0.12, 650, 'lowpass');
+        this._play(300, 0.05, 'triangle', 0.05, 180);
+    },
+    chip() {
+        // Mellow "clink" for chips going into the pot
+        this._play(900, 0.08, 'triangle', 0.10, 600);
+    },
+    raise() {
+        // Soft rising "swoosh" for a raise
+        this._play(200, 0.18, 'sawtooth', 0.08, 500);
+    },
+    win() {
+        // Ascending arpeggio (lower octave) for a win
+        [262, 330, 392, 523].forEach((f, i) => {
+            setTimeout(() => this._play(f, 0.18, 'triangle', 0.14), i * 90);
+        });
+    },
+    lose() {
+        // Descending tone for a loss
+        this._play(300, 0.4, 'sawtooth', 0.10, 100);
+    },
+    showdown() {
+        // Dramatic reveal
+        this._play(150, 0.5, 'sine', 0.13, 500);
+    }
+};
+
+// ---------------------------------------------------------------------------
 // Hand evaluation — best 5 of 7
 // ---------------------------------------------------------------------------
 function compareEval(a, b) {
@@ -350,7 +422,12 @@ function layout() {
         FEED_Y: aiCardY + aiCard.h * 0.5 + 12,
 
         deck: { x: left + 10, y: potY },
-        pot: { x: centerX, y: potY },
+        // In landscape the pot is docked to the bottom-right corner, just
+        // above the player's chip panel, so it is never hidden behind the
+        // AI cards. Portrait stays centered.
+        pot: portrait
+            ? { x: centerX, y: potY }
+            : { x: w - 100, y: h - 62 - 10 - 21 - 8 },
         community: { x: centerX, y: boardY },
 
         seats: [
@@ -526,6 +603,7 @@ function dealHoleCards() {
             card.dealDur = 650;
             seats[i].hand.push(card);
             dealingCards.push(card);
+            Sound.card();
             delay += 140;
         }
     }
@@ -628,6 +706,7 @@ function burnAndStreet(count, label) {
     mode = 'street';
     phaseLabel = label;
     deck.pop(); // burn
+    Sound.card();
     const L = layout();
     const spacing = CARD_WIDTH + Math.max(5, CARD_WIDTH * 0.10);
     const startX = L.community.x - ((community.length + count - 1) * spacing) / 2;
@@ -658,6 +737,7 @@ function burnAndStreet(count, label) {
 function startShowdown() {
     mode = 'showdown';
     phaseLabel = 'Showdown';
+    Sound.showdown();
     let base = performance.now() + 400;
     seats.forEach((s, i) => {
         if (i > 0 && !s.folded) {
@@ -783,6 +863,12 @@ function showResultOverlay(wonAmount) {
 
     resultShown = true;
 
+    if (gameOverMsg === 'win' || gameOverMsg === 'cleared') {
+        Sound.win();
+    } else if (gameOverMsg === 'lose' || gameOverMsg === 'busted') {
+        Sound.lose();
+    }
+
     if (gameOverMsg === 'win') {
         launchConfetti();
         titleEl.innerHTML = `<i class="fa-solid fa-trophy" style="color:#facc15;"></i> You Win!`;
@@ -817,6 +903,7 @@ function hideOverlay() {
 // Player actions
 // ---------------------------------------------------------------------------
 function playerFoldAct() {
+    initAudio();
     if (!playerTurn || mode !== 'betting') return;
     seats[0].folded = true;
     logAction(`You fold.`);
@@ -825,6 +912,7 @@ function playerFoldAct() {
 }
 
 function playerCheckAct() {
+    initAudio();
     if (!playerTurn || mode !== 'betting') return;
     if (seats[0].bet < currentBet) return;
     logAction(`You check.`);
@@ -833,6 +921,7 @@ function playerCheckAct() {
 }
 
 function playerCallAct() {
+    initAudio();
     if (!playerTurn || mode !== 'betting') return;
     const toCall = Math.min(currentBet - seats[0].bet, seats[0].chips);
     const p = seats[0];
@@ -840,12 +929,14 @@ function playerCallAct() {
     p.bet += toCall;
     p.totalBet += toCall;
     pot += toCall;
+    Sound.chip();
     logAction(`You call ${toCall}.`);
     playerTurn = false;
     advanceAfterAction();
 }
 
 function playerRaiseTo(raiseTo) {
+    initAudio();
     if (!playerTurn || mode !== 'betting') return;
     const p = seats[0];
     const capped = Math.min(raiseTo, p.chips + p.bet);
@@ -860,6 +951,7 @@ function playerRaiseTo(raiseTo) {
     p.totalBet += amount;
     pot += amount;
     currentBet = capped;
+    Sound.raise();
     logAction(`You raise to ${capped}.`);
     playerTurn = false;
     // Everyone after raiser must re-act
@@ -1117,6 +1209,7 @@ function postBlind(idx, amt) {
     s.bet += paid;
     s.totalBet += paid;
     pot += paid;
+    Sound.chip();
 }
 
 function spawnPayoutChips(seatIdx) {
@@ -1213,7 +1306,7 @@ function drawTable(L) {
     const tableRy = Math.min(h * 0.44, portrait ? h * 0.39 : h * 0.40);
     // In landscape the table sits lower to balance the AI band at the top
     // and the player cards at the bottom.
-    const tableCy = portrait ? h * 0.55 : h * 0.55;
+    const tableCy = portrait ? h * 0.51 : h * 0.55;
 
     // Outer glow.
     ctx.save();
@@ -1344,9 +1437,19 @@ const infoWidth = isPlayer
 
 const infoHeight = s.bet > 0 && !s.folded ? 62 : 46;
 
-// Put the panel completely above the cards.
-const panelX = pos.x - infoWidth / 2;
-const panelY = cardTop - panelGap - infoHeight;
+// On mobile landscape, the player's chip window sits in the bottom-right
+// corner so it doesn't cover the table. On portrait/desktop it stays
+// centered above the player's cards.
+const panelX = isPlayer && !L.portrait
+    ? L.w - infoWidth - 12
+    : pos.x - infoWidth / 2;
+const panelY = isPlayer && !L.portrait
+    ? L.h - infoHeight - 10
+    : cardTop - panelGap - infoHeight;
+
+// Text is centered within the panel (which may differ from the card center
+// when the panel is docked to the bottom-right corner in landscape).
+const panelCenterX = panelX + infoWidth / 2;
 
 // Panel background
 roundedPanel(
@@ -1397,7 +1500,7 @@ if (acting) {
 
     ctx.fillText(
         isPlayer ? 'YOUR TURN' : 'THINKING…',
-        pos.x,
+        panelCenterX,
         panelY - 7
     );
 }
@@ -1423,7 +1526,7 @@ ctx.font = `800 ${nameSize}px Outfit`;
 
 ctx.fillText(
     s.name,
-    pos.x,
+    panelCenterX,
     panelY + 20
 );
 
@@ -1439,7 +1542,7 @@ ctx.font = `700 ${Math.max(
 
 ctx.fillText(
     `${s.chips} chips`,
-    pos.x,
+    panelCenterX,
     panelY + 37
 );
 
@@ -1453,7 +1556,7 @@ if (s.bet > 0 && !s.folded) {
     );
 
     roundedPanel(
-        pos.x - badgeW / 2,
+        panelCenterX - badgeW / 2,
         panelY + 42,
         badgeW,
         18,
@@ -1472,7 +1575,7 @@ if (s.bet > 0 && !s.folded) {
 
     ctx.fillText(
             `Bet ${s.bet}`,
-            pos.x,
+            panelCenterX,
             panelY + 55
         );
     }
@@ -1591,9 +1694,9 @@ function draw(now) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     drawTable(L);
-    drawPot(L, now);
     drawCommunity(L, now);
     for (let i = 0; i < 4; i++) drawSeat(i, L, now);
+    drawPot(L, now);
     drawDealerButton(L, now);
     drawActionFeed(L, now);
     drawFloatingChips(now);
@@ -1772,6 +1875,18 @@ if (typeof document !== 'undefined' && document.getElementById('gameCanvas')) {
             historyClose.addEventListener('click', () => {
                 historyPanel.classList.remove('open');
                 historyPanel.setAttribute('aria-hidden', 'true');
+            });
+        }
+
+        // Volume toggle (mute/unmute)
+        const volumeBtn = document.getElementById('volume-btn');
+        const volumeIcon = document.getElementById('volume-icon');
+        if (volumeBtn && volumeIcon) {
+            volumeBtn.addEventListener('click', () => {
+                initAudio();
+                soundMuted = !soundMuted;
+                volumeIcon.className = soundMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+                if (!soundMuted) Sound.chip();
             });
         }
         const resultBtn = document.getElementById('result-new-game');

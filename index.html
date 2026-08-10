@@ -1601,6 +1601,25 @@
                 </div>
             </a>
 
+            <!-- Chrome Dino -->
+            <a href="games/dino.html" class="game-card" data-category="arcade retro" data-name="chrome dino runner" data-added="2026-08-10">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #1a1a2e, #535353, #2d2d44, #0f0f1a);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/dino.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/dino.html"></span>
+                    <canvas class="preview-canvas" data-type="bouncing-bird"></canvas>
+                    <i class="fa-solid fa-dragon banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Chrome Dino</h3>
+                    <p>Jump and duck through the desert in this classic endless runner.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Arcade</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Pool -->
             <a href="games/pool.html" class="game-card" data-category="arcade" data-name="pool" data-added="2024-01-01">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #38bdf8, #0369a1, #0c4a6e);">
@@ -1860,6 +1879,10 @@
         <section class="changelog-section">
             <h2 class="section-heading"><i class="fa-solid fa-fire"></i> What's New</h2>
             <ul class="changelog-list">
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
+                    <p><strong>Chrome Dino</strong> — Jump and duck through the desert in this classic endless runner!</p>
+                </li>
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
                     <p><strong>Game Showdown</strong> — Guess which video game sold more copies in this video game trivia game!</p>
@@ -2627,6 +2650,7 @@
         const GAMES_CONFIG = [
             { name: 'Daily Wordle', key: 'wordle_streak', icon: 'fa-font', href: 'wordGames/wordle.html' },
             { name: 'Flappy Bird', key: 'flappy_highscore', icon: 'fa-dove', href: 'games/flappybird.html' },
+            { name: 'Chrome Dino', key: 'dino_highscore', icon: 'fa-dragon', href: 'games/dino.html' },
             { name: 'Snake', key: 'snake_highscore', icon: 'fa-staff-snake', href: 'games/snake.html' },
             { name: 'Block Puzzler', key: 'blockpuzzler_highscore', icon: 'fa-cubes', href: 'games/blockpuzzler.html' },
             { name: 'Neon Pong', key: 'pong_highscore', icon: 'fa-table-tennis-paddle-ball', href: 'games/pong.html' },

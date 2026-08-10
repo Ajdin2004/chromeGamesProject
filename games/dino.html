@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Chrome Dino · Classic</title>
+    <link rel="icon" type="image/png" href="https://png.pngtree.com/png-clipart/20250426/original/pngtree-neon-game-controller-icon-in-blue-and-pink-glow-png-image_20885567.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+        body {
+            background: #0b0d19;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: #f0f4f8;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 640px;
+            margin-bottom: 0.8rem;
+            padding: 0 4px;
+        }
+        .back {
+            color: #f0f4f8;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: 0.2s;
+        }
+        .back:hover { color: #00f2fe; }
+        .game-wrapper {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 242, 254, 0.12);
+            border: 1px solid rgba(255,255,255,0.06);
+            max-width: 640px;
+            width: 100%;
+            aspect-ratio: 640 / 300;
+            background: #f7f7f7;
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent;
+        }
+        .info {
+            margin-top: 0.8rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.8rem;
+            font-weight: 400;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+        }
+        .info i { margin-right: 0.25rem; color: #4facfe; }
+        @media (max-width: 480px) {
+            .header { flex-wrap: wrap; gap: 0.4rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+    <h2 style="font-weight: 600; font-size: 1.2rem; letter-spacing: 0.5px;">Dino</h2>
+    <span style="font-size: 0.8rem; color: #94a3b8;"><i class="fa-regular fa-star"></i> High: <span id="highDisplay">0</span></span>
+</div>
+<div class="game-wrapper">
+    <canvas id="gameCanvas" width="640" height="300"></canvas>
+</div>
+<div class="info">
+    <span><i class="fa-regular fa-keyboard"></i> Space / ↑ / Tap</span>
+    <span><i class="fa-solid fa-arrow-down"></i> Duck</span>
+</div>
+    <script src="dino.js"></script>
+</body>
+</html>

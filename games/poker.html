@@ -119,7 +119,11 @@ body {
     overflow: hidden;
     background: #070b14;
     isolation: isolate;
-    transition: top 0.3s ease;
+    /* No transition on `top`: the canvas is sized from this container's
+       measured rect, so an animated top would cause `resize()` to capture
+       an intermediate, wrong size on the first render (empty strip at the
+       bottom of the play area). The header itself still slides smoothly
+       via its own transform transition. */
 }
 
 canvas {
@@ -485,6 +489,12 @@ canvas {
         padding: 5px 8px;
     }
 
+    /* Keep all 6 action buttons in a single row in landscape so Call,
+       Raise and All-In are never clipped by the short controls bar. */
+    .action-row {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
     .btn {
         min-height: 28px;
         font-size: .68rem;
@@ -509,9 +519,14 @@ canvas {
         <i class="fa-solid fa-arrow-left"></i><span>Hub</span>
     </a>
     <h2>Texas Hold'em</h2>
-    <button class="hud-btn" id="hand-history-btn">
-        <i class="fa-solid fa-clock-rotate-left"></i> History
-    </button>
+    <div style="display:flex; gap:6px; justify-self:end;">
+        <button class="hud-btn" id="volume-btn" aria-label="Toggle sound">
+            <i class="fa-solid fa-volume-high" id="volume-icon"></i>
+        </button>
+        <button class="hud-btn" id="hand-history-btn">
+            <i class="fa-solid fa-clock-rotate-left"></i> History
+        </button>
+    </div>
 </header>
 
 <main id="game-container">
