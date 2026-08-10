@@ -720,6 +720,34 @@ function handlePointerUp() {
     requestRender();
 }
 
+// ---------------------------------------------------------------------------
+// Device Orientation & Screen Size Detector
+// ---------------------------------------------------------------------------
+let orientationDismissed = false;
+
+function checkOrientation() {
+    const overlay = document.getElementById('orientation-overlay');
+
+    // Detect small device in portrait mode
+    const isSmallDevice = window.innerWidth <= 768;
+    const isPortrait = window.innerHeight > window.innerWidth;
+
+    if (overlay) {
+        if (isSmallDevice && isPortrait && !orientationDismissed) {
+            overlay.classList.remove('hidden');
+            overlay.setAttribute('aria-hidden', 'false');
+        } else {
+            overlay.classList.add('hidden');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    // 1. Recalculate canvas and layout dimensions
+    resize();
+    computeLayout();
+}
+
+
 canvas.addEventListener('mousedown', e => {
     const rect = canvas.getBoundingClientRect();
     handlePointerDown(e.clientX - rect.left, e.clientY - rect.top);
@@ -787,6 +815,24 @@ document.getElementById('undo-btn').addEventListener('click', undo);
 
 const winNewGameBtn = document.getElementById('win-new-game');
 if (winNewGameBtn) winNewGameBtn.addEventListener('click', initGame);
+
+// Listen to window size and orientation shifts
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+
+// Screen Orientation API fallback for modern browsers
+if (screen.orientation) {
+    screen.orientation.addEventListener('change', checkOrientation);
+}
+
+document.getElementById('dismiss-orientation-btn')?.addEventListener('click', () => {
+    orientationDismissed = true;
+    checkOrientation();
+});
+
+// Run detection on page initialization
+checkOrientation();
+
 
 // Allow standard DOM fonts to load before first render caching
 document.fonts.ready.then(() => {

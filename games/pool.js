@@ -239,6 +239,7 @@ function darken(hex) {
 let balls = [];
 let pockets = [];
 let bounds = {};
+let prevBounds = null;
 let cueBall = null;
 
 let isAiming = false;
@@ -269,10 +270,14 @@ function setupTableDimensions() {
     canvas.width = w;
     canvas.height = h;
 
-    const uiPaddingTop = 60; 
-    const uiPaddingBottom = 75; 
-    const availableH = h - uiPaddingTop - uiPaddingBottom - 30;
-    const availableW = w - 30;
+    // In landscape mode, reduce UI padding to let the table use more space.
+    // Landscape has less vertical room but plenty of horizontal width; with
+    // a fixed 2:1 ratio reducing vertical padding makes the table wider too.
+    const isLandscape = w > h;
+    const uiPaddingTop = isLandscape ? 50 : 60; 
+    const uiPaddingBottom = isLandscape ? 50 : 75; 
+    const availableH = h - uiPaddingTop - uiPaddingBottom - (isLandscape ? 10 : 30);
+    const availableW = w - (isLandscape ? 10 : 30);
 
     let tableW = availableW;
     let tableH = tableW / TABLE_RATIO;
@@ -304,12 +309,30 @@ function setupTableDimensions() {
         { x: bounds.right, y: bounds.bottom }
     ];
 
-    balls.forEach(b => {
-        if (b.active) {
-            b.x = Math.max(bounds.left + BALL_RADIUS, Math.min(b.x, bounds.right - BALL_RADIUS));
-            b.y = Math.max(bounds.top + BALL_RADIUS, Math.min(b.y, bounds.bottom - BALL_RADIUS));
-        }
-    });
+    // Remap ball positions proportionally when the table is resized,
+    // preserving each ball's relative position on the table across orientation changes.
+    if (prevBounds && balls.length > 0) {
+        const oldW = prevBounds.right - prevBounds.left;
+        const oldH = prevBounds.bottom - prevBounds.top;
+        const newW = bounds.right - bounds.left;
+        const newH = bounds.bottom - bounds.top;
+
+        balls.forEach(b => {
+            if (b.active) {
+                const relX = oldW !== 0 ? (b.x - prevBounds.left) / oldW : 0.5;
+                const relY = oldH !== 0 ? (b.y - prevBounds.top) / oldH : 0.5;
+                b.x = bounds.left + relX * newW;
+                b.y = bounds.top + relY * newH;
+            }
+        });
+    }
+
+    prevBounds = {
+        left: bounds.left,
+        top: bounds.top,
+        right: bounds.right,
+        bottom: bounds.bottom
+    };
 }
 
 function initGame() {
@@ -754,7 +777,32 @@ canvas.addEventListener('pointerup', () => {
     }
 });
 
-window.addEventListener('resize', setupTableDimensions);
+// ---------------------------------------------------------------------------
+// Device Orientation & Screen Size Detector
+// ---------------------------------------------------------------------------
+let orientationDismissed = false;
+
+function checkOrientation() {
+    const overlay = document.getElementById('orientation-warning');
+
+    // Detect small device in portrait mode
+    const isSmallDevice = window.innerWidth <= 768;
+    const isPortrait = window.innerHeight > window.innerWidth;
+
+    if (overlay) {
+        if (isSmallDevice && isPortrait && !orientationDismissed) {
+            overlay.classList.remove('hidden');
+            overlay.setAttribute('aria-hidden', 'false');
+        } else {
+            overlay.classList.add('hidden');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    // Recalculate canvas and layout dimensions without resetting the game
+    setupTableDimensions();
+}
+
 
 // --- Main Loop ---
 function update() {
@@ -772,6 +820,25 @@ function update() {
 
     requestAnimationFrame(update);
 }
+
+
+// Listen to window size and orientation shifts
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+
+// Screen Orientation API fallback for modern browsers
+if (screen.orientation) {
+    screen.orientation.addEventListener('change', checkOrientation);
+}
+
+document.getElementById('dismiss-orientation-btn')?.addEventListener('click', () => {
+    orientationDismissed = true;
+    checkOrientation();
+});
+
+// Run detection on page initialization
+checkOrientation();
+
 
 initGame();
 update();

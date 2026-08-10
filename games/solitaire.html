@@ -129,74 +129,86 @@
             border-color: #00f2fe;
         }
 
-        /* Landscape warning banner overlay for small portrait devices */
-        #orientation-warning {
-            position: fixed;
-            inset: 0;
-            background: rgba(11, 13, 25, 0.95);
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-        }
+        /* Device orientation notice */
+.orientation-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(5, 8, 16, 0.95);
+    backdrop-filter: blur(16px);
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
 
-        #orientation-warning i {
-            font-size: 3rem;
-            color: #00f2fe;
-            margin-bottom: 1rem;
-            animation: rotatePhone 2s infinite ease-in-out;
-        }
+.orientation-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
 
-        #orientation-warning h3 {
-            font-size: 1.4rem;
-            margin-bottom: 0.5rem;
-            color: #f0f4f8;
-        }
+.orientation-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
 
-        #orientation-warning p {
-            color: #94a3b8;
-            font-size: 0.95rem;
-            max-width: 300px;
-        }
+.orientation-icon {
+    font-size: 2.2rem;
+    color: #67e8f9;
+    animation: rotateHint 2s infinite ease-in-out;
+}
 
-        @keyframes rotatePhone {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(-90deg); }
-        }
+.orientation-card h3 {
+    font-size: 1.1rem;
+    color: #f8fafc;
+}
 
-        @media (max-width: 768px) and (orientation: portrait) {
-            #orientation-warning {
-                display: flex;
-            }
-        }
+.orientation-card p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+@keyframes rotateHint {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+}
+
+        /* Adjust game container layout when header is auto-hidden in landscape */
+@media (orientation: landscape) and (max-height: 520px) {
+    #game-container {
+        top: var(--safe-top);
+    }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+    :root {
+        --header-h: 42px;
+        --controls-h: 78px;
+    }
         
-        /* Optimize header padding and controls for landscape viewports */
-        @media (orientation: landscape) and (max-height: 500px) {
-            body {
-                padding: 0.2rem 0.5rem;
-            }
-            .header {
-                margin-bottom: 0.1rem;
-            }
-            .controls {
-                margin-bottom: 0.1rem;
-            }
-            .btn {
-                padding: 0.25rem 0.75rem;
-                font-size: 0.85rem;
-            }
         }        
     </style>
 </head>
 <body>
 
-<div id="orientation-warning">
-    <i class="fa-solid fa-mobile-screen-button"></i>
-    <h3>Please Rotate Your Device</h3>
-    <p>For the best Solitaire card-playing experience, please turn your device sideways into landscape mode.</p>
+<div id="orientation-overlay" class="orientation-overlay hidden" aria-hidden="true">
+    <div class="orientation-card">
+        <i class="fa-solid fa-mobile-screen-button orientation-icon"></i>
+        <h3>Rotate Your Device</h3>
+        <p>For the best gameplay experience on mobile, please turn your device sideways to landscape mode.</p>
+        <button class="btn primary" id="dismiss-orientation-btn">Continue Anyway</button>
+    </div>
 </div>
 
 <div class="header">

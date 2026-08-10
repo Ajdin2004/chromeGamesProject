@@ -72,10 +72,12 @@
             50% { transform: rotate(-90deg); }
         }
 
-        @media (max-width: 768px) and (orientation: portrait) {
-            #orientation-warning {
-                display: flex;
-            }
+        #orientation-warning:not(.hidden) {
+            display: flex;
+        }
+
+        #orientation-warning .btn {
+            margin-top: 1.5rem;
         }
 
         /* Floating Header Overlay */
@@ -202,9 +204,10 @@
 <body>
 
     <div id="orientation-warning">
-        <i class="fa-solid fa-mobile-screen-button"></i>
+        <i class="fa-solid fa-mobile-screen-button orientation-icon"></i>
         <h3>Rotate Your Device</h3>
-        <p>For the best pool-cue aiming experience, please turn your device sideways into landscape mode.</p>
+        <p>For the best gameplay experience on mobile, please turn your device sideways to landscape mode.</p>
+        <button class="btn primary" id="dismiss-orientation-btn">Continue Anyway</button>
     </div>
 
     <div class="header-bar">

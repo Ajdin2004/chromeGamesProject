@@ -296,24 +296,33 @@ function layout() {
     const isHeaderHidden = headerEl && headerEl.classList.contains('hidden-landscape');
     
     // In landscape with hidden header, start content below screen notches (safe-area)
-    const topOffset = (!portrait && isHeaderHidden) ? 8 : 12;
+    const topOffset = (!portrait && isHeaderHidden) ? 20 : 12;
 
     const left = Math.max(12, w * 0.035);
     const right = w - left;
 
+    // Worst-case AI info panel (name + chips + bet badge) is drawn ABOVE the
+    // AI cards. Compute a minimum AI card Y so that panel stays fully on-screen.
+    const aiPanelHeight = 62;
+    const aiPanelGap = 16;
+
     // Adjust Opponent Band Y position to stay fully visible on screen
     const aiNameY = portrait 
         ? Math.max(28, h * 0.075) 
-        : Math.max(topOffset + 14, h * 0.10);
+        : Math.max(topOffset + 14, h * 0.12);
 
     const aiCardY = portrait
         ? clamp(h * 0.255, aiNameY + aiCard.h * 0.72, h * 0.31)
-        : clamp(h * 0.28, aiNameY + aiCard.h * 0.70, h * 0.35);
+        : clamp(
+            Math.max(h * 0.30, topOffset + aiPanelHeight + aiPanelGap + aiCard.h * 0.5),
+            aiNameY + aiCard.h * 0.70,
+            h * 0.42
+        );
 
     const playerCardY = clamp(
-        h * (portrait ? 0.80 : 0.80),
+        h * (portrait ? 0.80 : 0.84),
         h * 0.68,
-        h - playerCard.h * 0.55 - 24
+        h - playerCard.h * 0.55 - 8
     );
 
     const boardY = clamp(
@@ -322,7 +331,7 @@ function layout() {
         playerCardY - CARD_HEIGHT * 1.15
     );
 
-    const potY = clamp(boardY - CARD_HEIGHT * 0.85, aiNameY + 20, h * 0.54);
+    const potY = clamp(boardY - CARD_HEIGHT * 0.95, aiNameY + 20, h * 0.54);
 
     const sideX = clamp(w * (portrait ? 0.20 : 0.18), aiCard.w * 0.72 + 8, w * 0.30);
     const centerX = w * 0.5;
@@ -1202,7 +1211,9 @@ function drawTable(L) {
     // Main table is sized from BOTH dimensions so it never touches the edges.
     const tableRx = Math.min(w * 0.46, portrait ? w * 0.46 : w * 0.44);
     const tableRy = Math.min(h * 0.44, portrait ? h * 0.39 : h * 0.40);
-    const tableCy = h * 0.51;
+    // In landscape the table sits lower to balance the AI band at the top
+    // and the player cards at the bottom.
+    const tableCy = portrait ? h * 0.55 : h * 0.55;
 
     // Outer glow.
     ctx.save();
@@ -1235,17 +1246,24 @@ function drawTable(L) {
     ctx.ellipse(w / 2, tableCy, tableRx * .90, tableRy * .88, 0, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Phase pill.
+    // Phase pill. In short landscape it's placed at the bottom-left so it never
+    // overlaps the top AI info panel (which sits directly above the AI cards).
     const phase = phaseLabel ? phaseLabel.toUpperCase() : 'TEXAS HOLD’EM';
-    const phaseW = Math.min(190, w * .42);
+    const phaseW = Math.min(190, w * (portrait ? 0.42 : 0.30));
+    let phaseX = w / 2 - phaseW / 2;
+    let phaseY = 10;
+    if (!portrait && h < 400) {
+        phaseX = 10;
+        phaseY = h - 40;
+    }
     roundedPanel(
-        w / 2 - phaseW / 2, 10, phaseW, 28, 14,
+        phaseX, phaseY, phaseW, 26, 13,
         'rgba(5,10,18,.72)', 'rgba(255,255,255,.10)'
     );
     ctx.fillStyle = '#dbeafe';
     ctx.textAlign = 'center';
-    ctx.font = `800 ${Math.max(10, Math.min(13, w * .018))}px Outfit`;
-    ctx.fillText(phase, w / 2, 29);
+    ctx.font = `800 ${Math.max(10, Math.min(12, w * .016))}px Outfit`;
+    ctx.fillText(phase, phaseX + phaseW / 2, phaseY + 18);
 
     // Subtle suit decoration, safely inside the viewport.
     ctx.globalAlpha = .055;
