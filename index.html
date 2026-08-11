@@ -1784,6 +1784,25 @@
                 </div>
             </a>
 
+            <!-- Pac-Man -->
+            <a href="games/pacman.html" class="game-card" data-category="arcade retro" data-name="pacman pac man maze" data-added="2026-08-11">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #1a1a2e, #facc15, #3b0764, #0f0f1a);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/pacman.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/pacman.html"></span>
+                    <canvas class="preview-canvas" data-type="pacman-dots"></canvas>
+                    <i class="fa-solid fa-ghost banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Pac-Man</h3>
+                    <p>Classic maze chase. Eat dots, dodge ghosts, and grab power pellets.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Arcade</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
         </section>
 
         <!-- Empty State -->
@@ -1914,12 +1933,6 @@
         <section class="coming-soon-section">
             <h2 class="section-heading"><i class="fa-solid fa-clock"></i> Coming Soon</h2>
             <div class="coming-soon-grid">
-                <div class="coming-soon-card">
-                    <span class="coming-soon-badge">Soon</span>
-                    <i class="fa-solid fa-ghost"></i>
-                    <h4>Pac-Man</h4>
-                    <p>Classic maze chase</p>
-                </div>
                 <div class="coming-soon-card">
                     <span class="coming-soon-badge">Soon</span>
                     <i class="fa-solid fa-jet-fighter"></i>
@@ -2246,6 +2259,42 @@
                         pCtx.fillRect(offsetX + c * cell + 1, offsetY + r * cell + 1, cell - 2, cell - 2);
                         pCtx.globalAlpha = 1;
                     }
+                } else if (type === 'pacman-dots') {
+                    // Pac-Man preview: yellow pac-man eating dots left to right
+                    pCtx.fillStyle = 'rgba(255, 184, 174, 0.8)';
+                    const dotY = height / 2;
+                    for (let i = 0; i < 8; i++) {
+                        const dx = (frame * 2 + i * 18) % (width + 40) - 20;
+                        pCtx.beginPath();
+                        pCtx.arc(dx, dotY, 3, 0, Math.PI * 2);
+                        pCtx.fill();
+                    }
+                    // Pac-Man with chomping mouth
+                    const px = (frame * 2) % (width + 40) - 20;
+                    const r = 14;
+                    const mouth = Math.abs(Math.sin(frame * 0.3)) * 0.5;
+                    pCtx.fillStyle = '#facc15';
+                    pCtx.shadowColor = '#facc15';
+                    pCtx.shadowBlur = 12;
+                    pCtx.beginPath();
+                    pCtx.arc(px, dotY, r, mouth, Math.PI * 2 - mouth);
+                    pCtx.lineTo(px, dotY);
+                    pCtx.closePath();
+                    pCtx.fill();
+                    pCtx.shadowBlur = 0;
+                    // Little ghost following
+                    pCtx.fillStyle = '#ef4444';
+                    const gx = (frame * 2 + 90) % (width + 40) - 20;
+                    pCtx.beginPath();
+                    pCtx.arc(gx, dotY, 8, Math.PI, 0);
+                    pCtx.lineTo(gx + 8, dotY + 8);
+                    pCtx.lineTo(gx + 5, dotY + 8);
+                    pCtx.lineTo(gx + 2, dotY + 4);
+                    pCtx.lineTo(gx - 1, dotY + 8);
+                    pCtx.lineTo(gx - 5, dotY + 8);
+                    pCtx.lineTo(gx - 8, dotY + 8);
+                    pCtx.closePath();
+                    pCtx.fill();
                 } else {
                     pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
                     let x = Math.sin(frame * 0.03) * 30 + width / 2;
@@ -2657,6 +2706,7 @@
             { name: 'Highway Racer', key: 'highway_highscore', icon: 'fa-car-side', href: 'games/highway.html' },
             { name: 'Texas Hold\'em', key: 'poker_best_chips', icon: 'fa-diamond', href: 'games/poker.html' },
             { name: 'Blockudoku', key: 'blockudoku_highscore', icon: 'fa-th-large', href: 'games/blockudoku.html' },
+            { name: 'Pac-Man', key: 'pacman_highscore', icon: 'fa-ghost', href: 'games/pacman.html' },
             { name: 'Box Office', key: 'boxoffice_best_streak', icon: 'fa-film', href: 'wordGames/boxoffice.html' }
         ];
 
