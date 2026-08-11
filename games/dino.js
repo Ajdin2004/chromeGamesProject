@@ -2,24 +2,28 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const highSpan = document.getElementById('highDisplay');
 
+// ----- LOGICAL RESOLUTION -----
+const LOGICAL_W = 1000;
+const LOGICAL_H = 400;
+
 // ----- CONSTANTS -----
-const GROUND_Y = 250;          // top of ground line
-const GROUND_HEIGHT = 50;      // ground strip height
-const DINO_X = 60;             // fixed dino x position
-const GRAVITY = 0.65;          // standard gravity
-const FAST_FALL_GRAVITY = 1.8; // stronger gravity applied when ducking mid-air
-const JUMP_VELOCITY = -12.0;   // initial jump impulse
-const CUT_JUMP_FACTOR = 0.45;  // velocity cut multiplier on early key release
-const DUCK_HEIGHT = 28;        // dino height when ducking
-const RUN_HEIGHT = 46;         // dino height when running
-const DINO_WIDTH = 40;
+const GROUND_HEIGHT = 50;      
+const DINO_X = 60;             
+const GRAVITY = 0.65;          
+const FAST_FALL_GRAVITY = 1.8; 
+const JUMP_VELOCITY = -12.0;   
+const CUT_JUMP_FACTOR = 0.45;  
+const DUCK_HEIGHT = 32;        // Updated for 2x scale
+const RUN_HEIGHT = 64;         // Updated for 2x scale
+const DINO_WIDTH = 64;         // Updated for 2x scale
 const BASE_SPEED = 6;
 const MAX_SPEED = 13;
-const MIN_OBSTACLE_GAP = 200;  // minimum pixel gap between obstacles
-const PTERODACTYL_MIN_DISTANCE = 500; // no pterodactyls before this distance
-const FIXED_DT = 1000 / 60;    // 60Hz physics timestep
+const MIN_OBSTACLE_GAP = 200;  
+const PTERODACTYL_MIN_DISTANCE = 500; 
+const FIXED_DT = 1000 / 60;    
 const NIGHT_CYCLE_DISTANCE = 2000;   
 const NIGHT_TRANSITION_FRAMES = 90;  
+let GROUND_Y = 340;            // Fixed logical ground level
 
 // ----- STATES -----
 const STATE_START = 0;
@@ -146,7 +150,6 @@ const dino = {
 
     endJump() {
         this.jumpHeld = false;
-        // If releasing jump mid-ascent, cut upward velocity short for short jumps
         if (this.velocity < 0) {
             this.velocity *= CUT_JUMP_FACTOR;
         }
@@ -166,14 +169,12 @@ const dino = {
     },
 
     update() {
-        // Fast-fall mechanic if ArrowDown is held while airborne
         const activeGravity = (!this.isGrounded && this.downHeld) ? FAST_FALL_GRAVITY : GRAVITY;
         this.velocity += activeGravity;
         this.y += this.velocity;
 
         const groundLevel = this.ducking ? GROUND_Y - DUCK_HEIGHT : GROUND_Y - RUN_HEIGHT;
 
-        // Ground landing check
         if (this.y >= groundLevel) {
             this.y = groundLevel;
             this.velocity = 0;
@@ -203,91 +204,109 @@ const dino = {
     },
 
     draw(palette) {
-    ctx.save();
-    if (this.dead) ctx.globalAlpha = 0.5;
-    ctx.fillStyle = palette.sprite;
-
-    const x = DINO_X - 18; // Offset slightly left to center the wider frame
-    const y = this.y;
-
-    if (this.ducking) {
-        // ===== DUCKED T-REX =====
-        // Tail
-        ctx.fillRect(x - 14, y + 10, 14, 4);
-        ctx.fillRect(x - 8, y + 14, 10, 4);
-
-        // Extended Low Body
-        ctx.fillRect(x - 2, y + 6, 36, 14);
-
-        // Low Head & Snout
-        ctx.fillRect(x + 30, y + 2, 22, 12);
-        ctx.fillRect(x + 42, y + 10, 10, 3); // Open mouth
-
-        // Eye
-        ctx.fillStyle = palette.skyTop;
-        ctx.fillRect(x + 38, y + 4, 3, 3);
+        ctx.save();
+        if (this.dead) ctx.globalAlpha = 0.5;
         ctx.fillStyle = palette.sprite;
 
-        // Legs
-        const legStep = Math.floor(this.legFrame / 4) % 2 === 0;
-        ctx.fillRect(x + 8, y + 20, 6, 8);
-        ctx.fillRect(x + 24, y + 20, 6, 8);
-        if (legStep) {
-            ctx.fillRect(x + 4, y + 26, 8, 2);
-        } else {
-            ctx.fillRect(x + 20, y + 26, 8, 2);
+        // CHECK FOR CUSTOM 32x32 DINO
+        if (window.customDinoFrames && (window.customDinoFrames[0].some(p => p) || window.customDinoFrames[1].some(p => p))) {
+            const pSizeX = 2; 
+            const pSizeY = this.ducking ? 1 : 2; 
+            
+            const startX = DINO_X - 16; 
+            const currentHitboxHeight = this.ducking ? DUCK_HEIGHT : RUN_HEIGHT;
+            
+            // 1. Find the lowest drawn pixel (highest row index) across both frames
+            // We check both frames so the dinosaur doesn't bounce vertically if the 
+            // running animation has one foot slightly higher than the other.
+            let bottomMostRow = 0;
+            for (let f = 0; f < 2; f++) {
+                if (window.customDinoFrames[f]) {
+                    for (let i = 0; i < 1024; i++) {
+                        if (window.customDinoFrames[f][i]) {
+                            const row = Math.floor(i / 32);
+                            if (row > bottomMostRow) bottomMostRow = row;
+                        }
+                    }
+                }
+            }
+
+            // 2. Anchor the sprite firmly so the bottom-most pixel touches the exact bottom of the hitbox
+            const startY = (this.y + currentHitboxHeight) - ((bottomMostRow + 1) * pSizeY); 
+            
+            let frameIndex = 0;
+            if (this.isGrounded && !this.ducking && gameState === STATE_PLAYING) {
+                frameIndex = Math.floor(this.legFrame / 5) % 2; 
+            }
+            
+            // Fallback to frame 0 if frame 1 is completely empty to prevent flickering
+            const activeFrame = window.customDinoFrames[frameIndex].some(p => p) 
+                ? window.customDinoFrames[frameIndex] 
+                : window.customDinoFrames[0];
+
+            for (let i = 0; i < 1024; i++) {
+                if (activeFrame[i]) {
+                    const col = i % 32;
+                    const row = Math.floor(i / 32);
+                    ctx.fillRect(startX + (col * pSizeX), startY + (row * pSizeY), pSizeX, pSizeY);
+                }
+            }
+            ctx.restore();
+            return; 
         }
-    } else {
-        // ===== STANDING T-REX (Wider & Sturdier Build) =====
-        
-        // 1. WIDE HEAD & JAW (y: 0 to 16)
-        ctx.fillRect(x + 28, y + 0, 28, 12);  // Main skull (widened to 28px)
-        ctx.fillRect(x + 26, y + 15, 18, 4);  // Lower jaw (widened to 18px)
-        ctx.fillRect(x + 42, y + 4, 4, 3);    // Snout tip
 
-        // Eye
-        ctx.fillStyle = palette.skyTop;
-        ctx.fillRect(x + 38, y + 3, 4, 4);
-        ctx.fillStyle = palette.sprite;
+        // ===== DEFAULT DINO (Fallback) =====
+        const x = DINO_X - 18; 
+        const y = this.y;
 
-        // 2. THICK NECK & WIDE TORSO (y: 10 to 32)
-        ctx.fillRect(x + 10, y + 10, 28, 22); // Main body (widened from 18px to 26px)
-
-        // 3. THICK TAIL
-        ctx.fillRect(x - 2, y + 14, 12, 10);  // Base tail attachment
-        ctx.fillRect(x - 10, y + 18, 8, 8);
-        ctx.fillRect(x - 16, y + 22, 6, 5);
-
-        // 4. ARM
-        ctx.fillRect(x + 38, y + 18, 8, 5);   // Arm extended slightly
-        ctx.fillRect(x + 36, y + 20, 2, 6);
-
-        // 5. STURDY LEGS & FEET (y: 32 to 46)
-        if (!this.isGrounded) {
-            // Jump Pose
-            ctx.fillRect(x + 12, y + 32, 7, 8);
-            ctx.fillRect(x + 22, y + 32, 7, 6);
-            ctx.fillRect(x + 22, y + 32, 7, 2);
-        } else {
-            // Running Legs
+        if (this.ducking) {
+            ctx.fillRect(x - 14, y + 10, 14, 4);
+            ctx.fillRect(x - 8, y + 14, 10, 4);
+            ctx.fillRect(x - 2, y + 6, 36, 14);
+            ctx.fillRect(x + 30, y + 2, 22, 12);
+            ctx.fillRect(x + 42, y + 10, 10, 3);
+            ctx.fillStyle = palette.skyTop;
+            ctx.fillRect(x + 38, y + 4, 3, 3);
+            ctx.fillStyle = palette.sprite;
             const legStep = Math.floor(this.legFrame / 4) % 2 === 0;
-            if (legStep) {
-                ctx.fillRect(x + 12, y + 32, 7, 10);
-                ctx.fillRect(x + 10, y + 42, 12, 4); // Wider foot base
-
-                ctx.fillRect(x + 24, y + 32, 7, 5);
-                ctx.fillRect(x + 28, y + 37, 5, 5);
+            ctx.fillRect(x + 8, y + 20, 6, 8);
+            ctx.fillRect(x + 24, y + 20, 6, 8);
+            if (legStep) ctx.fillRect(x + 4, y + 26, 8, 2);
+            else ctx.fillRect(x + 20, y + 26, 8, 2);
+        } else {
+            ctx.fillRect(x + 28, y + 0, 28, 12);
+            ctx.fillRect(x + 26, y + 15, 18, 4);
+            ctx.fillRect(x + 42, y + 4, 4, 3);
+            ctx.fillStyle = palette.skyTop;
+            ctx.fillRect(x + 38, y + 3, 4, 4);
+            ctx.fillStyle = palette.sprite;
+            ctx.fillRect(x + 10, y + 10, 28, 22);
+            ctx.fillRect(x - 2, y + 14, 12, 10);
+            ctx.fillRect(x - 10, y + 18, 8, 8);
+            ctx.fillRect(x - 16, y + 22, 6, 5);
+            ctx.fillRect(x + 38, y + 18, 8, 5);
+            ctx.fillRect(x + 36, y + 20, 2, 6);
+            if (!this.isGrounded) {
+                ctx.fillRect(x + 12, y + 32, 7, 8);
+                ctx.fillRect(x + 22, y + 32, 7, 6);
+                ctx.fillRect(x + 22, y + 32, 7, 2);
             } else {
-                ctx.fillRect(x + 12, y + 32, 7, 5);
-                ctx.fillRect(x + 10, y + 37, 5, 5);
-
-                ctx.fillRect(x + 24, y + 32, 7, 10);
-                ctx.fillRect(x + 22, y + 42, 12, 4); // Wider foot base
+                const legStep = Math.floor(this.legFrame / 4) % 2 === 0;
+                if (legStep) {
+                    ctx.fillRect(x + 12, y + 32, 7, 10);
+                    ctx.fillRect(x + 10, y + 42, 12, 4);
+                    ctx.fillRect(x + 24, y + 32, 7, 5);
+                    ctx.fillRect(x + 28, y + 37, 5, 5);
+                } else {
+                    ctx.fillRect(x + 12, y + 32, 7, 5);
+                    ctx.fillRect(x + 10, y + 37, 5, 5);
+                    ctx.fillRect(x + 24, y + 32, 7, 10);
+                    ctx.fillRect(x + 22, y + 42, 12, 4);
+                }
             }
         }
+        ctx.restore();
     }
-    ctx.restore();
-}
 };
 
 // ----- OBSTACLES -----
@@ -316,14 +335,15 @@ function spawnObstacle() {
         else if (alt < 0.7) y = GROUND_Y - 90;
         else y = GROUND_Y - 130;
     }
-    obstacles.push({ type, x: canvas.width + 20, w, h, y, passed: false });
+    // Spawn outside logical bounds
+    obstacles.push({ type, x: LOGICAL_W + 20, w, h, y, passed: false });
 }
 
 function updateObstacles() {
     spawnTimer--;
     if (spawnTimer <= 0) {
         const lastX = obstacles.length > 0 ? obstacles[obstacles.length - 1].x : -Infinity;
-        if (canvas.width + 20 - lastX >= MIN_OBSTACLE_GAP) {
+        if (LOGICAL_W + 20 - lastX >= MIN_OBSTACLE_GAP) {
             spawnObstacle();
         }
         const gapFrames = Math.floor((55 + Math.random() * 55) * (BASE_SPEED / speed));
@@ -383,24 +403,24 @@ function drawObstacles(palette) {
 let groundOffset = 0;
 function drawGround(palette) {
     ctx.fillStyle = palette.groundLine;
-    ctx.fillRect(0, GROUND_Y, canvas.width, 3);
+    ctx.fillRect(0, GROUND_Y, LOGICAL_W, 3);
     ctx.fillStyle = palette.texture;
     const dashW = 24;
     const gap = 18;
     const total = dashW + gap;
     const offset = -(groundOffset % total);
-    for (let x = offset; x < canvas.width; x += total) {
+    for (let x = offset; x < LOGICAL_W; x += total) {
         ctx.fillRect(x, GROUND_Y + 10, dashW, 3);
     }
     ctx.fillStyle = palette.ground;
-    ctx.fillRect(0, GROUND_Y + 3, canvas.width, GROUND_HEIGHT - 3);
+    ctx.fillRect(0, GROUND_Y + 3, LOGICAL_W, GROUND_HEIGHT - 3);
 }
 
 // ----- CLOUDS -----
 let clouds = [];
 for (let i = 0; i < 4; i++) {
     clouds.push({
-        x: Math.random() * canvas.width,
+        x: Math.random() * LOGICAL_W,
         y: 30 + Math.random() * 80,
         w: 40 + Math.random() * 30,
         speed: Math.random() * 0.4 + 0.2
@@ -410,7 +430,7 @@ function drawClouds(palette) {
     clouds.forEach(c => {
         c.x -= c.speed * (speed / BASE_SPEED);
         if (c.x + c.w < 0) {
-            c.x = canvas.width + c.w;
+            c.x = LOGICAL_W + c.w;
             c.y = 30 + Math.random() * 80;
         }
         ctx.fillStyle = palette.cloud;
@@ -424,7 +444,7 @@ function drawClouds(palette) {
 let stars = [];
 for (let i = 0; i < 30; i++) {
     stars.push({
-        x: Math.random() * canvas.width,
+        x: Math.random() * LOGICAL_W,
         y: Math.random() * 120,
         size: Math.random() * 2 + 1,
         twinkle: Math.random() * Math.PI * 2
@@ -445,30 +465,51 @@ function drawUI(palette) {
     if (gameState === STATE_PLAYING) {
         ctx.font = '800 22px Outfit, sans-serif';
         ctx.fillStyle = palette.textDark;
-        ctx.fillText(score, canvas.width / 2, 40);
+        ctx.fillText(score, LOGICAL_W / 2, 40);
     } else if (gameState === STATE_START) {
         ctx.font = '800 26px Outfit, sans-serif';
         ctx.fillStyle = palette.textDark;
-        ctx.fillText('CHROME DINO', canvas.width / 2, 90);
+        ctx.fillText('CHROME DINO', LOGICAL_W / 2, 90);
         ctx.font = '500 15px Outfit, sans-serif';
         ctx.fillStyle = palette.textMuted;
-        ctx.fillText('Press Space / Tap to start', canvas.width / 2, 120);
+        ctx.fillText('Press Space / Tap to start', LOGICAL_W / 2, 120);
     } else if (gameState === STATE_GAMEOVER) {
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.beginPath();
-        ctx.roundRect(canvas.width / 2 - 130, 70, 260, 130, 14);
+        ctx.roundRect(LOGICAL_W / 2 - 130, 70, 260, 130, 14);
         ctx.fill();
         ctx.fillStyle = '#ef4444';
         ctx.font = '800 26px Outfit, sans-serif';
-        ctx.fillText('GAME OVER', canvas.width / 2, 110);
+        ctx.fillText('GAME OVER', LOGICAL_W / 2, 110);
         ctx.fillStyle = '#fff';
         ctx.font = '600 18px Outfit, sans-serif';
-        ctx.fillText(`Score: ${score}`, canvas.width / 2, 145);
-        ctx.fillText(`Best: ${highScore}`, canvas.width / 2, 172);
+        ctx.fillText(`Score: ${score}`, LOGICAL_W / 2, 145);
+        ctx.fillText(`Best: ${highScore}`, LOGICAL_W / 2, 172);
         ctx.font = '400 13px Outfit, sans-serif';
         ctx.fillStyle = '#cbd5e1';
-        ctx.fillText('Space / Tap to restart', canvas.width / 2, 195);
+        ctx.fillText('Space / Tap to restart', LOGICAL_W / 2, 195);
     }
+}
+
+// ----- DPR-AWARE SCALING ENGINE -----
+function resizeCanvas() {
+    const wrapper = document.querySelector('.game-wrapper');
+    const rect = wrapper.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    
+    // Scale to fit wrapper while maintaining the aspect ratio
+    const scale = Math.min(rect.width / LOGICAL_W, rect.height / LOGICAL_H);
+    
+    const targetW = LOGICAL_W * scale;
+    const targetH = LOGICAL_H * scale;
+
+    canvas.width = targetW * dpr;
+    canvas.height = targetH * dpr;
+    
+    canvas.style.width = `${targetW}px`;
+    canvas.style.height = `${targetH}px`;
+    
+    ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
 }
 
 // ----- GAME CONTROL -----
@@ -497,23 +538,6 @@ function gameOver() {
     }
 }
 
-function resetGame() {
-    dino.reset();
-    obstacles = [];
-    spawnTimer = 30;
-    score = 0;
-    speed = BASE_SPEED;
-    distance = 0;
-    frameCount = 0;
-    groundOffset = 0;
-    nightT = 0;
-    nightTarget = 0;
-    accumulator = 0;
-    lastTime = 0;
-    gameState = STATE_PLAYING;
-    dino.startJump();
-}
-
 // ----- PHYSICS STEP -----
 function physicsStep() {
     frameCount++;
@@ -537,7 +561,7 @@ function physicsStep() {
 function render() {
     const palette = getColors();
     ctx.fillStyle = palette.skyTop;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H); // Updated to logical resolution
 
     drawStars();
     drawClouds(palette);
@@ -548,7 +572,12 @@ function render() {
 }
 
 // ----- EVENT LISTENERS -----
+window.addEventListener('resize', resizeCanvas);
+
 window.addEventListener('keydown', (e) => {
+    // Block gameplay input when drawing editor is open
+    if (document.getElementById('editorOverlay').classList.contains('show')) return;
+    
     if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
         if (!e.repeat) handleInputStart();
@@ -568,22 +597,54 @@ window.addEventListener('keyup', (e) => {
     }
 });
 
+// ----- TOUCH & MOUSE CONTROLS -----
+let touchStartY = 0;
+
 canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    handleInputStart();
-});
+    initAudio();
+    
+    // If editor is open, ignore game touches
+    if (document.getElementById('editorOverlay').classList.contains('show')) return;
+
+    if (gameState === STATE_START || gameState === STATE_PLAYING) {
+        dino.startJump();
+    } else if (gameState === STATE_GAMEOVER) {
+        resetGame();
+    }
+
+    if (e.touches.length > 0) {
+        touchStartY = e.touches[0].clientY;
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 0) return;
+
+    const currentY = e.touches[0].clientY;
+    const diffY = currentY - touchStartY;
+
+    // Swipe down threshold for ducking
+    if (diffY > 30) {
+        dino.duck(true);
+    }
+}, { passive: false });
 
 canvas.addEventListener('touchend', (e) => {
     e.preventDefault();
     dino.endJump();
-});
+    dino.duck(false); // Release duck when finger lifts
+}, { passive: false });
 
 canvas.addEventListener('mousedown', () => {
+    if (document.getElementById('editorOverlay').classList.contains('show')) return;
     handleInputStart();
 });
 
 canvas.addEventListener('mouseup', () => {
     dino.endJump();
+    dino.duck(false);
 });
 
 document.addEventListener('visibilitychange', () => {
@@ -641,4 +702,129 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
     };
 }
 
+// ----- 32x32 PIXEL EDITOR LOGIC -----
+window.customDinoFrames = JSON.parse(localStorage.getItem('dino_custom_frames')) || [new Array(1024).fill(false), new Array(1024).fill(false)];
+
+const editorOverlay = document.getElementById('editorOverlay');
+const pixelGrid = document.getElementById('pixelGrid');
+let isDrawing = false;
+let currentFrame = 0;
+let currentTool = 'brush'; // 'brush' or 'eraser'
+
+function buildGrid() {
+    pixelGrid.innerHTML = '';
+    const frameData = window.customDinoFrames[currentFrame];
+    
+    for (let i = 0; i < 1024; i++) {
+        const div = document.createElement('div');
+        div.className = 'pixel';
+        if (frameData[i]) div.classList.add('active');
+        
+        // Use pointer events to seamlessly support both mouse dragging and touch sliding
+        div.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            div.setPointerCapture(e.pointerId);
+            togglePixel(div, i, currentTool === 'brush');
+        });
+        
+        div.addEventListener('pointerenter', (e) => {
+            if (isDrawing) {
+                togglePixel(div, i, currentTool === 'brush');
+            }
+        });
+        
+        pixelGrid.appendChild(div);
+    }
+}
+
+function togglePixel(div, index, forceState) {
+    window.customDinoFrames[currentFrame][index] = forceState;
+    if (forceState) div.classList.add('active');
+    else div.classList.remove('active');
+}
+
+// Global release to stop drawing when pointer leaves the grid or lifts
+document.addEventListener('pointerup', () => isDrawing = false);
+pixelGrid.addEventListener('pointerleave', () => isDrawing = false);
+
+// Toolbar Buttons
+document.getElementById('btnFrame0').addEventListener('click', (e) => {
+    currentFrame = 0;
+    document.getElementById('btnFrame0').classList.add('active');
+    document.getElementById('btnFrame1').classList.remove('active');
+    buildGrid();
+});
+
+document.getElementById('btnFrame1').addEventListener('click', (e) => {
+    currentFrame = 1;
+    document.getElementById('btnFrame1').classList.add('active');
+    document.getElementById('btnFrame0').classList.remove('active');
+    buildGrid();
+});
+
+document.getElementById('btnCopy').addEventListener('click', () => {
+    const targetFrame = currentFrame === 0 ? 1 : 0;
+    window.customDinoFrames[targetFrame] = [...window.customDinoFrames[currentFrame]];
+    alert(`Copied Frame ${currentFrame + 1} to Frame ${targetFrame + 1}!`);
+});
+
+document.getElementById('btnBrush').addEventListener('click', () => {
+    currentTool = 'brush';
+    document.getElementById('btnBrush').classList.add('active');
+    document.getElementById('btnEraser').classList.remove('active');
+});
+
+document.getElementById('btnEraser').addEventListener('click', () => {
+    currentTool = 'eraser';
+    document.getElementById('btnEraser').classList.add('active');
+    document.getElementById('btnBrush').classList.remove('active');
+});
+
+document.getElementById('clearDinoBtn').addEventListener('click', () => {
+    window.customDinoFrames[currentFrame] = new Array(1024).fill(false);
+    buildGrid();
+});
+
+// Force Editor Open Flow
+function openEditor() {
+    buildGrid();
+    editorOverlay.classList.add('show');
+    paused = true;
+}
+
+document.getElementById('openEditorBtn').addEventListener('click', openEditor);
+
+document.getElementById('saveDinoBtn').addEventListener('click', () => {
+    localStorage.setItem('dino_custom_frames', JSON.stringify(window.customDinoFrames));
+    editorOverlay.classList.remove('show');
+    
+    gameState = STATE_PLAYING;
+    lastTime = performance.now();
+    paused = false;
+    dino.startJump();
+});
+
+editorOverlay.addEventListener('mousedown', (e) => e.stopPropagation());
+editorOverlay.addEventListener('touchstart', (e) => e.stopPropagation());
+
+function resetGame() {
+    dino.reset();
+    obstacles = [];
+    spawnTimer = 30;
+    score = 0;
+    speed = BASE_SPEED;
+    distance = 0;
+    frameCount = 0;
+    groundOffset = 0;
+    nightT = 0;
+    nightTarget = 0;
+    accumulator = 0;
+    lastTime = 0;
+    gameState = STATE_START; 
+    openEditor(); 
+}
+
+resizeCanvas();
+window.onload = openEditor;
 gameLoop(performance.now());
