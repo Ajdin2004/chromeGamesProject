@@ -1,3 +1,5 @@
+// Detect if primary input is touch
+const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const wrapper = document.getElementById('gameWrapper');
@@ -409,13 +411,14 @@ function update() {
     if (keys['ArrowRight'] || keys['d'] || keys['D']) ship.angle += ship.rotationSpeed;
 
     // Joystick rotation (touch)
-    if (touchState.joystick.active) {
-        const j = touchState.joystick;
-        const deadzone = 8;
-        if (Math.abs(j.dx) > deadzone) {
-            ship.angle += (j.dx / 40) * ship.rotationSpeed * 1.6;
-        }
+if (isTouchDevice && touchState.joystick.active) {
+    const j = touchState.joystick;
+    const deadzone = 8;
+    if (Math.abs(j.dx) > deadzone) {
+        // Reduced sensitivity from (j.dx / 40) to (j.dx / 90) for smoother steering
+        ship.angle += (j.dx / 70) * ship.rotationSpeed;
     }
+}
 
     // Keyboard thrust
     ship.isThrusting = keys['ArrowUp'] || keys['w'] || keys['W'];
@@ -675,6 +678,52 @@ function update() {
 
     // Decay wave banner
     if (waveBanner.timer > 0) waveBanner.timer--;
+}
+
+function drawTouchControls() {
+    if (gameState !== STATE_PLAYING || !isTouchDevice) return;
+
+    // Fire zone indicator (right half)
+    ctx.strokeStyle = 'rgba(255, 0, 85, 0.25)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(LOGICAL_W * 0.78, LOGICAL_H * 0.82, 42, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = touchState.fire.active ? 'rgba(255, 0, 85, 0.25)' : 'rgba(255, 0, 85, 0.08)';
+    ctx.fill();
+    ctx.fillStyle = touchState.fire.active ? '#ff0055' : 'rgba(255, 255, 255, 0.6)';
+    ctx.font = '800 14px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('FIRE', LOGICAL_W * 0.78, LOGICAL_H * 0.82 + 5);
+
+    // Hyperspace button (top-right)
+    ctx.strokeStyle = 'rgba(167, 139, 250, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(LOGICAL_W - 45, 55, 24, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = touchState.hyperspace.active ? 'rgba(167, 139, 250, 0.3)' : 'rgba(167, 139, 250, 0.1)';
+    ctx.fill();
+    ctx.fillStyle = '#a78bfa';
+    ctx.font = '800 11px Outfit, sans-serif';
+    ctx.fillText('WARP', LOGICAL_W - 45, 59);
+
+    // Joystick (left half)
+    if (touchState.joystick.active) {
+        const j = touchState.joystick;
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(j.baseX, j.baseY, 40, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(0, 242, 254, 0.25)';
+        ctx.beginPath();
+        ctx.arc(j.baseX + j.dx, j.baseY + j.dy, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.7)';
+        ctx.stroke();
+    }
 }
 
 // --- Drawing Functions ---
@@ -1110,6 +1159,47 @@ canvasElement.addEventListener('pointercancel', e => {
     if (touchState.hyperspace.active && e.pointerId === touchState.hyperspace.pointerId) {
         touchState.hyperspace.active = false;
         touchState.hyperspace.pointerId = null;
+    }
+});
+
+canvasElement.addEventListener('pointerdown', e => {
+    initAudio();
+    if (gameState !== STATE_PLAYING) {
+        resetGame();
+        return;
+    }
+    if (paused) return;
+
+    // Ignore pointer events for touch controls if desktop/mouse user
+    if (!isTouchDevice) return;
+
+    canvasElement.setPointerCapture(e.pointerId);
+    const pos = toLogical(e.clientX, e.clientY);
+
+    // Check hyperspace button first
+    const distHyper = Math.hypot(pos.x - HYPERSPACE_BTN.x, pos.y - HYPERSPACE_BTN.y);
+    if (distHyper < HYPERSPACE_BTN.r) {
+        touchState.hyperspace.active = true;
+        touchState.hyperspace.pointerId = e.pointerId;
+        hyperspaceTeleport();
+        return;
+    }
+
+    // Left half = joystick, right half = fire
+    if (pos.x < LOGICAL_W / 2) {
+        if (!touchState.joystick.active) {
+            touchState.joystick.active = true;
+            touchState.joystick.pointerId = e.pointerId;
+            touchState.joystick.baseX = pos.x;
+            touchState.joystick.baseY = pos.y;
+            touchState.joystick.dx = 0;
+            touchState.joystick.dy = 0;
+        }
+    } else {
+        if (!touchState.fire.active) {
+            touchState.fire.active = true;
+            touchState.fire.pointerId = e.pointerId;
+        }
     }
 });
 
