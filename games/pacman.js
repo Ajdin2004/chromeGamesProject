@@ -88,7 +88,7 @@ const canvas = document.getElementById('gameCanvas');
                 "#.#######.#.#######.#",
                 "#...................#",
                 "####.#######.########",
-                "#o.........#........o#",
+                "#o.........#.......o#",
                 "#...................#",
                 "#####################"
             ],
@@ -115,7 +115,7 @@ const canvas = document.getElementById('gameCanvas');
                 "#.#######.#.#######.#",
                 "#...................#",
                 "####.#######.########",
-                "#o.........#........o#",
+                "#o.........#.......o#",
                 "#...................#",
                 "#####################"
             ]
@@ -235,23 +235,69 @@ const canvas = document.getElementById('gameCanvas');
             grid = [];
             dotsRemaining = 0;
             MAZE = MAZES[(level - 1) % MAZES.length];
-            const rows = MAZE.length;
-            for (let y = 0; y < rows; y++) {
+
+            // Normalize every row to the actual 21-column playfield. A malformed
+            // row used to leave the visual layout and collision grid out of sync.
+            for (let y = 0; y < ROWS; y++) {
+                const source = MAZE[y] || '';
                 const row = [];
                 for (let x = 0; x < COLS; x++) {
-                    let c = MAZE[y][x];
-                    if (c === 'P') {
-                        row.push(EMPTY);
-                    } else {
-                        row.push(c);
-                        if (c === DOT || c === PELLET) dotsRemaining++;
-                    }
+                    let c = source[x] ?? WALL;
+                    if (c === 'P') c = EMPTY;
+                    row.push(c);
                 }
                 grid.push(row);
             }
-            // Fill remaining rows if maze is shorter (shouldn't happen with 24-row mazes)
-            for (let y = rows; y < ROWS; y++) {
-                grid.push(new Array(COLS).fill(WALL));
+
+            // Make the visible maze match the playable maze. Some of the supplied
+            // layouts contain small open pockets that are not connected to Pac-Man's
+            // starting area. Those pockets looked walkable but were actually
+            // unreachable, which felt like an invisible collision barrier.
+            const start = (() => {
+                for (let y = 0; y < ROWS; y++) {
+                    for (let x = 0; x < COLS; x++) {
+                        if (MAZE[y] && MAZE[y][x] === 'P') return { x, y };
+                    }
+                }
+                return { x: 10, y: 15 };
+            })();
+
+            const reachable = new Set([`${start.x},${start.y}`]);
+            const queue = [start];
+            while (queue.length) {
+                const { x, y } = queue.shift();
+                const neighbors = [
+                    { x: x + 1, y }, { x: x - 1, y },
+                    { x, y: y + 1 }, { x, y: y - 1 }
+                ];
+
+                for (const n of neighbors) {
+                    let nx = n.x;
+                    if (nx < 0) nx = COLS - 1;
+                    if (nx >= COLS) nx = 0;
+                    const ny = n.y;
+                    if (ny < 0 || ny >= ROWS) continue;
+
+                    const key = `${nx},${ny}`;
+                    if (reachable.has(key) || grid[ny][nx] === WALL) continue;
+                    reachable.add(key);
+                    queue.push({ x: nx, y: ny });
+                }
+            }
+
+            // Turn disconnected "floor" pockets into visible walls.
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    if (grid[y][x] !== WALL && !reachable.has(`${x},${y}`)) {
+                        grid[y][x] = WALL;
+                    }
+                }
+            }
+
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    if (grid[y][x] === DOT || grid[y][x] === PELLET) dotsRemaining++;
+                }
             }
         }
 
@@ -283,7 +329,7 @@ const canvas = document.getElementById('gameCanvas');
             { x: 10, y: 9 },   // Blinky - center
             { x: 9, y: 9 },    // Pinky - left
             { x: 11, y: 9 },   // Inky - right
-            { x: 10, y: 10 }   // Clyde - bottom center
+            { x: 8, y: 9 }     // Clyde - far left (row 10 is a solid wall in every maze, so Clyde can't spawn there)
         ];
         const GHOST_HOME = { x: 10, y: 9 };
         const GHOST_EXIT = { x: 10, y: 7 }; // Point just above the door
@@ -321,12 +367,24 @@ const canvas = document.getElementById('gameCanvas');
             return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
         }
 
-        function getValidDirs(x, y, currentDir, forGhost, allowReverse) {
+        function getValidDirs(x, y, currentDir, forGhost, allowReverse, allowDoor = true) {
             const dirs = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }];
             let valid = dirs.filter(d => {
-                // Ghosts can't reverse direction unless forced or in ghost house
+                // Ghosts can't reverse direction unless forced or in ghost house.
                 if (forGhost && !allowReverse && d.x === -currentDir.x && d.y === -currentDir.y) return false;
-                return isPassable(Math.round(x + d.x), Math.round(y + d.y), forGhost);
+
+                const nx = Math.round(x + d.x);
+                const ny = Math.round(y + d.y);
+
+                // Once a ghost has left the house, never let normal AI choose
+                // the one-way house door as a destination. Without this guard
+                // the scatter/chase target can make ghosts oscillate forever
+                // between the door and the tile above it.
+                if (forGhost && !allowDoor && ny >= 0 && ny < ROWS && nx >= 0 && nx < COLS && grid[ny][nx] === DOOR) {
+                    return false;
+                }
+
+                return isPassable(nx, ny, forGhost);
             });
             // If no valid moves, allow reverse
             if (valid.length === 0 && forGhost) {
@@ -371,8 +429,13 @@ const canvas = document.getElementById('gameCanvas');
             // Check if ghost is in the ghost house
             const inHouse = ghost.y >= 8 && ghost.y <= 10 && ghost.x >= 9 && ghost.x <= 11;
 
-            // If at tile center, decide next move
-            if (Math.abs(ghost.x - Math.round(ghost.x)) < speed && Math.abs(ghost.y - Math.round(ghost.y)) < speed) {
+            // If at tile center, decide next move.
+            // NOTE: subtract a tiny epsilon from the threshold. Floating-point
+            // addition (e.g. 9 - 0.12) can land a hair under the true value,
+            // which made this check fire again one frame after leaving a tile
+            // center -- snapping the ghost straight back to where it started
+            // and freezing it in an infinite loop.
+            if (Math.abs(ghost.x - Math.round(ghost.x)) < speed - 1e-6 && Math.abs(ghost.y - Math.round(ghost.y)) < speed - 1e-6) {
                 ghost.x = Math.round(ghost.x);
                 ghost.y = Math.round(ghost.y);
 
@@ -404,7 +467,7 @@ const canvas = document.getElementById('gameCanvas');
                         target = GHOST_HOME;
                     }
                 } else if (ghost.mode === 'frightened') {
-                    const valid = getValidDirs(ghost.x, ghost.y, ghost.dir, true);
+                    const valid = getValidDirs(ghost.x, ghost.y, ghost.dir, true, false, ghost.inHouse || ghost.mode === 'eaten');
                     if (valid.length > 0) {
                         ghost.dir = valid[Math.floor(Math.random() * valid.length)];
                     }
@@ -414,7 +477,14 @@ const canvas = document.getElementById('gameCanvas');
 
                 if (target) {
                     // Allow reverse direction when in the ghost house (needed for returning eaten ghosts)
-                    const valid = getValidDirs(ghost.x, ghost.y, ghost.dir, true, inHouse);
+                    const valid = getValidDirs(
+                        ghost.x,
+                        ghost.y,
+                        ghost.dir,
+                        true,
+                        inHouse,
+                        inHouse || ghost.mode === 'eaten'
+                    );
                     if (valid.length > 0) {
                         let bestDir = valid[0];
                         let minDist = Infinity;
@@ -428,6 +498,20 @@ const canvas = document.getElementById('gameCanvas');
                         ghost.dir = bestDir;
                     }
                 }
+            }
+
+            // A ghost should always have a direction while active. If a malformed
+            // maze leaves it without one, pick a legal direction instead of freezing.
+            if (ghost.dir.x === 0 && ghost.dir.y === 0) {
+                const fallback = getValidDirs(
+                    Math.round(ghost.x),
+                    Math.round(ghost.y),
+                    ghost.dir,
+                    true,
+                    true,
+                    ghost.inHouse || ghost.mode === 'eaten'
+                );
+                if (fallback.length) ghost.dir = fallback[0];
             }
 
             ghost.x += ghost.dir.x * speed;
@@ -483,8 +567,12 @@ const canvas = document.getElementById('gameCanvas');
         function updatePac() {
             const speed = pac.speed * speedMultiplier;
 
-            // At tile center, check for turns or stopping
-            if (Math.abs(pac.x - Math.round(pac.x)) < speed && Math.abs(pac.y - Math.round(pac.y)) < speed) {
+            // At tile center, check for turns or stopping.
+            // Same epsilon fix as the ghosts: without it, floating-point drift
+            // could make this fire one frame after leaving a tile, snapping
+            // Pac-Man back to the tile he just left -- which felt like an
+            // invisible wall blocking movement at seemingly random spots.
+            if (Math.abs(pac.x - Math.round(pac.x)) < speed - 1e-6 && Math.abs(pac.y - Math.round(pac.y)) < speed - 1e-6) {
                 const tx = Math.round(pac.x);
                 const ty = Math.round(pac.y);
 
@@ -871,7 +959,7 @@ const canvas = document.getElementById('gameCanvas');
             if (Math.abs(dx) > Math.abs(dy)) {
                 pac.nextDir = dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 };
             } else {
-                pac.nextDir = dy > 0 ? { x: 0, y: 1 } : { x: -1, y: 0 };
+                pac.nextDir = dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 };
             }
             touchStart = { x: t.clientX, y: t.clientY };
         });
