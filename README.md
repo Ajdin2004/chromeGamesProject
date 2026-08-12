@@ -18,7 +18,7 @@ Fast-paced action and strategic classics:
 - **3D Drive & Highway:** High-speed driving simulations.
 - **Flight Sim:** A browser-based flight experience. **Not currently implemented**
 - **Classic Arcades:** Asteroids, Snake, Pong, Flappy Bird, Space Invaders.
-- **Strategy & Puzzles:** Chess, Solitaire, Poker, Blockudoku, Block Puzzler.
+- **Strategy & Puzzles:** Chess, Tic-Tac-Toe, Solitaire, Poker, Blockudoku, Block Puzzler.
 
 ### 🧩 Word & Trivia Games (`/wordGames`)
 Brain-teasing puzzles and daily challenges:
@@ -64,7 +64,11 @@ Brain-teasing puzzles and daily challenges:
 4. Open your browser at `http://localhost:3000` (or the port specified in `server.js`).
 
 ### Deployment
-This project is configured for **Netlify**. Simply push your changes to the main branch to trigger a build, or use the Netlify CLI:
+This project is **hosted on Netlify** and is configured for automatic deploys. 
+
+> ⚠️ **Important:** Pushing directly to the `main` branch will trigger an automatic production deploy. To avoid deploying potentially broken or unfinished versions, **do not push directly to `main`**. Instead, work on a separate branch and only merge into `main` once the changes are verified and ready for production.
+
+For manual deploys, you can use the Netlify CLI:
 ```bash
 netlify deploy --prod
 ```
