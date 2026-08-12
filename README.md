@@ -18,7 +18,7 @@ Fast-paced action and strategic classics:
 - **3D Drive & Highway:** High-speed driving simulations.
 - **Flight Sim:** A browser-based flight experience. **Not currently implemented**
 - **Classic Arcades:** Asteroids, Snake, Pong, Flappy Bird, Space Invaders.
-- **Strategy & Puzzles:** Chess, Tic-Tac-Toe, Solitaire, Poker, Blockudoku, Block Puzzler.
+- **Strategy & Puzzles:** Chess, Checkers, Tic-Tac-Toe, Solitaire, Poker, Blockudoku, Block Puzzler.
 
 ### 🧩 Word & Trivia Games (`/wordGames`)
 Brain-teasing puzzles and daily challenges:

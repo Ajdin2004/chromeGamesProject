@@ -1712,6 +1712,25 @@
                 </div>
             </a>
 
+            <!-- Checkers -->
+            <a href="games/checkers.html" class="game-card" data-category="arcade strategy" data-name="checkers" data-added="2026-08-13">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #1e1b4b, #4338ca, #312e81, #0f172a);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/checkers.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/checkers.html"></span>
+                    <canvas class="preview-canvas" data-type="checkers-grid"></canvas>
+                    <i class="fa-solid fa-chess-pawn banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Checkers</h3>
+                    <p>Classic board strategy duel. Capture, jump, and crown your way to victory.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Strategy</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Tic-Tac-Toe -->
             <a href="games/tictactoe.html" class="game-card" data-category="arcade strategy" data-name="tic tac toe" data-added="2026-08-12">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #062a3a, #0e7490, #164e63, #083344);">
@@ -1919,6 +1938,10 @@
             <ul class="changelog-list">
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
+                    <p><strong>Checkers</strong> — Classic board strategy duel. Capture, jump, and crown your way to victory against AI or a friend!</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
                     <p><strong>Tic-Tac-Toe</strong> — Classic 3x3 strategy duel. Play vs AI with 5 difficulty levels, 2-player local, and win-in-one puzzles!</p>
                 </li>
                 <li class="changelog-item">
@@ -1995,12 +2018,6 @@
                     <i class="fa-solid fa-car"></i>
                     <h4>Parking Mania</h4>
                     <p>Precision parking challenges</p>
-                </div>
-                <div class="coming-soon-card">
-                    <span class="coming-soon-badge">Soon</span>
-                    <i class="fa-solid fa-chess-rook"></i>
-                    <h4>Checkers</h4>
-                    <p>Classic board strategy duel</p>
                 </div>
                 <div class="coming-soon-card">
                     <span class="coming-soon-badge">Soon</span>
@@ -2505,6 +2522,66 @@
                     pCtx.lineTo(gx - 8, dotY + 8);
                     pCtx.closePath();
                     pCtx.fill();
+                } else if (type === 'checkers-grid') {
+                    // Checkers preview: animated 8x8 board with pieces
+                    const cell = Math.min(width, height) / 8.2;
+                    const offsetX = (width - cell * 8) / 2;
+                    const offsetY = (height - cell * 8) / 2;
+                    // Draw alternating board squares
+                    for (let r = 0; r < 8; r++) {
+                        for (let c = 0; c < 8; c++) {
+                            const isDark = (r + c) % 2 === 1;
+                            pCtx.fillStyle = isDark ? 'rgba(0, 242, 254, 0.15)' : 'rgba(255, 255, 255, 0.04)';
+                            pCtx.fillRect(offsetX + c * cell, offsetY + r * cell, cell, cell);
+                        }
+                    }
+                    // Draw border
+                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    pCtx.lineWidth = 1;
+                    for (let i = 0; i <= 8; i++) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX + i * cell, offsetY);
+                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 8);
+                        pCtx.stroke();
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX, offsetY + i * cell);
+                        pCtx.lineTo(offsetX + cell * 8, offsetY + i * cell);
+                        pCtx.stroke();
+                    }
+                    // Animated pieces on dark squares
+                    const pieceRows = [0, 1, 2, 5, 6, 7];
+                    const colors = ['#ff0080', '#00f2fe'];
+                    for (let i = 0; i < pieceRows.length; i++) {
+                        const row = pieceRows[i];
+                        const colorIdx = row < 3 ? 0 : 1;
+                        pCtx.fillStyle = colors[colorIdx];
+                        pCtx.shadowColor = colors[colorIdx];
+                        pCtx.shadowBlur = 6;
+                        for (let c = 0; c < 8; c++) {
+                            if ((row + c) % 2 === 1) {
+                                const cx = offsetX + c * cell + cell / 2;
+                                const cy = offsetY + row * cell + cell / 2;
+                                pCtx.beginPath();
+                                pCtx.arc(cx, cy, cell * 0.33, 0, Math.PI * 2);
+                                pCtx.fill();
+                            }
+                        }
+                        pCtx.shadowBlur = 0;
+                    }
+                    // Animate a piece moving diagonally
+                    const moveRow = 2 + Math.floor(frame / 25) % 5;
+                    const dir = Math.floor(frame / 25) % 2 === 0 ? 1 : -1;
+                    const moveCol = moveRow % 2 === 0 ? (dir === 1 ? 1 : 6) : (dir === 1 ? 0 : 7);
+                    const bobY = Math.sin(frame * 0.1) * 2;
+                    pCtx.fillStyle = '#ff0080';
+                    pCtx.shadowColor = '#ff0080';
+                    pCtx.shadowBlur = 10;
+                    pCtx.beginPath();
+                    const mcy = offsetY + (moveRow + 0.5) * cell + bobY;
+                    const mcx = offsetX + (moveCol + 0.5) * cell;
+                    pCtx.arc(mcx, mcy, cell * 0.33, 0, Math.PI * 2);
+                    pCtx.fill();
+                    pCtx.shadowBlur = 0;
                 } else {
                     pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
                     let x = Math.sin(frame * 0.03) * 30 + width / 2;
@@ -2928,7 +3005,8 @@
             { name: 'Blockudoku', key: 'blockudoku_highscore', icon: 'fa-th-large', href: 'games/blockudoku.html' },
             { name: 'Pac-Man', key: 'pacman_highscore', icon: 'fa-ghost', href: 'games/pacman.html' },
             { name: 'Box Office', key: 'boxoffice_best_streak', icon: 'fa-film', href: 'wordGames/boxoffice.html' },
-            { name: 'Tic-Tac-Toe', key: 'tictactoe_wins', icon: 'fa-hashtag', href: 'games/tictactoe.html' }
+            { name: 'Tic-Tac-Toe', key: 'tictactoe_wins', icon: 'fa-hashtag', href: 'games/tictactoe.html' },
+            { name: 'Checkers', key: 'checkers_wins', icon: 'fa-chess-pawn', href: 'games/checkers.html' }
         ];
 
         function populateLeaderboard() {

@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+        // Apply the card rendering fix to the rest of the cards
 // ---- Responsive layout config ----
 let CARD_WIDTH = 80;
 let CARD_HEIGHT = 120;

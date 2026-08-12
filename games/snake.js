@@ -1,7 +1,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const highSpan = document.getElementById('highDisplay');
-
+        // Apply the card rendering fix to the rest of the cards
         // ----- DIFFICULTY -----
         let currentDifficulty = 'easy';
         const DIFFICULTIES = {

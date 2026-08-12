@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Checkers (experimental) | Chromium Games</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3411/3411017.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0d19;
+            --card-bg: rgba(22, 27, 46, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-cyan: #00f2fe;
+            --primary-magenta: #ff0080;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 0.75rem;
+            z-index: 10;
+        }
+
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-cyan);
+        }
+
+        /* Controls & Mode Bar */
+        .controls-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 900px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 0.4rem;
+            background: var(--card-bg);
+            padding: 0.3rem;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta));
+            color: #000;
+            font-weight: 800;
+        }
+
+        .slider-box {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--card-bg);
+            padding: 0.4rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .slider-box label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .slider-box input[type="range"] {
+            accent-color: var(--primary-cyan);
+            cursor: pointer;
+        }
+
+        /* Main Game Layout Grid */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            width: 100%;
+            max-width: 900px;
+            align-items: start;
+        }
+
+        /* Checkers Board Container */
+        .game-wrapper {
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 242, 254, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 18, 35, 0.9);
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+            backdrop-filter: blur(16px);
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: 100%;
+            height: 100%;
+        }
+
+        .square {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+            cursor: pointer;
+            position: relative;
+            transition: background 0.15s ease;
+        }
+
+        .square.light { background-color: #1e2640; }
+        .square.dark { background-color: #111625; }
+
+        /* Highlights & Last Move Animations */
+        .square.selected {
+            background-color: rgba(0, 242, 254, 0.35) !important;
+            box-shadow: inset 0 0 12px var(--primary-cyan);
+        }
+
+        .square.last-move-from {
+            background-color: rgba(255, 0, 128, 0.25) !important;
+            box-shadow: inset 0 0 10px var(--primary-magenta);
+        }
+
+        .square.last-move-to {
+            background-color: rgba(0, 242, 254, 0.25) !important;
+            box-shadow: inset 0 0 10px var(--primary-cyan);
+        }
+
+        .square.valid-move::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            background-color: var(--primary-cyan);
+            border-radius: 50%;
+            opacity: 0.8;
+            box-shadow: 0 0 8px var(--primary-cyan);
+        }
+
+        .square.valid-capture {
+            background-color: rgba(255, 0, 128, 0.4) !important;
+        }
+
+        /* Animated Pieces */
+        .piece {
+            display: inline-block;
+            transition: transform 0.15s ease-out;
+            animation: pieceAppear 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            line-height: 1;
+        }
+
+        @keyframes pieceAppear {
+            from { transform: scale(0.6); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .red-piece {
+            color: #ff0080;
+            text-shadow: 0 0 10px rgba(255, 0, 128, 0.6);
+        }
+
+        .black-piece {
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+        }
+
+        .piece.king {
+            position: relative;
+        }
+
+        .piece.king::after {
+            content: '♛';
+            position: absolute;
+            top: -35%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55em;
+            color: #facc15;
+            text-shadow: 0 0 8px rgba(250, 204, 21, 0.8);
+        }
+
+        /* Sidebar Info Box */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .panel h3 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-msg {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary-cyan);
+        }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 0.6rem 0.4rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+        }
+
+        .score-item .score-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .score-item .score-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-top: 0.2rem;
+        }
+
+        .score-item.wins .score-value { color: var(--primary-cyan); }
+        .score-item.losses .score-value { color: var(--primary-magenta); }
+        .score-item.draws .score-value { color: #facc15; }
+
+        .move-history {
+            max-height: 160px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            color: var(--text-main);
+        }
+
+        .move-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 0.65rem;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            color: var(--text-main);
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta));
+            border: none;
+            color: #000;
+        }
+        .btn-primary:hover { opacity: 0.9; color: #000; }
+
+        /* Desktop Layout Adaptations */
+        @media (min-width: 850px) {
+            .main-layout {
+                grid-template-columns: 500px 1fr;
+            }
+            .sidebar { height: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <h2>Neon Checkers (experimental)</h2>
+    </div>
+
+    <!-- Mode & Settings Bar -->
+    <div class="controls-bar">
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="btn-vs-ai">Vs AI</button>
+            <button class="mode-btn" id="btn-2p">2 Player</button>
+        </div>
+
+        <div class="slider-box" id="ai-difficulty-box">
+            <label for="difficulty-slider">AI Level: <span id="diff-val" style="color:#00f2fe;">3</span></label>
+            <input type="range" id="difficulty-slider" min="1" max="5" value="3">
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <!-- Checkers Board Grid -->
+        <div class="game-wrapper">
+            <div id="board"></div>
+        </div>
+
+        <!-- Sidebar Panel -->
+        <div class="sidebar">
+            <div class="panel">
+                <h3>STATUS</h3>
+                <div id="status" class="status-msg">Your Turn</div>
+            </div>
+
+            <div class="panel">
+                <h3>SCOREBOARD</h3>
+                <div class="scoreboard">
+                    <div class="score-item wins">
+                        <div class="score-label">Wins</div>
+                        <div class="score-value" id="score-wins">0</div>
+                    </div>
+                    <div class="score-item losses">
+                        <div class="score-label">Losses</div>
+                        <div class="score-value" id="score-losses">0</div>
+                    </div>
+                    <div class="score-item draws">
+                        <div class="score-label">Draws</div>
+                        <div class="score-value" id="score-draws">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>MOVE LOG</h3>
+                <div id="move-log" class="move-history"></div>
+            </div>
+
+            <div class="action-row">
+                <button class="btn-action" id="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Game</button>
+                <button class="btn-action" id="btn-load"><i class="fa-solid fa-folder-open"></i> Load Game</button>
+            </div>
+
+            <button class="btn-action btn-primary" id="btn-reset"><i class="fa-solid fa-rotate-right"></i> New Game</button>
+        </div>
+    </div>
+
+    <script src="checkers.js"></script>
+</body>
+</html>
