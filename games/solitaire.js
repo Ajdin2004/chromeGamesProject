@@ -1,7 +1,6 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-        // Apply the card rendering fix to the rest of the cards
 // ---- Responsive layout config ----
 let CARD_WIDTH = 80;
 let CARD_HEIGHT = 120;
@@ -201,25 +200,33 @@ function drawLoop() {
     let keepAnimating = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Foundations (Slots)
-    for (let i = 0; i < 4; i++) {
-        const x = LEFT_MARGIN + (i + 3) * (CARD_WIDTH + COLUMN_SPACING);
-        const y = TOP_MARGIN;
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
-        ctx.stroke();
+   // Draw Foundations (Slots)
+for (let i = 0; i < 4; i++) {
+    const x = LEFT_MARGIN + (i + 3) * (CARD_WIDTH + COLUMN_SPACING);
+    const y = TOP_MARGIN;
 
-        ctx.fillStyle = 'rgba(255,255,255,0.05)';
-        ctx.font = `${Math.max(18, CARD_WIDTH * 0.5)}px serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(['♥', '♦', '♣', '♠'][i], x + CARD_WIDTH / 2, y + CARD_HEIGHT / 2 + CARD_WIDTH * 0.18);
+    // Empty slot background
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
+    ctx.stroke();
 
-        foundations[i].forEach(card => {
-            if (card.draw(ctx, x, y)) keepAnimating = true;
-        });
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.font = `${Math.max(18, CARD_WIDTH * 0.5)}px serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(['♥', '♦', '♣', '♠'][i], x + CARD_WIDTH / 2, y + CARD_HEIGHT / 2 + CARD_WIDTH * 0.18);
+
+    // Draw top card only if it is NOT being dragged
+    const pile = foundations[i];
+    if (pile.length > 0) {
+        const topCard = pile[pile.length - 1];
+        // Skip drawing if this card is currently being dragged
+        if (!isDragging || !draggedCards || !draggedCards.includes(topCard)) {
+            if (topCard.draw(ctx, x, y)) keepAnimating = true;
+        }
     }
+}
 
     // Draw Stock
     const stockX = LEFT_MARGIN;

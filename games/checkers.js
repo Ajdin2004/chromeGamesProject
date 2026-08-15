@@ -74,8 +74,8 @@ const Sound = {
 };
 
 // --- Piece Constants ---
-// 'r' = red man (player), 'R' = red king
-// 'b' = black man (AI), 'B' = black king
+// 'r' = red man (AI), 'R' = red king
+// 'b' = blue man (Player), 'B' = blue king
 const PIECE_SYMBOLS = {
     'r': '●', 'R': '●',
     'b': '●', 'B': '●'
@@ -87,8 +87,7 @@ const PIECE_VALUES = {
 };
 
 // --- Initial Board Setup ---
-// Standard 8x8 checkers: red at top (rows 0-2), black at bottom (rows 5-7)
-// Only dark squares (where (r + c) % 2 === 1) are playable
+// Red (AI) at top (rows 0-2), Blue (Player) at bottom (rows 5-7)
 function createInitialBoard() {
     const board = Array(8).fill(null).map(() => Array(8).fill('.'));
     for (let r = 0; r < 3; r++) {
@@ -106,7 +105,7 @@ function createInitialBoard() {
 
 // --- Engine State ---
 let boardState = [];
-let turn = 'r'; // 'r' = red (player), 'b' = black (AI)
+let turn = 'b'; // 'b' = Blue (Player) starts, 'r' = Red (AI)
 let selectedSquare = null;
 let lastMove = null;
 let validMoves = [];
@@ -115,9 +114,9 @@ let gameMode = 'ai'; // 'ai' or '2p'
 let aiDifficulty = 3;
 let isAnimating = false;
 let gameOver = false;
-let noCaptureCount = 0; // For draw detection (40-move rule)
-let multiJumpPiece = null; // Piece that must continue jumping
-let multiJumpFrom = null; // Original position of multi-jump piece
+let noCaptureCount = 0; 
+let multiJumpPiece = null; 
+let multiJumpFrom = null; 
 
 // --- DOM References ---
 const boardEl = document.getElementById('board');
@@ -149,7 +148,6 @@ function updateScoreboard() {
 
 // --- Board Rendering ---
 function renderBoard() {
-    // Only build the DOM elements on initial load or full reset
     if (boardEl.children.length !== 64) {
         boardEl.innerHTML = '';
         for (let r = 0; r < 8; r++) {
@@ -165,13 +163,11 @@ function renderBoard() {
         }
     }
 
-    // Smoothly update board squares without destroying DOM elements
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const sq = boardEl.children[r * 8 + c];
             const piece = boardState[r][c];
 
-            // Update square selection & move highlight classes
             sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
 
             if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) {
@@ -189,7 +185,6 @@ function renderBoard() {
                 else sq.classList.add('valid-move');
             }
 
-            // Sync piece contents
             let pSpan = sq.querySelector('.piece');
             if (piece !== '.') {
                 const isRed = piece === 'r' || piece === 'R';
@@ -198,7 +193,8 @@ function renderBoard() {
                     pSpan = document.createElement('span');
                     sq.appendChild(pSpan);
                 }
-                pSpan.className = `piece ${isRed ? 'red-piece' : 'black-piece'}${isKing ? ' king' : ''}`;
+                // Updated CSS reference to blue-piece
+                pSpan.className = `piece ${isRed ? 'red-piece' : 'blue-piece'}${isKing ? ' king' : ''}`;
                 pSpan.textContent = PIECE_SYMBOLS[piece];
                 pSpan.style.transform = 'none';
                 pSpan.style.zIndex = '1';
@@ -229,7 +225,6 @@ function animateAndMove(fromR, fromC, toR, toC, capturedR = null, capturedC = nu
     const deltaX = toRect.left - fromRect.left;
     const deltaY = toRect.top - fromRect.top;
 
-    // Apply smooth linear sliding transition
     pieceEl.style.zIndex = '100';
     pieceEl.style.transition = 'transform 0.2s ease-in-out';
     pieceEl.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
@@ -238,16 +233,20 @@ function animateAndMove(fromR, fromC, toR, toC, capturedR = null, capturedC = nu
         makeMove(fromR, fromC, toR, toC, capturedR, capturedC);
         isAnimating = false;
 
-        // Check if multi-jump is required
         if (multiJumpPiece) {
-            // Continue with the same piece
             selectedSquare = { r: toR, c: toC };
             validMoves = getCaptureMovesForPiece(toR, toC, boardState);
             renderBoard();
+            
+            // FIX: Ensure the AI continues its multi-jump sequence
+            if (gameMode === 'ai' && turn === 'r' && !gameOver) {
+                setTimeout(triggerAiMove, 250);
+            }
             return;
         }
 
-        if (gameMode === 'ai' && turn === 'b' && !gameOver) {
+        // Trigger AI for a normal turn
+        if (gameMode === 'ai' && turn === 'r' && !gameOver) {
             setTimeout(triggerAiMove, 250);
         }
     }, 200);
@@ -258,7 +257,7 @@ function isRedPiece(piece) {
     return piece === 'r' || piece === 'R';
 }
 
-function isBlackPiece(piece) {
+function isBluePiece(piece) {
     return piece === 'b' || piece === 'B';
 }
 
@@ -274,9 +273,8 @@ function getSimpleMovesForPiece(r, c, board) {
     const king = isKing(piece);
     const dirs = [];
 
-    // Red moves DOWN (increasing row), Black moves UP (decreasing row)
-    if (red || king) dirs.push([1, -1], [1, 1]); // Down
-    if (!red || king) dirs.push([-1, -1], [-1, 1]); // Up
+    if (red || king) dirs.push([1, -1], [1, 1]); 
+    if (!red || king) dirs.push([-1, -1], [-1, 1]); 
 
     for (const [dr, dc] of dirs) {
         const nr = r + dr;
@@ -296,9 +294,8 @@ function getCaptureMovesForPiece(r, c, board) {
     const king = isKing(piece);
     const dirs = [];
 
-    // Red moves DOWN (increasing row), Black moves UP (decreasing row)
-    if (red || king) dirs.push([1, -1], [1, 1]); // Down
-    if (!red || king) dirs.push([-1, -1], [-1, 1]); // Up
+    if (red || king) dirs.push([1, -1], [1, 1]); 
+    if (!red || king) dirs.push([-1, -1], [-1, 1]); 
 
     for (const [dr, dc] of dirs) {
         const mr = r + dr;
@@ -310,7 +307,7 @@ function getCaptureMovesForPiece(r, c, board) {
             const mid = board[mr][mc];
             const dest = board[nr][nc];
             if (mid !== '.' && dest === '.') {
-                const isEnemy = red ? isBlackPiece(mid) : isRedPiece(mid);
+                const isEnemy = red ? isBluePiece(mid) : isRedPiece(mid);
                 if (isEnemy) {
                     moves.push({ r: nr, c: nc, capture: true, capturedR: mr, capturedC: mc });
                 }
@@ -320,52 +317,34 @@ function getCaptureMovesForPiece(r, c, board) {
     return moves;
 }
 
+// --- Updated Move Generation ---
 function getAllMovesForSide(board, side) {
     const allMoves = [];
-    const hasCaptures = [];
 
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const piece = board[r][c];
             if (piece === '.') continue;
-            const isSidePiece = side === 'r' ? isRedPiece(piece) : isBlackPiece(piece);
+            const isSidePiece = side === 'r' ? isRedPiece(piece) : isBluePiece(piece);
             if (!isSidePiece) continue;
 
+            // Check captures and simple moves independently per piece
             const captures = getCaptureMovesForPiece(r, c, board);
             if (captures.length > 0) {
-                hasCaptures.push({ r, c, moves: captures });
-            }
-        }
-    }
-
-    // Mandatory capture rule: if any capture exists, only captures are allowed
-    if (hasCaptures.length > 0) {
-        for (const { r, c, moves } of hasCaptures) {
-            for (const m of moves) {
-                allMoves.push({ fromR: r, fromC: c, toR: m.r, toC: m.c, capture: true, capturedR: m.capturedR, capturedC: m.capturedC });
-            }
-        }
-        return allMoves;
-    }
-
-    // No captures available, return simple moves
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            const piece = board[r][c];
-            if (piece === '.') continue;
-            const isSidePiece = side === 'r' ? isRedPiece(piece) : isBlackPiece(piece);
-            if (!isSidePiece) continue;
-
-            const simple = getSimpleMovesForPiece(r, c, board);
-            for (const m of simple) {
-                allMoves.push({ fromR: r, fromC: c, toR: m.r, toC: m.c, capture: false });
+                for (const m of captures) {
+                    allMoves.push({ fromR: r, fromC: c, toR: m.r, toC: m.c, capture: true, capturedR: m.capturedR, capturedC: m.capturedC });
+                }
+            } else {
+                const simple = getSimpleMovesForPiece(r, c, board);
+                for (const m of simple) {
+                    allMoves.push({ fromR: r, fromC: c, toR: m.r, toC: m.c, capture: false });
+                }
             }
         }
     }
     return allMoves;
 }
 
-// Check if a piece has any capture moves (for multi-jump continuation)
 function hasCaptureMoves(r, c, board) {
     return getCaptureMovesForPiece(r, c, board).length > 0;
 }
@@ -373,7 +352,7 @@ function hasCaptureMoves(r, c, board) {
 // --- Game Flow ---
 function initBoard() {
     boardState = createInitialBoard();
-    turn = 'r';
+    turn = 'b'; // Ensure Blue (Player) starts
     selectedSquare = null;
     lastMove = null;
     validMoves = [];
@@ -386,18 +365,24 @@ function initBoard() {
     renderLog();
     renderBoard();
     updateStatus();
+    
+    // In case you ever swap to let AI start first:
+    if (gameMode === 'ai' && turn === 'r') {
+        setTimeout(triggerAiMove, 250);
+    }
 }
 
 function handleSquareClick(r, c) {
     if (isAnimating || gameOver) return;
     initAudio();
-    if (gameMode === 'ai' && turn === 'b') return;
+    
+    // Prevent player from clicking when it's AI's (Red) turn
+    if (gameMode === 'ai' && turn === 'r') return;
 
     const piece = boardState[r][c];
     const isRed = piece !== '.' && isRedPiece(piece);
-    const isBlack = piece !== '.' && isBlackPiece(piece);
+    const isBlue = piece !== '.' && isBluePiece(piece);
 
-    // If a multi-jump is in progress, only allow the jumping piece to move
     if (multiJumpPiece) {
         if (piece !== '.' && r === multiJumpPiece.r && c === multiJumpPiece.c) {
             selectedSquare = { r, c };
@@ -405,7 +390,6 @@ function handleSquareClick(r, c) {
             renderBoard();
             return;
         }
-        // Clicking elsewhere deselects
         selectedSquare = null;
         validMoves = [];
         renderBoard();
@@ -413,14 +397,13 @@ function handleSquareClick(r, c) {
     }
 
     // Select own piece
-    if (piece !== '.' && ((turn === 'r' && isRed) || (turn === 'b' && isBlack))) {
+    if (piece !== '.' && ((turn === 'r' && isRed) || (turn === 'b' && isBlue))) {
         selectedSquare = { r, c };
         validMoves = getValidMovesForPiece(r, c, boardState);
         renderBoard();
         return;
     }
 
-    // Try to move to a valid square
     if (selectedSquare) {
         const targetMove = validMoves.find(m => m.r === r && m.c === c);
         if (targetMove) {
@@ -437,17 +420,14 @@ function handleSquareClick(r, c) {
     }
 }
 
+// Update individual piece validation so clicking a non-capturing piece works normally if it has a legal move
 function getValidMovesForPiece(r, c, board) {
     const piece = board[r][c];
     if (piece === '.') return [];
 
-    // Check if any capture exists for this side (mandatory capture rule)
-    const side = isRedPiece(piece) ? 'r' : 'b';
-    const allMoves = getAllMovesForSide(board, side);
-    const hasAnyCapture = allMoves.some(m => m.capture);
-
-    if (hasAnyCapture) {
-        return getCaptureMovesForPiece(r, c, board);
+    const captures = getCaptureMovesForPiece(r, c, board);
+    if (captures.length > 0) {
+        return captures;
     }
     return getSimpleMovesForPiece(r, c, board);
 }
@@ -467,11 +447,9 @@ function makeMove(fromR, fromC, toR, toC, capturedR = null, capturedC = null) {
         noCaptureCount++;
     }
 
-    // Move the piece
     boardState[toR][toC] = piece;
     boardState[fromR][fromC] = '.';
 
-    // King promotion
     let promoted = false;
     if (piece === 'r' && toR === 7) {
         boardState[toR][toC] = 'R';
@@ -481,38 +459,33 @@ function makeMove(fromR, fromC, toR, toC, capturedR = null, capturedC = null) {
         promoted = true;
     }
 
-    // Move log notation
     const colNames = ['a','b','c','d','e','f','g','h'];
     const notation = `${piece.toUpperCase()}${colNames[fromC]}${8-fromR} ${isCapture ? '×' : '→'} ${colNames[toC]}${8-toR}${promoted ? ' (King)' : ''}`;
     moveLog.push(notation);
     renderLog();
 
-    // Multi-jump: if capture was made and piece can capture again (and wasn't promoted), continue
     if (isCapture && !promoted && hasCaptureMoves(toR, toC, boardState)) {
         multiJumpPiece = { r: toR, c: toC };
         multiJumpFrom = { r: fromR, c: fromC };
         renderBoard();
-        return; // Don't switch turns yet
+        return; 
     }
 
     multiJumpPiece = null;
     multiJumpFrom = null;
 
-    // Switch turns
     turn = turn === 'r' ? 'b' : 'r';
 
-    // Check for game over
     const opponent = turn;
     const opponentMoves = getAllMovesForSide(boardState, opponent);
-    const currentMoves = getAllMovesForSide(boardState, turn === 'r' ? 'b' : 'r');
 
     if (opponentMoves.length === 0) {
-        const winner = opponent === 'r' ? 'Black' : 'Red';
+        // Reflect Blue instead of Black
+        const winner = opponent === 'r' ? 'Blue' : 'Red';
         handleGameEnd(winner);
         return;
     }
 
-    // Draw detection: 40 moves without a capture
     if (noCaptureCount >= 40) {
         handleGameEnd(null);
         return;
@@ -532,7 +505,7 @@ function handleGameEnd(winner) {
         Sound.draw();
         stats.draws++;
     } else if (gameMode === 'ai') {
-        if (winner === 'Red') {
+        if (winner === 'Blue') {
             statusEl.textContent = "You Win! 🎉";
             Sound.win();
             stats.wins++;
@@ -542,10 +515,9 @@ function handleGameEnd(winner) {
             stats.losses++;
         }
     } else {
-        // 2 Player mode
         statusEl.textContent = `${winner} Wins!`;
         Sound.win();
-        if (winner === 'Red') stats.wins++;
+        if (winner === 'Blue') stats.wins++;
         else stats.losses++;
     }
 
@@ -559,9 +531,9 @@ function updateStatus() {
     if (gameOver) return;
 
     if (gameMode === 'ai') {
-        statusEl.textContent = turn === 'r' ? "Your Turn" : "AI Thinking...";
+        statusEl.textContent = turn === 'b' ? "Your Turn (Blue)" : "AI Thinking...";
     } else {
-        statusEl.textContent = turn === 'r' ? "Red's Turn" : "Black's Turn";
+        statusEl.textContent = turn === 'r' ? "Red's Turn" : "Blue's Turn";
     }
 }
 
@@ -576,21 +548,16 @@ function evaluateBoard(board) {
             const base = PIECE_VALUES[piece] || 0;
             let positional = 0;
 
-            // Positional bonuses
             if (piece === 'r') {
-                // Advancement bonus: closer to promotion = better
                 positional += r * 3;
-                // Center control
                 if (c >= 2 && c <= 5) positional += 2;
             } else if (piece === 'b') {
                 positional -= (7 - r) * 3;
                 if (c >= 2 && c <= 5) positional -= 2;
             } else if (piece === 'R' || piece === 'B') {
-                // Kings prefer center
                 if (c >= 2 && c <= 5) positional += (piece === 'R' ? 3 : -3);
             }
 
-            // Back row safety bonus
             if (piece === 'r' && r === 0) positional += 5;
             if (piece === 'b' && r === 7) positional -= 5;
 
@@ -603,18 +570,17 @@ function evaluateBoard(board) {
 function minimax(board, depth, isMaximizing, alpha, beta) {
     if (depth === 0) return { score: evaluateBoard(board) };
 
-    const side = isMaximizing ? 'b' : 'r';
+    // FIX: Red ('r') wants the score to go up (Maximize), Blue ('b') wants it down
+    const side = isMaximizing ? 'r' : 'b';
     const moves = getAllMovesForSide(board, side);
 
     if (moves.length === 0) {
-        // No moves = loss for this side
         return { score: isMaximizing ? -10000 - depth : 10000 + depth };
     }
 
     let bestMove = null;
     let bestScore = isMaximizing ? -Infinity : Infinity;
 
-    // Shuffle moves for variety at lower depths
     if (depth <= 2) {
         for (let i = moves.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -626,23 +592,25 @@ function minimax(board, depth, isMaximizing, alpha, beta) {
         const boardCopy = JSON.parse(JSON.stringify(board));
         const piece = boardCopy[move.fromR][move.fromC];
 
-        // Apply capture
         if (move.capture) {
             boardCopy[move.capturedR][move.capturedC] = '.';
         }
 
-        // Move piece
         boardCopy[move.toR][move.toC] = piece;
         boardCopy[move.fromR][move.fromC] = '.';
 
-        // King promotion
-        if (piece === 'r' && move.toR === 7) boardCopy[move.toR][move.toC] = 'R';
-        if (piece === 'b' && move.toR === 0) boardCopy[move.toR][move.toC] = 'B';
+        let promoted = false;
+        if (piece === 'r' && move.toR === 7) { 
+            boardCopy[move.toR][move.toC] = 'R'; 
+            promoted = true; 
+        }
+        if (piece === 'b' && move.toR === 0) { 
+            boardCopy[move.toR][move.toC] = 'B'; 
+            promoted = true; 
+        }
 
-        // Multi-jump: if capture and can capture again, continue with same piece
         let result;
-        if (move.capture && hasCaptureMoves(move.toR, move.toC, boardCopy)) {
-            // Simulate multi-jump by searching deeper with same side
+        if (move.capture && !promoted && hasCaptureMoves(move.toR, move.toC, boardCopy)) {
             result = minimaxMultiJump(boardCopy, move.toR, move.toC, depth, isMaximizing, alpha, beta);
         } else {
             result = minimax(boardCopy, depth - 1, !isMaximizing, alpha, beta);
@@ -667,7 +635,6 @@ function minimax(board, depth, isMaximizing, alpha, beta) {
     return { score: bestScore, move: bestMove };
 }
 
-// Handle multi-jump sequences in minimax
 function minimaxMultiJump(board, r, c, depth, isMaximizing, alpha, beta) {
     const captures = getCaptureMovesForPiece(r, c, board);
     if (captures.length === 0 || depth === 0) {
@@ -683,12 +650,18 @@ function minimaxMultiJump(board, r, c, depth, isMaximizing, alpha, beta) {
         boardCopy[cap.r][cap.c] = piece;
         boardCopy[r][c] = '.';
 
-        // King promotion during multi-jump
-        if (piece === 'r' && cap.r === 7) boardCopy[cap.r][cap.c] = 'R';
-        if (piece === 'b' && cap.r === 0) boardCopy[cap.r][cap.c] = 'B';
+        let promoted = false;
+        if (piece === 'r' && cap.r === 7) { 
+            boardCopy[cap.r][cap.c] = 'R'; 
+            promoted = true; 
+        }
+        if (piece === 'b' && cap.r === 0) { 
+            boardCopy[cap.r][cap.c] = 'B'; 
+            promoted = true; 
+        }
 
         let result;
-        if (hasCaptureMoves(cap.r, cap.c, boardCopy)) {
+        if (!promoted && hasCaptureMoves(cap.r, cap.c, boardCopy)) {
             result = minimaxMultiJump(boardCopy, cap.r, cap.c, depth - 1, isMaximizing, alpha, beta);
         } else {
             result = minimax(boardCopy, depth - 1, !isMaximizing, alpha, beta);
@@ -708,7 +681,6 @@ function minimaxMultiJump(board, r, c, depth, isMaximizing, alpha, beta) {
 }
 
 function triggerAiMove() {
-    // Determine depth based on difficulty
     let depth;
     switch (aiDifficulty) {
         case 1: depth = 2; break;
@@ -719,11 +691,30 @@ function triggerAiMove() {
         default: depth = 4;
     }
 
-    const result = minimax(boardState, depth, true, -Infinity, Infinity);
+    let finalMove = null;
 
-    if (result.move) {
-        const move = result.move;
-        animateAndMove(move.fromR, move.fromC, move.toR, move.toC, move.capturedR, move.capturedC);
+    // FIX: If the AI is locked into a multi-jump, it must jump again with that specific piece
+    if (multiJumpPiece) {
+        const captures = getCaptureMovesForPiece(multiJumpPiece.r, multiJumpPiece.c, boardState);
+        if (captures.length > 0) {
+            finalMove = {
+                fromR: multiJumpPiece.r,
+                fromC: multiJumpPiece.c,
+                toR: captures[0].r,
+                toC: captures[0].c,
+                capture: true,
+                capturedR: captures[0].capturedR,
+                capturedC: captures[0].capturedC
+            };
+        }
+    } else {
+        // Normal minimax search
+        const result = minimax(boardState, depth, true, -Infinity, Infinity);
+        finalMove = result.move;
+    }
+
+    if (finalMove) {
+        animateAndMove(finalMove.fromR, finalMove.fromC, finalMove.toR, finalMove.toC, finalMove.capturedR, finalMove.capturedC);
     }
 }
 
@@ -771,7 +762,6 @@ function loadSavedGame() {
     diffSlider.value = aiDifficulty;
     diffVal.textContent = aiDifficulty;
 
-    // Sync mode buttons
     btnVsAi.classList.toggle('active', gameMode === 'ai');
     btn2p.classList.toggle('active', gameMode === '2p');
     document.getElementById('ai-difficulty-box').style.display = gameMode === 'ai' ? 'flex' : 'none';
