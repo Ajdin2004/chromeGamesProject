@@ -23,7 +23,9 @@ Fast-paced action and strategic classics:
 ### 🧩 Word & Trivia Games (`/wordGames`)
 Brain-teasing puzzles and daily challenges:
 - **Wordle & Boggle:** The classic word-finding experiences.
-- **Loldle & Earthdle:** Niche guessing games (League of Legends and Geography).
+- **Loldle & Wutherdle:** Niche guessing games (League of Legends and Wuthering Waves).
+- **Zenlessdle & Starraildle:** Daily guessing games (Zenless Zone Zero and Honkai Star Rail).
+- **Earthdle:** Geography guessing game.
 - **Box Office & Video Games:** Trivia based on movies and gaming history.
 - **TuneTile:** Music-based puzzle integration.
 - **Riddler:** Daily logic and word riddles.

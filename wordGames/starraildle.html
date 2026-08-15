@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wutherdle | Chromium Games</title>
-    <link rel="icon" type="image/x-icon" href="https://cdn2.steamgriddb.com/icon_thumb/9d435d2e017f7a7384f4e1c6a6f2d169.png">
+    <title>Starraildle | Chromium Games</title>
+    <link rel="icon" type="image/x-icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0rYCTGzYXBvRvPwL__av89s9sWVwjtXsuO9LkMbNkpXNlHo7nEADsrcJOs0hnO67L&s=10&ec=121924562">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg-color: #0a0e1a;
-            --card-bg: rgba(12, 18, 36, 0.9);
-            --card-border: rgba(139, 92, 246, 0.25);
-            --primary-cyan: #00d4ff;
-            --primary-teal: #0ea5e9;
+            --card-bg: rgba(38, 24, 48, 0.9);
+            --card-border: rgba(192, 132, 252, 0.35);
+            --primary-purple: #c084fc;
+            --primary-gold: #f59e0b;
             --correct-green: #22c55e;
             --partial-yellow: #eab308;
             --wrong-red: #ef4444;
             --text-main: #f0f4f8;
             --text-muted: #94a3b8;
-            --accent-purple: #8b5cf6;
-            --accent-teal: #14b8a6;
+            --accent-purple: #a855f7;
+            --accent-gold: #fbbf24;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
 
         body {
             background: linear-gradient(rgba(10, 14, 26, 0.75), rgba(10, 14, 26, 0.92)),
-                        url('https://preview.redd.it/none-of-the-recent-official-wuwa-art-has-gagged-me-as-much-v0-mo2y3j8vlene1.jpeg?width=1080&crop=smart&auto=webp&s=7d3612dea209b2dc8b30cec3f8d0422dce10e747') no-repeat center center fixed;
+                        url('https://upload-os-bbs.hoyolab.com/upload/2025/02/19/17138284/4f7c6c3a0fb8a06975e645ab290924ca_9156765008437686795.png?x-oss-process=image%2Fresize%2Cs_1000%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-main);
             min-height: 100vh;
@@ -62,7 +62,7 @@
             gap: 0.5rem;
             font-size: 1.3rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -102,20 +102,20 @@
         }
 
         .icon-btn:hover {
-            border-color: var(--accent-purple);
-            color: var(--accent-purple);
+            border-color: var(--primary-purple);
+            color: var(--primary-purple);
         }
 
         .icon-btn.playing {
-            background: rgba(139, 92, 246, 0.15);
-            border-color: var(--accent-purple);
-            color: var(--accent-purple);
+            background: rgba(192, 132, 252, 0.15);
+            border-color: var(--primary-purple);
+            color: var(--primary-purple);
         }
 
         .icon-btn.active {
-            background: rgba(139, 92, 246, 0.15);
-            border-color: var(--accent-purple);
-            color: var(--accent-purple);
+            background: rgba(192, 132, 252, 0.15);
+            border-color: var(--primary-purple);
+            color: var(--primary-purple);
         }
 
         .mode-toggle {
@@ -141,9 +141,9 @@
         }
 
         .mode-btn.active {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(192, 132, 252, 0.2);
             color: var(--accent-purple);
-            border: 1px solid rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(192, 132, 252, 0.3);
         }
 
         .mode-btn:hover {
@@ -170,7 +170,7 @@
             color: var(--text-muted);
         }
 
-        .stat-item i { color: var(--accent-purple); }
+        .stat-item i { color: var(--primary-purple); }
         .stat-item strong { color: var(--text-main); }
 
         .countdown {
@@ -182,8 +182,8 @@
             font-weight: 700;
         }
 
-        .countdown i { color: var(--accent-purple); }
-        .countdown strong { color: var(--accent-teal); font-variant-numeric: tabular-nums; }
+        .countdown i { color: var(--primary-purple); }
+        .countdown strong { color: var(--accent-gold); font-variant-numeric: tabular-nums; }
 
         .endless-counter {
             display: none;
@@ -191,15 +191,15 @@
             gap: 0.35rem;
             font-size: 0.8rem;
             font-weight: 800;
-            color: var(--accent-purple);
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: var(--primary-purple);
+            background: rgba(192, 132, 252, 0.1);
+            border: 1px solid rgba(192, 132, 252, 0.2);
             border-radius: 8px;
             padding: 0.3rem 0.7rem;
             justify-content: center;
         }
 
-        .endless-counter i { color: var(--accent-teal); }
+        .endless-counter i { color: var(--accent-gold); }
         .endless-counter.visible { display: flex; }
 
         .game-panel {
@@ -210,7 +210,7 @@
             border-radius: 20px;
             padding: 1.5rem;
             backdrop-filter: blur(16px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(139, 92, 246, 0.08);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(192, 132, 252, 0.08);
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
@@ -232,8 +232,8 @@
         }
 
         .input-box input:focus {
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
         }
 
         .shake { animation: shakeKeyframe 0.4s ease-in-out; }
@@ -245,7 +245,7 @@
         }
 
         .btn-submit {
-            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-gold));
             border: none;
             color: #000;
             font-weight: 800;
@@ -287,7 +287,7 @@
             width: 32px; height: 32px;
             border-radius: 50%;
             object-fit: cover;
-            border: 1px solid var(--accent-purple);
+            border: 1px solid var(--primary-purple);
         }
 
         .tab-hint {
@@ -300,8 +300,8 @@
 
         .suggestion-item.active,
         .suggestion-item:hover {
-            background: rgba(139, 92, 246, 0.18);
-            color: var(--accent-purple);
+            background: rgba(192, 132, 252, 0.18);
+            color: var(--primary-purple);
         }
 
         .table-scroll-wrapper {
@@ -331,13 +331,13 @@
             gap: 3px;
             padding: 4px 2px;
             border-radius: 6px;
-            background: rgba(139, 92, 246, 0.06);
-            border: 1px solid rgba(139, 92, 246, 0.12);
+            background: rgba(192, 132, 252, 0.06);
+            border: 1px solid rgba(192, 132, 252, 0.12);
         }
 
         .grid-header span i {
             font-size: 0.9rem;
-            color: var(--accent-purple);
+            color: var(--primary-purple);
         }
 
         .guesses-list {
@@ -394,23 +394,19 @@
             opacity: 0.9;
         }
 
-        .attr-dir {
+        .attribute-box .attr-dir {
             font-size: 0.7rem;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin-top: 2px;
-            animation: bounceSmall 2s infinite;
+            animation: fadeInDir 0.4s ease-in-out;
         }
 
-        @keyframes bounceSmall {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+        .attribute-box.partial .attr-dir {
+            color: var(--accent-gold);
+        }
+
+        @keyframes fadeInDir {
+            from { opacity: 0; transform: translateY(-3px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .animate-flip {
@@ -444,9 +440,9 @@
             color: #fff;
         }
 
-        .resonator-card {
-            background: linear-gradient(145deg, rgba(139, 92, 246, 0.15), rgba(20, 184, 166, 0.1));
-            border-color: var(--accent-purple);
+        .character-card {
+            background: linear-gradient(145deg, rgba(192, 132, 252, 0.15), rgba(245, 158, 11, 0.1));
+            border-color: var(--primary-purple);
             color: var(--accent-purple);
             font-weight: 800;
             font-size: 0.85rem;
@@ -459,11 +455,11 @@
             text-align: left;
         }
 
-        .resonator-avatar {
+        .character-avatar {
             width: 42px; height: 42px;
             border-radius: 8px;
             object-fit: cover;
-            border: 1px solid var(--accent-purple);
+            border: 1px solid var(--primary-purple);
             flex-shrink: 0;
         }
 
@@ -488,7 +484,7 @@
         .toast {
             text-align: center;
             font-weight: 700;
-            color: var(--accent-purple);
+            color: var(--primary-purple);
             min-height: 20px;
             font-size: 0.95rem;
         }
@@ -517,7 +513,7 @@
         .modal-card {
             background: var(--card-bg);
             border: 2px solid var(--card-border);
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 30px rgba(192, 132, 252, 0.2);
             border-radius: 20px;
             width: 100%;
             max-width: 440px;
@@ -555,9 +551,9 @@
             width: 90px;
             height: 90px;
             border-radius: 50%;
-            border: 3px solid var(--accent-purple);
+            border: 3px solid var(--primary-purple);
             object-fit: cover;
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.5);
         }
 
         .win-name {
@@ -580,11 +576,11 @@
         }
 
         .win-stats div strong {
-            color: var(--accent-purple);
+            color: var(--primary-purple);
         }
 
         .btn-close-win {
-            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-gold));
             color: #000;
             font-weight: 800;
             border: none;
@@ -598,8 +594,8 @@
         .btn-close-win:hover { filter: brightness(1.1); }
 
         .btn-share {
-            background: rgba(139, 92, 246, 0.15);
-            border: 1px solid var(--accent-purple);
+            background: rgba(192, 132, 252, 0.15);
+            border: 1px solid var(--primary-purple);
             color: var(--accent-purple);
             font-weight: 800;
             padding: 0.6rem 1.5rem;
@@ -614,7 +610,7 @@
         }
 
         .btn-share:hover {
-            background: rgba(139, 92, 246, 0.3);
+            background: rgba(192, 132, 252, 0.3);
         }
 
         .btn-share.copied {
@@ -645,7 +641,7 @@
         }
 
         .dist-bar {
-            background: rgba(139, 92, 246, 0.2);
+            background: rgba(192, 132, 252, 0.2);
             border-radius: 4px;
             padding: 2px 8px;
             font-weight: 700;
@@ -656,7 +652,7 @@
         }
 
         .dist-bar.highlight {
-            background: var(--accent-purple);
+            background: var(--primary-purple);
             color: #fff;
         }
 
@@ -767,7 +763,7 @@
     <div class="header-bar">
         <div class="header-left">
             <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-            <div class="header-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Wutherdle</div>
+            <div class="header-title"><i class="fa-solid fa-train-subway"></i> Starraildle</div>
         </div>
         <div class="header-controls">
             <div class="stats-bar">
@@ -789,7 +785,7 @@
     <div class="game-panel">
         <div class="search-container">
             <div class="input-box" id="input-wrapper">
-                <input type="text" id="resonator-input" placeholder="Loading resonators dataset..." autocomplete="off">
+                <input type="text" id="character-input" placeholder="Loading character dataset..." autocomplete="off">
                 <button id="btn-guess" class="btn-submit">GUESS</button>
             </div>
             <div id="suggestions" class="suggestions"></div>
@@ -799,12 +795,12 @@
 
         <div class="table-scroll-wrapper">
             <div class="grid-header">
-                <span><i class="fa-solid fa-user"></i> Resonator</span>
+                <span><i class="fa-solid fa-user"></i> Character</span>
                 <span><i class="fa-solid fa-venus-mars"></i> Gender</span>
                 <span><i class="fa-solid fa-fire"></i> Element</span>
-                <span><i class="fa-solid fa-star"></i> Weapon</span>
+                <span><i class="fa-solid fa-route"></i> Path</span>
                 <span><i class="fa-solid fa-star"></i> Rarity</span>
-                <span><i class="fa-solid fa-flag"></i> Version</span>
+                <span><i class="fa-solid fa-star"></i> Version</span>
                 <span><i class="fa-solid fa-flag"></i> Faction</span>
             </div>
 
@@ -813,7 +809,7 @@
 
         <div id="endless-counter" class="endless-counter"><i class="fa-solid fa-infinity"></i> Round <strong id="endless-round">1</strong></div>
         <div id="countdown-bar" class="countdown" style="justify-content:center;"><i class="fa-regular fa-clock"></i> <strong id="countdown">--:--:--</strong></div>
-        <div id="toast" class="toast">Loading resonator data...</div>
+        <div id="toast" class="toast">Loading character data...</div>
     </div>
 
     <!-- Victory Modal -->
@@ -821,16 +817,16 @@
         <canvas id="confetti-canvas"></canvas>
         <div class="modal-card">
             <div class="modal-title">Victory!</div>
-            <img id="win-avatar" class="win-avatar" src="" alt="Resonator">
+            <img id="win-avatar" class="win-avatar" src="" alt="Character">
             <div id="win-name" class="win-name">---</div>
             
             <div class="win-stats">
                 <div><strong>Element:</strong> <span id="win-element"></span></div>
-                <div><strong>Gender:</strong> <span id="win-gender"></span></div>
-                <div><strong>Weapon:</strong> <span id="win-weapon"></span></div>
+                <div><strong>Path:</strong> <span id="win-path"></span></div>
                 <div><strong>Rarity:</strong> <span id="win-rarity"></span></div>
-                <div><strong>Release Version:</strong> <span id="win-role"></span></div>
+                <div><strong>Combat:</strong> <span id="win-combat"></span></div>
                 <div><strong>Faction:</strong> <span id="win-faction"></span></div>
+                <div><strong>Gender:</strong> <span id="win-gender"></span></div>
             </div>
 
             <div class="guess-distribution" id="guess-distribution"></div>
@@ -845,14 +841,14 @@
     <div id="gameover-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-title lose">Game Over</div>
-            <img id="lose-avatar" class="win-avatar" src="" alt="Resonator">
+            <img id="lose-avatar" class="win-avatar" src="" alt="Character">
             <div id="lose-name" class="win-name">---</div>
             
             <div class="win-stats">
                 <div><strong>Element:</strong> <span id="lose-element"></span></div>
-                <div><strong>Weapon:</strong> <span id="lose-weapon"></span></div>
+                <div><strong>Path:</strong> <span id="lose-path"></span></div>
                 <div><strong>Rarity:</strong> <span id="lose-rarity"></span></div>
-                <div><strong>Release Version:</strong> <span id="lose-role"></span></div>
+                <div><strong>Combat:</strong> <span id="lose-combat"></span></div>
                 <div><strong>Faction:</strong> <span id="lose-faction"></span></div>
                 <div><strong>Gender:</strong> <span id="lose-gender"></span></div>
             </div>
@@ -884,7 +880,7 @@
             <div class="modal-title">How to Play</div>
             <div class="help-content">
                 <h3>🎯 Objective</h3>
-                <p>Guess today's mystery resonator in <strong>8 attempts</strong> or less!</p>
+                <p>Guess today's mystery character in <strong>8 attempts</strong> or less!</p>
                 
                 <h3>📊 Attributes</h3>
                 <p>Each guess reveals how close you are across 6 attributes:</p>
@@ -900,10 +896,10 @@
                 </ul>
 
                 <h3>💡 Hints</h3>
-                <p>After <strong>4 guesses</strong>, a hint unlocks with the resonator's role and first letter.</p>
+                <p>After <strong>4 guesses</strong>, a hint unlocks with the character's release version and first letter.</p>
 
                 <h3>♾️ Endless Mode</h3>
-                <p>Switch to <strong>Endless</strong> mode to play unlimited rounds! Each round picks a random resonator. Endless games don't affect your daily stats.</p>
+                <p>Switch to <strong>Endless</strong> mode to play unlimited rounds! Each round picks a random character. Endless games don't affect your daily stats.</p>
 
                 <h3>⌨️ Shortcuts</h3>
                 <div class="help-shortcuts">
@@ -915,9 +911,9 @@
     </div>
 
     <audio id="bg-music" loop preload="auto">
-        <source src="../music/wuwatrack.mp3" type="audio/mpeg">
+        <source src="../music/starrailtrack.mp3" type="audio/mpeg">
     </audio>
 
-    <script src="wuthering.js"></script>
+    <script src="starraildle.js"></script>
 </body>
 </html>
