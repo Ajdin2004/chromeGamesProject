@@ -118,6 +118,38 @@
             color: var(--accent-purple);
         }
 
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 3px;
+            gap: 2px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .mode-btn:hover {
+            color: var(--accent-purple);
+        }
+
         .stats-bar {
             display: flex;
             align-items: center;
@@ -152,6 +184,23 @@
 
         .countdown i { color: var(--accent-purple); }
         .countdown strong { color: var(--accent-teal); font-variant-numeric: tabular-nums; }
+
+        .endless-counter {
+            display: none;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            padding: 0.3rem 0.7rem;
+            justify-content: center;
+        }
+
+        .endless-counter i { color: var(--accent-teal); }
+        .endless-counter.visible { display: flex; }
 
         .game-panel {
             width: 100%;
@@ -706,7 +755,10 @@
                 <span class="stat-item"><i class="fa-solid fa-fire"></i> <strong id="stat-streak">0</strong></span>
                 <span class="stat-item"><i class="fa-solid fa-trophy"></i> <strong id="stat-max-streak">0</strong></span>
                 <span class="stat-item"><i class="fa-solid fa-percent"></i> <strong id="stat-winrate">0%</strong></span>
-                <span class="countdown"><i class="fa-regular fa-clock"></i> <strong id="countdown">--:--:--</strong></span>
+            </div>
+            <div class="mode-toggle">
+                <button id="btn-daily-mode" class="mode-btn active">Daily</button>
+                <button id="btn-endless-mode" class="mode-btn">Endless</button>
             </div>
             <button id="btn-music" class="icon-btn"><i class="fa-solid fa-music"></i></button>
             <button id="btn-sfx" class="icon-btn"><i class="fa-solid fa-volume-high"></i></button>
@@ -740,6 +792,8 @@
             <div id="guesses-container" class="guesses-list"></div>
         </div>
 
+        <div id="endless-counter" class="endless-counter"><i class="fa-solid fa-infinity"></i> Round <strong id="endless-round">1</strong></div>
+        <div id="countdown-bar" class="countdown" style="justify-content:center;"><i class="fa-regular fa-clock"></i> <strong id="countdown">--:--:--</strong></div>
         <div id="toast" class="toast">Loading resonator data...</div>
     </div>
 
@@ -762,6 +816,7 @@
 
             <div class="guess-distribution" id="guess-distribution"></div>
 
+            <button id="btn-next-round" class="btn-share" style="display:none;"><i class="fa-solid fa-forward"></i> Next Round</button>
             <button id="btn-share" class="btn-share"><i class="fa-solid fa-share-nodes"></i> Share</button>
             <button id="btn-close-win" class="btn-close-win">CONTINUE</button>
         </div>
@@ -783,6 +838,7 @@
                 <div><strong>Gender:</strong> <span id="lose-gender"></span></div>
             </div>
 
+            <button id="btn-next-round-lose" class="btn-share" style="display:none;"><i class="fa-solid fa-forward"></i> Next Round</button>
             <button id="btn-share-lose" class="btn-share"><i class="fa-solid fa-share-nodes"></i> Share</button>
             <button id="btn-close-lose" class="btn-close-win">CLOSE</button>
         </div>
@@ -826,6 +882,9 @@
 
                 <h3>💡 Hints</h3>
                 <p>After <strong>4 guesses</strong>, a hint unlocks with the resonator's release version and first letter.</p>
+
+                <h3>♾️ Endless Mode</h3>
+                <p>Switch to <strong>Endless</strong> mode to play unlimited rounds! Each round picks a random resonator. Endless games don't affect your daily stats.</p>
 
                 <h3>⌨️ Shortcuts</h3>
                 <div class="help-shortcuts">

@@ -75,6 +75,8 @@ let gameOver = false;
 let currentMatches = [];
 let suggestionActiveIndex = -1;
 let lastGameWon = false;
+let gameMode = 'daily'; // 'daily' or 'endless'
+let endlessRound = 1;
 
 // DOM Elements
 const inputEl = document.getElementById('champ-input');
@@ -89,6 +91,13 @@ const bgMusic = document.getElementById('bg-music');
 const btnSfx = document.getElementById('btn-sfx');
 const btnStats = document.getElementById('btn-stats');
 const btnHelp = document.getElementById('btn-help');
+const btnDailyMode = document.getElementById('btn-daily-mode');
+const btnEndlessMode = document.getElementById('btn-endless-mode');
+const endlessCounterEl = document.getElementById('endless-counter');
+const endlessRoundEl = document.getElementById('endless-round');
+const countdownBar = document.getElementById('countdown-bar');
+const btnNextRound = document.getElementById('btn-next-round');
+const btnNextRoundLose = document.getElementById('btn-next-round-lose');
 
 // Modal elements
 const victoryModal = document.getElementById('victory-modal');
@@ -442,6 +451,77 @@ btnCloseStats.addEventListener('click', () => hideModal(statsModal));
 btnHelp.addEventListener('click', () => showModal(helpModal));
 btnCloseHelp.addEventListener('click', () => hideModal(helpModal));
 
+// --- Mode Switching ---
+function setGameMode(mode) {
+    gameMode = mode;
+    if (mode === 'daily') {
+        btnDailyMode.classList.add('active');
+        btnEndlessMode.classList.remove('active');
+        endlessCounterEl.classList.remove('visible');
+        if (countdownBar) countdownBar.style.display = 'flex';
+        inputEl.placeholder = "Enter champion name...";
+        toastEl.textContent = "Guess today's mystery champion!";
+        resetToDaily();
+    } else {
+        btnEndlessMode.classList.add('active');
+        btnDailyMode.classList.remove('active');
+        endlessCounterEl.classList.add('visible');
+        if (countdownBar) countdownBar.style.display = 'none';
+        inputEl.placeholder = "Enter champion name...";
+        toastEl.textContent = "Endless mode! Guess the mystery champion!";
+        startEndlessRound();
+    }
+}
+
+function resetBoard() {
+    guessesHistory = [];
+    gameOver = false;
+    lastGameWon = false;
+    guessesContainer.innerHTML = '';
+    hintBox.style.display = 'none';
+    inputEl.disabled = false;
+    btnGuess.disabled = false;
+    inputEl.value = '';
+    suggestionsEl.style.display = 'none';
+    currentMatches = [];
+    suggestionActiveIndex = -1;
+    // Show/hide buttons based on mode
+    btnShare.style.display = gameMode === 'endless' ? 'none' : 'block';
+    btnShareLose.style.display = gameMode === 'endless' ? 'none' : 'block';
+    btnNextRound.style.display = gameMode === 'endless' ? 'block' : 'none';
+    btnNextRoundLose.style.display = gameMode === 'endless' ? 'block' : 'none';
+}
+
+function startEndlessRound() {
+    resetBoard();
+    // Pick a random champion
+    TARGET_CHAMP = CHAMPIONS[Math.floor(Math.random() * CHAMPIONS.length)];
+    endlessRoundEl.textContent = endlessRound;
+    toastEl.textContent = `Endless Round ${endlessRound}! Guess the mystery champion!`;
+}
+
+function resetToDaily() {
+    resetBoard();
+    const now = new Date();
+    const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    TARGET_CHAMP = CHAMPIONS[seed % CHAMPIONS.length];
+    // Try to restore daily progress
+    restoreProgress();
+    if (!gameOver) {
+        toastEl.textContent = "Guess today's mystery champion!";
+    }
+}
+
+btnDailyMode.addEventListener('click', () => {
+    if (gameMode === 'daily') return;
+    setGameMode('daily');
+});
+
+btnEndlessMode.addEventListener('click', () => {
+    if (gameMode === 'endless') return;
+    setGameMode('endless');
+});
+
 // --- Victory Modal ---
 btnCloseWin.addEventListener('click', () => {
     hideModal(victoryModal);
@@ -452,6 +532,23 @@ btnCloseWin.addEventListener('click', () => {
 });
 
 btnShare.addEventListener('click', () => shareResults(btnShare, true));
+
+// Next round in endless mode
+btnNextRound.addEventListener('click', () => {
+    hideModal(victoryModal);
+    if (confettiAnimId) {
+        cancelAnimationFrame(confettiAnimId);
+        confettiAnimId = null;
+    }
+    endlessRound++;
+    startEndlessRound();
+});
+
+btnNextRoundLose.addEventListener('click', () => {
+    hideModal(gameoverModal);
+    endlessRound++;
+    startEndlessRound();
+});
 
 // --- Game Over Modal ---
 btnCloseLose.addEventListener('click', () => hideModal(gameoverModal));
@@ -848,9 +945,12 @@ function submitGuess() {
         inputEl.disabled = true;
         btnGuess.disabled = true;
 
-        recordGameResult(true, guessesHistory.length);
+        // Don't record stats in endless mode
+        if (gameMode === 'daily') {
+            recordGameResult(true, guessesHistory.length);
+            saveProgress(true);
+        }
         triggerVictoryModal(TARGET_CHAMP);
-        saveProgress(true);
     } else if (guessesHistory.length >= MAX_GUESSES) {
         gameOver = true;
         lastGameWon = false;
@@ -859,17 +959,20 @@ function submitGuess() {
         inputEl.disabled = true;
         btnGuess.disabled = true;
 
-        recordGameResult(false, 0);
+        // Don't record stats in endless mode
+        if (gameMode === 'daily') {
+            recordGameResult(false, 0);
+            saveProgress(false);
+        }
         triggerGameOverModal(TARGET_CHAMP);
-        saveProgress(false);
     } else {
         toastEl.textContent = `Guess recorded!`;
-        saveProgress(false);
+        if (gameMode === 'daily') saveProgress(false);
     }
 }
 
 function checkHintState() {
-    if (guessesHistory.length >= 4 && !gameOver) {
+    if (guessesHistory.length >= 5 && !gameOver) {
         const firstLetter = TARGET_CHAMP.name.charAt(0);
         hintBox.style.display = 'block';
         hintBox.innerHTML = `<i class="fa-solid fa-lightbulb"></i> <strong>Hint Unlocked:</strong> Released in <strong>${TARGET_CHAMP.releaseYear}</strong> and starts with the letter '<strong>${firstLetter}</strong>'!`;
