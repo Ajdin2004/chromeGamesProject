@@ -9,21 +9,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #0b0d19;
-            --card-bg: rgba(15, 20, 38, 0.88);
-            --card-border: rgba(255, 255, 255, 0.15);
+            --bg-color: #0a0e1a;
+            --card-bg: rgba(12, 16, 30, 0.9);
+            --card-border: rgba(200, 170, 60, 0.25);
+            --primary-gold: #008dc5c4;
+            --primary-blue: #0ac8b9;
             --primary-cyan: #00f2fe;
             --correct-green: #22c55e;
-            --partial-yellow: #eab308;
+            --partial-yellow: #5f08ea;
             --wrong-red: #ef4444;
             --text-main: #f0f4f8;
             --text-muted: #94a3b8;
+            --accent-gold: #7b40f0;
+            --accent-blue: #1e90ff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
 
         body {
-            background: linear-gradient(rgba(11, 13, 25, 0.75), rgba(11, 13, 25, 0.88)), 
+            background: linear-gradient(rgba(10, 14, 26, 0.72), rgba(10, 14, 26, 0.9)),
                         url('https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-main);
@@ -42,13 +46,34 @@
             justify-content: space-between;
             width: 100%;
             max-width: 920px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .back-btn {
@@ -60,13 +85,13 @@
             gap: 0.5rem;
             transition: color 0.2s ease;
         }
-        .back-btn:hover { color: var(--primary-cyan); }
+        .back-btn:hover { color: var(--primary-gold); }
 
-        .music-btn {
+        .icon-btn {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            padding: 0.4rem 0.8rem;
+            padding: 0.4rem 0.7rem;
             border-radius: 8px;
             font-weight: 600;
             font-size: 0.85rem;
@@ -77,26 +102,57 @@
             transition: all 0.2s ease;
         }
 
-        .music-btn:hover {
-            border-color: var(--primary-cyan);
-            color: var(--primary-cyan);
+        .icon-btn:hover {
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
         }
 
-        .music-btn.playing {
-            background: rgba(0, 242, 254, 0.15);
-            border-color: var(--primary-cyan);
-            color: var(--primary-cyan);
+        .icon-btn.playing {
+            background: rgba(200, 170, 60, 0.15);
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
         }
 
-        .score-badge {
-            background: rgba(0, 242, 254, 0.15);
-            border: 1px solid var(--primary-cyan);
-            color: var(--primary-cyan);
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 0.9rem;
+        .icon-btn.active {
+            background: rgba(200, 170, 60, 0.15);
+            border-color: var(--primary-gold);
+            color: var(--primary-gold);
         }
+
+        .stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--text-muted);
+        }
+
+        .stat-item i { color: var(--primary-gold); }
+        .stat-item strong { color: var(--text-main); }
+
+        .countdown {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .countdown i { color: var(--primary-gold); }
+        .countdown strong { color: var(--accent-gold); font-variant-numeric: tabular-nums; }
 
         .game-panel {
             width: 100%;
@@ -106,7 +162,7 @@
             border-radius: 20px;
             padding: 1.5rem;
             backdrop-filter: blur(16px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 30px rgba(200, 170, 60, 0.08);
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
@@ -128,8 +184,8 @@
         }
 
         .input-box input:focus {
-            border-color: var(--primary-cyan);
-            box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 12px rgba(200, 170, 60, 0.3);
         }
 
         .shake { animation: shakeKeyframe 0.4s ease-in-out; }
@@ -141,16 +197,17 @@
         }
 
         .btn-submit {
-            background: linear-gradient(135deg, var(--primary-cyan), #4facfe);
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-blue));
             border: none;
             color: #000;
             font-weight: 800;
             padding: 0 1.5rem;
             border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.1s ease;
+            transition: transform 0.1s ease, filter 0.2s ease;
         }
 
+        .btn-submit:hover { filter: brightness(1.15); }
         .btn-submit:active { transform: scale(0.96); }
 
         .suggestions {
@@ -182,7 +239,7 @@
             width: 32px; height: 32px;
             border-radius: 50%;
             object-fit: cover;
-            border: 1px solid var(--primary-cyan);
+            border: 1px solid var(--primary-gold);
         }
 
         .tab-hint {
@@ -195,11 +252,10 @@
 
         .suggestion-item.active,
         .suggestion-item:hover {
-            background: rgba(0, 242, 254, 0.18);
-            color: var(--primary-cyan);
+            background: rgba(200, 170, 60, 0.18);
+            color: var(--primary-gold);
         }
 
-        /* Table & Grid Scroller for Identical Mobile Viewport Layout */
         .table-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -211,13 +267,29 @@
             grid-template-columns: 180px repeat(6, 100px);
             gap: 6px;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 800;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
             padding: 0 0.2rem 0.5rem 0.2rem;
             min-width: 780px;
+        }
+
+        .grid-header span {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 2px;
+            border-radius: 6px;
+            background: rgba(200, 170, 60, 0.06);
+            border: 1px solid rgba(200, 170, 60, 0.12);
+        }
+
+        .grid-header span i {
+            font-size: 0.9rem;
+            color: var(--primary-gold);
         }
 
         .guesses-list {
@@ -236,7 +308,7 @@
         }
 
         .attribute-box {
-            background: rgba(0, 0, 0, 0.45);
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.5), rgba(20, 25, 45, 0.5));
             border: 1px solid var(--card-border);
             border-radius: 10px;
             padding: 0.6rem 0.3rem;
@@ -244,13 +316,34 @@
             font-size: 0.8rem;
             font-weight: 700;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 3px;
             min-height: 60px;
             text-transform: capitalize;
             line-height: 1.2;
             transform-style: preserve-3d;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            position: relative;
+        }
+
+        .attribute-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .attribute-box .attr-icon {
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        .attribute-box .attr-status {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.65rem;
+            opacity: 0.9;
         }
 
         .animate-flip {
@@ -265,30 +358,33 @@
         }
 
         .attribute-box.correct {
-            background: rgba(34, 197, 94, 0.4);
+            background: linear-gradient(145deg, rgba(34, 197, 94, 0.35), rgba(34, 197, 94, 0.15));
             border-color: var(--correct-green);
             color: #fff;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
         }
 
         .attribute-box.partial {
-            background: rgba(234, 179, 8, 0.4);
+            background: linear-gradient(145deg, rgba(234, 179, 8, 0.35), rgba(234, 179, 8, 0.15));
             border-color: var(--partial-yellow);
             color: #fff;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
         }
 
         .attribute-box.wrong {
-            background: rgba(239, 68, 68, 0.4);
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.12));
             border-color: var(--wrong-red);
             color: #fff;
         }
 
         .champ-card {
-            background: rgba(0, 242, 254, 0.12);
-            border-color: var(--primary-cyan);
-            color: var(--primary-cyan);
+            background: linear-gradient(145deg, rgba(200, 170, 60, 0.15), rgba(30, 144, 255, 0.1));
+            border-color: var(--primary-gold);
+            color: var(--accent-gold);
             font-weight: 800;
             font-size: 0.85rem;
             display: flex;
+            flex-direction: row;
             align-items: center;
             justify-content: flex-start;
             padding: 0.4rem 0.6rem;
@@ -300,7 +396,7 @@
             width: 42px; height: 42px;
             border-radius: 8px;
             object-fit: cover;
-            border: 1px solid var(--primary-cyan);
+            border: 1px solid var(--primary-gold);
             flex-shrink: 0;
         }
 
@@ -325,16 +421,16 @@
         .toast {
             text-align: center;
             font-weight: 700;
-            color: var(--primary-cyan);
+            color: var(--primary-gold);
             min-height: 20px;
             font-size: 0.95rem;
         }
 
-        /* Victory Overlay Modal */
-        .celebration-modal {
+        /* Modal Overlay */
+        .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(11, 13, 25, 0.88);
+            background: rgba(10, 14, 26, 0.88);
             backdrop-filter: blur(12px);
             z-index: 999;
             display: flex;
@@ -346,15 +442,15 @@
             transition: opacity 0.4s ease;
         }
 
-        .celebration-modal.active {
+        .modal-overlay.active {
             opacity: 1;
             pointer-events: auto;
         }
 
-        .win-card {
+        .modal-card {
             background: var(--card-bg);
-            border: 2px solid var(--correct-green);
-            box-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
+            border: 2px solid var(--card-border);
+            box-shadow: 0 0 30px rgba(200, 170, 60, 0.2);
             border-radius: 20px;
             width: 100%;
             max-width: 440px;
@@ -368,27 +464,33 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
-        .celebration-modal.active .win-card {
+        .modal-overlay.active .modal-card {
             transform: scale(1);
         }
 
-        .win-title {
-            color: var(--correct-green);
+        .modal-title {
+            color: var(--accent-gold);
             font-size: 1.6rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
+        .modal-title.lose {
+            color: var(--wrong-red);
+        }
+
         .win-avatar {
             width: 90px;
             height: 90px;
             border-radius: 50%;
-            border: 3px solid var(--correct-green);
+            border: 3px solid var(--primary-gold);
             object-fit: cover;
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 15px rgba(200, 170, 60, 0.5);
         }
 
         .win-name {
@@ -411,11 +513,11 @@
         }
 
         .win-stats div strong {
-            color: var(--primary-cyan);
+            color: var(--primary-gold);
         }
 
         .btn-close-win {
-            background: var(--correct-green);
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-blue));
             color: #000;
             font-weight: 800;
             border: none;
@@ -428,7 +530,156 @@
 
         .btn-close-win:hover { filter: brightness(1.1); }
 
-        /* Confetti Canvas */
+        .btn-share {
+            background: rgba(200, 170, 60, 0.15);
+            border: 1px solid var(--primary-gold);
+            color: var(--accent-gold);
+            font-weight: 800;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-share:hover {
+            background: rgba(200, 170, 60, 0.3);
+        }
+
+        .btn-share.copied {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--correct-green);
+            color: var(--correct-green);
+        }
+
+        .guess-distribution {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+
+        .dist-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dist-label {
+            width: 20px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .dist-bar {
+            background: rgba(200, 170, 60, 0.2);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-weight: 700;
+            color: var(--text-main);
+            min-width: 20px;
+            text-align: right;
+            transition: width 0.5s ease;
+        }
+
+        .dist-bar.highlight {
+            background: var(--primary-gold);
+            color: #000;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .stat-cell {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.6rem;
+            text-align: center;
+        }
+
+        .stat-cell .stat-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .stat-cell .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* How to Play */
+        .help-content {
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            width: 100%;
+        }
+
+        .help-content h3 {
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .help-content ul {
+            padding-left: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .help-content li {
+            margin-bottom: 0.3rem;
+        }
+
+        .help-content .color-demo {
+            display: flex;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .color-demo span {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .color-demo .demo-correct { background: rgba(34, 197, 94, 0.3); border: 1px solid var(--correct-green); color: #fff; }
+        .color-demo .demo-partial { background: rgba(234, 179, 8, 0.3); border: 1px solid var(--partial-yellow); color: #fff; }
+        .color-demo .demo-wrong { background: rgba(239, 68, 68, 0.3); border: 1px solid var(--wrong-red); color: #fff; }
+
+        .help-shortcuts {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .help-shortcuts kbd {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: var(--text-main);
+        }
+
         #confetti-canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -439,17 +690,30 @@
             .game-panel { padding: 1rem; border-radius: 16px; }
             .header-bar { max-width: 920px; }
             body { padding: 1rem 0.6rem; }
+            .stats-bar { width: 100%; justify-content: center; }
+            .header-title { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="header-bar">
-        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-        <h2>Daily Loldle</h2>
+        <div class="header-left">
+            <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+            <div class="header-title"><i class="fa-solid fa-crown"></i> Daily Loldle</div>
+        </div>
         <div class="header-controls">
-            <button id="btn-music" class="music-btn"><i class="fa-solid fa-music"></i> Music</button>
-           </div>
+            <div class="stats-bar">
+                <span class="stat-item"><i class="fa-solid fa-fire"></i> <strong id="stat-streak">0</strong></span>
+                <span class="stat-item"><i class="fa-solid fa-trophy"></i> <strong id="stat-max-streak">0</strong></span>
+                <span class="stat-item"><i class="fa-solid fa-percent"></i> <strong id="stat-winrate">0%</strong></span>
+                <span class="countdown"><i class="fa-regular fa-clock"></i> <strong id="countdown">--:--:--</strong></span>
+            </div>
+            <button id="btn-music" class="icon-btn"><i class="fa-solid fa-music"></i></button>
+            <button id="btn-sfx" class="icon-btn"><i class="fa-solid fa-volume-high"></i></button>
+            <button id="btn-stats" class="icon-btn"><i class="fa-solid fa-chart-simple"></i></button>
+            <button id="btn-help" class="icon-btn"><i class="fa-solid fa-circle-question"></i></button>
+        </div>
     </div>
 
     <div class="game-panel">
@@ -465,13 +729,13 @@
 
         <div class="table-scroll-wrapper">
             <div class="grid-header">
-                <span>Champion</span>
-                <span>Gender</span>
-                <span>Position</span>
-                <span>Species</span>
-                <span>Resource</span>
-                <span>Range</span>
-                <span>Region</span>
+                <span><i class="fa-solid fa-user"></i> Champion</span>
+                <span><i class="fa-solid fa-venus-mars"></i> Gender</span>
+                <span><i class="fa-solid fa-crosshairs"></i> Position</span>
+                <span><i class="fa-solid fa-dna"></i> Species</span>
+                <span><i class="fa-solid fa-bolt"></i> Resource</span>
+                <span><i class="fa-solid fa-ruler-horizontal"></i> Range</span>
+                <span><i class="fa-solid fa-map-location-dot"></i> Region</span>
             </div>
 
             <div id="guesses-container" class="guesses-list"></div>
@@ -480,11 +744,11 @@
         <div id="toast" class="toast">Fetching official DataDragon dataset...</div>
     </div>
 
-    <!-- Victory Overlay Modal -->
-    <div id="celebration-modal" class="celebration-modal">
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="modal-overlay">
         <canvas id="confetti-canvas"></canvas>
-        <div class="win-card">
-            <div class="win-title">Victory!</div>
+        <div class="modal-card">
+            <div class="modal-title">Victory!</div>
             <img id="win-avatar" class="win-avatar" src="" alt="Champion">
             <div id="win-name" class="win-name">---</div>
             
@@ -497,11 +761,83 @@
                 <div><strong>Region:</strong> <span id="win-region"></span></div>
             </div>
 
+            <div class="guess-distribution" id="guess-distribution"></div>
+
+            <button id="btn-share" class="btn-share"><i class="fa-solid fa-share-nodes"></i> Share</button>
             <button id="btn-close-win" class="btn-close-win">CONTINUE</button>
         </div>
     </div>
 
-    <audio id="bg-music" loop autoplay preload="auto">
+    <!-- Game Over Modal -->
+    <div id="gameover-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title lose">Game Over</div>
+            <img id="lose-avatar" class="win-avatar" src="" alt="Champion">
+            <div id="lose-name" class="win-name">---</div>
+            
+            <div class="win-stats">
+                <div><strong>Gender:</strong> <span id="lose-gender"></span></div>
+                <div><strong>Position:</strong> <span id="lose-position"></span></div>
+                <div><strong>Species:</strong> <span id="lose-species"></span></div>
+                <div><strong>Resource:</strong> <span id="lose-resource"></span></div>
+                <div><strong>Range:</strong> <span id="lose-range"></span></div>
+                <div><strong>Region:</strong> <span id="lose-region"></span></div>
+            </div>
+
+            <button id="btn-share-lose" class="btn-share"><i class="fa-solid fa-share-nodes"></i> Share</button>
+            <button id="btn-close-lose" class="btn-close-win">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">Statistics</div>
+            <div class="stats-grid">
+                <div class="stat-cell"><div class="stat-num" id="stats-played">0</div><div class="stat-label">Played</div></div>
+                <div class="stat-cell"><div class="stat-num" id="stats-won">0</div><div class="stat-label">Won</div></div>
+                <div class="stat-cell"><div class="stat-num" id="stats-streak">0</div><div class="stat-label">Streak</div></div>
+                <div class="stat-cell"><div class="stat-num" id="stats-max-streak">0</div><div class="stat-label">Max</div></div>
+            </div>
+            <div class="guess-distribution" id="stats-distribution"></div>
+            <button id="btn-close-stats" class="btn-close-win">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">How to Play</div>
+            <div class="help-content">
+                <h3>🎯 Objective</h3>
+                <p>Guess today's mystery champion in <strong>8 attempts</strong> or less!</p>
+                
+                <h3>📊 Attributes</h3>
+                <p>Each guess reveals how close you are across 6 attributes:</p>
+                <div class="color-demo">
+                    <span class="demo-correct">✓ Correct</span>
+                    <span class="demo-partial">◐ Partial</span>
+                    <span class="demo-wrong">✗ Wrong</span>
+                </div>
+                <ul>
+                    <li><strong>Correct</strong> — exact match</li>
+                    <li><strong>Partial</strong> — shares at least one value (e.g. multi-region)</li>
+                    <li><strong>Wrong</strong> — no match</li>
+                </ul>
+
+                <h3>💡 Hints</h3>
+                <p>After <strong>4 guesses</strong>, a hint unlocks with the champion's release year and first letter.</p>
+
+                <h3>⌨️ Shortcuts</h3>
+                <div class="help-shortcuts">
+                    <p><kbd>?</kbd> Open help &nbsp; <kbd>S</kbd> Share results &nbsp; <kbd>Tab</kbd> Autocomplete</p>
+                </div>
+            </div>
+            <button id="btn-close-help" class="btn-close-win">GOT IT</button>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
         <source src="../music/loltrack.mp3" type="audio/mpeg">
     </audio>
 

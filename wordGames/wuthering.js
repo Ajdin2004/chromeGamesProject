@@ -5,9 +5,12 @@ function initAudio() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
+// SFX toggle
+let sfxEnabled = localStorage.getItem('wutherdle_sfx_enabled') !== 'false';
+
 const Sound = {
     guess() {
-        if (!audioCtx) return;
+        if (!sfxEnabled || !audioCtx) return;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'triangle';
@@ -19,7 +22,7 @@ const Sound = {
         osc.start(); osc.stop(audioCtx.currentTime + 0.08);
     },
     win() {
-        if (!audioCtx) return;
+        if (!sfxEnabled || !audioCtx) return;
         const now = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -31,6 +34,19 @@ const Sound = {
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(now); osc.stop(now + 0.35);
+    },
+    lose() {
+        if (!sfxEnabled || !audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.4);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now); osc.stop(now + 0.4);
     }
 };
 
@@ -53,6 +69,7 @@ let guessesHistory = [];
 let gameOver = false;
 let currentMatches = [];
 let suggestionActiveIndex = -1;
+let lastGameWon = false;
 
 // DOM Elements
 const inputEl = document.getElementById('resonator-input');
@@ -64,24 +81,277 @@ const toastEl = document.getElementById('toast');
 const hintBox = document.getElementById('hint-box');
 const btnMusic = document.getElementById('btn-music');
 const bgMusic = document.getElementById('bg-music');
+const btnSfx = document.getElementById('btn-sfx');
+const btnStats = document.getElementById('btn-stats');
+const btnHelp = document.getElementById('btn-help');
 
-// Celebration modal elements
-let celebrationModal = null;
-let winAvatar = null;
-let winName = null;
-let winElement = null;
-let winWeapon = null;
-let winRarity = null;
-let winRole = null;
-let winFaction = null;
-let winGender = null;
-let btnCloseWin = null;
+// Modal elements
+const victoryModal = document.getElementById('victory-modal');
+const gameoverModal = document.getElementById('gameover-modal');
+const statsModal = document.getElementById('stats-modal');
+const helpModal = document.getElementById('help-modal');
+
+// Stats elements
+const statStreakEl = document.getElementById('stat-streak');
+const statMaxStreakEl = document.getElementById('stat-max-streak');
+const statWinrateEl = document.getElementById('stat-winrate');
+const countdownEl = document.getElementById('countdown');
+
+// Victory modal elements
+const winAvatar = document.getElementById('win-avatar');
+const winName = document.getElementById('win-name');
+const winElement = document.getElementById('win-element');
+const winWeapon = document.getElementById('win-weapon');
+const winRarity = document.getElementById('win-rarity');
+const winRole = document.getElementById('win-role');
+const winFaction = document.getElementById('win-faction');
+const winGender = document.getElementById('win-gender');
+const guessDistributionEl = document.getElementById('guess-distribution');
+const btnShare = document.getElementById('btn-share');
+const btnCloseWin = document.getElementById('btn-close-win');
+
+// Game over modal elements
+const loseAvatar = document.getElementById('lose-avatar');
+const loseName = document.getElementById('lose-name');
+const loseElement = document.getElementById('lose-element');
+const loseWeapon = document.getElementById('lose-weapon');
+const loseRarity = document.getElementById('lose-rarity');
+const loseRole = document.getElementById('lose-role');
+const loseFaction = document.getElementById('lose-faction');
+const loseGender = document.getElementById('lose-gender');
+const btnShareLose = document.getElementById('btn-share-lose');
+const btnCloseLose = document.getElementById('btn-close-lose');
+
+// Stats modal elements
+const statsPlayedEl = document.getElementById('stats-played');
+const statsWonEl = document.getElementById('stats-won');
+const statsStreakEl = document.getElementById('stats-streak');
+const statsMaxStreakEl2 = document.getElementById('stats-max-streak');
+const statsDistributionEl = document.getElementById('stats-distribution');
+const btnCloseStats = document.getElementById('btn-close-stats');
+
+// Help modal
+const btnCloseHelp = document.getElementById('btn-close-help');
+
 let confettiAnimId = null;
 
-// Configure audio element safely
+// --- Stats System ---
+const STATS_KEY = 'wutherdle_stats';
+
+function getStats() {
+    const defaultStats = {
+        played: 0,
+        won: 0,
+        currentStreak: 0,
+        maxStreak: 0,
+        distribution: [0, 0, 0, 0, 0, 0, 0, 0], // guesses 1-8
+        lastPlayedDate: null
+    };
+    try {
+        const saved = JSON.parse(localStorage.getItem(STATS_KEY));
+        return Object.assign(defaultStats, saved || {});
+    } catch (e) {
+        return defaultStats;
+    }
+}
+
+function saveStats(stats) {
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+}
+
+function updateStatsDisplay() {
+    const stats = getStats();
+    statStreakEl.textContent = stats.currentStreak;
+    statMaxStreakEl.textContent = stats.maxStreak;
+    const winRate = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
+    statWinrateEl.textContent = winRate + '%';
+}
+
+function recordGameResult(won, guessesUsed) {
+    const stats = getStats();
+    const today = TODAY_DATE_STR;
+
+    // Check if already played today
+    if (stats.lastPlayedDate === today) return;
+
+    stats.played++;
+    if (won) {
+        stats.won++;
+        stats.currentStreak++;
+        stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+        if (guessesUsed >= 1 && guessesUsed <= 8) {
+            stats.distribution[guessesUsed - 1]++;
+        }
+    } else {
+        stats.currentStreak = 0;
+    }
+    stats.lastPlayedDate = today;
+    saveStats(stats);
+    updateStatsDisplay();
+}
+
+// --- Countdown Timer ---
+function updateCountdown() {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setHours(24, 0, 0, 0);
+    const diff = tomorrow - now;
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    countdownEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+// --- Share Function ---
+function buildShareText(won) {
+    const lines = [];
+    lines.push(`Wutherdle ${TODAY_DATE_STR} ${won ? guessesHistory.length : 'X'}/${MAX_GUESSES}`);
+    lines.push('');
+
+    const attrKeys = ['element', 'weapon', 'rarity', 'role', 'faction', 'gender'];
+    guessesHistory.forEach(resonatorName => {
+        const resonator = RESONATORS.find(r => r.name === resonatorName);
+        if (!resonator) return;
+        const row = attrKeys.map(key => {
+            const status = compareAttribute(resonator[key], TARGET_RESONATOR[key]);
+            if (status === 'correct') return '🟩';
+            if (status === 'partial') return '🟨';
+            return '⬛';
+        }).join('');
+        lines.push(row);
+    });
+
+    return lines.join('\n');
+}
+
+async function shareResults(btn, won) {
+    const text = buildShareText(won);
+    try {
+        await navigator.clipboard.writeText(text);
+        btn.classList.add('copied');
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share';
+        }, 2000);
+    } catch (e) {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        btn.classList.add('copied');
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share';
+        }, 2000);
+    }
+}
+
+// --- Modal Helpers ---
+function showModal(modal) {
+    modal.classList.add('active');
+}
+
+function hideModal(modal) {
+    modal.classList.remove('active');
+}
+
+// --- Confetti ---
+function runConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas || !victoryModal) return;
+
+    const rect = victoryModal.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const width = rect.width;
+    const height = rect.height;
+
+    const pieces = Array.from({ length: 140 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height - height,
+        size: Math.random() * 12 + 6,
+        color: ['#8b5cf6', '#14b8a6', '#22c55e', '#eab308', '#ef4444', '#00d4ff'][Math.floor(Math.random() * 6)],
+        speedY: Math.random() * 120 + 80,
+        speedX: (Math.random() - 0.5) * 120,
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 360
+    }));
+
+    let lastTime = performance.now();
+
+    function draw(now) {
+        const dt = Math.min(100, now - lastTime) / 1000;
+        lastTime = now;
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < pieces.length; i++) {
+            const p = pieces[i];
+            p.y += p.speedY * dt;
+            p.x += p.speedX * dt;
+            p.rotation += p.rotationSpeed * dt;
+
+            if (p.y > height + 20) {
+                p.y = -20;
+                p.x = Math.random() * width;
+            }
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            ctx.restore();
+        }
+
+        if (victoryModal.classList.contains('active')) {
+            confettiAnimId = requestAnimationFrame(draw);
+        } else {
+            confettiAnimId = null;
+            ctx.clearRect(0, 0, width, height);
+        }
+    }
+
+    if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+    confettiAnimId = requestAnimationFrame(draw);
+}
+
+// --- Guess Distribution Display ---
+function renderGuessDistribution(container, stats, highlightGuess = null) {
+    container.innerHTML = '';
+    const maxCount = Math.max(...stats.distribution, 1);
+    for (let i = 0; i < 8; i++) {
+        const row = document.createElement('div');
+        row.className = 'dist-row';
+        const label = document.createElement('span');
+        label.className = 'dist-label';
+        label.textContent = i + 1;
+        const bar = document.createElement('div');
+        bar.className = 'dist-bar' + (highlightGuess === i + 1 ? ' highlight' : '');
+        const count = stats.distribution[i];
+        bar.textContent = count;
+        bar.style.width = Math.max(20, (count / maxCount) * 100) + '%';
+        row.appendChild(label);
+        row.appendChild(bar);
+        container.appendChild(row);
+    }
+}
+
+// --- Background Music Control ---
 if (bgMusic) {
     try { bgMusic.crossOrigin = 'anonymous'; } catch (e) { /* ignore */ }
-    bgMusic.volume = 0.10; // 10% low volume
+    bgMusic.volume = 0.10;
 
     bgMusic.addEventListener('error', (ev) => {
         console.error('Background music failed to load or play', ev, bgMusic.error);
@@ -98,11 +368,10 @@ if (bgMusic) {
 }
 
 function playBackgroundMusic() {
-    initAudio(); // Resumes Web Audio Context if suspended
-
+    initAudio();
     bgMusic.play().then(() => {
         btnMusic.classList.add('playing');
-        btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i> Music';
+        btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
         toastEl.textContent = "Guess today's mystery resonator!";
     }).catch(err => {
         console.warn("Autoplay prevented:", err);
@@ -111,7 +380,7 @@ function playBackgroundMusic() {
         const unlockAudio = () => {
             bgMusic.play().then(() => {
                 btnMusic.classList.add('playing');
-                btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i> Music';
+                btnMusic.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
                 toastEl.textContent = "Guess today's mystery resonator!";
             });
             document.removeEventListener('click', unlockAudio);
@@ -129,7 +398,75 @@ btnMusic.addEventListener('click', () => {
     } else {
         bgMusic.pause();
         btnMusic.classList.remove('playing');
-        btnMusic.innerHTML = '<i class="fa-solid fa-music"></i> Music';
+        btnMusic.innerHTML = '<i class="fa-solid fa-music"></i>';
+    }
+});
+
+// --- SFX Toggle ---
+function updateSfxButton() {
+    if (sfxEnabled) {
+        btnSfx.classList.add('active');
+        btnSfx.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+    } else {
+        btnSfx.classList.remove('active');
+        btnSfx.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+    }
+}
+
+btnSfx.addEventListener('click', () => {
+    sfxEnabled = !sfxEnabled;
+    localStorage.setItem('wutherdle_sfx_enabled', sfxEnabled);
+    updateSfxButton();
+    if (sfxEnabled) initAudio();
+});
+
+// --- Stats Modal ---
+btnStats.addEventListener('click', () => {
+    const stats = getStats();
+    statsPlayedEl.textContent = stats.played;
+    statsWonEl.textContent = stats.won;
+    statsStreakEl.textContent = stats.currentStreak;
+    statsMaxStreakEl2.textContent = stats.maxStreak;
+    renderGuessDistribution(statsDistributionEl, stats);
+    showModal(statsModal);
+});
+
+btnCloseStats.addEventListener('click', () => hideModal(statsModal));
+
+// --- Help Modal ---
+btnHelp.addEventListener('click', () => showModal(helpModal));
+btnCloseHelp.addEventListener('click', () => hideModal(helpModal));
+
+// --- Victory Modal ---
+btnCloseWin.addEventListener('click', () => {
+    hideModal(victoryModal);
+    if (confettiAnimId) {
+        cancelAnimationFrame(confettiAnimId);
+        confettiAnimId = null;
+    }
+});
+
+btnShare.addEventListener('click', () => shareResults(btnShare, true));
+
+// --- Game Over Modal ---
+btnCloseLose.addEventListener('click', () => hideModal(gameoverModal));
+btnShareLose.addEventListener('click', () => shareResults(btnShareLose, false));
+
+// --- Keyboard Shortcuts ---
+document.addEventListener('keydown', (e) => {
+    // Don't trigger when typing in input
+    if (e.target === inputEl) return;
+
+    if (e.key === '?') {
+        e.preventDefault();
+        showModal(helpModal);
+    } else if (e.key.toLowerCase() === 's' && gameOver) {
+        e.preventDefault();
+        if (lastGameWon) {
+            shareResults(btnShare, true);
+        } else {
+            shareResults(btnShareLose, false);
+        }
     }
 });
 
@@ -160,18 +497,19 @@ async function fetchResonatorsData() {
             };
         }).sort((a, b) => a.name.localeCompare(b.name));
 
-        // Guard: ensure we loaded resonators
         if (!RESONATORS || RESONATORS.length === 0) {
             throw new Error('No resonators loaded from ' + RESONATORS_URL + '. Ensure the file exists at this path and that the page is served over HTTP/S (fetch() will not work from file://).');
         }
 
-        // Seed today's resonator deterministically by date so everyone gets same daily target
         const now = new Date();
         const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
         TARGET_RESONATOR = RESONATORS[seed % RESONATORS.length];
 
         inputEl.placeholder = "Enter resonator name...";
         toastEl.textContent = "Guess today's mystery resonator!";
+        updateStatsDisplay();
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
         restoreProgress();
     } catch (err) {
         console.error('Failed to load resonators from:', RESONATORS_URL, err);
@@ -292,6 +630,22 @@ inputEl.addEventListener('keydown', e => {
     }
 });
 
+// Attribute icons for display
+const ATTR_ICONS = {
+    element: 'fa-fire',
+    weapon: 'fa-sword',
+    rarity: 'fa-star',
+    role: 'fa-shield-halved',
+    faction: 'fa-flag',
+    gender: 'fa-venus-mars'
+};
+
+const ATTR_STATUS_ICONS = {
+    correct: 'fa-check',
+    partial: 'fa-circle-half-stroke',
+    wrong: 'fa-xmark'
+};
+
 function submitGuess() {
     if (gameOver || !TARGET_RESONATOR) return;
     initAudio();
@@ -303,16 +657,12 @@ function submitGuess() {
         return;
     }
 
-    // Try exact normalized match first
     let guessedResonator = RESONATORS.find(r => normalizeName(r.name) === normalizeName(val));
 
-    // Fallback: case-insensitive exact name
     if (!guessedResonator) guessedResonator = RESONATORS.find(r => r.name.toLowerCase() === val.toLowerCase());
 
-    // Fallback: startsWith or includes
     if (!guessedResonator) guessedResonator = RESONATORS.find(r => r.name.toLowerCase().startsWith(val.toLowerCase()) || r.name.toLowerCase().includes(val.toLowerCase()));
 
-    // Fallback: if suggestions are open, use the active suggestion
     if (!guessedResonator && currentMatches.length > 0) {
         const idx = suggestionActiveIndex >= 0 ? suggestionActiveIndex : 0;
         guessedResonator = currentMatches[idx];
@@ -343,23 +693,25 @@ function submitGuess() {
 
     if (isCorrect) {
         gameOver = true;
+        lastGameWon = true;
         Sound.win();
         toastEl.textContent = `Splendid! Wutherdle Solved!`;
         inputEl.disabled = true;
         btnGuess.disabled = true;
 
-        try {
-            triggerVictoryModal(TARGET_RESONATOR);
-        } catch (e) {
-            console.warn('Unable to trigger victory modal:', e);
-        }
-
+        recordGameResult(true, guessesHistory.length);
+        triggerVictoryModal(TARGET_RESONATOR);
         saveProgress(true);
     } else if (guessesHistory.length >= MAX_GUESSES) {
         gameOver = true;
+        lastGameWon = false;
+        Sound.lose();
         toastEl.textContent = `Game Over! Resonator was: ${TARGET_RESONATOR.name}`;
         inputEl.disabled = true;
         btnGuess.disabled = true;
+
+        recordGameResult(false, 0);
+        triggerGameOverModal(TARGET_RESONATOR);
         saveProgress(false);
     } else {
         toastEl.textContent = `Guess recorded!`;
@@ -413,226 +765,63 @@ function renderRowUI(resonator, shouldAnimate = false) {
             box.classList.add('animate-flip');
             box.style.animationDelay = `${(idx + 1) * 0.1}s`;
         }
-        box.textContent = f.val;
+
+        // Add icon
+        const icon = document.createElement('i');
+        icon.className = `fa-solid ${ATTR_ICONS[f.key]} attr-icon`;
+        box.appendChild(icon);
+
+        // Add value text
+        const valueSpan = document.createElement('span');
+        valueSpan.textContent = f.val;
+        box.appendChild(valueSpan);
+
+        // Add status icon
+        const statusIcon = document.createElement('i');
+        statusIcon.className = `fa-solid ${ATTR_STATUS_ICONS[status]} attr-status`;
+        box.appendChild(statusIcon);
+
         row.appendChild(box);
     });
 
     guessesContainer.insertBefore(row, guessesContainer.firstChild);
 }
 
-// Create a lightweight celebration modal and confetti canvas if the HTML doesn't already provide them.
-function createCelebrationModalIfMissing() {
-    if (celebrationModal) return;
-
-    celebrationModal = document.createElement('div');
-    celebrationModal.id = 'celebration-modal';
-    celebrationModal.style.position = 'fixed';
-    celebrationModal.style.top = '0';
-    celebrationModal.style.left = '0';
-    celebrationModal.style.width = '100%';
-    celebrationModal.style.height = '100%';
-    celebrationModal.style.display = 'none';
-    celebrationModal.style.alignItems = 'center';
-    celebrationModal.style.justifyContent = 'center';
-    celebrationModal.style.background = 'rgba(0,0,0,0.6)';
-    celebrationModal.style.zIndex = '9999';
-    celebrationModal.style.flexDirection = 'column';
-    celebrationModal.style.padding = '20px';
-
-    const content = document.createElement('div');
-    content.style.background = '#0b1220';
-    content.style.border = '2px solid rgba(255,255,255,0.06)';
-    content.style.borderRadius = '12px';
-    content.style.padding = '18px';
-    content.style.minWidth = '260px';
-    content.style.maxWidth = '90%';
-    content.style.color = '#fff';
-    content.style.textAlign = 'center';
-    content.style.position = 'relative';
-    content.style.boxShadow = '0 8px 30px rgba(0,0,0,0.6)';
-
-    winAvatar = document.createElement('img');
-    winAvatar.alt = 'Resonator avatar';
-    winAvatar.style.width = '96px';
-    winAvatar.style.height = '96px';
-    winAvatar.style.objectFit = 'cover';
-    winAvatar.style.borderRadius = '8px';
-    winAvatar.style.display = 'block';
-    winAvatar.style.margin = '0 auto 12px';
-
-    winName = document.createElement('h2');
-    winName.style.margin = '6px 0 12px';
-    winName.style.fontSize = '1.4rem';
-
-    const details = document.createElement('div');
-    details.style.display = 'flex';
-    details.style.flexWrap = 'wrap';
-    details.style.justifyContent = 'center';
-    details.style.gap = '8px';
-
-    function makeDetailSpan(label) {
-        const sp = document.createElement('div');
-        sp.style.fontSize = '0.90rem';
-        sp.style.padding = '6px 8px';
-        sp.style.background = 'rgba(255,255,255,0.03)';
-        sp.style.borderRadius = '6px';
-        sp.style.minWidth = '90px';
-        sp.style.boxSizing = 'border-box';
-        sp.dataset.label = label;
-        return sp;
-    }
-
-    winElement = makeDetailSpan('Element');
-    winWeapon = makeDetailSpan('Weapon');
-    winRarity = makeDetailSpan('Rarity');
-    winRole = makeDetailSpan('Role');
-    winFaction = makeDetailSpan('Faction');
-    winGender = makeDetailSpan('Gender');
-
-    details.appendChild(winElement);
-    details.appendChild(winWeapon);
-    details.appendChild(winRarity);
-    details.appendChild(winRole);
-    details.appendChild(winFaction);
-    details.appendChild(winGender);
-
-    btnCloseWin = document.createElement('button');
-    btnCloseWin.textContent = 'Close';
-    btnCloseWin.style.marginTop = '14px';
-    btnCloseWin.style.padding = '8px 12px';
-    btnCloseWin.style.border = 'none';
-    btnCloseWin.style.background = '#1f2937';
-    btnCloseWin.style.color = '#fff';
-    btnCloseWin.style.borderRadius = '8px';
-    btnCloseWin.style.cursor = 'pointer';
-
-    const canvas = document.createElement('canvas');
-    canvas.id = 'confetti-canvas';
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.display = 'block';
-
-    content.appendChild(winAvatar);
-    content.appendChild(winName);
-    content.appendChild(details);
-    content.appendChild(btnCloseWin);
-
-    content.style.zIndex = '10000';
-    canvas.style.zIndex = '10001';
-
-    celebrationModal.appendChild(canvas);
-    celebrationModal.appendChild(content);
-    celebrationModal.style.display = 'none';
-
-    document.body.appendChild(celebrationModal);
-
-    btnCloseWin.addEventListener('click', () => {
-        celebrationModal.style.display = 'none';
-        if (typeof confettiAnimId === 'number') {
-            cancelAnimationFrame(confettiAnimId);
-            confettiAnimId = null;
-        }
-        try {
-            const c = document.getElementById('confetti-canvas');
-            if (c && c.getContext) {
-                const ctx = c.getContext('2d');
-                ctx.clearRect(0, 0, c.width, c.height);
-            }
-        } catch (e) { /* ignore */ }
-    });
-}
-
-// Run a lightweight confetti animation on the 'confetti-canvas' element
-function runConfetti() {
-    const canvas = document.getElementById('confetti-canvas');
-    if (!canvas || !celebrationModal) return;
-
-    const rect = celebrationModal.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.style.width = rect.width + 'px';
-    canvas.style.height = rect.height + 'px';
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-
-    const ctx = canvas.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const width = rect.width;
-    const height = rect.height;
-
-    const pieces = Array.from({ length: 140 }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height - height,
-        size: Math.random() * 12 + 6,
-        color: ['#00d4ff', '#22c55e', '#eab308', '#ef4444', '#8b5cf6', '#0ea5e9'][Math.floor(Math.random() * 6)],
-        speedY: Math.random() * 120 + 80,
-        speedX: (Math.random() - 0.5) * 120,
-        rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 360
-    }));
-
-    let lastTime = performance.now();
-
-    function draw(now) {
-        const dt = Math.min(100, now - lastTime) / 1000;
-        lastTime = now;
-        ctx.clearRect(0, 0, width, height);
-
-        for (let i = 0; i < pieces.length; i++) {
-            const p = pieces[i];
-            p.y += p.speedY * dt;
-            p.x += p.speedX * dt;
-            p.rotation += p.rotationSpeed * dt;
-
-            if (p.y > height + 20) {
-                p.y = -20;
-                p.x = Math.random() * width;
-            }
-
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate((p.rotation * Math.PI) / 180);
-            ctx.fillStyle = p.color;
-            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-            ctx.restore();
-        }
-
-        if (celebrationModal && celebrationModal.style.display !== 'none') {
-            confettiAnimId = requestAnimationFrame(draw);
-        } else {
-            confettiAnimId = null;
-            ctx.clearRect(0, 0, width, height);
-        }
-    }
-
-    if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
-    confettiAnimId = requestAnimationFrame(draw);
-}
-
-// Show victory modal and populate fields
+// Show victory modal
 function triggerVictoryModal(resonator) {
     if (!resonator) return;
-    try {
-        createCelebrationModalIfMissing();
 
-        winAvatar.src = resonator.image || '';
-        winName.textContent = resonator.name || 'Resonator';
-        winElement.textContent = `Element: ${resonator.element || 'Unknown'}`;
-        winWeapon.textContent = `Weapon: ${resonator.weapon || 'Unknown'}`;
-        winRarity.textContent = `Rarity: ${resonator.rarity || 'Unknown'}`;
-        winRole.textContent = `Role: ${resonator.role || 'Unknown'}`;
-        winFaction.textContent = `Faction: ${resonator.faction || 'Unknown'}`;
-        winGender.textContent = `Gender: ${resonator.gender || 'Unknown'}`;
+    winAvatar.src = resonator.image || '';
+    winName.textContent = resonator.name || 'Resonator';
+    winElement.textContent = resonator.element || 'Unknown';
+    winWeapon.textContent = resonator.weapon || 'Unknown';
+    winRarity.textContent = resonator.rarity || 'Unknown';
+    winRole.textContent = resonator.role || 'Unknown';
+    winFaction.textContent = resonator.faction || 'Unknown';
+    winGender.textContent = resonator.gender || 'Unknown';
 
-        celebrationModal.style.display = 'flex';
-        runConfetti();
-    } catch (e) {
-        console.error('Failed to show victory modal:', e);
-    }
+    // Show guess distribution
+    const stats = getStats();
+    renderGuessDistribution(guessDistributionEl, stats, guessesHistory.length);
+
+    showModal(victoryModal);
+    runConfetti();
+}
+
+// Show game over modal
+function triggerGameOverModal(resonator) {
+    if (!resonator) return;
+
+    loseAvatar.src = resonator.image || '';
+    loseName.textContent = resonator.name || 'Resonator';
+    loseElement.textContent = resonator.element || 'Unknown';
+    loseWeapon.textContent = resonator.weapon || 'Unknown';
+    loseRarity.textContent = resonator.rarity || 'Unknown';
+    loseRole.textContent = resonator.role || 'Unknown';
+    loseFaction.textContent = resonator.faction || 'Unknown';
+    loseGender.textContent = resonator.gender || 'Unknown';
+
+    showModal(gameoverModal);
 }
 
 function restoreProgress() {
@@ -641,6 +830,7 @@ function restoreProgress() {
 
     guessesHistory = saved.history || [];
     gameOver = saved.gameOver;
+    lastGameWon = saved.passed || false;
 
     guessesHistory.forEach(resonatorName => {
         const resonator = RESONATORS.find(r => r.name === resonatorName);
@@ -652,7 +842,11 @@ function restoreProgress() {
     if (gameOver) {
         inputEl.disabled = true;
         btnGuess.disabled = true;
-        toastEl.textContent = saved.passed ? `Daily Wutherdle Solved!` : `Mystery Resonator was: ${TARGET_RESONATOR.name}`;
+        if (saved.passed) {
+            toastEl.textContent = `Daily Wutherdle Solved!`;
+        } else {
+            toastEl.textContent = `Mystery Resonator was: ${TARGET_RESONATOR.name}`;
+        }
     }
 }
 
@@ -664,6 +858,9 @@ function saveProgress(passed = false) {
         passed: passed
     }));
 }
+
+// Initialize SFX button state
+updateSfxButton();
 
 // Start Game
 fetchResonatorsData();
