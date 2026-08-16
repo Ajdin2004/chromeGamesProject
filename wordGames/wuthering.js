@@ -59,7 +59,7 @@ function debounce(fn, wait = 150) {
 }
 
 // Local bundled resonators dataset
-const RESONATORS_URL = './data/wuwa_resonators.json';
+const RESONATORS_URL = '../data/wuwa_resonators.json';
 
 let RESONATORS = [];
 let TARGET_RESONATOR = null;

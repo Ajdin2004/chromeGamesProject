@@ -1,6 +1,6 @@
 /* Riddler — Daily 7-letter word riddle validated against the Dictionary API */
 
-const JSON_DATA_PATH = 'data/riddle_entries_356.json';
+const JSON_DATA_PATH = '../data/riddler_entries.json';
 const TODAY_DATE_STR = new Date().toISOString().slice(0, 10);
 const SEED = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
 const MAX_ATTEMPTS = 5;

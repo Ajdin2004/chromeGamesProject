@@ -57,9 +57,9 @@
             width: 100%;
             height: 100%;
             pointer-events: auto;
-                    touch-action: none;
-                }
-                /* Overlay panel on top of globe */
+            touch-action: none;
+        }
+        /* Overlay panel on top of globe */
         .ui-overlay {
             position: relative;
             z-index: 10;
@@ -93,26 +93,46 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
         .icon-btn {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-size: 0.8rem;
         }
 
         .icon-btn:hover {
             color: var(--primary-cyan);
             border-color: var(--primary-cyan);
+        }
+
+        .icon-btn.hint-btn {
+            position: relative;
+        }
+        .hint-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--primary-cyan);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 800;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .back-btn {
@@ -123,6 +143,7 @@
             align-items: center;
             gap: 0.5rem;
             transition: color 0.2s ease;
+            font-size: 0.85rem;
         }
         .back-btn:hover { color: var(--primary-cyan); }
 
@@ -153,9 +174,54 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            max-height: 55vh;
+            max-height: 62vh;
             flex-shrink: 0;
             pointer-events: auto;
+        }
+
+        /* Mode & Difficulty Selectors */
+        .selectors-row {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .mode-selector, .difficulty-selector {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .mode-btn, .diff-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.35rem 0.7rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn.active, .diff-btn.active {
+            background: var(--primary-cyan);
+            color: #000;
+        }
+        .mode-btn:hover:not(.active), .diff-btn:hover:not(.active) {
+            color: var(--primary-cyan);
+        }
+
+        /* Endless Score */
+        .endless-score {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 0.15rem 0;
+        }
+        .endless-score strong {
+            color: var(--primary-cyan);
         }
 
         .search-container { position: relative; }
@@ -209,11 +275,21 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 0.85rem;
         }
-                .suggestion-item:hover,
-                .suggestion-item.active {
-                    background: rgba(0, 242, 254, 0.15);
-                    color: var(--primary-cyan);
-                }
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--primary-cyan);
+        }
+
+        /* Hint Display */
+        .hint-display {
+            min-height: 20px;
+            font-size: 0.8rem;
+            color: var(--primary-cyan);
+            text-align: center;
+            font-weight: 600;
+            padding: 0.15rem 0;
+        }
 
         .guesses-list {
             display: flex;
@@ -251,6 +327,33 @@
             min-height: 18px;
         }
 
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-share, .btn-next-round, .btn-facts {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-cyan), #4facfe);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 0.55rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            transition: transform 0.15s;
+        }
+        .btn-share:hover, .btn-next-round:hover, .btn-facts:hover {
+            transform: scale(1.02);
+        }
+        .btn-next-round {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+        .btn-facts {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+        }
+
         /* Modal */
         .modal-overlay {
             position: fixed;
@@ -283,6 +386,8 @@
             flex-direction: column;
             gap: 0.75rem;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            max-height: 85vh;
+            overflow-y: auto;
         }
 
         .modal-card h3 {
@@ -324,10 +429,174 @@
             margin-top: 0.25rem;
         }
 
+        /* Stats Modal */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            text-align: center;
+        }
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.75rem 0.25rem;
+        }
+        .stat-item span {
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary-cyan);
+        }
+        .stat-item label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .guess-distribution {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+        .dist-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+        .dist-label {
+            width: 20px;
+            text-align: right;
+            color: var(--text-muted);
+        }
+        .dist-bar {
+            flex: 1;
+            height: 18px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .dist-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-cyan), #4facfe);
+            border-radius: 4px;
+            min-width: 2px;
+            transition: width 0.5s ease;
+        }
+        .dist-count {
+            width: 20px;
+            color: var(--text-muted);
+        }
+
+        /* Settings Modal */
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+        .setting-select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.35rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .btn-reset {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--wrong-red);
+            color: var(--wrong-red);
+            font-weight: 700;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--primary-cyan);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Facts Modal */
+        .facts-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .fact-flag {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
+        .fact-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0.6rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .fact-row .fact-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        .fact-row .fact-value {
+            font-weight: 700;
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 200;
+        }
+
         /* Landscape / tablet */
         @media (min-width: 768px) {
             .game-panel {
-                max-height: 60vh;
+                max-height: 65vh;
             }
             .suggestions {
                 bottom: auto;
@@ -359,7 +628,7 @@
             .globe-fullscreen {
                 position: relative;
                 width: 100%;
-                height: 45vh;
+                height: 42vh;
                 pointer-events: auto;
                 margin-bottom: 0.5rem;
                 border-radius: 16px;
@@ -383,7 +652,7 @@
                 justify-content: flex-start;
             }
             .game-panel {
-                max-height: 50vh;
+                max-height: 55vh;
             }
         }
     </style>
@@ -395,18 +664,44 @@
         <div id="globe-container" style="touch-action: none;"></div>
     </div>
 
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
     <!-- UI Overlay -->
     <div class="ui-overlay">
         <div class="header-bar">
             <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-            <h2 style="font-size: 1rem;">Daily 3D Earthdle</h2>
+            <h2 id="game-title" style="font-size: 0.95rem;">Daily 3D Earthdle</h2>
             <div class="header-actions">
+                <button id="btn-hint" class="icon-btn hint-btn" title="Get a Hint"><i class="fa-solid fa-lightbulb"></i><span id="hint-count" class="hint-count">2</span></button>
+                <button id="btn-stats" class="icon-btn" title="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
+                <button id="btn-settings" class="icon-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
                 <button id="btn-help" class="icon-btn" title="How to Play"><i class="fa-solid fa-circle-question"></i></button>
             </div>
         </div>
 
         <div class="layout-grid">
             <div class="game-panel">
+                <!-- Mode & Difficulty Selectors -->
+                <div class="selectors-row">
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="daily">Daily</button>
+                        <button class="mode-btn" data-mode="endless">Endless</button>
+                    </div>
+                    <div class="difficulty-selector">
+                        <button class="diff-btn" data-diff="easy">Easy</button>
+                        <button class="diff-btn active" data-diff="normal">Normal</button>
+                        <button class="diff-btn" data-diff="hard">Hard</button>
+                    </div>
+                </div>
+
+                <!-- Endless Score Display -->
+                <div id="endless-score" class="endless-score" style="display:none;">
+                    <span>Round: <strong id="endless-round-num">1</strong></span>
+                    <span>Wins: <strong id="endless-wins-num">0</strong></span>
+                    <span>Streak: <strong id="endless-streak-num">0</strong></span>
+                </div>
+
                 <div class="search-container">
                     <div class="input-box">
                         <input type="text" id="country-input" placeholder="Enter country..." autocomplete="off">
@@ -415,9 +710,23 @@
                     <div id="suggestions" class="suggestions"></div>
                 </div>
 
+                <div id="hint-display" class="hint-display"></div>
+
                 <div id="guesses-container" class="guesses-list"></div>
 
                 <div id="toast" class="toast">Initializing 3D World...</div>
+
+                <div class="action-buttons">
+                    <button id="btn-share" class="btn-share" style="display:none;">
+                        <i class="fa-solid fa-share-nodes"></i> SHARE
+                    </button>
+                    <button id="btn-facts" class="btn-facts" style="display:none;">
+                        <i class="fa-solid fa-book"></i> FACTS
+                    </button>
+                    <button id="btn-next-round" class="btn-next-round" style="display:none;">
+                        <i class="fa-solid fa-forward"></i> NEXT
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -431,10 +740,70 @@
                 <li><i class="fa-solid fa-ruler-horizontal" style="color: var(--primary-cyan);"></i> <strong>Distance:</strong> Shows how far your guess is from the mystery target.</li>
                 <li><i class="fa-solid fa-compass" style="color: var(--primary-cyan);"></i> <strong>Direction:</strong> Points toward the target country's location.</li>
                 <li><i class="fa-solid fa-bullseye" style="color: var(--primary-cyan);"></i> <strong>Proximity:</strong> Represents closeness percentage (100% = Correct).</li>
+                <li><i class="fa-solid fa-lightbulb" style="color: var(--primary-cyan);"></i> <strong>Hints:</strong> Use up to 2 hints per game (continent, first letter).</li>
+                <li><i class="fa-solid fa-infinity" style="color: var(--primary-cyan);"></i> <strong>Endless Mode:</strong> Play unlimited rounds with random countries.</li>
+                <li><i class="fa-solid fa-gauge-high" style="color: var(--primary-cyan);"></i> <strong>Difficulty:</strong> Easy shows proximity, Hard hides direction & proximity.</li>
             </ul>
             <button id="btn-close-help" class="btn-close-modal">GOT IT</button>
         </div>
     </div>
+
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Statistics <i class="fa-solid fa-chart-simple"></i></h3>
+            <div class="stats-grid">
+                <div class="stat-item"><span id="stat-games">0</span><label>Played</label></div>
+                <div class="stat-item"><span id="stat-winrate">0%</span><label>Win %</label></div>
+                <div class="stat-item"><span id="stat-streak">0</span><label>Streak</label></div>
+                <div class="stat-item"><span id="stat-best">0</span><label>Best</label></div>
+            </div>
+            <h4 style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.85rem;">Guess Distribution</h4>
+            <div id="guess-distribution" class="guess-distribution"></div>
+            <button id="btn-close-stats" class="btn-close-modal">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Settings <i class="fa-solid fa-gear"></i></h3>
+            <div class="setting-row">
+                <span>Sound Effects</span>
+                <label class="switch">
+                    <input type="checkbox" id="setting-sound" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span>Auto-Rotate Globe</span>
+                <label class="switch">
+                    <input type="checkbox" id="setting-rotate" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <span>Globe Theme</span>
+                <select id="setting-theme" class="setting-select">
+                    <option value="dark">Dark Earth</option>
+                    <option value="satellite">Satellite</option>
+                    <option value="blue">Blue Marble</option>
+                </select>
+            </div>
+            <button id="btn-reset-stats" class="btn-reset">Reset Statistics</button>
+            <button id="btn-close-settings" class="btn-close-modal">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- Facts Modal -->
+    <div id="facts-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 id="facts-title">Country Facts</h3>
+            <div id="facts-content" class="facts-content"></div>
+            <button id="btn-close-facts" class="btn-close-modal">CLOSE</button>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/globe.gl@2.22.0/dist/globe.gl.min.js"></script>
     <script src="earthdle.js"></script>
 </body>

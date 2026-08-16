@@ -59,7 +59,7 @@ function debounce(fn, wait = 150) {
 }
 
 // Use local bundled Meraki champions snapshot
-const MERAKI_CHAMPIONS_URL = './data/champions.json';
+const MERAKI_CHAMPIONS_URL = '../data/champions.json';
 
 // Detailed multi-species metadata map to distinguish stat twins
 const CHAMPION_DETAILS = {
@@ -477,7 +477,7 @@ function resetBoard() {
     guessesHistory = [];
     gameOver = false;
     lastGameWon = false;
-    guessesContainer.innerHTML = '';
+    guessessContainer.innerHTML = '';
     hintBox.style.display = 'none';
     inputEl.disabled = false;
     btnGuess.disabled = false;
@@ -485,11 +485,6 @@ function resetBoard() {
     suggestionsEl.style.display = 'none';
     currentMatches = [];
     suggestionActiveIndex = -1;
-    // Show/hide buttons based on mode
-    btnShare.style.display = gameMode === 'endless' ? 'none' : 'block';
-    btnShareLose.style.display = gameMode === 'endless' ? 'none' : 'block';
-    btnNextRound.style.display = gameMode === 'endless' ? 'block' : 'none';
-    btnNextRoundLose.style.display = gameMode === 'endless' ? 'block' : 'none';
 }
 
 function startEndlessRound() {

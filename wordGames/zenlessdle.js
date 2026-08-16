@@ -59,7 +59,7 @@ function debounce(fn, wait = 150) {
 }
 
 // Local bundled agents dataset
-const AGENTS_URL = './data/zenlessdle_characters.json';
+const AGENTS_URL = '../data/zenlessdle_characters.json';
 
 let AGENTS = [];
 let TARGET_AGENT = null;

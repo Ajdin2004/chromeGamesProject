@@ -59,7 +59,7 @@ function debounce(fn, wait = 150) {
 }
 
 // Local bundled characters dataset
-const CHARACTERS_URL = './data/hsr_characters_clean.json';
+const CHARACTERS_URL = '../data/hsr_characters_clean.json';
 
 let CHARACTERS = [];
 let TARGET_CHARACTER = null;

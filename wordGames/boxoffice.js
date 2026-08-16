@@ -1,7 +1,7 @@
 // --- Box Office Showdown ---
 // Guess which movie earned more at the worldwide box office.
 
-const MOVIES_URL = './data/movies_boxoffice.json';
+const MOVIES_URL = './movies_boxoffice.json';
 const ROUNDS_PER_GAME = 10;
 const TOTAL_MATCHUP_POOL = 2 * ROUNDS_PER_GAME; // 20 distinct movies per full game
 
