@@ -1,6 +1,16 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// --- Virtual Coordinate System ---
+// All game logic runs in a fixed 600x400 virtual space.
+// The canvas is resized to fill the screen and ctx.setTransform
+// scales the virtual space to the actual canvas size.
+const VIRTUAL_WIDTH = 600;
+const VIRTUAL_HEIGHT = 400;
+
+let scaleX = 1;
+let scaleY = 1;
+
 // --- Web Audio API Setup ---
 let audioCtx = null;
 
@@ -70,23 +80,23 @@ const paddleHeight = 80;
 
 const player1 = {
     x: 20,
-    y: canvas.height / 2 - paddleHeight / 2,
+    y: VIRTUAL_HEIGHT / 2 - paddleHeight / 2,
     score: 0,
     speed: 6.5,
     color: '#00f2fe'
 };
 
 const player2 = {
-    x: canvas.width - 20 - paddleWidth,
-    y: canvas.height / 2 - paddleHeight / 2,
+    x: VIRTUAL_WIDTH - 20 - paddleWidth,
+    y: VIRTUAL_HEIGHT / 2 - paddleHeight / 2,
     score: 0,
     speed: 6.5,
     color: '#ff2a6d'
 };
 
 const ball = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
+    x: VIRTUAL_WIDTH / 2,
+    y: VIRTUAL_HEIGHT / 2,
     radius: 7,
     speed: 5,
     dx: 5,
@@ -105,9 +115,19 @@ const aiDiffSelect = document.getElementById('ai-diff');
 const aiDiffBox = document.getElementById('ai-difficulty-box');
 const scoreLimitSelect = document.getElementById('score-limit');
 
+// --- Canvas Resize ---
+function resize() {
+    const wrapper = canvas.parentElement;
+    const rect = wrapper.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(rect.width));
+    canvas.height = Math.max(1, Math.round(rect.height));
+    scaleX = canvas.width / VIRTUAL_WIDTH;
+    scaleY = canvas.height / VIRTUAL_HEIGHT;
+}
+
 function resetBall(direction = 1) {
-    ball.x = canvas.width / 2;
-    ball.y = canvas.height / 2;
+    ball.x = VIRTUAL_WIDTH / 2;
+    ball.y = VIRTUAL_HEIGHT / 2;
     ball.speed = 5;
     ball.dx = direction * ball.speed;
     ball.dy = (Math.random() - 0.5) * 6;
@@ -117,8 +137,8 @@ function resetBall(direction = 1) {
 function resetGame() {
     player1.score = 0;
     player2.score = 0;
-    player1.y = canvas.height / 2 - paddleHeight / 2;
-    player2.y = canvas.height / 2 - paddleHeight / 2;
+    player1.y = VIRTUAL_HEIGHT / 2 - paddleHeight / 2;
+    player2.y = VIRTUAL_HEIGHT / 2 - paddleHeight / 2;
     isGameOver = false;
     resetBall();
 }
@@ -129,19 +149,19 @@ function update() {
 
     // Player 1 Movement (W / S)
     if (keys['w'] || keys['W']) player1.y = Math.max(0, player1.y - player1.speed);
-    if (keys['s'] || keys['S']) player1.y = Math.min(canvas.height - paddleHeight, player1.y + player1.speed);
+    if (keys['s'] || keys['S']) player1.y = Math.min(VIRTUAL_HEIGHT - paddleHeight, player1.y + player1.speed);
 
     // Player 2 Movement
     if (gameMode === 'pvp') {
         if (keys['ArrowUp']) player2.y = Math.max(0, player2.y - player2.speed);
-        if (keys['ArrowDown']) player2.y = Math.min(canvas.height - paddleHeight, player2.y + player2.speed);
+        if (keys['ArrowDown']) player2.y = Math.min(VIRTUAL_HEIGHT - paddleHeight, player2.y + player2.speed);
     } else {
         // AI Movement Logic
         const profile = AI_PROFILES[currentAiDifficulty];
         const paddleCenter = player2.y + paddleHeight / 2;
         
         if (paddleCenter < ball.y - profile.margin) {
-            player2.y = Math.min(canvas.height - paddleHeight, player2.y + profile.speed);
+            player2.y = Math.min(VIRTUAL_HEIGHT - paddleHeight, player2.y + profile.speed);
         } else if (paddleCenter > ball.y + profile.margin) {
             player2.y = Math.max(0, player2.y - profile.speed);
         }
@@ -155,13 +175,13 @@ function update() {
     ball.y += ball.dy;
 
     // Wall Bounce
-    if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= canvas.height) {
+    if (ball.y - ball.radius <= 0 || ball.y + ball.radius >= VIRTUAL_HEIGHT) {
         ball.dy *= -1;
         Sound.wallHit();
     }
 
     // Paddle Collisions
-    let paddle = (ball.x < canvas.width / 2) ? player1 : player2;
+    let paddle = (ball.x < VIRTUAL_WIDTH / 2) ? player1 : player2;
 
     if (
         ball.x - ball.radius < paddle.x + paddleWidth &&
@@ -172,7 +192,7 @@ function update() {
         let collidePoint = (ball.y - (paddle.y + paddleHeight / 2)) / (paddleHeight / 2);
         let angleRad = (Math.PI / 4) * collidePoint;
 
-        let direction = (ball.x < canvas.width / 2) ? 1 : -1;
+        let direction = (ball.x < VIRTUAL_WIDTH / 2) ? 1 : -1;
         ball.speed = Math.min(13, ball.speed + 0.4);
         ball.dx = direction * ball.speed * Math.cos(angleRad);
         ball.dy = ball.speed * Math.sin(angleRad);
@@ -186,7 +206,7 @@ function update() {
         Sound.score();
         checkWinner();
         resetBall(1);
-    } else if (ball.x + ball.radius > canvas.width) {
+    } else if (ball.x + ball.radius > VIRTUAL_WIDTH) {
         player1.score++;
         Sound.score();
         checkWinner();
@@ -210,8 +230,8 @@ function drawDashedLine() {
     ctx.lineWidth = 2;
     ctx.setLineDash([8, 8]);
     ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, 0);
-    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.moveTo(VIRTUAL_WIDTH / 2, 0);
+    ctx.lineTo(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT);
     ctx.stroke();
     ctx.setLineDash([]);
 }
@@ -226,8 +246,11 @@ function drawTrail() {
 }
 
 function draw() {
+    // Scale the virtual coordinate space to fill the canvas
+    ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
+
     ctx.fillStyle = '#101426';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
     drawDashedLine();
     drawTrail();
@@ -256,20 +279,20 @@ function draw() {
     ctx.font = '800 36px Outfit, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.fillText(player1.score, canvas.width / 4, 60);
-    ctx.fillText(player2.score, (3 * canvas.width) / 4, 60);
+    ctx.fillText(player1.score, VIRTUAL_WIDTH / 4, 60);
+    ctx.fillText(player2.score, (3 * VIRTUAL_WIDTH) / 4, 60);
 
     if (isGameOver) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-        ctx.fillRect(0, 130, canvas.width, 140);
+        ctx.fillRect(0, 130, VIRTUAL_WIDTH, 140);
 
         ctx.fillStyle = '#00f2fe';
         ctx.font = '800 32px Outfit, sans-serif';
-        ctx.fillText(winnerText, canvas.width / 2, 185);
+        ctx.fillText(winnerText, VIRTUAL_WIDTH / 2, 185);
 
         ctx.fillStyle = '#fff';
         ctx.font = '400 16px Outfit, sans-serif';
-        ctx.fillText('Press Space or Tap to Restart', canvas.width / 2, 225);
+        ctx.fillText('Press Space or Tap to Restart', VIRTUAL_WIDTH / 2, 225);
     }
 }
 
@@ -302,18 +325,18 @@ canvas.addEventListener('touchmove', e => {
     }
 
     const rect = canvas.getBoundingClientRect();
-    const scaleY = canvas.height / rect.height;
 
     for (let i = 0; i < e.touches.length; i++) {
         const touch = e.touches[i];
-        const touchX = (touch.clientX - rect.left);
-        const touchY = (touch.clientY - rect.top) * scaleY;
+        // Convert client coordinates to virtual game coordinates
+        const gameX = (touch.clientX - rect.left) / scaleX;
+        const gameY = (touch.clientY - rect.top) / scaleY;
 
         // Left half controls Player 1, Right half controls Player 2 (if PvP mode)
-        if (touchX < rect.width / 2) {
-            player1.y = Math.max(0, Math.min(canvas.height - paddleHeight, touchY - paddleHeight / 2));
+        if (gameX < VIRTUAL_WIDTH / 2) {
+            player1.y = Math.max(0, Math.min(VIRTUAL_HEIGHT - paddleHeight, gameY - paddleHeight / 2));
         } else if (gameMode === 'pvp') {
-            player2.y = Math.max(0, Math.min(canvas.height - paddleHeight, touchY - paddleHeight / 2));
+            player2.y = Math.max(0, Math.min(VIRTUAL_HEIGHT - paddleHeight, gameY - paddleHeight / 2));
         }
     }
 }, { passive: false });
@@ -351,6 +374,16 @@ scoreLimitSelect.addEventListener('change', (e) => {
     WINNING_SCORE = parseInt(e.target.value);
     resetGame();
 });
+
+// --- Resize Handling ---
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => {
+    // Wait for the orientation change to complete before resizing
+    setTimeout(resize, 100);
+});
+
+// Initial resize
+resize();
 
 // Loop
 function loop() {

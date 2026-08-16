@@ -13,9 +13,9 @@ const GRAVITY = 0.65;
 const FAST_FALL_GRAVITY = 1.8; 
 const JUMP_VELOCITY = -12.0;   
 const CUT_JUMP_FACTOR = 0.45;  
-const DUCK_HEIGHT = 32;        // Updated for 2x scale
-const RUN_HEIGHT = 64;         // Updated for 2x scale
-const DINO_WIDTH = 64;         // Updated for 2x scale
+const DUCK_HEIGHT = 32;        
+const RUN_HEIGHT = 64;         
+const DINO_WIDTH = 64;         
 const BASE_SPEED = 6;
 const MAX_SPEED = 13;
 const MIN_OBSTACLE_GAP = 200;  
@@ -23,7 +23,7 @@ const PTERODACTYL_MIN_DISTANCE = 500;
 const FIXED_DT = 1000 / 60;    
 const NIGHT_CYCLE_DISTANCE = 2000;   
 const NIGHT_TRANSITION_FRAMES = 90;  
-let GROUND_Y = 340;            // Fixed logical ground level
+let GROUND_Y = 340;            
 
 // ----- STATES -----
 const STATE_START = 0;
@@ -58,14 +58,15 @@ function isNight() { return nightTarget === 1; }
 function getColors() {
     const t = nightT;
     const lerp = (a, b) => Math.round(a + (b - a) * t);
+    const lerpF = (a, b) => a + (b - a) * t;
     return {
-        skyTop: `rgb(${lerp(247, 26)}, ${lerp(247, 26)}, ${lerp(247, 46)})`,
-        skyBottom: `rgb(${lerp(247, 26)}, ${lerp(247, 26)}, ${lerp(247, 46)})`,
+        skyTop: `rgb(${lerp(135, 20)}, ${lerp(206, 20)}, ${lerp(235, 40)})`,
+        skyBottom: `rgb(${lerp(247, 247)}, ${lerp(247, 26)}, ${lerp(247, 46)})`,
         ground: `rgb(${lerp(232, 52)}, ${lerp(232, 52)}, ${lerp(232, 77)})`,
         groundLine: `rgb(${lerp(83, 205)}, ${lerp(83, 205)}, ${lerp(83, 214)})`,
         texture: `rgb(${lerp(214, 130)}, ${lerp(214, 130)}, ${lerp(214, 158)})`,
         sprite: `rgb(${lerp(83, 205)}, ${lerp(83, 205)}, ${lerp(83, 214)})`,
-        cloud: `rgba(${lerp(224, 180)}, ${lerp(224, 180)}, ${lerp(224, 190)}, ${lerp(1, 0.25)})`,
+        cloud: `rgba(${lerp(224, 180)}, ${lerp(224, 180)}, ${lerp(224, 190)}, ${lerpF(1, 0.25)})`,
         textDark: `rgb(${lerp(83, 220)}, ${lerp(83, 220)}, ${lerp(83, 220)})`,
         textMuted: `rgb(${lerp(138, 200)}, ${lerp(138, 200)}, ${lerp(138, 220)})`
     };
@@ -145,6 +146,7 @@ const dino = {
             this.ducking = false;
             this.jumpHeld = true;
             Sound.jump();
+            spawnDust(3);
         }
     },
 
@@ -176,6 +178,10 @@ const dino = {
         const groundLevel = this.ducking ? GROUND_Y - DUCK_HEIGHT : GROUND_Y - RUN_HEIGHT;
 
         if (this.y >= groundLevel) {
+            // Landing from a jump — kick up dust
+            if (!this.isGrounded && this.velocity > 4) {
+                spawnDust(4);
+            }
             this.y = groundLevel;
             this.velocity = 0;
             this.isGrounded = true;
@@ -198,14 +204,23 @@ const dino = {
 
     getBounds() {
         if (this.ducking) {
-            return { x: DINO_X - 10, y: this.y, w: 50, h: DUCK_HEIGHT };
+            return { x: DINO_X - 20, y: this.y, w: 56, h: DUCK_HEIGHT };
         }
-        return { x: DINO_X - 12, y: this.y, w: 44, h: RUN_HEIGHT };
+        return { x: DINO_X - 20, y: this.y, w: 56, h: RUN_HEIGHT };
     },
 
     draw(palette) {
         ctx.save();
         if (this.dead) ctx.globalAlpha = 0.5;
+
+        // Shadow under the dino
+        const shadowW = this.ducking ? 60 : 48;
+        const shadowY = GROUND_Y + 2;
+        ctx.fillStyle = `rgba(0,0,0,${0.12 + nightT * 0.08})`;
+        ctx.beginPath();
+        ctx.ellipse(DINO_X + 2, shadowY, shadowW / 2, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.fillStyle = palette.sprite;
 
         // CHECK FOR CUSTOM 32x32 DINO
@@ -217,8 +232,6 @@ const dino = {
             const currentHitboxHeight = this.ducking ? DUCK_HEIGHT : RUN_HEIGHT;
             
             // 1. Find the lowest drawn pixel (highest row index) across both frames
-            // We check both frames so the dinosaur doesn't bounce vertically if the 
-            // running animation has one foot slightly higher than the other.
             let bottomMostRow = 0;
             for (let f = 0; f < 2; f++) {
                 if (window.customDinoFrames[f]) {
@@ -257,35 +270,50 @@ const dino = {
 
         // ===== DEFAULT DINO (Fallback) =====
         const x = DINO_X - 18; 
-        const y = this.y;
+        // Anchor the sprite's feet to the bottom of the hitbox so it doesn't float.
+        // Running sprite feet are at y+46, ducking feet at y+28.
+        // this.y is the top of the hitbox, so offset to align feet with hitbox bottom.
+        const y = this.ducking ? this.y + DUCK_HEIGHT - 28 : this.y + RUN_HEIGHT - 46;
 
         if (this.ducking) {
+            // Tail
             ctx.fillRect(x - 14, y + 10, 14, 4);
             ctx.fillRect(x - 8, y + 14, 10, 4);
+            // Body
             ctx.fillRect(x - 2, y + 6, 36, 14);
+            // Head
             ctx.fillRect(x + 30, y + 2, 22, 12);
             ctx.fillRect(x + 42, y + 10, 10, 3);
+            // Eye
             ctx.fillStyle = palette.skyTop;
             ctx.fillRect(x + 38, y + 4, 3, 3);
             ctx.fillStyle = palette.sprite;
+            // Legs
             const legStep = Math.floor(this.legFrame / 4) % 2 === 0;
             ctx.fillRect(x + 8, y + 20, 6, 8);
             ctx.fillRect(x + 24, y + 20, 6, 8);
             if (legStep) ctx.fillRect(x + 4, y + 26, 8, 2);
             else ctx.fillRect(x + 20, y + 26, 8, 2);
         } else {
+            // Head
             ctx.fillRect(x + 28, y + 0, 28, 12);
             ctx.fillRect(x + 26, y + 15, 18, 4);
             ctx.fillRect(x + 42, y + 4, 4, 3);
+            // Eye
             ctx.fillStyle = palette.skyTop;
             ctx.fillRect(x + 38, y + 3, 4, 4);
             ctx.fillStyle = palette.sprite;
+            // Body
             ctx.fillRect(x + 10, y + 10, 28, 22);
+            // Arm
             ctx.fillRect(x - 2, y + 14, 12, 10);
+            // Tail
             ctx.fillRect(x - 10, y + 18, 8, 8);
             ctx.fillRect(x - 16, y + 22, 6, 5);
+            // Front arm
             ctx.fillRect(x + 38, y + 18, 8, 5);
             ctx.fillRect(x + 36, y + 20, 2, 6);
+            // Legs
             if (!this.isGrounded) {
                 ctx.fillRect(x + 12, y + 32, 7, 8);
                 ctx.fillRect(x + 22, y + 32, 7, 6);
@@ -309,6 +337,42 @@ const dino = {
     }
 };
 
+// ----- DUST PARTICLES -----
+let dustParticles = [];
+function spawnDust(count) {
+    for (let i = 0; i < count; i++) {
+        dustParticles.push({
+            x: DINO_X + (Math.random() - 0.5) * 20,
+            y: GROUND_Y - 4 - Math.random() * 6,
+            vx: -speed * 0.3 - Math.random() * 1.5,
+            vy: -Math.random() * 1.2 - 0.3,
+            size: 2 + Math.random() * 3,
+            life: 1,
+            decay: 0.03 + Math.random() * 0.03
+        });
+    }
+}
+
+function updateDust() {
+    for (let i = dustParticles.length - 1; i >= 0; i--) {
+        const p = dustParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05;
+        p.life -= p.decay;
+        if (p.life <= 0) dustParticles.splice(i, 1);
+    }
+}
+
+function drawDust(palette) {
+    dustParticles.forEach(p => {
+        ctx.fillStyle = `rgba(200, 200, 200, ${p.life * 0.4})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
 // ----- OBSTACLES -----
 let obstacles = [];
 let spawnTimer = 0;
@@ -317,23 +381,35 @@ function spawnObstacle() {
     const r = Math.random();
     let type, w, h, y;
     const pterodactylUnlocked = distance > PTERODACTYL_MIN_DISTANCE;
-    const roll = pterodactylUnlocked ? r : r * 0.85;
 
-    if (roll < 0.55) {
-        type = 'small-cactus';
-        w = 16; h = 32;
-        y = GROUND_Y - h;
-    } else if (roll < 0.85) {
-        type = 'large-cactus';
-        w = 24; h = 48;
-        y = GROUND_Y - h;
+    if (!pterodactylUnlocked) {
+        // Only cacti before pterodactyls unlock
+        if (r < 0.55) {
+            type = 'small-cactus';
+            w = 16; h = 32;
+            y = GROUND_Y - h;
+        } else {
+            type = 'large-cactus';
+            w = 24; h = 48;
+            y = GROUND_Y - h;
+        }
     } else {
-        type = 'pterodactyl';
-        w = 40; h = 26;
-        const alt = Math.random();
-        if (alt < 0.4) y = GROUND_Y - 55;
-        else if (alt < 0.7) y = GROUND_Y - 90;
-        else y = GROUND_Y - 130;
+        if (r < 0.45) {
+            type = 'small-cactus';
+            w = 16; h = 32;
+            y = GROUND_Y - h;
+        } else if (r < 0.75) {
+            type = 'large-cactus';
+            w = 24; h = 48;
+            y = GROUND_Y - h;
+        } else {
+            type = 'pterodactyl';
+            w = 40; h = 26;
+            const alt = Math.random();
+            if (alt < 0.4) y = GROUND_Y - 55;
+            else if (alt < 0.7) y = GROUND_Y - 90;
+            else y = GROUND_Y - 130;
+        }
     }
     // Spawn outside logical bounds
     obstacles.push({ type, x: LOGICAL_W + 20, w, h, y, passed: false });
@@ -372,21 +448,37 @@ function drawObstacles(palette) {
     obstacles.forEach(o => {
         ctx.fillStyle = palette.sprite;
         if (o.type === 'small-cactus') {
+            // Main trunk
             ctx.fillRect(o.x + 4, o.y, 8, o.h);
+            // Left arm
             ctx.fillRect(o.x, o.y + 8, 4, 12);
+            ctx.fillRect(o.x - 2, o.y + 6, 4, 4);
+            // Right arm
             ctx.fillRect(o.x + 12, o.y + 12, 4, 10);
+            ctx.fillRect(o.x + 14, o.y + 10, 4, 4);
         } else if (o.type === 'large-cactus') {
+            // Main trunk
             ctx.fillRect(o.x + 6, o.y, 12, o.h);
+            // Left arm
             ctx.fillRect(o.x, o.y + 10, 6, 16);
+            ctx.fillRect(o.x - 2, o.y + 6, 4, 6);
+            // Right arm
             ctx.fillRect(o.x + 18, o.y + 14, 6, 14);
+            ctx.fillRect(o.x + 20, o.y + 10, 4, 6);
+            // Top spike
             ctx.fillRect(o.x + 2, o.y + 4, 4, 8);
+            ctx.fillRect(o.x + 4, o.y, 4, 6);
         } else if (o.type === 'pterodactyl') {
+            // Body
             ctx.fillRect(o.x + 8, o.y + 8, 20, 10);
+            // Head
             ctx.fillRect(o.x + 26, o.y + 4, 10, 8);
             ctx.fillRect(o.x + 34, o.y + 6, 6, 3);
+            // Eye
             ctx.fillStyle = palette.skyTop;
             ctx.fillRect(o.x + 30, o.y + 5, 3, 3);
             ctx.fillStyle = palette.sprite;
+            // Wings
             const flap = Math.floor(frameCount / 8) % 2 === 0;
             if (flap) {
                 ctx.fillRect(o.x + 4, o.y, 14, 6);
@@ -402,8 +494,10 @@ function drawObstacles(palette) {
 // ----- GROUND -----
 let groundOffset = 0;
 function drawGround(palette) {
+    // Ground line
     ctx.fillStyle = palette.groundLine;
     ctx.fillRect(0, GROUND_Y, LOGICAL_W, 3);
+    // Dash pattern
     ctx.fillStyle = palette.texture;
     const dashW = 24;
     const gap = 18;
@@ -412,7 +506,11 @@ function drawGround(palette) {
     for (let x = offset; x < LOGICAL_W; x += total) {
         ctx.fillRect(x, GROUND_Y + 10, dashW, 3);
     }
-    ctx.fillStyle = palette.ground;
+    // Ground fill with subtle gradient
+    const grad = ctx.createLinearGradient(0, GROUND_Y + 3, 0, GROUND_Y + GROUND_HEIGHT);
+    grad.addColorStop(0, palette.ground);
+    grad.addColorStop(1, nightT > 0.5 ? 'rgb(30, 30, 50)' : 'rgb(200, 200, 200)');
+    ctx.fillStyle = grad;
     ctx.fillRect(0, GROUND_Y + 3, LOGICAL_W, GROUND_HEIGHT - 3);
 }
 
@@ -429,13 +527,16 @@ for (let i = 0; i < 4; i++) {
 function drawClouds(palette) {
     clouds.forEach(c => {
         c.x -= c.speed * (speed / BASE_SPEED);
-        if (c.x + c.w < 0) {
+        if (c.x + c.w * 1.5 < 0) {
             c.x = LOGICAL_W + c.w;
             c.y = 30 + Math.random() * 80;
         }
         ctx.fillStyle = palette.cloud;
+        // Puffy multi-ellipse cloud
         ctx.beginPath();
-        ctx.ellipse(c.x, c.y, c.w * 0.5, 10, 0, 0, Math.PI * 2);
+        ctx.ellipse(c.x, c.y, c.w * 0.4, 10, 0, 0, Math.PI * 2);
+        ctx.ellipse(c.x - c.w * 0.25, c.y + 4, c.w * 0.3, 8, 0, 0, Math.PI * 2);
+        ctx.ellipse(c.x + c.w * 0.25, c.y + 3, c.w * 0.3, 9, 0, 0, Math.PI * 2);
         ctx.fill();
     });
 }
@@ -459,13 +560,39 @@ function drawStars() {
     });
 }
 
+// ----- MOON -----
+function drawMoon() {
+    if (nightT <= 0) return;
+    const moonX = 850;
+    const moonY = 60;
+    const moonR = 22;
+    ctx.save();
+    ctx.globalAlpha = nightT;
+    ctx.fillStyle = '#f0f0f0';
+    ctx.beginPath();
+    ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+    ctx.fill();
+    // Crescent cutout
+    ctx.fillStyle = getColors().skyTop;
+    ctx.beginPath();
+    ctx.arc(moonX + 8, moonY - 4, moonR - 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
 // ----- UI -----
 function drawUI(palette) {
     ctx.textAlign = 'center';
     if (gameState === STATE_PLAYING) {
+        // Score with HI label
         ctx.font = '800 22px Outfit, sans-serif';
         ctx.fillStyle = palette.textDark;
         ctx.fillText(score, LOGICAL_W / 2, 40);
+        if (highScore > 0) {
+            ctx.font = '600 12px Outfit, sans-serif';
+            ctx.fillStyle = palette.textMuted;
+            ctx.fillText('HI ' + highScore, LOGICAL_W / 2 + 60, 40);
+        }
     } else if (gameState === STATE_START) {
         ctx.font = '800 26px Outfit, sans-serif';
         ctx.fillStyle = palette.textDark;
@@ -554,19 +681,27 @@ function physicsStep() {
     updateDayNight();
     dino.update();
     updateObstacles();
+    updateDust();
     if (checkCollision()) gameOver();
 }
 
 // ----- RENDER -----
 function render() {
     const palette = getColors();
-    ctx.fillStyle = palette.skyTop;
-    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H); // Updated to logical resolution
+    
+    // Sky gradient
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+    skyGrad.addColorStop(0, palette.skyTop);
+    skyGrad.addColorStop(1, palette.skyBottom);
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
 
     drawStars();
+    drawMoon();
     drawClouds(palette);
     drawGround(palette);
     drawObstacles(palette);
+    drawDust(palette);
     dino.draw(palette);
     drawUI(palette);
 }
@@ -811,6 +946,7 @@ editorOverlay.addEventListener('touchstart', (e) => e.stopPropagation());
 function resetGame() {
     dino.reset();
     obstacles = [];
+    dustParticles = [];
     spawnTimer = 30;
     score = 0;
     speed = BASE_SPEED;
@@ -821,10 +957,8 @@ function resetGame() {
     nightTarget = 0;
     accumulator = 0;
     lastTime = 0;
-    gameState = STATE_START; 
-    openEditor(); 
+    gameState = STATE_START;
 }
 
 resizeCanvas();
-window.onload = openEditor;
 gameLoop(performance.now());
