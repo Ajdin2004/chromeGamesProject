@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Box Office Showdown | Chromium Games</title>
+    <title>IMDb Showdown | Chromium Games</title>
     <link rel="icon" type="image/x-icon" href="https://freepngimg.com/save/23057-popcorn-transparent-image/1483x1959">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,7 +12,7 @@
             --bg-color: #0a0e1a;
             --card-bg: rgba(15, 20, 38, 0.9);
             --card-border: rgba(255, 255, 255, 0.13);
-            --primary-gold: #facc15;
+            --primary-gold: #f5c518;
             --secondary-red: #ef4444;
             --correct-green: #22c55e;
             --text-main: #f0f4f8;
@@ -24,9 +24,9 @@
 
         body {
             background:
-                radial-gradient(ellipse at 20% 20%, rgba(249, 24, 128, 0.05), transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(0, 242, 254, 0.05), transparent 50%),
-                linear-gradient(rgba(10, 14, 26, 0.92), rgba(10, 14, 26, 0.97)),
+                radial-gradient(ellipse at 20% 20%, rgba(245, 197, 24, 0.05), transparent 20%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 242, 254, 0.05), transparent 20%),
+                linear-gradient(rgba(10, 14, 26, 0.62), rgba(10, 14, 26, 0.53)),
                 url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-main);
@@ -46,6 +46,8 @@
             width: 100%;
             max-width: 900px;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .header-controls {
@@ -66,7 +68,7 @@
         .back-btn:hover { color: var(--accent-cyan); }
 
         .score-badge {
-            background: rgba(250, 204, 21, 0.12);
+            background: rgba(245, 197, 24, 0.12);
             border: 1px solid var(--primary-gold);
             color: var(--primary-gold);
             padding: 0.4rem 0.9rem;
@@ -90,6 +92,22 @@
             align-items: center;
             gap: 0.45rem;
         }
+
+        .stats-btn {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+        }
+        .stats-btn:hover { background: rgba(0, 242, 254, 0.2); transform: translateY(-2px); }
 
         .game-panel {
             width: 100%;
@@ -141,7 +159,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.6rem;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
@@ -189,7 +207,7 @@
             font-size: 2rem;
             font-weight: 800;
             color: var(--primary-gold);
-            text-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+            text-shadow: 0 0 20px rgba(245, 197, 24, 0.5);
             writing-mode: horizontal-tb;
             padding: 0 0.5rem;
         }
@@ -215,11 +233,39 @@
             justify-content: center;
         }
 
-        .movie-year {
-            font-size: 0.85rem;
+        .movie-meta {
+            font-size: 0.8rem;
             color: var(--text-muted);
             font-weight: 600;
         }
+
+        .movie-director {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .movie-stars {
+            font-size: 0.9rem;
+            color: var(--primary-gold);
+            letter-spacing: 2px;
+        }
+
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(245, 197, 24, 0.15);
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+            padding: 0.3rem 0.9rem;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .rating-badge i { font-size: 0.9rem; }
 
         .result-box {
             display: none;
@@ -268,7 +314,7 @@
         }
 
         .btn-next:hover {
-            box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
+            box-shadow: 0 0 20px rgba(245, 197, 24, 0.4);
         }
 
         .btn-next:active { transform: scale(0.96); }
@@ -316,6 +362,271 @@
             color: var(--text-muted);
         }
 
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .mode-btn:hover { border-color: var(--accent-cyan); color: var(--text-main); }
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary-gold), #f59e0b);
+            color: #000;
+            border-color: transparent;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .difficulty-btn:hover { border-color: var(--accent-cyan); color: var(--text-main); }
+        .difficulty-btn.active {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Guess Mode */
+        .guess-game {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .guess-movie-card {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .guess-poster {
+            max-width: 140px;
+            height: 200px;
+            flex-shrink: 0;
+        }
+
+        .guess-movie-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: left;
+        }
+
+        .guess-movie-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .guess-movie-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .guess-input-row {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .guess-input-row input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text-main);
+            padding: 0.7rem 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .guess-input-row input:focus { border-color: var(--accent-cyan); }
+
+        .guess-submit-btn {
+            background: linear-gradient(135deg, var(--primary-gold), #f59e0b);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+        }
+
+        .guess-submit-btn:hover { box-shadow: 0 0 15px rgba(245, 197, 24, 0.4); }
+        .guess-submit-btn:active { transform: scale(0.96); }
+
+        .guess-feedback {
+            font-size: 1rem;
+            font-weight: 700;
+            min-height: 1.5em;
+        }
+
+        .guess-history {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .guess-history-row {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        /* Stats Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.hidden { display: none; }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-header h2 i { color: var(--primary-gold); }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .close-btn:hover { color: var(--text-main); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-box .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-gold);
+        }
+
+        .stat-box .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+
+        .stats-section-title {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 1rem 0 0.5rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .reset-btn {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--secondary-red);
+            color: var(--secondary-red);
+            padding: 0.7rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+        .reset-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -337,6 +648,8 @@
             .movie-title { font-size: 0.95rem; }
             .game-panel { padding: 1rem; border-radius: 16px; }
             body { padding: 1rem 0.6rem; }
+            .guess-movie-card { flex-direction: column; text-align: center; }
+            .guess-movie-info { text-align: center; align-items: center; }
         }
     </style>
 </head>
@@ -344,20 +657,46 @@
 
     <div class="header-bar">
         <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-        <h2>Box Office Showdown</h2>
+        <h2>IMDb Showdown</h2>
         <div class="header-controls">
+            <button class="stats-btn" id="stats-btn" title="View Stats"><i class="fa-solid fa-chart-simple"></i></button>
             <div class="score-badge"><i class="fa-solid fa-trophy"></i> <span id="score-val">0</span></div>
             <div class="streak-badge"><i class="fa-solid fa-fire"></i> <span id="streak-val">0</span></div>
         </div>
     </div>
 
     <div class="game-panel">
-        <div class="round-info">
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="duel"><i class="fa-solid fa-scale-balanced"></i> Duel</button>
+            <button class="mode-btn" data-mode="guess"><i class="fa-solid fa-star"></i> Guess the Rating</button>
+            <button class="mode-btn" data-mode="daily"><i class="fa-solid fa-calendar-day"></i> Daily</button>
+        </div>
+
+        <!-- Difficulty Selector -->
+        <div class="difficulty-selector">
+            <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+            <button class="difficulty-btn active" data-difficulty="normal">Normal</button>
+            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+
+        <div class="round-info" id="round-info">
             <div class="round-chip">Round <span id="round-val">1</span></div>
-            <div class="round-chip">Highest Non-Inflation Adjusted Gross (Worldwide)</div>
+            <div class="round-chip">Higher IMDb Rating Wins</div>
         </div>
 
         <div id="vs-container" class="vs-container"></div>
+
+        <!-- Guess Mode -->
+        <div id="guess-game" class="guess-game">
+            <div class="guess-movie-card" id="guess-movie-card"></div>
+            <div class="guess-input-row">
+                <input type="number" id="guess-input" placeholder="0.0 - 10.0" min="0" max="10" step="0.1">
+                <button class="guess-submit-btn" id="guess-submit">Guess</button>
+            </div>
+            <div class="guess-feedback" id="guess-feedback"></div>
+            <div class="guess-history" id="guess-history"></div>
+        </div>
 
         <div id="result-box" class="result-box">
             <div id="result-title" class="result-title"></div>
@@ -365,7 +704,56 @@
             <button id="btn-next" class="btn-next"><i class="fa-solid fa-forward"></i> NEXT MATCHUP</button>
         </div>
 
-        <div id="toast" class="toast">Loading box office dataset...</div>
+        <div id="toast" class="toast">Loading movie data...</div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-chart-simple"></i> Your Stats</h2>
+                <button class="close-btn" id="close-stats-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="stats-section-title">Duel Mode</div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-games">0</div>
+                    <div class="stat-label">Games Played</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-wins">0</div>
+                    <div class="stat-label">Wins (8+)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-winrate">0%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-beststreak">0</div>
+                    <div class="stat-label">Best Streak</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-dailystreak">0</div>
+                    <div class="stat-label">Daily Streak</div>
+                </div>
+            </div>
+            <div class="stats-section-title">Guess the Rating</div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-guessgames">0</div>
+                    <div class="stat-label">Movies Guessed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-guessbest">—</div>
+                    <div class="stat-label">Best (Guesses)</div>
+                </div>
+            </div>
+            <button class="reset-btn" id="reset-stats-btn"><i class="fa-solid fa-rotate-left"></i> Reset All Stats</button>
+        </div>
     </div>
 
     <script src="boxoffice.js"></script>

@@ -1,0 +1,4714 @@
+{
+  "Secret Magic Control Agency": {
+    "title": "Secret Magic Control Agency",
+    "director": "Alex Tsitsilin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTJhNjk2MTctZDA3Ni00MmM4LTllYzAtYmU3YmRmMzk3NmY4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2021",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Sin City": {
+    "title": "Sin City",
+    "director": "Frank Miller, Quentin Tarantino, Robert Rodriguez",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWE2YmYyYzQtNGMwMi00Yzk0LTk3ZTYtYTcxNmFjMDE1MGExXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "2005",
+    "genre": "Crime, Thriller"
+  },
+  "Team America: World Police": {
+    "title": "Team America: World Police",
+    "director": "Trey Parker",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM2Nzc4NjYxMV5BMl5BanBnXkFtZTcwNTM1MTcyMQ@@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2004",
+    "genre": "Action, Comedy"
+  },
+  "Sex and the City": {
+    "title": "Sex and the City",
+    "director": "Michael Patrick King",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWRjMGMxM2UtODgyYS00OTAxLTk0MDctZjFhOWY0NWUxNmI0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.7",
+    "releaseVersion": "2008",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "The Last of the Mohicans": {
+    "title": "The Last of the Mohicans",
+    "director": "Michael Mann",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODAxNTAxMDItMzkwZS00ZTEyLWJlZmMtYTc0MGI1NDdkNWZkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "1992",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Ice Age: The Meltdown": {
+    "title": "Ice Age: The Meltdown",
+    "director": "Carlos Saldanha",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjAwODg3OTAxMl5BMl5BanBnXkFtZTcwMjg2NjYyMw@@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2006",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Ghost Dog: The Way of the Samurai": {
+    "title": "Ghost Dog: The Way of the Samurai",
+    "director": "Jim Jarmusch",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmIzNWI3MTMtNGY4Zi00YWIwLWEyMmQtZjcxOTdhNTQ0ZTE5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1999",
+    "genre": "Crime, Drama"
+  },
+  "The Magic of Ordinary Days": {
+    "title": "The Magic of Ordinary Days",
+    "director": "Brent Shields",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjBhNDg2YTgtZGJiZS00ZDk4LThjN2MtNTViOGE1YzRlMGFkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2005",
+    "genre": "Drama"
+  },
+  "Things We Lost in the Fire": {
+    "title": "Things We Lost in the Fire",
+    "director": "Susanne Bier",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTcyNTc3NTY2MF5BMl5BanBnXkFtZTcwMTE3NzYzMw@@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2007",
+    "genre": "Drama"
+  },
+  "White House Down": {
+    "title": "White House Down",
+    "director": "Roland Emmerich",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTZkMmRiY2EtOTljZS00MjJjLWFiNDQtNjEwYWE0NWNkYjI4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2013",
+    "genre": "Action, Drama, Thriller"
+  },
+  "The King": {
+    "title": "The King",
+    "director": "David Michôd",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTFhZTY4YWUtMmJjMy00OTE0LTlmZjctMDg5MTk4N2ZjZWNjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2019",
+    "genre": "Biography, Drama, History"
+  },
+  "American Gangster": {
+    "title": "American Gangster",
+    "director": "Ridley Scott",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGExM2MwNjUtNThkNi00ZjBmLWJhZDgtN2ZmOWJiZWEwNGMxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2007",
+    "genre": "Biography, Crime, Drama"
+  },
+  "Sydney White": {
+    "title": "Sydney White",
+    "director": "Joe Nussbaum",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk3ODc3ODAxN15BMl5BanBnXkFtZTcwNzcwMDU1MQ@@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2007",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "King Arthur": {
+    "title": "King Arthur",
+    "director": "Antoine Fuqua",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk4MTk1NjI0OV5BMl5BanBnXkFtZTcwNDQxOTUyMQ@@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2004",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Rebel Moon - Part One: A Child of Fire": {
+    "title": "Rebel Moon - Part One: A Child of Fire",
+    "director": "Zack Snyder",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTRmOTk2ZDYtY2Q3Mi00MGYwLWFjNDQtYTliODc3NzM1ZjBlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2023",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Blood Ties": {
+    "title": "Blood Ties",
+    "director": "Guillaume Canet",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM5NDc5NTc5MF5BMl5BanBnXkFtZTgwNDA2MjMwMTE@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2013",
+    "genre": "Action, Crime, Drama"
+  },
+  "Spider-Man": {
+    "title": "Spider-Man",
+    "director": "Sam Raimi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWM0OWVmNTEtNWVkOS00MzgyLTkyMzgtMmE2ZTZiNjY4MmFiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2002",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Yes Man": {
+    "title": "Yes Man",
+    "director": "Peyton Reed",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWQ4YzBiMzgtM2ZhZC00ZDQ5LWFiZjgtNmFlNzZlMTBkZTJhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2008",
+    "genre": "Comedy, Romance"
+  },
+  "Mission: Impossible - Ghost Protocol": {
+    "title": "Mission: Impossible - Ghost Protocol",
+    "director": "Brad Bird",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY4MTUxMjQ5OV5BMl5BanBnXkFtZTcwNTUyMzg5Ng@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2011",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "The House That Jack Built": {
+    "title": "The House That Jack Built",
+    "director": "Lars von Trier",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2Q3MDFiZGQtMjc4NS00MDJiLWFmYjgtNmI0MTQwMzUyOWNmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2018",
+    "genre": "Crime, Drama, Horror"
+  },
+  "Spider-Man: Homecoming": {
+    "title": "Spider-Man: Homecoming",
+    "director": "Jon Watts",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODY2MTAzOTQ4M15BMl5BanBnXkFtZTgwNzg5MTE0MjI@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2017",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Men in Black: International": {
+    "title": "Men in Black: International",
+    "director": "F. Gary Gray",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTI0ZjJlODYtNTAyOS00ZDk4LTk0M2ItNDljMzY5NmZkYTRkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2019",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Man of Steel": {
+    "title": "Man of Steel",
+    "director": "Zack Snyder",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk5ODk1NDkxMF5BMl5BanBnXkFtZTcwNTA5OTY0OQ@@._V1_QL75_UY562_CR0,0,380,562_.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2013",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Star Wars: Episode I - The Phantom Menace": {
+    "title": "Star Wars: Episode I - The Phantom Menace",
+    "director": "George Lucas",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODVhNGIxOGItYWNlMi00YTA0LWI3NTctZmQxZGUwZDEyZWI4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1999",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Bad Boys: Ride or Die": {
+    "title": "Bad Boys: Ride or Die",
+    "director": "Adil El Arbi, Bilall Fallah",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWNjZWUwNDgtYTM4ZC00Zjk0LTg3ZWItNGEyZmVkZTIxZDk0XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2024",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "The World Is Not Enough": {
+    "title": "The World Is Not Enough",
+    "director": "Michael Apted",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDlmNTA0YmMtODJmMi00NTZhLTk4MzUtY2FiYjNhMmY4OTI1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1999",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "White Noise": {
+    "title": "White Noise",
+    "director": "Geoffrey Sax",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZmM5YmFjNTUtZmQ4Yi00M2FkLThmM2MtZTMyZWEyYjBiZjkzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.5",
+    "releaseVersion": "2005",
+    "genre": "Drama, Horror, Mystery"
+  },
+  "Magic Mike's Last Dance": {
+    "title": "Magic Mike's Last Dance",
+    "director": "Steven Soderbergh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzk2NGRmNDEtNDQ3ZC00NWZjLTlhYTUtM2M2MmM5YzljYzZmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "2023",
+    "genre": "Comedy, Drama"
+  },
+  "Police Academy 2: Their First Assignment": {
+    "title": "Police Academy 2: Their First Assignment",
+    "director": "Jerry Paris, James Signorelli",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTc4Zjc4NzAtODA3My00ODQ4LWJiY2YtZDI4MjMwZmI3YzgwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "1985",
+    "genre": "Comedy"
+  },
+  "Life as We Know It": {
+    "title": "Life as We Know It",
+    "director": "Greg Berlanti",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTc1OTQzNzE0Nl5BMl5BanBnXkFtZTcwNDU4NDk3Mw@@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2010",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "From Russia with Love": {
+    "title": "From Russia with Love",
+    "director": "Terence Young",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMWY2MWY2ODAtMTY5Ny00MzA2LWFkMWYtODU2MjE0MmM4ZTQ4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1963",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "Space Cadet": {
+    "title": "Space Cadet",
+    "director": "Liz W. Garcia",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjYwNWMxN2UtMWI1NC00ZWI5LTkzYzgtMmYzNDEyODMyYmE3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.0",
+    "releaseVersion": "2024",
+    "genre": "Comedy"
+  },
+  "American Beauty": {
+    "title": "American Beauty",
+    "director": "Sam Mendes",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDI1MDE0OTMtMmI2MS00Yjc2LTg2MTItMWExYTg5NzA1OGUzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.3",
+    "releaseVersion": "1999",
+    "genre": "Drama"
+  },
+  "The Worst Person in the World": {
+    "title": "The Worst Person in the World",
+    "director": "Joachim Trier",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGEyYzBiYmItZDM4OC00NTdmLWJlYzctODdiM2E2MjZmYTU2XkEyXkFqcGc@._V1_QL75_UY562_CR9,0,380,562_.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2021",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "The Hunt for Red October": {
+    "title": "The Hunt for Red October",
+    "director": "John McTiernan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMmNhYWJmN2EtZDYwNC00NzE0LWE5N2UtZTUyMDM4YjZmYWE3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1990",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "His Girl Friday": {
+    "title": "His Girl Friday",
+    "director": "Howard Hawks",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzRhMTQ1ZjEtYzM2MC00OThiLTk3NTEtNGRhNzcwNGM2YWQ4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1940",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Pirates of the Caribbean: Dead Men Tell No Tales": {
+    "title": "Pirates of the Caribbean: Dead Men Tell No Tales",
+    "director": "Joachim Rønning, Espen Sandberg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTYyMTcxNzc5M15BMl5BanBnXkFtZTgwOTg2ODE2MTI@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2017",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "The Legend of 1900": {
+    "title": "The Legend of 1900",
+    "director": "Giuseppe Tornatore",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDg0ZTU4YTItZTI3My00ODNjLTllMTYtMzI3ZWNjYjU1NGM1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1998",
+    "genre": "Drama, Music, Romance"
+  },
+  "Asterix: The Secret of the Magic Potion": {
+    "title": "Asterix: The Secret of the Magic Potion",
+    "director": "Alexandre Astier, Louis Clichy",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDMzZjU5ZDgtMDc5Yi00ZmQxLWIzNzctZGQ5NWYxYjI1ODYxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2018",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Jackass Presents: Bad Grandpa": {
+    "title": "Jackass Presents: Bad Grandpa",
+    "director": "Jeff Tremaine",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGViOTJlMDktYzFkMy00NWU0LTg4M2EtNWMyNDUyMjQ5YmQxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2013",
+    "genre": "Comedy"
+  },
+  "Spider-Man 3": {
+    "title": "Spider-Man 3",
+    "director": "Sam Raimi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODE2NzNhMDctYjUzMC00Y2M5LWI2Y2EtODJkZTFjN2Y5ODlmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2007",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "City of Angels": {
+    "title": "City of Angels",
+    "director": "Brad Silberling",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODYwMzM3ODEtZWZjOS00NWZhLWE2MWUtMDFlMWNiNGEwOWNlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "1998",
+    "genre": "Drama, Fantasy, Romance"
+  },
+  "Blue Velvet": {
+    "title": "Blue Velvet",
+    "director": "David Lynch",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzkwZGUyYjQtM2QyOC00MTBjLWE0NGYtMTZmOGM5MjI0Mzg0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1986",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "Instant Family": {
+    "title": "Instant Family",
+    "director": "Sean Anders",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjM3NTYzYWItMzY0YS00NjliLTg3MzktYzZkM2Q5YTA5MDExXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2018",
+    "genre": "Comedy, Drama"
+  },
+  "Red Dawn": {
+    "title": "Red Dawn",
+    "director": "Dan Bradley",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGZhODgzYTEtNmI2Mi00MmRmLWFhYzAtNGFkNjQzZmFiM2EwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.3",
+    "releaseVersion": "2012",
+    "genre": "Action, War"
+  },
+  "American Pie Presents: The Naked Mile": {
+    "title": "American Pie Presents: The Naked Mile",
+    "director": "Joe Nussbaum",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTNlMTk4YjEtMWY1ZC00ODkzLWEzM2UtZmFiYjUwYTRhOWZkXkEyXkFqcGdeQXVyMTY5Nzc4MDY@._V1_SX300.jpg",
+    "imdbRating": "5.1",
+    "releaseVersion": "2006",
+    "genre": "Comedy"
+  },
+  "Muppets from Space": {
+    "title": "Muppets from Space",
+    "director": "Tim Hill",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYjM2YmVlN2MtYTlmZS00Zjk1LTk1MWYtNTM4NmU0NTIwMTQ5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "1999",
+    "genre": "Adventure, Comedy, Family"
+  },
+  "Blood Diamond": {
+    "title": "Blood Diamond",
+    "director": "Edward Zwick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGYzOGI0YTUtNTAwYy00M2JhLTgyODEtMjlhZTk1Yzc5ZTBhXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "2006",
+    "genre": "Adventure, Drama, Thriller"
+  },
+  "City Slickers": {
+    "title": "City Slickers",
+    "director": "Ron Underwood",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTkwNjM2MTc5NF5BMl5BanBnXkFtZTcwMzQ2NjEzNA@@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1991",
+    "genre": "Comedy, Western"
+  },
+  "Zathura: A Space Adventure": {
+    "title": "Zathura: A Space Adventure",
+    "director": "Jon Favreau",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDMzZDZhMTQtYzJkNi00OTI2LThjNDUtN2I2N2JjZmYwMWM5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2005",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Killer Klowns from Outer Space": {
+    "title": "Killer Klowns from Outer Space",
+    "director": "Stephen Chiodo",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWQ0MjRiMzktNGYyMi00YjNkLTg5OGItOGM2MTBlZDAxNWRmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "1988",
+    "genre": "Comedy, Horror, Sci-Fi"
+  },
+  "Eat Pray Love": {
+    "title": "Eat Pray Love",
+    "director": "Ryan Murphy",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY5NDkyNzkyM15BMl5BanBnXkFtZTcwNDQyNDk0Mw@@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "2010",
+    "genre": "Biography, Comedy, Drama"
+  },
+  "Bad Lieutenant: Port of Call New Orleans": {
+    "title": "Bad Lieutenant: Port of Call New Orleans",
+    "director": "Werner Herzog",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTcyMzY0NTMzMF5BMl5BanBnXkFtZTcwMTc1MjY4Mg@@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2009",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "Transformers: The Last Knight": {
+    "title": "Transformers: The Last Knight",
+    "director": "Michael Bay",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWNlNjU3ZTItYTY3Mi00YTU1LTk4NjQtYjQ3MjFiNjcyODliXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "2017",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "The First Time": {
+    "title": "The First Time",
+    "director": "Jonathan Kasdan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjlhMjhlZGYtMWY4YS00MDZjLTk2YjMtNDcxODEzNWYwNzNkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2012",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "A Good Year": {
+    "title": "A Good Year",
+    "director": "Ridley Scott",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMWMxMzNjODAtNmYyYy00OGFjLTk2MGEtZDUxYTY1MjRiMGVjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2006",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "The Last House on the Left": {
+    "title": "The Last House on the Left",
+    "director": "Dennis Iliadis",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjExMTM4MDAwOF5BMl5BanBnXkFtZTcwODcyMDIzMg@@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2009",
+    "genre": "Horror, Thriller"
+  },
+  "The Shadow Strays": {
+    "title": "The Shadow Strays",
+    "director": "Timo Tjahjanto",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODdmZTc0MzktN2IwNy00NWJiLTlmZWEtZjVjNGY1ODEzNjk5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2024",
+    "genre": "Action, Crime, Thriller"
+  },
+  "Puss in Boots: The Last Wish": {
+    "title": "Puss in Boots: The Last Wish",
+    "director": "Joel Crawford, Januel Mercado",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzg0MWUzMjctYjVlOS00NzVjLWIwZDMtNzg1YzNkYzdjNTMwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2022",
+    "genre": "Animation, Action, Adventure"
+  },
+  "House of 1000 Corpses": {
+    "title": "House of 1000 Corpses",
+    "director": "Rob Zombie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjUyNjU0NDE0OV5BMl5BanBnXkFtZTYwNzcwMzg3._V1_SX300.jpg",
+    "imdbRating": "6.0",
+    "releaseVersion": "2003",
+    "genre": "Horror"
+  },
+  "The Addams Family 2": {
+    "title": "The Addams Family 2",
+    "director": "Conrad Vernon, Greg Tiernan, Laura Brousseau",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2YwZjhjN2UtNDYwYy00YmY2LTk0NGMtNTA5NThmYTZlZWU1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.4",
+    "releaseVersion": "2021",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Good Luck, Have Fun, Don't Die": {
+    "title": "Good Luck, Have Fun, Don't Die",
+    "director": "Gore Verbinski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTQ0NzYzM2QtOWYzMC00MGU5LWJmMTQtYTU1ODU0ZjUwYjk0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2026",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "The Quick and the Dead": {
+    "title": "The Quick and the Dead",
+    "director": "Sam Raimi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGRlZTJmNTEtMzE3Yi00YTAwLWIyMjgtODU4NTExNjFmOTQwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1995",
+    "genre": "Action, Drama, Romance"
+  },
+  "Jurassic World": {
+    "title": "Jurassic World",
+    "director": "Colin Trevorrow",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzBhNzlkM2UtZTQyOC00NjUyLTkzMmMtNDQ1YTM5N2NmMGE5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2015",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Happy Death Day": {
+    "title": "Happy Death Day",
+    "director": "Christopher Landon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTAxNGQwMjEtNjdjNy00NmQwLTkwYTEtNGIwZWJjZjU5M2FmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2017",
+    "genre": "Comedy, Horror, Mystery"
+  },
+  "Plan 9 from Outer Space": {
+    "title": "Plan 9 from Outer Space",
+    "director": "Edward D. Wood Jr.",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGM4Y2MwMzktODg3MS00ZjVkLTk2NGMtY2Y0M2Y2MWQ0ZDBiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "3.9",
+    "releaseVersion": "1957",
+    "genre": "Horror, Sci-Fi"
+  },
+  "King Arthur: Legend of the Sword": {
+    "title": "King Arthur: Legend of the Sword",
+    "director": "Guy Ritchie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjM3ODY3Njc5Ml5BMl5BanBnXkFtZTgwMjQ5NjM5MTI@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2017",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Waking Life": {
+    "title": "Waking Life",
+    "director": "Richard Linklater",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjkyYzhkZjgtODhiNi00Yjk3LWJkY2ItMTQ0NTlhMDljYjY5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2001",
+    "genre": "Animation, Drama, Fantasy"
+  },
+  "Anchorman: The Legend of Ron Burgundy": {
+    "title": "Anchorman: The Legend of Ron Burgundy",
+    "director": "Adam McKay",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ2MzYwMzk5Ml5BMl5BanBnXkFtZTcwOTI4NzUyMw@@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2004",
+    "genre": "Comedy"
+  },
+  "The Hunger Games: Catching Fire": {
+    "title": "The Hunger Games: Catching Fire",
+    "director": "Francis Lawrence",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTAyMjQ3OTAxMzNeQTJeQWpwZ15BbWU4MDU0NzA1MzAx._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2013",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Space Cowboys": {
+    "title": "Space Cowboys",
+    "director": "Clint Eastwood",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk4NzAwOTkwMF5BMl5BanBnXkFtZTYwMDM3MTM3._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2000",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "Magic Mike XXL": {
+    "title": "Magic Mike XXL",
+    "director": "Gregory Jacobs",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDMyODU3ODk3Ml5BMl5BanBnXkFtZTgwNDc1ODkwNjE@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2015",
+    "genre": "Comedy, Drama, Music"
+  },
+  "Red Sparrow": {
+    "title": "Red Sparrow",
+    "director": "Francis Lawrence",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTA3MDkxOTc4NDdeQTJeQWpwZ15BbWU4MDAxNzgyNTQz._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2018",
+    "genre": "Action, Drama, Thriller"
+  },
+  "The Shadow": {
+    "title": "The Shadow",
+    "director": "Russell Mulcahy",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTZkZWE2MzAtYjU3OS00MWUwLWExYzMtNzdmZTA2MmI0ODU5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "1994",
+    "genre": "Action, Adventure, Crime"
+  },
+  "The Dark Knight": {
+    "title": "The Dark Knight",
+    "director": "Christopher Nolan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "9.1",
+    "releaseVersion": "2008",
+    "genre": "Action, Crime, Drama"
+  },
+  "The Girl Who Kicked the Hornet's Nest": {
+    "title": "The Girl Who Kicked the Hornet's Nest",
+    "director": "Daniel Alfredson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk0NTY3NjMwOV5BMl5BanBnXkFtZTcwNTI1MjQwNA@@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2009",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "House of Flying Daggers": {
+    "title": "House of Flying Daggers",
+    "director": "Yimou Zhang",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWZlZjQwMjUtNGI5Ny00ODg4LTg0Y2UtODkxYmYxM2IxNjgzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2004",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Knight and Day": {
+    "title": "Knight and Day",
+    "director": "James Mangold",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM0Mzg0MzI3Ml5BMl5BanBnXkFtZTcwNjIyNzk1Mw@@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2010",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Sarah Silverman: Jesus Is Magic": {
+    "title": "Sarah Silverman: Jesus Is Magic",
+    "director": "Liam Lynch",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTYxOTUzOTU3N15BMl5BanBnXkFtZTcwNzE4ODUzMQ@@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2005",
+    "genre": "Documentary, Comedy, Music"
+  },
+  "The Girl with the Dragon Tattoo": {
+    "title": "The Girl with the Dragon Tattoo",
+    "director": "David Fincher",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTczNDk4NTQ0OV5BMl5BanBnXkFtZTcwNDAxMDgxNw@@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2011",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "How to Train Your Dragon: The Hidden World": {
+    "title": "How to Train Your Dragon: The Hidden World",
+    "director": "Dean DeBlois",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIwMDIwNjAyOF5BMl5BanBnXkFtZTgwNDE1MDc2NTM@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2019",
+    "genre": "Animation, Action, Adventure"
+  },
+  "Meet Joe Black": {
+    "title": "Meet Joe Black",
+    "director": "Martin Brest",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjVjNjAwYWItMDc0ZC00MTEwLWJiN2MtM2U4YThjNWE5YTZmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "1998",
+    "genre": "Drama, Fantasy, Romance"
+  },
+  "The Family Plan": {
+    "title": "The Family Plan",
+    "director": "Simon Cellan Jones",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjcxYmNmNTktZDhlNS00ZGUzLTk2NGUtZDQwMDVmMWZkMjY0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2023",
+    "genre": "Action, Comedy"
+  },
+  "P.S. I Love You": {
+    "title": "P.S. I Love You",
+    "director": "Richard LaGravenese",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTg2MDg4MjI5NV5BMl5BanBnXkFtZTcwMzQ0MDczMw@@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2007",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Spider-Man: Into the Spider-Verse": {
+    "title": "Spider-Man: Into the Spider-Verse",
+    "director": "Bob Persichetti, Peter Ramsey, Rodney Rothman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjMwNDkxMTgzOF5BMl5BanBnXkFtZTgwNTkwNTQ3NjM@._V1_SX300.jpg",
+    "imdbRating": "8.4",
+    "releaseVersion": "2018",
+    "genre": "Animation, Action, Adventure"
+  },
+  "Black Book": {
+    "title": "Black Book",
+    "director": "Paul Verhoeven",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTIzMjc2ODQ2NV5BMl5BanBnXkFtZTYwODkzNTA3._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2006",
+    "genre": "Drama, Thriller, War"
+  },
+  "Legally Blonde 2: Red, White & Blonde": {
+    "title": "Legally Blonde 2: Red, White & Blonde",
+    "director": "Charles Herman-Wurmfeld",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTkwNzExMjk0MF5BMl5BanBnXkFtZTcwOTUzNDcyMw@@._V1_SX300.jpg",
+    "imdbRating": "4.8",
+    "releaseVersion": "2003",
+    "genre": "Comedy"
+  },
+  "The Lion King 2: Simba's Pride": {
+    "title": "The Lion King 2: Simba's Pride",
+    "director": "Darrell Rooney, Rob LaDuca(co-director)",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2Y3MTk2MDgtOTc1Yy00ZmFjLThlNTEtMDQ1Y2EzZmRjMzVjXkEyXkFqcGdeQXVyNjk1Njg5NTA@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1998",
+    "genre": "Animation, Adventure, Drama, Family, Musical, Romance"
+  },
+  "We Have a Ghost": {
+    "title": "We Have a Ghost",
+    "director": "Christopher Landon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDk0ZTA3ZTQtODE3OC00MmUyLWE3N2MtMGI4N2E3Y2NhZjMxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2023",
+    "genre": "Adventure, Comedy, Family"
+  },
+  "Orphan: First Kill": {
+    "title": "Orphan: First Kill",
+    "director": "William Brent Bell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzU1MGZmODctODU0ZC00YjllLWE3ZmYtNmFmZjE1ZjE3YzVkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "2022",
+    "genre": "Crime, Drama, Horror"
+  },
+  "The Ghost and Mrs. Muir": {
+    "title": "The Ghost and Mrs. Muir",
+    "director": "Joseph L. Mankiewicz",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMmI5OTZiYTItYzJjNi00YWFjLTk3NDMtZDY1YTg3NmQ4MjM4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1947",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "American History X": {
+    "title": "American History X",
+    "director": "Tony Kaye",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzhiOTQ0NDItOTg0Zi00OGVmLWE0OGEtMTI4NDM0NWMxZWU4XkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "8.5",
+    "releaseVersion": "1998",
+    "genre": "Crime, Drama"
+  },
+  "Cassandra's Dream": {
+    "title": "Cassandra's Dream",
+    "director": "Woody Allen",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDE4ZTMyODItOGFlYi00ZDQwLTgwN2UtNDI1ZmZhNWY4NGJjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2007",
+    "genre": "Crime, Drama, Romance"
+  },
+  "Seeking a Friend for the End of the World": {
+    "title": "Seeking a Friend for the End of the World",
+    "director": "Lorene Scafaria",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDgxYzQ5ZGYtZDAyMS00MWNiLWIwMWMtZmIwODUwODFhYjdlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2012",
+    "genre": "Adventure, Comedy, Drama"
+  },
+  "Blue Jasmine": {
+    "title": "Blue Jasmine",
+    "director": "Woody Allen",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTc0ODk5MzEyMV5BMl5BanBnXkFtZTcwMzI0MDY1OQ@@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2013",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "It's a Wonderful Life": {
+    "title": "It's a Wonderful Life",
+    "director": "Frank Capra",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDM4OWFhYjEtNTE5Yy00NjcyLTg5N2UtZDQwNDZlYjlmNDU5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.6",
+    "releaseVersion": "1946",
+    "genre": "Drama, Family, Fantasy"
+  },
+  "Reign of Fire": {
+    "title": "Reign of Fire",
+    "director": "Rob Bowman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTFkMGVmZTUtMzcyMC00ZTBkLWExNzAtNTVmYTE3MjIzOTk1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2002",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "The First Omen": {
+    "title": "The First Omen",
+    "director": "Arkasha Stevenson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWU0ZjM1YjYtMGZkZi00NTBiLTgxMGItMzVhZDgyZTkyY2ZhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2024",
+    "genre": "Horror"
+  },
+  "Jack Ryan: Shadow Recruit": {
+    "title": "Jack Ryan: Shadow Recruit",
+    "director": "Kenneth Branagh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY2MDkxNzYwNl5BMl5BanBnXkFtZTgwOTM2MjE5MDE@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2014",
+    "genre": "Action, Drama, Thriller"
+  },
+  "Thunder and the House of Magic": {
+    "title": "Thunder and the House of Magic",
+    "director": "Jérémie Degruson, Ben Stassen, Mimi Maynard",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTEzOTk1NjYyNjVeQTJeQWpwZ15BbWU4MDg5ODI2NTIx._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2013",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Space Jam: A New Legacy": {
+    "title": "Space Jam: A New Legacy",
+    "director": "Malcolm D. Lee",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDkyOGM4MDMtZWU4ZS00YWMxLTgzNjAtYzI4M2Y1ODA4YWJlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "4.5",
+    "releaseVersion": "2021",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "King Kong": {
+    "title": "King Kong",
+    "director": "Merian C. Cooper, Ernest B. Schoedsack",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMmJmMzc0OWEtNTUxMC00ZjY1LTg2ZDctYjVkNTc1NjMxMWQxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "1933",
+    "genre": "Adventure, Horror"
+  },
+  "Portrait of a Lady on Fire": {
+    "title": "Portrait of a Lady on Fire",
+    "director": "Céline Sciamma",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjJlYWJlYmMtNjMyMS00ZDgxLTlmNjAtOTJhMzBiZWM5N2VmXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "2020",
+    "genre": "Drama, Romance"
+  },
+  "Rogue One: A Star Wars Story": {
+    "title": "Rogue One: A Star Wars Story",
+    "director": "Gareth Edwards",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjEwMzMxODIzOV5BMl5BanBnXkFtZTgwNzg3OTAzMDI@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2016",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Dog Day Afternoon": {
+    "title": "Dog Day Afternoon",
+    "director": "Sidney Lumet",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2RjNTg2ODMtZWQ4NC00MDdhLWE4MDgtMWFjMjI4ZTIxMGY4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1975",
+    "genre": "Biography, Crime, Drama"
+  },
+  "Spider-Man: Brand New Day": {
+    "title": "Spider-Man: Brand New Day",
+    "director": "Destin Daniel Cretton",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWNjYWM3NWItOGE0ZS00MWRjLThiZWEtYjc4ZmNmMmU5ZTVmXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "2026",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "The Space Between Us": {
+    "title": "The Space Between Us",
+    "director": "Peter Chelsom",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjYzODU1OTkwN15BMl5BanBnXkFtZTgwMDA3MTMwMDI@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2017",
+    "genre": "Drama, Romance, Sci-Fi"
+  },
+  "Urban Legend": {
+    "title": "Urban Legend",
+    "director": "Jamie Blanks",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWNkZjQ1NzktNTlkZC00MDRiLWIzNjEtMmQwNDg5NzdjYTI5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "1998",
+    "genre": "Horror, Mystery, Thriller"
+  },
+  "Good Boys": {
+    "title": "Good Boys",
+    "director": "Gene Stupnitsky",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTc1NjIzODAxMF5BMl5BanBnXkFtZTgwMTgzNzk1NzM@._V1_QL75_UX380_CR0,20,380,562_.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2019",
+    "genre": "Adventure, Comedy"
+  },
+  "Shadow in the Cloud": {
+    "title": "Shadow in the Cloud",
+    "director": "Roseanne Liang",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODYyMzM4ODQtNTc3NS00ODllLWIzMDMtYjBmM2UyZTBlODJhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.0",
+    "releaseVersion": "2020",
+    "genre": "Action, Horror, War"
+  },
+  "Rental Family": {
+    "title": "Rental Family",
+    "director": "Hikari",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzFiNTViOTQtOTUxNi00ODczLWI0MTgtNDE1ZWU5YmIzMjY2XkEyXkFqcGc@._V1_QL75_UX380_CR0,3,380,562_.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2025",
+    "genre": "Comedy, Drama"
+  },
+  "Black Adam": {
+    "title": "Black Adam",
+    "director": "Jaume Collet-Serra",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmM3OTM4NDktMmI2NS00OWU0LTg4OTQtNjZhMmFkYjhmOGY1XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2022",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Harry Potter and the Half-Blood Prince": {
+    "title": "Harry Potter and the Half-Blood Prince",
+    "director": "David Yates",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzU3NDg4NTAyNV5BMl5BanBnXkFtZTcwOTg2ODg1Mg@@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2009",
+    "genre": "Action, Adventure, Family"
+  },
+  "In the Line of Fire": {
+    "title": "In the Line of Fire",
+    "director": "Wolfgang Petersen",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmNiNjNjYmQtZTQzNC00M2I1LThiMDgtNWNmM2VjY2Y3NzQxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "1993",
+    "genre": "Action, Crime, Drama"
+  },
+  "Harlock: Space Pirate": {
+    "title": "Harlock: Space Pirate",
+    "director": "Shinji Aramaki",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODJiNDQwZjYtYWNlZS00YzE4LTk1NTUtNWZjNzQyOGIzMTRhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2013",
+    "genre": "Animation, Action, Adventure"
+  },
+  "The Shadow in My Eye": {
+    "title": "The Shadow in My Eye",
+    "director": "Ole Bornedal",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzEzYjU0MTYtNGE2OC00NWJlLThhMzItODc0YTZmOTg3YzE5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2021",
+    "genre": "Drama, History, War"
+  },
+  "Sex and the City 2": {
+    "title": "Sex and the City 2",
+    "director": "Michael Patrick King",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM3OTUyNTI3MF5BMl5BanBnXkFtZTcwODcyMzM0Mw@@._V1_SX300.jpg",
+    "imdbRating": "4.5",
+    "releaseVersion": "2010",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Ice Cold in Alex": {
+    "title": "Ice Cold in Alex",
+    "director": "J. Lee Thompson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGNjN2UyOGItM2RkZS00YTkzLTg5YTctZmIyYTljNzg5MzA4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1958",
+    "genre": "Adventure, Drama, War"
+  },
+  "A Family Affair": {
+    "title": "A Family Affair",
+    "director": "Richard LaGravenese",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDQyMWFkMGMtNjhiMS00MzgyLWFmOGYtNzA3MGNjNGVhMGI4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.4",
+    "releaseVersion": "2024",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Broken City": {
+    "title": "Broken City",
+    "director": "Allen Hughes",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY4OTIwODg4Ml5BMl5BanBnXkFtZTcwNjg0MDY1OA@@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2013",
+    "genre": "Action, Crime, Drama"
+  },
+  "Secret in Their Eyes": {
+    "title": "Secret in Their Eyes",
+    "director": "Billy Ray",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjE0ODU1NDE0Ml5BMl5BanBnXkFtZTgwNzc4Njc3NjE@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2015",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "On Her Majesty's Secret Service": {
+    "title": "On Her Majesty's Secret Service",
+    "director": "Peter R. Hunt",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmMzOWNlNDMtM2NjMC00NTAxLWE4ODYtNzMyNmY0MzM0OWNhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "1969",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "The Day the Earth Stood Still": {
+    "title": "The Day the Earth Stood Still",
+    "director": "Scott Derrickson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTI5NTg1MzU5Nl5BMl5BanBnXkFtZTcwMDU1ODMwMg@@._V1_SX300.jpg",
+    "imdbRating": "5.5",
+    "releaseVersion": "2008",
+    "genre": "Adventure, Drama, Sci-Fi"
+  },
+  "Star Trek IV: The Voyage Home": {
+    "title": "Star Trek IV: The Voyage Home",
+    "director": "Leonard Nimoy",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmZlYWYwMzUtMjYzMy00MWI1LTg3MDctOTdjYjA2MDkwNGU5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1986",
+    "genre": "Adventure, Comedy, Sci-Fi"
+  },
+  "Gone Girl": {
+    "title": "Gone Girl",
+    "director": "David Fincher",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk0MDQ3MzAzOV5BMl5BanBnXkFtZTgwNzU1NzE3MjE@._V1_QL75_UY562_CR1,0,380,562_.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "2014",
+    "genre": "Drama, Mystery, Thriller"
+  },
+  "My Girl": {
+    "title": "My Girl",
+    "director": "Howard Zieff",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNmI5M2EzZDUtZTBkZS00YWFmLWFhZTMtNjc3YTllZDBhODQ4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "1991",
+    "genre": "Comedy, Drama, Family"
+  },
+  "The Mortal Instruments: City of Bones": {
+    "title": "The Mortal Instruments: City of Bones",
+    "director": "Harald Zwart",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTc5NzAyOTQyNF5BMl5BanBnXkFtZTcwNzQ1MDc4OQ@@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2013",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Turks in Space": {
+    "title": "Turks in Space",
+    "director": "Kartal Tibet",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTYwOTMwODIxNF5BMl5BanBnXkFtZTcwMjc0NzA0MQ@@._V1_SX300.jpg",
+    "imdbRating": "1.5",
+    "releaseVersion": "2006",
+    "genre": "Action, Comedy, Sci-Fi"
+  },
+  "Three Colors: Red": {
+    "title": "Three Colors: Red",
+    "director": "Krzysztof Kieslowski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ0YTQyYzItNGEzMi00NmI4LWJkOTMtOWMyMjAwMWEzYTZhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "1994",
+    "genre": "Drama, Mystery, Romance"
+  },
+  "Family Switch": {
+    "title": "Family Switch",
+    "director": "McG",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYjYwNWMyNzgtYzZiNS00MjA3LWJmYTQtZGFlN2I5NzBhZDM4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.7",
+    "releaseVersion": "2023",
+    "genre": "Comedy, Family"
+  },
+  "Eurovision Song Contest: The Story of Fire Saga": {
+    "title": "Eurovision Song Contest: The Story of Fire Saga",
+    "director": "David Dobkin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTFhODlhMGMtNTA4Yy00MjNhLWFiNjMtMTFkMjRkN2FmMjAyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2020",
+    "genre": "Comedy, Music"
+  },
+  "Kagemusha: The Shadow Warrior": {
+    "title": "Kagemusha: The Shadow Warrior",
+    "director": "Akira Kurosawa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmJlMTQwZmMtNGRhMy00MjgzLTliNDYtZTliYjIxY2I0NTA4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "1980",
+    "genre": "Drama, History, War"
+  },
+  "Black Bag": {
+    "title": "Black Bag",
+    "director": "Steven Soderbergh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzA1OWU4NDMtMDUxMC00NWI4LWJhYjUtYWQ0OGQ5MTc2NDRjXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2025",
+    "genre": "Drama, Mystery, Romance"
+  },
+  "Love at First Sight": {
+    "title": "Love at First Sight",
+    "director": "Vanessa Caswill",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTY0M2EyNGUtYmZiYi00MTVlLThkMWMtMjNkZjg5Nzg2NjRmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2023",
+    "genre": "Drama, Romance"
+  },
+  "Black Widow": {
+    "title": "Black Widow",
+    "director": "Cate Shortland",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTMyZTA0ZTItYjY3Yi00ODNjLWExYTgtYzgxZTk0NTg0Y2FlXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2021",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Ice Age": {
+    "title": "Ice Age",
+    "director": "Chris Wedge, Carlos Saldanha",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDBlYzU2OGMtOGJjNi00ZGZjLWIwNjMtYzdiZjkwYWNjZDljXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2002",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Bad Boys for Life": {
+    "title": "Bad Boys for Life",
+    "director": "Adil El Arbi, Bilall Fallah",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzM3ZTFmMTUtODAxNy00N2IxLWI2MGMtYTdmMDFhNmZkMDI3XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2020",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Blood Work": {
+    "title": "Blood Work",
+    "director": "Clint Eastwood",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTIxMDMzMDk1NV5BMl5BanBnXkFtZTYwNzgxNDY3._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2002",
+    "genre": "Action, Crime, Drama"
+  },
+  "St. Elmo's Fire": {
+    "title": "St. Elmo's Fire",
+    "director": "Joel Schumacher",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDU2ODMyNDctOGNlMC00OGJmLTg3MDgtZTYzZGMwMTBiYWM1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1985",
+    "genre": "Drama, Romance"
+  },
+  "Single White Female": {
+    "title": "Single White Female",
+    "director": "Barbet Schroeder",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTUwZjM5MzgtNWYyNC00YjgwLTg5N2MtYTBiMzcwN2FjMjRmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1992",
+    "genre": "Drama, Thriller"
+  },
+  "Spider-Man: Across the Spider-Verse": {
+    "title": "Spider-Man: Across the Spider-Verse",
+    "director": "Joaquim Dos Santos, Kemp Powers, Justin K. Thompson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNThiZjA3MjItZGY5Ni00ZmJhLWEwN2EtOTBlYTA4Y2E0M2ZmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.5",
+    "releaseVersion": "2023",
+    "genre": "Animation, Action, Adventure"
+  },
+  "Black and Blue": {
+    "title": "Black and Blue",
+    "director": "Deon Taylor",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMmFmZjE5NmUtZGFjYi00Zjc0LWIyYzYtZDhlYzVlZDUxY2JlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2019",
+    "genre": "Action, Thriller"
+  },
+  "Snow White and the Huntsman": {
+    "title": "Snow White and the Huntsman",
+    "director": "Rupert Sanders",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2JjYWUyZjUtMDg3OS00MGIyLTgyN2QtYjIyY2VlYzViYThlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2012",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Fighting with My Family": {
+    "title": "Fighting with My Family",
+    "director": "Stephen Merchant",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYjliMDY3N2YtOTI2NS00MjQ0LWFjOGItMjQ1MzYyZGVlMDJiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2019",
+    "genre": "Biography, Comedy, Drama"
+  },
+  "The Blue Elephant": {
+    "title": "The Blue Elephant",
+    "director": "Marwan Hamed",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTgwOTUxNDMtODY5Yy00MGE4LTgzYWEtY2E1NTIxOGNkZTEyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "2014",
+    "genre": "Crime, Drama, Horror"
+  },
+  "Captain America: The First Avenger": {
+    "title": "Captain America: The First Avenger",
+    "director": "Joe Johnston",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzUyM2YyY2MtNzNlMS00MWU5LTgxNjAtNzZlNmI2NjU2NDZlXkEyXkFqcGc@._V1_QL75_UY562_CR8,0,380,562_.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2011",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "The Tree of Life": {
+    "title": "The Tree of Life",
+    "director": "Terrence Malick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTMwNjQ0NjMzN15BMl5BanBnXkFtZTcwNjMxMTkyNA@@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2011",
+    "genre": "Drama, Fantasy"
+  },
+  "American Murder: The Family Next Door": {
+    "title": "American Murder: The Family Next Door",
+    "director": "Jenny Popplewell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDM3OTlhM2EtNjQ3Ni00MmM1LTgzZDgtMGYxNGM4NjdmNDgxXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2020",
+    "genre": "Documentary, Crime"
+  },
+  "Snow White": {
+    "title": "Snow White",
+    "director": "Marc Webb",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2UwOGUxMzEtMzEyZi00NjEwLTkxOTMtYTljOWEzYjYyMWNjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "2.1",
+    "releaseVersion": "2025",
+    "genre": "Adventure, Family, Fantasy"
+  },
+  "World War Z": {
+    "title": "World War Z",
+    "director": "Marc Forster",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODg3ZTM2YWQtZDE5Ny00NGNiLTkzYjgtYWVlYjNkOTg5NDI1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2013",
+    "genre": "Action, Adventure, Horror"
+  },
+  "Cowspiracy: The Sustainability Secret": {
+    "title": "Cowspiracy: The Sustainability Secret",
+    "director": "Kip Andersen, Keegan Kuhn",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU5NzAyMzk1MF5BMl5BanBnXkFtZTgwODE3NjQyNTE@._V1_SX300.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "2014",
+    "genre": "Documentary"
+  },
+  "Sicario: Day of the Soldado": {
+    "title": "Sicario: Day of the Soldado",
+    "director": "Stefano Sollima",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTEzNjM2NTYxMjReQTJeQWpwZ15BbWU4MDU2NzAxNTUz._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2018",
+    "genre": "Action, Crime, Drama"
+  },
+  "Avatar: Fire and Ash": {
+    "title": "Avatar: Fire and Ash",
+    "director": "James Cameron",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDYxY2I1OGMtN2Y4MS00ZmU1LTgyNDAtODA0MzAyYjI0N2Y2XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2025",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Fire with Fire": {
+    "title": "Fire with Fire",
+    "director": "David Barrett",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTAyOTc4OTg2MzJeQTJeQWpwZ15BbWU3MDk0NzgyNzg@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2012",
+    "genre": "Action, Crime, Mystery"
+  },
+  "Streets of Fire": {
+    "title": "Streets of Fire",
+    "director": "Walter Hill",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2YyMmQ5MWMtMzNmNS00NjdlLThkNjAtNmY4NGI2OWRjZWI4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "1984",
+    "genre": "Action, Crime, Drama"
+  },
+  "House of Sand and Fog": {
+    "title": "House of Sand and Fog",
+    "director": "Vadim Perelman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTIzMjQ5NzM2M15BMl5BanBnXkFtZTYwMzU2NDY3._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2003",
+    "genre": "Crime, Drama"
+  },
+  "A Ghost Story": {
+    "title": "A Ghost Story",
+    "director": "David Lowery",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzcyNTc1ODQzMF5BMl5BanBnXkFtZTgwNTgzMzY4MTI@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2017",
+    "genre": "Drama, Fantasy, Mystery"
+  },
+  "Shadow Conspiracy": {
+    "title": "Shadow Conspiracy",
+    "director": "George P. Cosmatos",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODk5NGM4NDctNWI0OC00OTBmLWIwNzQtYmYwMjVkZDZmODc0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.0",
+    "releaseVersion": "1997",
+    "genre": "Action, Thriller"
+  },
+  "The Lost City of Z": {
+    "title": "The Lost City of Z",
+    "director": "James Gray",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAtMWE5OWU2ZDExMGFiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2016",
+    "genre": "Adventure, Biography, Drama"
+  },
+  "The Ice Pirates": {
+    "title": "The Ice Pirates",
+    "director": "Stewart Raffill",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2I5Y2Y5NDktNDJkZi00MGY2LWFmZWUtYmJiZDI5OWE1ZDYxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "1984",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Mission: Impossible - Dead Reckoning Part One": {
+    "title": "Mission: Impossible - Dead Reckoning Part One",
+    "director": "Christopher McQuarrie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2U4OTdmM2QtZTkxYy00ZmQyLTg2N2UtMDdmMGJmNDhlZDU1XkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2023",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "Color Out of Space": {
+    "title": "Color Out of Space",
+    "director": "Richard Stanley",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNmNlNDMwNzUtYzJlOC00MjRkLTkyNjYtZjY3NTk1NjZlZGMxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2019",
+    "genre": "Horror, Mystery, Sci-Fi"
+  },
+  "Bad Taste": {
+    "title": "Bad Taste",
+    "director": "Peter Jackson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzgxZDRmOGEtYzY4NS00NmVkLTgyZTctYWUwMTIwMDhlZWI2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1987",
+    "genre": "Comedy, Horror, Sci-Fi"
+  },
+  "The Magic Flute": {
+    "title": "The Magic Flute",
+    "director": "Ingmar Bergman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGY5YTBhNmItZDkwMy00NWJhLWFlZWUtMWQxYmU4YWFlNjJhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "1975",
+    "genre": "Comedy, Fantasy, Music"
+  },
+  "Lars and the Real Girl": {
+    "title": "Lars and the Real Girl",
+    "director": "Craig Gillespie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZThiOTA4N2UtNzJiYS00MDI0LWI3OWItYzYxYzU3M2YwM2M4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2007",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Love, Simon": {
+    "title": "Love, Simon",
+    "director": "Greg Berlanti",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2ViMjNkMDMtY2MwZC00YzRiLWJlY2UtNjU0YzNmMDc3NzkxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2018",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "American Psycho": {
+    "title": "American Psycho",
+    "director": "Mary Harron",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2000",
+    "genre": "Crime, Drama, Horror"
+  },
+  "The Lion King": {
+    "title": "The Lion King",
+    "director": "Roger Allers, Rob Minkoff",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGRiZDZhZjItM2M3ZC00Y2IyLTk3Y2MtMWY5YjliNDFkZTJlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.5",
+    "releaseVersion": "1994",
+    "genre": "Animation, Adventure, Drama"
+  },
+  "American Fiction": {
+    "title": "American Fiction",
+    "director": "Cord Jefferson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2I4ZTZhOTMtZDQ0Ni00MzI5LWE2YjktNzc0NjdkOGJiZjYzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2023",
+    "genre": "Comedy, Drama"
+  },
+  "The Secret World of Arrietty": {
+    "title": "The Secret World of Arrietty",
+    "director": "Hiromasa Yonebayashi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTAxNjk3OTYyODReQTJeQWpwZ15BbWU3MDgyODY2OTY@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2010",
+    "genre": "Animation, Adventure, Drama"
+  },
+  "The Legend of Hercules": {
+    "title": "The Legend of Hercules",
+    "director": "Renny Harlin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQwMjEyODQxMV5BMl5BanBnXkFtZTgwMDQxMjE3MDE@._V1_SX300.jpg",
+    "imdbRating": "4.3",
+    "releaseVersion": "2014",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Star Trek Into Darkness": {
+    "title": "Star Trek Into Darkness",
+    "director": "J.J. Abrams",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk2NzczOTgxNF5BMl5BanBnXkFtZTcwODQ5ODczOQ@@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2013",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Harold & Kumar Go to White Castle": {
+    "title": "Harold & Kumar Go to White Castle",
+    "director": "Danny Leiner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjk2MGI0M2YtZmIwOS00NGVjLWFlNDAtMDYzM2Y1MWM2OWNkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2004",
+    "genre": "Adventure, Comedy"
+  },
+  "The Day After Tomorrow": {
+    "title": "The Day After Tomorrow",
+    "director": "Roland Emmerich",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGZmNDYyNmMtNDQyNy00OTkzLTg1OGUtYWJiNmQ5Y2Q5ZGU3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2004",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Bad Santa": {
+    "title": "Bad Santa",
+    "director": "Terry Zwigoff",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjA4Njg1MDcwN15BMl5BanBnXkFtZTYwMzAxNjM3._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2003",
+    "genre": "Comedy, Crime, Drama"
+  },
+  "Pokémon: The First Movie - Mewtwo Strikes Back": {
+    "title": "Pokémon: The First Movie - Mewtwo Strikes Back",
+    "director": "Kunihiko Yuyama",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDg0ZDk2N2QtZDQzYi00ZTljLWExODgtZWQ2Y2YzZTA1NjVjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "1998",
+    "genre": "Animation, Action, Adventure"
+  },
+  "First Knight": {
+    "title": "First Knight",
+    "director": "Jerry Zucker",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTNmNzJiOWItZTM4Mi00NmFjLWJkNzctZGE0YTA2ZjgwZmM0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.0",
+    "releaseVersion": "1995",
+    "genre": "Action, Adventure, Drama"
+  },
+  "The Secret: Dare to Dream": {
+    "title": "The Secret: Dare to Dream",
+    "director": "Andy Tennant",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNmQwMmI0YTEtZDA1Zi00Y2ExLWE2OTYtZDAwMmNkYjI4OWViXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2020",
+    "genre": "Drama, Romance"
+  },
+  "Wayne's World": {
+    "title": "Wayne's World",
+    "director": "Penelope Spheeris",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGNlZDY1ZTEtZTMxOS00ZjQ5LThjODUtYTBmMWYyMjAxZDdiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "1992",
+    "genre": "Comedy, Music"
+  },
+  "Twin Peaks: Fire Walk with Me": {
+    "title": "Twin Peaks: Fire Walk with Me",
+    "director": "David Lynch",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzJmZGFiMzAtODNhOC00NzAwLWFlMzAtYTQzYmRmYjIwNDgyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1992",
+    "genre": "Drama, Horror, Mystery"
+  },
+  "Shadow": {
+    "title": "Shadow",
+    "director": "Yimou Zhang",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDVmMjU1M2ItNzc4Ny00NjE0LTljNTMtYTA0NWI1ZWMzNjhkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2018",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Road House": {
+    "title": "Road House",
+    "director": "Doug Liman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODVkYjlkM2UtNWVlMS00N2U1LTgxOTYtODlmNmE1YTgzMjczXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2024",
+    "genre": "Action, Drama, Thriller"
+  },
+  "Shadow of the Thin Man": {
+    "title": "Shadow of the Thin Man",
+    "director": "W.S. Van Dyke",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODUwYzA0NTktNDRjOS00MWIxLTg4OTktZGZlMzFlZjc1NGZkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "1941",
+    "genre": "Drama, Mystery"
+  },
+  "The Legend of Tomiris": {
+    "title": "The Legend of Tomiris",
+    "director": "Akan Satayev",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzVjZDczZDMtNGI5NS00MWFiLTg0NWQtZDlkOTc5YWU0ZDE3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2019",
+    "genre": "Action, Drama, Fantasy"
+  },
+  "The Legend of Zorro": {
+    "title": "The Legend of Zorro",
+    "director": "Martin Campbell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjM3OGM3ZjYtYTA3YS00OTc5LWE0M2UtZTNiZjc2Yzg0ZTlhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.0",
+    "releaseVersion": "2005",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Ghost in the Shell": {
+    "title": "Ghost in the Shell",
+    "director": "Mamoru Oshii",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzljMjA3MTQtMjM1OS00OGJjLWJiYzctZDRiMTk1NWI5YzQ5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "1995",
+    "genre": "Animation, Action, Crime"
+  },
+  "The American": {
+    "title": "The American",
+    "director": "Anton Corbijn",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjAxMDg1NDcxM15BMl5BanBnXkFtZTcwODc3MDg1Mw@@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2010",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "Star Trek: Generations": {
+    "title": "Star Trek: Generations",
+    "director": "David Carson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDFjYmFmNmItODM5Ny00YzhlLWEzNjEtNTBlNjRiN2RlYTRhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "1994",
+    "genre": "Action, Adventure, Mystery"
+  },
+  "Iron Man 2": {
+    "title": "Iron Man 2",
+    "director": "Jon Favreau",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWYyOGQzOGYtMGQ1My00ZWYxLTgzZjktZWYzN2IwYjkxYzM0XkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2010",
+    "genre": "Action, Sci-Fi"
+  },
+  "A Nightmare on Elm Street: The Dream Child": {
+    "title": "A Nightmare on Elm Street: The Dream Child",
+    "director": "Stephen Hopkins",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzVlNWFlMTItNjRkYS00Y2FhLTk5NDgtZDM0MWFiNDVlNWMxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.0",
+    "releaseVersion": "1989",
+    "genre": "Fantasy, Horror"
+  },
+  "Bad Teacher": {
+    "title": "Bad Teacher",
+    "director": "Jake Kasdan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ5NDI4MDM0Nl5BMl5BanBnXkFtZTcwNDYwODU2NA@@._V1_SX300.jpg",
+    "imdbRating": "5.7",
+    "releaseVersion": "2011",
+    "genre": "Comedy, Romance"
+  },
+  "A Bad Moms Christmas": {
+    "title": "A Bad Moms Christmas",
+    "director": "Jon Lucas, Scott Moore",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTUwNTA4MDMxNl5BMl5BanBnXkFtZTgwMjE4NjQ0MzI@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2017",
+    "genre": "Comedy"
+  },
+  "The King of Staten Island": {
+    "title": "The King of Staten Island",
+    "director": "Judd Apatow",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGNiYzcwNDItMjc2OS00OWE5LWJkMGUtNjhhNDgwZjBhZjBiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2020",
+    "genre": "Comedy, Drama"
+  },
+  "Terminator 2: Judgment Day": {
+    "title": "Terminator 2: Judgment Day",
+    "director": "James Cameron",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGMyMGNkMDUtMjc2Ni00NWFlLTgyODEtZTY2MzBiZTg0OWZiXkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "8.6",
+    "releaseVersion": "1991",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Sinbad: Legend of the Seven Seas": {
+    "title": "Sinbad: Legend of the Seven Seas",
+    "director": "Patrick Gilmore, Tim Johnson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTIyMzE1ODI3NF5BMl5BanBnXkFtZTYwMDE3NDc2._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2003",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Evil Dead": {
+    "title": "Evil Dead",
+    "director": "Fede Alvarez",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYjkwODM5ZWUtMjI2Ni00Y2RiLWJkNDYtZWQ2ZTRhMjI1N2FmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2013",
+    "genre": "Horror, Thriller"
+  },
+  "The Life of David Gale": {
+    "title": "The Life of David Gale",
+    "director": "Alan Parker",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTAxMzU0NTgxNzZeQTJeQWpwZ15BbWU2MDQzNDkxNw@@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2003",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "House of Wax": {
+    "title": "House of Wax",
+    "director": "Jaume Collet-Serra",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDA4Nzg1NjQ2NV5BMl5BanBnXkFtZTcwMDYwNTgyMQ@@._V1_SX300.jpg",
+    "imdbRating": "5.5",
+    "releaseVersion": "2005",
+    "genre": "Horror, Thriller"
+  },
+  "Courage Under Fire": {
+    "title": "Courage Under Fire",
+    "director": "Edward Zwick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTU2MGZmZjAtOWVjNy00NTlkLTg0ZTUtN2Q3NmUxNTNhNGVhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "1996",
+    "genre": "Action, Drama, Mystery"
+  },
+  "Magic Carpet Ride": {
+    "title": "Magic Carpet Ride",
+    "director": "Yilmaz Erdogan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTM4MjY0NTQ3OF5BMl5BanBnXkFtZTcwMjI5NjkzMQ@@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2005",
+    "genre": "Comedy, Drama"
+  },
+  "Bad Boys II": {
+    "title": "Bad Boys II",
+    "director": "Michael Bay",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTVkM2YxODItOGNlMy00NWExLWI2NTgtODEzMmM5NThiM2E2XkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2003",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Arizona Dream": {
+    "title": "Arizona Dream",
+    "director": "Emir Kusturica",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTE2N2JiYjUtZTQzMS00YjFjLTg4M2QtNzlkYTE2ZTdlNTA5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "1993",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "Three Colors: White": {
+    "title": "Three Colors: White",
+    "director": "Krzysztof Kieslowski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMWUyMWJiYTEtNmIzYi00OTYxLTlkYjEtMGFjMjY3NDc5Mjk0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "1994",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Dead Poets Society": {
+    "title": "Dead Poets Society",
+    "director": "Peter Weir",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDYwNGVlY2ItMWYxMS00YjZiLWE5MTAtYWM5NWQ2ZWJjY2Q3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "1989",
+    "genre": "Comedy, Drama"
+  },
+  "Spider-Man: No Way Home": {
+    "title": "Spider-Man: No Way Home",
+    "director": "Jon Watts",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMmFiZGZjMmEtMTA0Ni00MzA2LTljMTYtZGI2MGJmZWYzZTQ2XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "2021",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Cyborg 2: Glass Shadow": {
+    "title": "Cyborg 2: Glass Shadow",
+    "director": "Michael Schroeder",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjVkZGEwYzctOWVkNS00ODEzLTgyMTYtZDI5YTdiYjFkYjBmXkEyXkFqcGdeQXVyNzc5MjA3OA@@._V1_SX300.jpg",
+    "imdbRating": "3.9",
+    "releaseVersion": "1993",
+    "genre": "Action, Sci-Fi, Thriller"
+  },
+  "In the Land of Blood and Honey": {
+    "title": "In the Land of Blood and Honey",
+    "director": "Angelina Jolie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM4NzQ0MzQ5M15BMl5BanBnXkFtZTcwMTA3NjgwNw@@._V1_SX300.jpg",
+    "imdbRating": "4.7",
+    "releaseVersion": "2011",
+    "genre": "Drama, Romance, War"
+  },
+  "Good Luck Chuck": {
+    "title": "Good Luck Chuck",
+    "director": "Mark Helfrich",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU1NzM1MTE1OV5BMl5BanBnXkFtZTYwNDQyMjU3._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2007",
+    "genre": "Comedy, Romance"
+  },
+  "The Good Liar": {
+    "title": "The Good Liar",
+    "director": "Bill Condon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGU4MzMwNzgtOWRiYy00ZWExLWE2YTctZGQ1OWVhYTk4NGM3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2019",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "2001: A Space Odyssey": {
+    "title": "2001: A Space Odyssey",
+    "director": "Stanley Kubrick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjU0NDFkMTQtZWY5OS00MmZhLTg3Y2QtZmJhMzMzMWYyYjc2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.3",
+    "releaseVersion": "1968",
+    "genre": "Adventure, Sci-Fi"
+  },
+  "The Girl Next Door": {
+    "title": "The Girl Next Door",
+    "director": "Luke Greenfield",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ0ODIyMzE1N15BMl5BanBnXkFtZTcwODEwODczMw@@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2004",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Anchorman 2: The Legend Continues": {
+    "title": "Anchorman 2: The Legend Continues",
+    "director": "Adam McKay",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjE5ODk0NjQzNV5BMl5BanBnXkFtZTgwODk4MDA1MDE@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2013",
+    "genre": "Comedy"
+  },
+  "Rain Man": {
+    "title": "Rain Man",
+    "director": "Barry Levinson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDUzODNkNGUtNzJjNi00ODFlLTkzMzktMGNkOTIwYWM2YTQzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1988",
+    "genre": "Drama"
+  },
+  "The Pale Blue Eye": {
+    "title": "The Pale Blue Eye",
+    "director": "Scott Cooper",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2EyM2QyZWUtMzUzOC00YTU4LTg4OGEtZWIwNWZiZjRjY2I3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2022",
+    "genre": "Crime, Horror, Mystery"
+  },
+  "Bad Moms": {
+    "title": "Bad Moms",
+    "director": "Jon Lucas, Scott Moore",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIwNzE5MTgwNl5BMl5BanBnXkFtZTgwNjM4OTA0OTE@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2016",
+    "genre": "Comedy"
+  },
+  "Ghost Town": {
+    "title": "Ghost Town",
+    "director": "David Koepp",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQyODQ4MzYxN15BMl5BanBnXkFtZTcwOTQ1MDczMw@@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2008",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "Ghost Rider": {
+    "title": "Ghost Rider",
+    "director": "Mark Steven Johnson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzIyNDE5ODI1OV5BMl5BanBnXkFtZTcwNTIyNDE0MQ@@._V1_SX300.jpg",
+    "imdbRating": "5.3",
+    "releaseVersion": "2007",
+    "genre": "Action, Fantasy, Thriller"
+  },
+  "Men in Black": {
+    "title": "Men in Black",
+    "director": "Barry Sonnenfeld",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZmQ0YTdhYzEtMjIxZC00MGFiLTlmNjktZmFlOWE2M2QxOTRhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1997",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "X-Men: First Class": {
+    "title": "X-Men: First Class",
+    "director": "Matthew Vaughn",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTg5OTMxNzk4Nl5BMl5BanBnXkFtZTcwOTk1MjAwNQ@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2011",
+    "genre": "Action, Sci-Fi"
+  },
+  "Anacondas: The Hunt for the Blood Orchid": {
+    "title": "Anacondas: The Hunt for the Blood Orchid",
+    "director": "Dwight H. Little",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzc5MDg1NTkxNl5BMl5BanBnXkFtZTYwNTcyNjA3._V1_SX300.jpg",
+    "imdbRating": "4.8",
+    "releaseVersion": "2004",
+    "genre": "Action, Adventure, Horror"
+  },
+  "Dan in Real Life": {
+    "title": "Dan in Real Life",
+    "director": "Peter Hedges",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjA2Nzc1NzQ1OV5BMl5BanBnXkFtZTcwOTE0MDE1MQ@@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2007",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Good Morning, Vietnam": {
+    "title": "Good Morning, Vietnam",
+    "director": "Barry Levinson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYThiZTU4N2UtYWU2Mi00ZGUyLWI2ZmEtM2U1ZmJmOGY1ZTc3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1987",
+    "genre": "Biography, Comedy, Drama"
+  },
+  "A Nightmare on Elm Street 3: Dream Warriors": {
+    "title": "A Nightmare on Elm Street 3: Dream Warriors",
+    "director": "Chuck Russell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWMwMmQxZjUtNDFkYi00MjU3LThhNmYtMmU4YzgyMmYwZWZlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "1987",
+    "genre": "Fantasy, Horror"
+  },
+  "Mowgli: Legend of the Jungle": {
+    "title": "Mowgli: Legend of the Jungle",
+    "director": "Andy Serkis",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjMzODc2NzU5MV5BMl5BanBnXkFtZTgwNTMwMTE3NjM@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2018",
+    "genre": "Adventure, Drama, Fantasy"
+  },
+  "Red Notice": {
+    "title": "Red Notice",
+    "director": "Rawson Marshall Thurber",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGNjNGQ3MmItYTM5NS00NjBiLWI0ZTItZDE5ZjQyNjg3ODBjXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2021",
+    "genre": "Action, Comedy, Thriller"
+  },
+  "Free Fire": {
+    "title": "Free Fire",
+    "director": "Ben Wheatley",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTk5MzJhNjItZTRlOC00YWRlLTgyYmUtZmZhZjA0NmFmNjE2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2016",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Girl, Interrupted": {
+    "title": "Girl, Interrupted",
+    "director": "James Mangold",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWVhYzdiMTQtMzJkMC00YWEwLTkyNDEtNzkwMGQ3NTBhMzExXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1999",
+    "genre": "Biography, Drama"
+  },
+  "Fire and Ice": {
+    "title": "Fire and Ice",
+    "director": "Ralph Bakshi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTJkOGVjY2MtOTRkYi00Y2Q1LThjNDQtMmQ1ZWY0MzJiYTVhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1983",
+    "genre": "Animation, Adventure, Fantasy"
+  },
+  "Against the Ice": {
+    "title": "Against the Ice",
+    "director": "Peter Flinth",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDRhYzkzOWEtMTMwOS00Y2MxLTg5ZmQtYmU5YTE2YzgwNTYyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2022",
+    "genre": "Adventure, Drama, History"
+  },
+  "Sin City: A Dame to Kill For": {
+    "title": "Sin City: A Dame to Kill For",
+    "director": "Frank Miller, Robert Rodriguez",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjA5ODYwNjgxMF5BMl5BanBnXkFtZTgwMTcwNzAyMjE@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2014",
+    "genre": "Animation, Action, Crime"
+  },
+  "Ice Age: Collision Course": {
+    "title": "Ice Age: Collision Course",
+    "director": "Michael Thurmeier, Galen T. Chu",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTUwMTk2ODc1OV5BMl5BanBnXkFtZTgwMzU4MzgzOTE@._V1_SX300.jpg",
+    "imdbRating": "5.7",
+    "releaseVersion": "2016",
+    "genre": "Animation, Action, Adventure"
+  },
+  "Army of the Dead": {
+    "title": "Army of the Dead",
+    "director": "Zack Snyder",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjc0MDFjZmQtMWMxZi00YzY4LWI5N2EtOGQwM2IzZjRkYmY1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2021",
+    "genre": "Action, Adventure, Crime"
+  },
+  "Dead Man": {
+    "title": "Dead Man",
+    "director": "Jim Jarmusch",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjdjN2Q4MzctOWZjMS00ZjZkLTg5OWQtM2NjMTliYmE3MTY1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1995",
+    "genre": "Adventure, Drama, Western"
+  },
+  "The Lost City": {
+    "title": "The Lost City",
+    "director": "Aaron Nee, Adam Nee",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjA4YmZjMWItZGNkNS00ODFkLWEwNjUtNGNhMzViZDRmMzgxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2022",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "The Evil Dead": {
+    "title": "The Evil Dead",
+    "director": "Sam Raimi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWRmZGQyYzgtNjA5OC00NGYzLTlhYWMtNzBhZTFlZGNjYWI2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1981",
+    "genre": "Horror"
+  },
+  "Bad Lieutenant": {
+    "title": "Bad Lieutenant",
+    "director": "Abel Ferrara",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzVhMGI1OWUtMTEwNy00MWMyLTgwZjgtMTBjYTk1YmExMDNlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "1992",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "Black Mirror: Bandersnatch": {
+    "title": "Black Mirror: Bandersnatch",
+    "director": "David Slade",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjM5MzgzMjM3OF5BMl5BanBnXkFtZTgwMzQ2MzQwNzM@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2018",
+    "genre": "Drama, Fantasy, Mystery"
+  },
+  "Love, Rosie": {
+    "title": "Love, Rosie",
+    "director": "Christian Ditter",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk0Mzg1MTU1MF5BMl5BanBnXkFtZTgwMjU3ODI2MzE@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2014",
+    "genre": "Comedy, Romance"
+  },
+  "The House Bunny": {
+    "title": "The House Bunny",
+    "director": "Fred Wolf",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODkxMDg0MjM2OF5BMl5BanBnXkFtZTcwMjc0NTU4MQ@@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2008",
+    "genre": "Comedy"
+  },
+  "Ice Princess": {
+    "title": "Ice Princess",
+    "director": "Tim Fywell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTI1NjIzMzg5OF5BMl5BanBnXkFtZTcwMjI2ODcyMQ@@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2005",
+    "genre": "Comedy, Drama, Family"
+  },
+  "The Last Stand": {
+    "title": "The Last Stand",
+    "director": "Kim Jee-woon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODc4NjI0OTYwNl5BMl5BanBnXkFtZTcwOTYwODQ3OA@@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2013",
+    "genre": "Action, Drama, Thriller"
+  },
+  "Ghost in the Shell 2.0": {
+    "title": "Ghost in the Shell 2.0",
+    "director": "Mamoru Oshii",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzVjMmZhMGEtNWEzNS00ZTNlLWI4ZDAtZDI0NDI4YjJlMmYzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2008",
+    "genre": "Animation, Action, Crime"
+  },
+  "Bad Times at the El Royale": {
+    "title": "Bad Times at the El Royale",
+    "director": "Drew Goddard",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTk1Nzk1MDc1MF5BMl5BanBnXkFtZTgwNjU2NDExNjM@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2018",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "The Fantastic Four: First Steps": {
+    "title": "The Fantastic Four: First Steps",
+    "director": "Matt Shakman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGM5MzA3MDAtYmEwMi00ZDNiLTg4MDgtMTZjOTc0ZGMyNTIwXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2025",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Wicked: For Good": {
+    "title": "Wicked: For Good",
+    "director": "Jon M. Chu",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzRhNTE4ZTYtNTM0Mi00MzU3LTk4MTktYWE3MzQ2NTU0MDNlXkEyXkFqcGc@._V1_QL75_UX380_CR0,20,380,562_.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2025",
+    "genre": "Drama, Family, Fantasy"
+  },
+  "Mufasa: The Lion King": {
+    "title": "Mufasa: The Lion King",
+    "director": "Barry Jenkins",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYjBkOWUwODYtYWI3YS00N2I0LWEyYTktOTJjM2YzOTc3ZDNlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2024",
+    "genre": "Animation, Adventure, Drama"
+  },
+  "Legend of the Guardians: The Owls of Ga'Hoole": {
+    "title": "Legend of the Guardians: The Owls of Ga'Hoole",
+    "director": "Zack Snyder",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjE0NjA5OTA4N15BMl5BanBnXkFtZTcwODA3MTA3Mw@@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2010",
+    "genre": "Animation, Action, Adventure"
+  },
+  "The Lake House": {
+    "title": "The Lake House",
+    "director": "Alejandro Agresti",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTYxMTgxNDI3MV5BMl5BanBnXkFtZTcwMzIxMTIzMw@@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2006",
+    "genre": "Drama, Fantasy, Romance"
+  },
+  "Blood Simple": {
+    "title": "Blood Simple",
+    "director": "Joel Coen, Ethan Coen",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTYxNWY5ODktYWRkOC00NDdkLWIwOGQtOWY5YWQ1N2Q3OWViXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1984",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "The Blue Lagoon": {
+    "title": "The Blue Lagoon",
+    "director": "Randal Kleiser",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWJiNTViMTUtNzAwNy00OGNkLWI2NzQtYWFiNTBmMjA4ODI0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "1980",
+    "genre": "Adventure, Drama, Romance"
+  },
+  "Me and Earl and the Dying Girl": {
+    "title": "Me and Earl and the Dying Girl",
+    "director": "Alfonso Gomez-Rejon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTA1NzUzNjY4MV5BMl5BanBnXkFtZTgwNDU0MDI0NTE@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2015",
+    "genre": "Comedy, Drama"
+  },
+  "Bad Boys": {
+    "title": "Bad Boys",
+    "director": "Michael Bay",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMWNjZWEwNDMtMWE1ZC00MTgwLTk2YzAtYmE0NTkwOWVhMDI0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1995",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Leave the World Behind": {
+    "title": "Leave the World Behind",
+    "director": "Sam Esmail",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjI0YzhjZjAtMzg3ZS00NTFhLWFkYjctMjE5ZGExNTk1MmJkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2023",
+    "genre": "Drama, Mystery, Thriller"
+  },
+  "The Secret Life of Bees": {
+    "title": "The Secret Life of Bees",
+    "director": "Gina Prince-Bythewood",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTgzNDIzMTM2OV5BMl5BanBnXkFtZTcwMTQzNTE4MQ@@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2008",
+    "genre": "Drama"
+  },
+  "Under the Shadow": {
+    "title": "Under the Shadow",
+    "director": "Babak Anvari",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIwMjQwMDU2OV5BMl5BanBnXkFtZTgwNzMwMDg2OTE@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2016",
+    "genre": "Drama, Fantasy, Horror"
+  },
+  "Working Girl": {
+    "title": "Working Girl",
+    "director": "Mike Nichols",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzZhNGFlNGYtMjgyMi00YmZiLWFjNjktZGIzYjkxM2YyZWJjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1988",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Night at the Museum: Secret of the Tomb": {
+    "title": "Night at the Museum: Secret of the Tomb",
+    "director": "Shawn Levy",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjI1MzM2ODEyMV5BMl5BanBnXkFtZTgwNTIzODAwMzE@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2014",
+    "genre": "Adventure, Comedy, Family"
+  },
+  "Before the Devil Knows You're Dead": {
+    "title": "Before the Devil Knows You're Dead",
+    "director": "Sidney Lumet",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTI5NDMyMWMtOTllMS00NGRhLTkzYmQtZTU2NjZiYmUyMzE1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2007",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "Star Trek II: The Wrath of Khan": {
+    "title": "Star Trek II: The Wrath of Khan",
+    "director": "Nicholas Meyer",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTFkZDY5NWQtMjY4Yy00OThiLTk3YjQtMDdhYTllMTI4MTdiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1982",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Pitch Black": {
+    "title": "Pitch Black",
+    "director": "David Twohy",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGJlYjllOTUtZGRiNS00YmI4LTkxYmItYjBmYTdmZWZlMTMxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2000",
+    "genre": "Horror, Sci-Fi, Thriller"
+  },
+  "Pirates of the Caribbean: Dead Man's Chest": {
+    "title": "Pirates of the Caribbean: Dead Man's Chest",
+    "director": "Gore Verbinski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTcwODc1MTMxM15BMl5BanBnXkFtZTYwMDg1NzY3._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2006",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Big Momma's House": {
+    "title": "Big Momma's House",
+    "director": "Raja Gosnell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTg4YWY4MjEtNzQ2NC00MDJjLTg3YWEtZDI1ODkzYjEwNjczXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.3",
+    "releaseVersion": "2000",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Strange Magic": {
+    "title": "Strange Magic",
+    "director": "Gary Rydstrom",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjA0NjU3MTU5OF5BMl5BanBnXkFtZTgwMTYyMDQ3MzE@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2015",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "One Magic Christmas": {
+    "title": "One Magic Christmas",
+    "director": "Phillip Borsos",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTY3ZGIxOGUtNzAzOS00ZDEyLTk0NjAtMDQxNWJiYTM4MjA2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1985",
+    "genre": "Family, Fantasy"
+  },
+  "Legend": {
+    "title": "Legend",
+    "director": "Brian Helgeland",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjE0MjkyODQ3NF5BMl5BanBnXkFtZTgwNDM1OTk1NjE@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2015",
+    "genre": "Biography, Crime, Drama"
+  },
+  "The Danish Girl": {
+    "title": "The Danish Girl",
+    "director": "Tom Hooper",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjA0NjA4NjE2Nl5BMl5BanBnXkFtZTgwNzIxNTY2NjE@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2015",
+    "genre": "Biography, Drama"
+  },
+  "Chasing Ice": {
+    "title": "Chasing Ice",
+    "director": "Jeff Orlowski-Yang",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM1NDc0MzAxNF5BMl5BanBnXkFtZTcwMjY1NzE3OA@@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2012",
+    "genre": "Documentary, Biography"
+  },
+  "Insidious: The Red Door": {
+    "title": "Insidious: The Red Door",
+    "director": "Patrick Wilson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWMwMmY2MzUtZDc1Ni00MDlmLThhOWUtYjVlNmQzMGFkMzZmXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg",
+    "imdbRating": "5.5",
+    "releaseVersion": "2023",
+    "genre": "Horror, Mystery, Thriller"
+  },
+  "Cast a Giant Shadow": {
+    "title": "Cast a Giant Shadow",
+    "director": "Melville Shavelson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2Q5NjA2OTQtNTI2OS00OTZhLWI0ZjktMTNlNDAyMGNkODcyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "1966",
+    "genre": "Adventure, Drama, History"
+  },
+  "White Boy Rick": {
+    "title": "White Boy Rick",
+    "director": "Yann Demange",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjQ5MzY4NjQ4Nl5BMl5BanBnXkFtZTgwMzc1NjU4NjM@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2018",
+    "genre": "Crime, Drama"
+  },
+  "Red Lights": {
+    "title": "Red Lights",
+    "director": "Rodrigo Cortés",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQzMjYwNTc2M15BMl5BanBnXkFtZTcwMTY0Mjc4Nw@@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2012",
+    "genre": "Drama, Fantasy, Mystery"
+  },
+  "Star Wars: Episode II - Attack of the Clones": {
+    "title": "Star Wars: Episode II - Attack of the Clones",
+    "director": "George Lucas",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTgxMjY2YzUtZmVmNC00YjAwLWJlODMtNDBhNzllNzIzMjgxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2002",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Lost in Space": {
+    "title": "Lost in Space",
+    "director": "Stephen Hopkins",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzViNDBjNDMtMmYxOS00ZDcyLTk4NGQtZGQwMmIyODc2NGZmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "1998",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Ghost Rider: Spirit of Vengeance": {
+    "title": "Ghost Rider: Spirit of Vengeance",
+    "director": "Mark Neveldine, Brian Taylor",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2FmZGVlNTgtYTllNC00YmUzLTk5YmUtNWNhMzk3ZmE2NmQ0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "4.4",
+    "releaseVersion": "2011",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "In the Mood for Love": {
+    "title": "In the Mood for Love",
+    "director": "Wong Kar-Wai",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2Q4NjllMDgtOTk2Zi00YzM1LWJmOTMtNmRiZDgyZGJmMjQzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "2000",
+    "genre": "Drama, Romance"
+  },
+  "Shang-Chi and the Legend of the Ten Rings": {
+    "title": "Shang-Chi and the Legend of the Ten Rings",
+    "director": "Destin Daniel Cretton",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZmY5MDcyNzAtYzg3MC00MGNlLTg3OGItNmRjYThkZGVlNzAyXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2021",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Ice Age: A Mammoth Christmas": {
+    "title": "Ice Age: A Mammoth Christmas",
+    "director": "Karen Disher",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWE2NDFjZmItOGM3Mi00YjkyLTk1MGUtZWVkMDdiMjEwNzc1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2011",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Red One": {
+    "title": "Red One",
+    "director": "Jake Kasdan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZmFkMjE4NjQtZTVmZS00MDZjLWE2ZmEtZTkzODljNjhlNWUxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2024",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Iron Man 3": {
+    "title": "Iron Man 3",
+    "director": "Shane Black",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIzMzAzMjQyM15BMl5BanBnXkFtZTcwNzM2NjcyOQ@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2013",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Ant-Man": {
+    "title": "Ant-Man",
+    "director": "Peyton Reed",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjM2NTQ5Mzc2M15BMl5BanBnXkFtZTgwNTcxMDI2NTE@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2015",
+    "genre": "Action, Comedy, Sci-Fi"
+  },
+  "A Few Good Men": {
+    "title": "A Few Good Men",
+    "director": "Rob Reiner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGVhMTUwYzEtZGQ1ZC00Nzg1LTk0OGUtMDk0NDM0ZmZlN2E0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1992",
+    "genre": "Drama, Thriller"
+  },
+  "News of the World": {
+    "title": "News of the World",
+    "director": "Paul Greengrass",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzMxNDYyNzUtMGJkNi00NDcyLWEzYzgtMjY5MTVkMGZiMzRiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2020",
+    "genre": "Action, Adventure, Drama"
+  },
+  "A Good Day to Die Hard": {
+    "title": "A Good Day to Die Hard",
+    "director": "John Moore",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTcwNzgyNzUzOV5BMl5BanBnXkFtZTcwMzAwOTA5OA@@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "2013",
+    "genre": "Action, Thriller"
+  },
+  "Pay the Ghost": {
+    "title": "Pay the Ghost",
+    "director": "Uli Edel",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzY3MTc3NzQ1Nl5BMl5BanBnXkFtZTgwNjk2MDE3NjE@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "2015",
+    "genre": "Horror, Mystery"
+  },
+  "House of Gucci": {
+    "title": "House of Gucci",
+    "director": "Ridley Scott",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMmQ3OTRiYWItMGRiOC00ZTVmLWJjMjEtNjZhNDQ5NjIxODNjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2021",
+    "genre": "Biography, Crime, Drama"
+  },
+  "The Family Stone": {
+    "title": "The Family Stone",
+    "director": "Thomas Bezucha",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWRjNzY1MmItNDUwNS00MGMzLWFkN2UtMTEzYjU4MmE2ZDAxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2005",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "I Love You, Man": {
+    "title": "I Love You, Man",
+    "director": "John Hamburg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU4MjI5NTEyNV5BMl5BanBnXkFtZTcwNjQ1NTMzMg@@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2009",
+    "genre": "Comedy, Romance"
+  },
+  "From Paris with Love": {
+    "title": "From Paris with Love",
+    "director": "Pierre Morel",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNThhNDcyYjktNTNkOC00NDFmLTkyMjAtNGU2NjYyY2ZlMjBhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2010",
+    "genre": "Action, Crime, Thriller"
+  },
+  "Two Is a Family": {
+    "title": "Two Is a Family",
+    "director": "Hugo Gélin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWRhMWJiMWItNTFmYi00NzU3LWJlNWMtNTQ4MDMyMjFiMjg5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2016",
+    "genre": "Comedy, Drama"
+  },
+  "Chariots of Fire": {
+    "title": "Chariots of Fire",
+    "director": "Hugh Hudson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjkzZjFmZDEtNTliZi00MDcwLThjMTMtNmI5OGVmYjZjZDM1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "1981",
+    "genre": "Biography, Drama, Sport"
+  },
+  "Dark City": {
+    "title": "Dark City",
+    "director": "Alex Proyas",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTFhMmE1YzgtNTFhYS00MTRlLWI3ZDMtMWJkMTBmOWMzOTk5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "1998",
+    "genre": "Fantasy, Mystery, Sci-Fi"
+  },
+  "White Heat": {
+    "title": "White Heat",
+    "director": "Raoul Walsh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzYxN2Y2MzAtOGM4Zi00N2Y2LWEwMGItMzE1NTM4M2VmYTk4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "1949",
+    "genre": "Action, Crime, Drama"
+  },
+  "Detroit Rock City": {
+    "title": "Detroit Rock City",
+    "director": "Adam Rifkin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTA4MDM5OGItMGE5YS00YTEyLTk3ZTEtM2I3ZjMzODM3NzA5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1999",
+    "genre": "Adventure, Comedy, Music"
+  },
+  "The Big Blue": {
+    "title": "The Big Blue",
+    "director": "Luc Besson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWUyYThiMjctNWZiZS00YzkwLTg0MmQtYmJiZGQxOGQyYzJkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1988",
+    "genre": "Adventure, Drama, Sport"
+  },
+  "Groundhog Day": {
+    "title": "Groundhog Day",
+    "director": "Harold Ramis",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWE3MjQ3ZDAtNDQ2MC00YjBjLTk0ZWYtNjQ0YzQ4YWE3YTEyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1993",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "Goal! The Dream Begins": {
+    "title": "Goal! The Dream Begins",
+    "director": "Danny Cannon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjAxNDk2Njk1OV5BMl5BanBnXkFtZTcwOTE5MzIzMQ@@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2005",
+    "genre": "Drama, Romance, Sport"
+  },
+  "When We First Met": {
+    "title": "When We First Met",
+    "director": "Ari Sandel",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzM1OTI4NDM4Nl5BMl5BanBnXkFtZTgwMDAwODg2NDM@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2018",
+    "genre": "Comedy, Fantasy, Romance"
+  },
+  "Dream Girl 2": {
+    "title": "Dream Girl 2",
+    "director": "Gauri Joshi, Raaj Shaandilyaa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTMzNzYzNzctNWIyNC00NDRhLWFkNGMtMzYxOTA2ZjgwYzFhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.3",
+    "releaseVersion": "2023",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Asteroid City": {
+    "title": "Asteroid City",
+    "director": "Wes Anderson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjY2YjYxNjEtNDJkYi00ZmJjLWIwYTEtNjEyZDgzY2M5ZDc3XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2023",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Punch-Drunk Love": {
+    "title": "Punch-Drunk Love",
+    "director": "Paul Thomas Anderson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTYyMTQ2MDAtMzYzYS00YjZiLWJiNDUtZjEwNzM4YzE1ZDhhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2002",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Star Wars: Episode IX - The Rise of Skywalker": {
+    "title": "Star Wars: Episode IX - The Rise of Skywalker",
+    "director": "J.J. Abrams",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODg5ZTNmMTUtYThlNy00NjljLWE0MGUtYmQ1NDg4NWU5MjQ1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2019",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Underworld: Blood Wars": {
+    "title": "Underworld: Blood Wars",
+    "director": "Anna Foerster",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjI5Njk0NTIyNV5BMl5BanBnXkFtZTgwNjU4MjY5MDI@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2016",
+    "genre": "Action, Crime, Drama"
+  },
+  "Space Sweepers": {
+    "title": "Space Sweepers",
+    "director": "Jo Sung-hee",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTZiMDBhODAtN2Y4Mi00ZThjLTg0ODItN2M1ZGJkZWI1N2YxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2021",
+    "genre": "Action, Adventure, Drama"
+  },
+  "The White Tiger": {
+    "title": "The White Tiger",
+    "director": "Ramin Bahrani",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWUyNDEyMDgtM2IwNy00MTllLWJiMzUtODQ2ODcxZjk4N2ExXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2021",
+    "genre": "Crime, Drama"
+  },
+  "The Legend of Tarzan": {
+    "title": "The Legend of Tarzan",
+    "director": "David Yates",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzY3OTI0OTcyMF5BMl5BanBnXkFtZTgwNjkxNTAwOTE@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2016",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Valerian and the City of a Thousand Planets": {
+    "title": "Valerian and the City of a Thousand Planets",
+    "director": "Luc Besson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTkxMDAxNDUyNV5BMl5BanBnXkFtZTgwOTc3MzcxMjI@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2017",
+    "genre": "Animation, Action, Adventure"
+  },
+  "2001: A Space Travesty": {
+    "title": "2001: A Space Travesty",
+    "director": "Allan A. Goldstein",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTA5NTk1NTc3MjJeQTJeQWpwZ15BbWU3MDkxNTMyMjE@._V1_SX300.jpg",
+    "imdbRating": "3.5",
+    "releaseVersion": "2000",
+    "genre": "Comedy, Sci-Fi"
+  },
+  "Dawn of the Dead": {
+    "title": "Dawn of the Dead",
+    "director": "Zack Snyder",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2ZiYjNlMWYtNTc2My00ZTM4LWJhMjQtM2FlOWM0ZmE0Yjg1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2004",
+    "genre": "Action, Horror"
+  },
+  "The Secret of Kells": {
+    "title": "The Secret of Kells",
+    "director": "Tomm Moore, Nora Twomey",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjEzMjEzNTIzOF5BMl5BanBnXkFtZTcwMTg2MjAyMw@@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2009",
+    "genre": "Animation, Adventure, Family"
+  },
+  "Ninja: Shadow of a Tear": {
+    "title": "Ninja: Shadow of a Tear",
+    "director": "Isaac Florentine",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTA5MjI3NTE5NzleQTJeQWpwZ15BbWU4MDc2Mjg5ODAx._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2013",
+    "genre": "Action, Thriller"
+  },
+  "King Richard": {
+    "title": "King Richard",
+    "director": "Reinaldo Marcus Green",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjVlZGFjMDctNDIxOS00NjY5LWE1ZTEtMTAxZGE4Y2QxZjMxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2021",
+    "genre": "Biography, Drama, Sport"
+  },
+  "Dead Alive": {
+    "title": "Dead Alive",
+    "director": "Peter Jackson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzU0Y2FhNDAtYzNlOC00MTNhLWFjYTUtMWMwMTUxZjlmYjc0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1992",
+    "genre": "Comedy, Fantasy, Horror"
+  },
+  "American Made": {
+    "title": "American Made",
+    "director": "Doug Liman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTUxNzUwMjk1Nl5BMl5BanBnXkFtZTgwNDkwODI1MjI@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2017",
+    "genre": "Action, Comedy, Crime"
+  },
+  "The Girl Who Played with Fire": {
+    "title": "The Girl Who Played with Fire",
+    "director": "Daniel Alfredson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjI0MjIxMDIwNF5BMl5BanBnXkFtZTcwODk5MDc1Mw@@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2009",
+    "genre": "Action, Crime, Drama"
+  },
+  "The Other Boleyn Girl": {
+    "title": "The Other Boleyn Girl",
+    "director": "Justin Chadwick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ2NTg1Mjk1Ml5BMl5BanBnXkFtZTYwODI5Njk3._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2008",
+    "genre": "Biography, Drama, History"
+  },
+  "Star Wars: Episode VI - Return of the Jedi": {
+    "title": "Star Wars: Episode VI - Return of the Jedi",
+    "director": "Richard Marquand",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWEwOTI0MmUtMGNmNy00ODViLTlkZDQtZTg1YmQ3MDgyNTUzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.3",
+    "releaseVersion": "1983",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Into the Blue": {
+    "title": "Into the Blue",
+    "director": "John Stockwell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWViZjU1NWYtZGJhZi00YWNmLTg5MzgtZTk1NzA2NDgxYzcyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "2005",
+    "genre": "Action, Adventure, Crime"
+  },
+  "Addams Family Values": {
+    "title": "Addams Family Values",
+    "director": "Barry Sonnenfeld",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWY3Y2ZkYjktZWYxMC00ZmZmLTgxNjYtYmMwYmU5OWJjMThjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "1993",
+    "genre": "Comedy, Fantasy"
+  },
+  "The Secret Agent": {
+    "title": "The Secret Agent",
+    "director": "Kleber Mendonça Filho",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDlkMzNhYzgtNTk1Yi00M2I1LTlkOTMtY2RmZGU3YzVmMzE2XkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2025",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "National Lampoon's Animal House": {
+    "title": "National Lampoon's Animal House",
+    "director": "John Landis",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjk2ODY5N2UtMzczOC00M2M1LWEzZDQtZTc2YTgzMGNhOWZiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "1978",
+    "genre": "Comedy"
+  },
+  "The Lord of the Rings: The Return of the King": {
+    "title": "The Lord of the Rings: The Return of the King",
+    "director": "Peter Jackson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTZkMjBjNWMtZGI5OC00MGU0LTk4ZTItODg2NWM3NTVmNWQ4XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "9.0",
+    "releaseVersion": "2003",
+    "genre": "Adventure, Drama, Fantasy"
+  },
+  "Magic Mike": {
+    "title": "Magic Mike",
+    "director": "Steven Soderbergh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQzMDMzOTA5M15BMl5BanBnXkFtZTcwMjc4MTg4Nw@@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2012",
+    "genre": "Comedy, Drama, Music"
+  },
+  "Throne of Blood": {
+    "title": "Throne of Blood",
+    "director": "Akira Kurosawa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTdlYjFlZTAtMTA5Yy00Y2UzLWI0ZjEtYWI2Njk0NTI4OGZlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1957",
+    "genre": "Drama"
+  },
+  "The Good Dinosaur": {
+    "title": "The Good Dinosaur",
+    "director": "Peter Sohn",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTc5MTg2NjQ4MV5BMl5BanBnXkFtZTgwNzcxOTY5NjE@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2015",
+    "genre": "Animation, Action, Adventure"
+  },
+  "Godzilla: King of the Monsters": {
+    "title": "Godzilla: King of the Monsters",
+    "director": "Michael Dougherty",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDVhMjk2OGUtYzYxNS00NzBjLTk5YTItYzI0ZjgzNjY1NmI0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.0",
+    "releaseVersion": "2019",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Thor: The Dark World": {
+    "title": "Thor: The Dark World",
+    "director": "Alan Taylor",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQyNzAwOTUxOF5BMl5BanBnXkFtZTcwMTE0OTc5OQ@@._V1_QL75_UY562_CR7,0,380,562_.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2013",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Wake Up Dead Man": {
+    "title": "Wake Up Dead Man",
+    "director": "Rian Johnson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2Q0OTA5MTEtNWU4NC00ZWFmLTg5NmYtNDFmODViYWUxZmJkXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2025",
+    "genre": "Comedy, Crime, Drama"
+  },
+  "The First Wives Club": {
+    "title": "The First Wives Club",
+    "director": "Hugh Wilson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODBjMzg2MTktYjhjNS00ODNjLTk3MzYtZjAyYjg2NjZiNjVjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1996",
+    "genre": "Comedy"
+  },
+  "Evil Dead Rise": {
+    "title": "Evil Dead Rise",
+    "director": "Lee Cronin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjM1ZmViMmYtOGYzZC00YzhmLWE0MTMtMzNjYzcyNjEwYWRkXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2023",
+    "genre": "Horror"
+  },
+  "The Secret Life of Walter Mitty": {
+    "title": "The Secret Life of Walter Mitty",
+    "director": "Ben Stiller",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODYwNDYxNDk1Nl5BMl5BanBnXkFtZTgwOTAwMTk2MDE@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2013",
+    "genre": "Adventure, Comedy, Drama"
+  },
+  "Outlaw King": {
+    "title": "Outlaw King",
+    "director": "David Mackenzie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjI0MGZkYjItODFmZC00OWIyLTk4MDctYTIwZDZhYThhYWNlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2018",
+    "genre": "Action, Biography, Drama"
+  },
+  "Good Night, and Good Luck.": {
+    "title": "Good Night, and Good Luck.",
+    "director": "George Clooney",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTJhMmY5OGMtNDZhNS00ZjAyLWFmODQtOTA0NWM5NjMyOTk5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2005",
+    "genre": "Biography, Drama, History"
+  },
+  "Ghost in the Shell 2: Innocence": {
+    "title": "Ghost in the Shell 2: Innocence",
+    "director": "Mamoru Oshii",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzQ5Y2NkYjktMjhlNS00YWQ2LTg0ZDItZjFmZGE0ZDE3MWQ3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2004",
+    "genre": "Animation, Drama, Mystery"
+  },
+  "The Secret of My Success": {
+    "title": "The Secret of My Success",
+    "director": "Herbert Ross",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzhjZjlhYjYtNjhmOS00ZDNhLWFjNzktMWQ5N2ZkMGM1NTBlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1987",
+    "genre": "Comedy, Romance"
+  },
+  "Monty Python's the Meaning of Life": {
+    "title": "Monty Python's the Meaning of Life",
+    "director": "Terry Jones",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMmZjYzM5OGMtYmY2OS00YzQ3LWEzZjgtY2Q1Yjc1NTNkYTZiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1983",
+    "genre": "Comedy, Musical"
+  },
+  "Blood In, Blood Out": {
+    "title": "Blood In, Blood Out",
+    "director": "Taylor Hackford",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjViOTYwNWUtNTZlYi00YzMxLTljMjAtM2Y2NDAxNTU5OTI4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "1993",
+    "genre": "Biography, Crime, Drama"
+  },
+  "The American President": {
+    "title": "The American President",
+    "director": "Rob Reiner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTcyNDAzYTUtNjBjMC00YTk3LTg5MTItMzM3MjhlNGE5YWNlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1995",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Ghost Ship": {
+    "title": "Ghost Ship",
+    "director": "Steve Beck",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM3NTA4NDIwMF5BMl5BanBnXkFtZTYwNTc4NDE3._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2002",
+    "genre": "Horror, Mystery, Thriller"
+  },
+  "Red Eye": {
+    "title": "Red Eye",
+    "director": "Wes Craven",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzAxNjc1ODczOF5BMl5BanBnXkFtZTcwMjE3MjEzMw@@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2005",
+    "genre": "Thriller"
+  },
+  "Men in Black³": {
+    "title": "Men in Black³",
+    "director": "Barry Sonnenfeld",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU2NTYxODcwMF5BMl5BanBnXkFtZTcwNDk1NDY0Nw@@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2012",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Turning Red": {
+    "title": "Turning Red",
+    "director": "Domee Shi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODY2NjExYmUtZTQ4NS00NzM2LWE2NWYtZWY2NGIyOTBmNzI3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2022",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "American Graffiti": {
+    "title": "American Graffiti",
+    "director": "George Lucas",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzc5MjUyMWYtMDkyMi00YTc2LTg3ZDMtMjI3MmU3Nzg2YTExXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "1973",
+    "genre": "Comedy, Drama"
+  },
+  "Paranormal Activity: The Ghost Dimension": {
+    "title": "Paranormal Activity: The Ghost Dimension",
+    "director": "Gregory Plotkin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjQxMjE5OTA3OF5BMl5BanBnXkFtZTgwMDAxNTg4NjE@._V1_SX300.jpg",
+    "imdbRating": "4.6",
+    "releaseVersion": "2015",
+    "genre": "Horror, Mystery"
+  },
+  "Swiss Family Robinson": {
+    "title": "Swiss Family Robinson",
+    "director": "Ken Annakin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTk3ZmNjZGMtNTExZi00NDI1LTk3YTAtMDFjM2U0OTcwYTk2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "1960",
+    "genre": "Adventure, Family"
+  },
+  "Space Chimps": {
+    "title": "Space Chimps",
+    "director": "Kirk DeMicco",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDU0MDY1OTQzOV5BMl5BanBnXkFtZTcwNzQ3ODI3MQ@@._V1_SX300.jpg",
+    "imdbRating": "4.5",
+    "releaseVersion": "2008",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Tucker: The Man and His Dream": {
+    "title": "Tucker: The Man and His Dream",
+    "director": "Francis Ford Coppola",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjNiMWFjOTctMTQ1NC00ZGY2LWE2NDEtYTMxNzMzM2VhNmQ2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "1988",
+    "genre": "Biography, Comedy, Drama"
+  },
+  "Men in Black II": {
+    "title": "Men in Black II",
+    "director": "Barry Sonnenfeld",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTMxNDA0NTMxMV5BMl5BanBnXkFtZTYwMDE2NzY2._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2002",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Last Night in Soho": {
+    "title": "Last Night in Soho",
+    "director": "Edgar Wright",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODdhZjBmZTEtZmQyMy00NWY5LWJiMWQtODhjODFkZWZlMjMyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2021",
+    "genre": "Drama, Horror, Mystery"
+  },
+  "RED 2": {
+    "title": "RED 2",
+    "director": "Dean Parisot",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjI2ODQ4ODY3Nl5BMl5BanBnXkFtZTcwNTc2NzE1OQ@@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2013",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Girl with a Pearl Earring": {
+    "title": "Girl with a Pearl Earring",
+    "director": "Peter Webber",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTQ0MGU5ODEtYTg5NC00N2MyLTkyMGQtOWJhYzMwNGU3MzEzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2003",
+    "genre": "Biography, Drama, Romance"
+  },
+  "Star Wars: Episode V - The Empire Strikes Back": {
+    "title": "Star Wars: Episode V - The Empire Strikes Back",
+    "director": "Irvin Kershner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTkxNGFlNDktZmJkNC00MDdhLTg0MTEtZjZiYWI3MGE5NWIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.7",
+    "releaseVersion": "1980",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "American Wedding": {
+    "title": "American Wedding",
+    "director": "Jesse Dylan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWZjMjdhODAtMzc3NS00ZWRiLThjMDEtMzUwMTY2MTI4ZjNmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2003",
+    "genre": "Comedy"
+  },
+  "Dream Scenario": {
+    "title": "Dream Scenario",
+    "director": "Kristoffer Borgli",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTVhZjNhMzktOGQ2YS00OGVkLWExNGEtMjBlYWI3MjVmYmM1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2023",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "I Love You Phillip Morris": {
+    "title": "I Love You Phillip Morris",
+    "director": "Glenn Ficarra, John Requa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNmE1ZDQwNGUtYTIwOS00YmRiLTllOGItNjBiNDNhMmJmNWQ4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2009",
+    "genre": "Biography, Comedy, Crime"
+  },
+  "Black Mass": {
+    "title": "Black Mass",
+    "director": "Scott Cooper",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzg0ODI3NDQxNF5BMl5BanBnXkFtZTgwMzgzNDA0NjE@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2015",
+    "genre": "Biography, Crime, Drama"
+  },
+  "The Magic of Belle Isle": {
+    "title": "The Magic of Belle Isle",
+    "director": "Rob Reiner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTg4NTAwODIxM15BMl5BanBnXkFtZTcwNzg5MTY2Nw@@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2012",
+    "genre": "Comedy, Drama"
+  },
+  "I Am Legend": {
+    "title": "I Am Legend",
+    "director": "Francis Lawrence",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGE1OWZkZmItNmVhMC00YzAxLTgxOTctNjg3NWExM2RmOWJkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2007",
+    "genre": "Drama, Horror, Sci-Fi"
+  },
+  "Valentine's Day": {
+    "title": "Valentine's Day",
+    "director": "Garry Marshall",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk3MTIwNDIxNF5BMl5BanBnXkFtZTcwMDMyMzcwMw@@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2010",
+    "genre": "Comedy, Romance"
+  },
+  "The Addams Family": {
+    "title": "The Addams Family",
+    "director": "Greg Tiernan, Conrad Vernon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDg1NTZhN2UtMmVkYi00NzQxLWI2MWEtNTg5M2YyOWU3MmIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2019",
+    "genre": "Animation, Comedy, Family"
+  },
+  "First Blood": {
+    "title": "First Blood",
+    "director": "Ted Kotcheff",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzc4ZmQ5YzEtYTQzYy00ZDdiLWI2NmQtZTA3MzM1ZGIyYmUzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1982",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "I Know What You Did Last Summer": {
+    "title": "I Know What You Did Last Summer",
+    "director": "Jim Gillespie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGE1MmMxZDMtYzkyYS00N2EzLTgxYWItNWZiN2NmMzZiZTNmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "1997",
+    "genre": "Horror, Mystery"
+  },
+  "Blue Streak": {
+    "title": "Blue Streak",
+    "director": "Les Mayfield",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2RmODQxZmQtZjAzYy00MWQxLWFmN2MtMWJiOGIxOGQxOWU4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1999",
+    "genre": "Action, Comedy, Crime"
+  },
+  "The King of Comedy": {
+    "title": "The King of Comedy",
+    "director": "Martin Scorsese",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTQxNGUwNmUtMDJhYy00ZjM1LWFjZjQtYmI5ZGY4YTZmZWQyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1982",
+    "genre": "Comedy, Crime, Drama"
+  },
+  "A Nightmare on Elm Street 4: The Dream Master": {
+    "title": "A Nightmare on Elm Street 4: The Dream Master",
+    "director": "Renny Harlin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2FlMDZlNjUtM2QyYS00Y2YyLWI3ZjEtZDdjZWM5ZTg0MDRiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "1988",
+    "genre": "Horror"
+  },
+  "The Last King of Scotland": {
+    "title": "The Last King of Scotland",
+    "director": "Kevin Macdonald",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDg4NjA0YzctNWMzMi00NmY1LTkyMGYtZjI4ZjFmZjMzMGE0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2006",
+    "genre": "Biography, Drama, History"
+  },
+  "Spider-Man: Far from Home": {
+    "title": "Spider-Man: Far from Home",
+    "director": "Jon Watts",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzNhNTE0NWQtN2E1Ny00NjcwLTg1YTctMGY1NmMwODJmY2NmXkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2019",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "The Last Airbender": {
+    "title": "The Last Airbender",
+    "director": "M. Night Shyamalan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGEwNDlmZDQtMjA0My00NWMwLWJkNTAtODk2MGVjODBlNWFjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "3.9",
+    "releaseVersion": "2010",
+    "genre": "Action, Adventure, Family"
+  },
+  "The Life Aquatic with Steve Zissou": {
+    "title": "The Life Aquatic with Steve Zissou",
+    "director": "Wes Anderson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTYzODYzNzg2MF5BMl5BanBnXkFtZTcwMTkzOTQzMw@@._V1_QL75_UY562_CR2,0,380,562_.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2004",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Red Riding Hood": {
+    "title": "Red Riding Hood",
+    "director": "Catherine Hardwicke",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTc4NjYyMzQ5MV5BMl5BanBnXkFtZTcwNjE5Mjc3NA@@._V1_SX300.jpg",
+    "imdbRating": "5.4",
+    "releaseVersion": "2011",
+    "genre": "Fantasy, Horror, Mystery"
+  },
+  "Jurassic World: Dominion": {
+    "title": "Jurassic World: Dominion",
+    "director": "Colin Trevorrow",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGExMWU2NWMtNzczYi00NjQ4LTk2YzctZGZkYmRmMDdhMjllXkEyXkFqcGc@._V1_QL75_UY562_CR5,0,380,562_.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2022",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "The Good Nurse": {
+    "title": "The Good Nurse",
+    "director": "Tobias Lindholm",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTAzYzQ2MmMtZWQ0ZS00YmRiLWEzNjQtZmQ3NDIyZmI1ZmIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2022",
+    "genre": "Biography, Crime, Drama"
+  },
+  "Life Is Beautiful": {
+    "title": "Life Is Beautiful",
+    "director": "Roberto Benigni",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTBhOGYzZjQtYzE0Mi00MGIwLWE0MWYtNzMxNTM2OTFkM2NjXkEyXkFqcGc@._V1_QL75_UX380_CR0,2,380,562_.jpg",
+    "imdbRating": "8.6",
+    "releaseVersion": "1997",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Ice Age: Continental Drift": {
+    "title": "Ice Age: Continental Drift",
+    "director": "Steve Martino, Michael Thurmeier",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM3NDM5MzY5Ml5BMl5BanBnXkFtZTcwNjExMDUwOA@@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2012",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "American Assassin": {
+    "title": "American Assassin",
+    "director": "Michael Cuesta",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjM0MjY4MTk5NV5BMl5BanBnXkFtZTgwNDE2NTQyMzI@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2017",
+    "genre": "Action, Thriller"
+  },
+  "Mickey Blue Eyes": {
+    "title": "Mickey Blue Eyes",
+    "director": "Kelly Makin, Carl Gottlieb",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjIzNDQ4MDc5OV5BMl5BanBnXkFtZTYwNzI3MDM3._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "1999",
+    "genre": "Comedy, Crime, Romance"
+  },
+  "Magic in the Moonlight": {
+    "title": "Magic in the Moonlight",
+    "director": "Woody Allen",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ3NDY5NjIwN15BMl5BanBnXkFtZTgwNjQ2ODkxMjE@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2014",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Iron Man": {
+    "title": "Iron Man",
+    "director": "Jon Favreau",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTczNTI2ODUwOF5BMl5BanBnXkFtZTcwMTU0NTIzMw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "2008",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "The Black Phone": {
+    "title": "The Black Phone",
+    "director": "Scott Derrickson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjFhZTcxOTktMzllMS00MzIzLWJhODEtZDU5YTFkNzRjZWQyXkEyXkFqcGc@._V1_QL75_UX380_CR0,20,380,562_.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2022",
+    "genre": "Horror, Mystery, Thriller"
+  },
+  "The Good Shepherd": {
+    "title": "The Good Shepherd",
+    "director": "Robert De Niro",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU5MjExMzA1Nl5BMl5BanBnXkFtZTgwMzIxNzQxMTE@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2006",
+    "genre": "Drama, History, Thriller"
+  },
+  "Black Swan": {
+    "title": "Black Swan",
+    "director": "Darren Aronofsky",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzY2NzI4OTE5MF5BMl5BanBnXkFtZTcwMjMyNDY4Mw@@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "2010",
+    "genre": "Drama, Thriller"
+  },
+  "Safe House": {
+    "title": "Safe House",
+    "director": "Daniel Espinosa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjI5ODkyMjA2Nl5BMl5BanBnXkFtZTcwNTcyNTgzNw@@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2012",
+    "genre": "Action, Thriller"
+  },
+  "Ferris Bueller's Day Off": {
+    "title": "Ferris Bueller's Day Off",
+    "director": "John Hughes",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWYwMjUxNjMtMzE0MC00NDM3LWIxMmQtYmEyNWVjNjdlZGZjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1986",
+    "genre": "Comedy"
+  },
+  "The Bélier Family": {
+    "title": "The Bélier Family",
+    "director": "Éric Lartigau",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODFlZjk5OWMtOTk0NS00NmJiLThlNTgtMzUwNDRjOWQ3ZjlkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2014",
+    "genre": "Comedy, Drama, Music"
+  },
+  "Dead Man Walking": {
+    "title": "Dead Man Walking",
+    "director": "Tim Robbins",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM3NzA1MjM2N15BMl5BanBnXkFtZTcwMzY3MTMzNA@@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1995",
+    "genre": "Crime, Drama"
+  },
+  "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb": {
+    "title": "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
+    "director": "Stanley Kubrick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjFjYzBlOTktMTI2OS00ZWVhLTgxMDUtNzAwODY2NmI3YTAzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.3",
+    "releaseVersion": "1964",
+    "genre": "Comedy, War"
+  },
+  "Red, White & Royal Blue": {
+    "title": "Red, White & Royal Blue",
+    "director": "Matthew López",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzYyMzIyZjQtYzJkYi00M2E4LWI0YTUtOWVlNzk5NGI4YWY1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2023",
+    "genre": "Comedy, Romance"
+  },
+  "The Ice Harvest": {
+    "title": "The Ice Harvest",
+    "director": "Harold Ramis",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODRjNDJkZjMtZGVhNS00Yjc5LWFhNmQtYzRmMjY3NzJkZmE3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2005",
+    "genre": "Comedy, Crime, Drama"
+  },
+  "Love Actually": {
+    "title": "Love Actually",
+    "director": "Richard Curtis",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWRlZjcwYTgtYWJkOS00MGYwLTk3Y2ItNmU4NTg5Nzg2YTQ2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2003",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Brain on Fire": {
+    "title": "Brain on Fire",
+    "director": "Gerard Barrett",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDcxZmVlM2ItNmViMS00YmEwLWFkNGQtMWEyODczZGRlNDNkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2016",
+    "genre": "Biography, Drama"
+  },
+  "Kingsman: The Secret Service": {
+    "title": "Kingsman: The Secret Service",
+    "director": "Matthew Vaughn",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODk1MTYwNTAtYmI5Zi00OWYyLWE0MzQtOWE4NDIxZmU2MjMwXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2015",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Practical Magic": {
+    "title": "Practical Magic",
+    "director": "Griffin Dunne",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGM3ZjFhZjAtOTdlMS00MTY2LThjYmYtMTA2ZWM3YjdiM2E4XkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1998",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "In the Shadow of the Moon": {
+    "title": "In the Shadow of the Moon",
+    "director": "Jim Mickle",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWM3YzQ2MTEtZjA2OS00NzRkLWFmMWEtYjZjODUzN2VlNmY1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2019",
+    "genre": "Action, Crime, Mystery"
+  },
+  "The First Purge": {
+    "title": "The First Purge",
+    "director": "Gerard McMurray",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjZmMDY4MzItYzVhOC00YmQ5LWFjMDgtYzk5ZDY1ZTFmN2ZjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "2018",
+    "genre": "Action, Horror, Sci-Fi"
+  },
+  "Black Hawk Down": {
+    "title": "Black Hawk Down",
+    "director": "Ridley Scott",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTM3YTQ1M2MtNDEyNC00NzRlLWFmOTgtYjBhNDg2ODNjNTU0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2002",
+    "genre": "Action, Drama, History"
+  },
+  "Love and Monsters": {
+    "title": "Love and Monsters",
+    "director": "Michael Matthews",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2I1MGNiOWMtYmFlNC00MDYxLTkzODEtZDhiMTg5MjYzNTQxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2020",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Bad Words": {
+    "title": "Bad Words",
+    "director": "Jason Bateman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTQ5MmFhNDYtNDAzMS00OWM5LWE5NmYtNTA3YjdkMDRjZDUzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2013",
+    "genre": "Comedy, Drama"
+  },
+  "The Bad Guys": {
+    "title": "The Bad Guys",
+    "director": "Pierre Perifel",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODNlYmQzY2MtZWZiZS00Y2I0LTkwNjItNjg3MjY5YTFkNWI3XkEyXkFqcGc@._V1_QL75_UX380_CR0,20,380,562_.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2022",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "The Family": {
+    "title": "The Family",
+    "director": "Luc Besson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjE2MzI0MzkyNV5BMl5BanBnXkFtZTcwMjQ2MDM2OQ@@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2013",
+    "genre": "Comedy, Crime, Thriller"
+  },
+  "American Pie": {
+    "title": "American Pie",
+    "director": "Paul Weitz",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTg3ODY5ODI1NF5BMl5BanBnXkFtZTgwMTkxNTYxMTE@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "1999",
+    "genre": "Comedy"
+  },
+  "Blood and Bone": {
+    "title": "Blood and Bone",
+    "director": "Ben Ramsey",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjE0MDc4ODY4Ml5BMl5BanBnXkFtZTcwNDI2NjM4Mg@@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2009",
+    "genre": "Action, Crime, Drama"
+  },
+  "Last Vegas": {
+    "title": "Last Vegas",
+    "director": "Jon Turteltaub",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ2ODg2MTIyNF5BMl5BanBnXkFtZTgwMzU2NjgwMDE@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2013",
+    "genre": "Comedy"
+  },
+  "Rambo: First Blood Part II": {
+    "title": "Rambo: First Blood Part II",
+    "director": "George P. Cosmatos",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTNiMzUyZjQtY2RlOS00MjIxLWFlMjAtNjI1NjkzY2JjN2M3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1985",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "Master and Commander: The Far Side of the World": {
+    "title": "Master and Commander: The Far Side of the World",
+    "director": "Peter Weir",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDEzYmZmOTYtMzdlYS00MWNjLWE2YjEtMzkyZTMyOWZjMjkyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2003",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Evil Dead II": {
+    "title": "Evil Dead II",
+    "director": "Sam Raimi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGMxMWVhMzAtYWRlOS00YzY1LTlkYTQtYjU5ZDM4MGI1YWFjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1987",
+    "genre": "Comedy, Horror"
+  },
+  "The Dream Team": {
+    "title": "The Dream Team",
+    "director": "Howard Zieff",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzk2YjQwOTQtNjEyYS00Y2NlLWI4YWEtM2ViMTJmM2VmYmNhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1989",
+    "genre": "Comedy, Crime, Thriller"
+  },
+  "Blue Valentine": {
+    "title": "Blue Valentine",
+    "director": "Derek Cianfrance",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU4MTQ2MzA1Ml5BMl5BanBnXkFtZTcwODE3NTgwNA@@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2010",
+    "genre": "Drama, Romance"
+  },
+  "Red Dragon": {
+    "title": "Red Dragon",
+    "director": "Brett Ratner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNmI0MDEwZTktMzdjMy00NDhmLWI2YjMtNGI4YjY0NDc3MDZkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2002",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "Jurassic World: Fallen Kingdom": {
+    "title": "Jurassic World: Fallen Kingdom",
+    "director": "J.A. Bayona",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzIxMjYwNDEwN15BMl5BanBnXkFtZTgwMzk5MDI3NTM@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2018",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Blue Is the Warmest Colour": {
+    "title": "Blue Is the Warmest Colour",
+    "director": "Abdellatif Kechiche",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ5NTg5ODk4OV5BMl5BanBnXkFtZTgwODc4MTMzMDE@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2013",
+    "genre": "Drama, Romance"
+  },
+  "House at the End of the Street": {
+    "title": "House at the End of the Street",
+    "director": "Mark Tonderai",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIxNTUwNTU4N15BMl5BanBnXkFtZTcwNTE0MTI3Nw@@._V1_SX300.jpg",
+    "imdbRating": "5.5",
+    "releaseVersion": "2012",
+    "genre": "Drama, Horror, Mystery"
+  },
+  "Good Will Hunting": {
+    "title": "Good Will Hunting",
+    "director": "Gus Van Sant",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDdjZGQ5YzEtNTc2My00Mjc0LWFlMTctYzkwMzZlNzdiZWYzXkEyXkFqcGc@._V1_QL75_UX380_CR0,9,380,562_.jpg",
+    "imdbRating": "8.4",
+    "releaseVersion": "1998",
+    "genre": "Drama, Romance"
+  },
+  "Goal II: Living the Dream": {
+    "title": "Goal II: Living the Dream",
+    "director": "Jaume Collet-Serra",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTIxNzI5NjAxNl5BMl5BanBnXkFtZTcwNzI2NTQ0MQ@@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2007",
+    "genre": "Drama, Sport"
+  },
+  "Shadow Dancer": {
+    "title": "Shadow Dancer",
+    "director": "James Marsh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZmNmNTc3YzEtZjFhZC00OWE1LTk4MjEtNzc0N2E3MzRiMGM3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2012",
+    "genre": "Drama, Mystery, Thriller"
+  },
+  "Blood Red Sky": {
+    "title": "Blood Red Sky",
+    "director": "Peter Thorwarth",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDE2YWFjNTUtZjkxOC00NDRhLTlkNDYtYmI2ZGRlYjE4MDJkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2021",
+    "genre": "Action, Drama, Horror"
+  },
+  "In the Shadow of Iris": {
+    "title": "In the Shadow of Iris",
+    "director": "Jalil Lespert",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTIzYjhkZTctZWRiZS00MTY4LThhYzUtMjQ4MWM3ZWQ1NTQ2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2016",
+    "genre": "Drama, Thriller"
+  },
+  "The Last Boy Scout": {
+    "title": "The Last Boy Scout",
+    "director": "Tony Scott",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTI4MDcyZTktNTVhMC00NmQ3LWJiN2UtMzZkNDgwMzRkMzIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "1991",
+    "genre": "Action, Comedy, Crime"
+  },
+  "The Fisher King": {
+    "title": "The Fisher King",
+    "director": "Terry Gilliam",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTg2OGU4MmMtZThkZi00YjJjLTkwMjItMDMwYWE4NTA3NzRlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1991",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "The Scorpion King": {
+    "title": "The Scorpion King",
+    "director": "Chuck Russell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjkxNTAwNTQ0M15BMl5BanBnXkFtZTYwMTQwMjM3._V1_SX300.jpg",
+    "imdbRating": "5.5",
+    "releaseVersion": "2002",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Dream Girl": {
+    "title": "Dream Girl",
+    "director": "Raaj Shaandilyaa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTlmOGQ1MTktYjI2Mi00ZWUzLWEzNDQtMTdlYzcyMGUxNDg0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2019",
+    "genre": "Comedy, Romance"
+  },
+  "All Good Things": {
+    "title": "All Good Things",
+    "director": "Andrew Jarecki",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTcwMjIyMTc2Nl5BMl5BanBnXkFtZTcwOTQyMzc5Mw@@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2010",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "Star Wars: Episode IV - A New Hope": {
+    "title": "Star Wars: Episode IV - A New Hope",
+    "director": "George Lucas",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGUwMDk0Y2MtNjBlNi00NmRiLTk2MWYtMGMyMDlhYmI4ZDBjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.6",
+    "releaseVersion": "1977",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Bad Company": {
+    "title": "Bad Company",
+    "director": "Joel Schumacher",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjE3MTA5MTcwNl5BMl5BanBnXkFtZTYwMDMwNzI3._V1_SX300.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2002",
+    "genre": "Action, Comedy, Thriller"
+  },
+  "The Family Man": {
+    "title": "The Family Man",
+    "director": "Brett Ratner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2I4ODE3YzQtMzZhMy00YjhlLWE1MmMtYTA0MjkxNTJmMTZlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2000",
+    "genre": "Comedy, Drama, Fantasy"
+  },
+  "There Will Be Blood": {
+    "title": "There Will Be Blood",
+    "director": "Paul Thomas Anderson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjAxODQ4MDU5NV5BMl5BanBnXkFtZTcwMDU4MjU1MQ@@._V1_SX300.jpg",
+    "imdbRating": "8.2",
+    "releaseVersion": "2007",
+    "genre": "Drama"
+  },
+  "Scott Pilgrim vs. the World": {
+    "title": "Scott Pilgrim vs. the World",
+    "director": "Edgar Wright",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTA5ZWMwNmYtNWI1ZS00NDRlLTkxNzktMzdhZDU2ZDhjNDJmXkEyXkFqcGc@._V1_QL75_UY562_CR10,0,380,562_.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2010",
+    "genre": "Action, Comedy, Fantasy"
+  },
+  "A Star Is Born": {
+    "title": "A Star Is Born",
+    "director": "Bradley Cooper",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGUxZTc0NTAtNzQwMy00MmM2LTgzMGYtZWIyY2E1MGFjYmM5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2018",
+    "genre": "Drama, Music, Romance"
+  },
+  "Snake in the Eagle's Shadow": {
+    "title": "Snake in the Eagle's Shadow",
+    "director": "Yuen Woo-Ping",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2RhNTg3NjUtOTE0Zi00NGQ3LTgzM2UtMWEyMjAyNzg2Yzk4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1978",
+    "genre": "Action, Comedy"
+  },
+  "The Man Who Would Be King": {
+    "title": "The Man Who Would Be King",
+    "director": "John Huston",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTE2MGQyYWItZTQxMy00MzVjLTljZjItMWE0MjJhMzZiZTkxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1975",
+    "genre": "Adventure, Drama, War"
+  },
+  "In Cold Blood": {
+    "title": "In Cold Blood",
+    "director": "Richard Brooks",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2YwMjJjNDEtYTFmMS00MTQ3LTkzYWQtMzYzNjgwZGIzOGQ3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "1967",
+    "genre": "Biography, Crime, Drama"
+  },
+  "The Woman in Black": {
+    "title": "The Woman in Black",
+    "director": "James Watkins",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjEwMzIxOTg3N15BMl5BanBnXkFtZTcwMjI4ODUzNw@@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2012",
+    "genre": "Drama, Fantasy, Horror"
+  },
+  "The Girl Who Leapt Through Time": {
+    "title": "The Girl Who Leapt Through Time",
+    "director": "Mamoru Hosoda",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODE1YjEzYzYtNWVmZC00ZjU5LTgzNjgtZWRmNjhiMTVjNGU0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2006",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "The Last Samurai": {
+    "title": "The Last Samurai",
+    "director": "Edward Zwick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzkyNzQ1Mzc0NV5BMl5BanBnXkFtZTcwODg3MzUzMw@@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2003",
+    "genre": "Action, Drama"
+  },
+  "Mr. Blandings Builds His Dream House": {
+    "title": "Mr. Blandings Builds His Dream House",
+    "director": "H.C. Potter",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWZkN2Q2MjctZjBkMC00MTgxLWFkYjctYmUyYzdhOWVjYTJmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "1948",
+    "genre": "Comedy, Romance"
+  },
+  "Lara Croft: Tomb Raider - The Cradle of Life": {
+    "title": "Lara Croft: Tomb Raider - The Cradle of Life",
+    "director": "Jan de Bont",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjM4NzNiNDktOTlhMi00MjVkLTg0NGYtZTQ4MmVmMDNiY2ZlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.5",
+    "releaseVersion": "2003",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Star Wars: Episode III - Revenge of the Sith": {
+    "title": "Star Wars: Episode III - Revenge of the Sith",
+    "director": "George Lucas",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTc4MTc3NTQ5OF5BMl5BanBnXkFtZTcwOTg0NjI4NA@@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2005",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "The Secret of NIMH": {
+    "title": "The Secret of NIMH",
+    "director": "Don Bluth",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODAxNzMwYTktZjAyMi00NmNhLWJjMzAtMjkzZjRkYjY2Nzk2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1982",
+    "genre": "Animation, Adventure, Drama"
+  },
+  "Dead Silence": {
+    "title": "Dead Silence",
+    "director": "James Wan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjEyNDQwMTQ3OV5BMl5BanBnXkFtZTcwMTY5MzI0MQ@@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2007",
+    "genre": "Horror, Mystery, Thriller"
+  },
+  "Star Trek: First Contact": {
+    "title": "Star Trek: First Contact",
+    "director": "Jonathan Frakes",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjc0OWE1NDMtNjRmMi00ZDc2LWI2ZmQtNzEwNWU4Nzg4NDA5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "1996",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Good Time": {
+    "title": "Good Time",
+    "director": "Benny Safdie, Josh Safdie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTYwOTJmYmItYjA3MS00MGYyLTg3YjgtNDljM2U5MzgwNjNmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2017",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "Star Wars: Episode VII - The Force Awakens": {
+    "title": "Star Wars: Episode VII - The Force Awakens",
+    "director": "J.J. Abrams",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTAzODEzNDAzMl5BMl5BanBnXkFtZTgwMDU1MTgzNzE@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2015",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "The Ice Storm": {
+    "title": "The Ice Storm",
+    "director": "Ang Lee",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzljZTk2MzMtOTAwNi00MTBlLWI0ODYtODgwYTE4NmM1YWIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1997",
+    "genre": "Drama"
+  },
+  "Thor: Love and Thunder": {
+    "title": "Thor: Love and Thunder",
+    "director": "Taika Waititi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjRiMDhiZjQtNjk5Yi00ZDcwLTkyYTEtMDc1NjdmNjFhNGIzXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2022",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Family Plot": {
+    "title": "Family Plot",
+    "director": "Alfred Hitchcock",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODExM2E0MGUtMzQ5MS00NDBhLTllZDMtYmMwM2MyYzY3Yzg4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1976",
+    "genre": "Comedy, Crime, Drama"
+  },
+  "Blue Crush": {
+    "title": "Blue Crush",
+    "director": "John Stockwell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzA5NTc5M2YtNTE3Yy00NjMxLWJiOGUtOTU1ZjEzNTE1NWY1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.7",
+    "releaseVersion": "2002",
+    "genre": "Drama, Romance, Sport"
+  },
+  "Red Heat": {
+    "title": "Red Heat",
+    "director": "Walter Hill",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzE2MjAxZDItOTM5Yi00ZGNjLThjMDMtYTg1NmNhZWY0ZWUxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "1988",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Red State": {
+    "title": "Red State",
+    "director": "Kevin Smith",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQyNjMwMzA1MV5BMl5BanBnXkFtZTcwMzQyNDAxNg@@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2011",
+    "genre": "Action, Horror, Thriller"
+  },
+  "The Last Duel": {
+    "title": "The Last Duel",
+    "director": "Ridley Scott",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGZiNDFkNDgtNDlmNS00NzZmLTg4MmItMzJkYjdmMjJkZDliXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2021",
+    "genre": "Drama, History, Thriller"
+  },
+  "Office Space": {
+    "title": "Office Space",
+    "director": "Mike Judge",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTA5MzQ3MzI1NV5BMl5BanBnXkFtZTgwNTcxNTYxMTE@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "1999",
+    "genre": "Comedy"
+  },
+  "Star Trek": {
+    "title": "Star Trek",
+    "director": "J.J. Abrams",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjE5NDQ5OTE4Ml5BMl5BanBnXkFtZTcwOTE3NDIzMw@@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "2009",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Magic Camp": {
+    "title": "Magic Camp",
+    "director": "Mark Waters",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGRhYmVlMjYtZGUxMy00OTYyLTk1ZjItOTAyMDhiY2M4MjlmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2020",
+    "genre": "Comedy, Family, Fantasy"
+  },
+  "Life": {
+    "title": "Life",
+    "director": "Daniel Espinosa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWNkYWYzNGUtOWVjNS00MGY0LWIyY2YtODllNGIxOGRlOTgyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2017",
+    "genre": "Horror, Sci-Fi, Thriller"
+  },
+  "The Secret Life of Pets": {
+    "title": "The Secret Life of Pets",
+    "director": "Chris Renaud",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIzMzA1OTkzNV5BMl5BanBnXkFtZTgwODE3MjM4NzE@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2016",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Blue Beetle": {
+    "title": "Blue Beetle",
+    "director": "Angel Manuel Soto",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTEyYzQzOTMtMWExNi00OWNjLTgwMDUtNzY0YjhmZDBiMTk2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "2023",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "First Man": {
+    "title": "First Man",
+    "director": "Damien Chazelle",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmIzYmViN2UtMDRhYy00OTMwLWI5YzctMTQxYzg2ODMwMTIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2018",
+    "genre": "Biography, Drama, History"
+  },
+  "Ice Road: Vengeance": {
+    "title": "Ice Road: Vengeance",
+    "director": "Jonathan Hensleigh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjNlOGE0ZmMtNTk2MC00NTBhLTg2Y2QtZjdkZjIwNjQzYzY3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "4.8",
+    "releaseVersion": "2025",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "Blood Father": {
+    "title": "Blood Father",
+    "director": "Jean-François Richet",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTk3MzU4ODk1Ml5BMl5BanBnXkFtZTgwNzc5MzE2OTE@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2016",
+    "genre": "Action, Crime, Drama"
+  },
+  "Between Family": {
+    "title": "Between Family",
+    "director": "Ozan Açiktan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzFhZGUwODUtYTE5MS00MTJkLTk5ZWQtOGVmNzNiNzk3OGFlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2017",
+    "genre": "Comedy"
+  },
+  "Crazy, Stupid, Love.": {
+    "title": "Crazy, Stupid, Love.",
+    "director": "Glenn Ficarra, John Requa",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTg2MjkwMTM0NF5BMl5BanBnXkFtZTcwMzc4NDg2NQ@@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2011",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Black Cat, White Cat": {
+    "title": "Black Cat, White Cat",
+    "director": "Emir Kusturica",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjU0NWUzM2UtNzUxNS00NTQ2LWFjNzctMzliNmEwYmExNjIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1998",
+    "genre": "Comedy, Crime, Romance"
+  },
+  "American Pie Presents: Band Camp": {
+    "title": "American Pie Presents: Band Camp",
+    "director": "Steve Rash",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzRkYjY4NmQtNmMxZS00MjkyLTk2YTMtYTgwZGRlYjAzNjZmXkEyXkFqcGdeQXVyMTY5Nzc4MDY@._V1_SX300.jpg",
+    "imdbRating": "5.1",
+    "releaseVersion": "2005",
+    "genre": "Comedy, Music, Romance"
+  },
+  "The Lost World: Jurassic Park": {
+    "title": "The Lost World: Jurassic Park",
+    "director": "Steven Spielberg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGI3NDg5N2ItZGIyZi00ZWNkLWFlODUtZDA1Y2Q1M2U4NGM2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "1997",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Ghost": {
+    "title": "Ghost",
+    "director": "Jerry Zucker",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjkwOWM2MWMtMWE1YS00MTBlLTg1ODctYTI3M2I0NGIxMGYyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "1990",
+    "genre": "Drama, Fantasy, Romance"
+  },
+  "City of Ember": {
+    "title": "City of Ember",
+    "director": "Gil Kenan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU3MDE4MDU1Nl5BMl5BanBnXkFtZTcwNDM2NDI5MQ@@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2008",
+    "genre": "Adventure, Drama, Family"
+  },
+  "Three Colors: Blue": {
+    "title": "Three Colors: Blue",
+    "director": "Krzysztof Kieslowski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWMxNWE2NGYtMzYwOS00NmJhLTgwNjAtNGM3ODIwNjU5MTZiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1993",
+    "genre": "Drama, Music, Mystery"
+  },
+  "The Human Centipede (First Sequence)": {
+    "title": "The Human Centipede (First Sequence)",
+    "director": "Tom Six",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY4Nzk3NzYxOF5BMl5BanBnXkFtZTcwODQwNjQzMw@@._V1_SX300.jpg",
+    "imdbRating": "4.4",
+    "releaseVersion": "2009",
+    "genre": "Horror"
+  },
+  "Shadow of a Doubt": {
+    "title": "Shadow of a Doubt",
+    "director": "Alfred Hitchcock",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDFhMzBlYzctMDhkOC00OTFiLTgyYzEtZTBkNmQzNGRlMmNlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1943",
+    "genre": "Film-Noir, Thriller"
+  },
+  "American Hustle": {
+    "title": "American Hustle",
+    "director": "David O. Russell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGQ2NzEwZGEtYjk1MC00NWFmLTgyYTgtZmRhMTRmOTBlN2U5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2013",
+    "genre": "Crime, Drama"
+  },
+  "Life Is a Dream": {
+    "title": "Life Is a Dream",
+    "director": "David E. Breaux",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIxMDMyNDk3NF5BMl5BanBnXkFtZTgwNjM1NzQ3MTE@._V1_SX300.jpg",
+    "imdbRating": "N/A",
+    "releaseVersion": "2014",
+    "genre": "Documentary, Drama, Family"
+  },
+  "American Ultra": {
+    "title": "American Ultra",
+    "director": "Nima Nourizadeh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTcwMTM1NDU1Ml5BMl5BanBnXkFtZTgwNDk5MTgzNjE@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2015",
+    "genre": "Action, Comedy"
+  },
+  "Captain America: Brave New World": {
+    "title": "Captain America: Brave New World",
+    "director": "Julius Onah",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDRjY2E0ZmEtN2QwNi00NTEwLWI3MWItODNkMGYwYWFjNGE0XkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg",
+    "imdbRating": "5.6",
+    "releaseVersion": "2025",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Perfect Blue": {
+    "title": "Perfect Blue",
+    "director": "Satoshi Kon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzAwNDIzMzEtZDZkNC00ZDQ4LTk3ZDMtZjVhMTU2YzgzZTZiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1997",
+    "genre": "Animation, Crime, Drama"
+  },
+  "The Secret Life of Pets 2": {
+    "title": "The Secret Life of Pets 2",
+    "director": "Chris Renaud, Jonathan del Val",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTA2NzM0MjA0MTJeQTJeQWpwZ15BbWU4MDk1MzYwNzYz._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2019",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Secret Window": {
+    "title": "Secret Window",
+    "director": "David Koepp",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjI0ZDBiM2MtZDdhMy00ZWQzLWIwNjAtZDAyNmMxZWJhMzA4XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2004",
+    "genre": "Drama, Mystery, Thriller"
+  },
+  "Patriots Day": {
+    "title": "Patriots Day",
+    "director": "Peter Berg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODYxMDc0NTg2Nl5BMl5BanBnXkFtZTgwNjY0NDYzOTE@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2016",
+    "genre": "Action, Crime, Drama"
+  },
+  "Monty Python's Life of Brian": {
+    "title": "Monty Python's Life of Brian",
+    "director": "Terry Jones",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDMzY2E4NjEtMTJiZC00Y2UzLWFiM2MtZWVhNTg5OGQxNjk1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.0",
+    "releaseVersion": "1979",
+    "genre": "Comedy"
+  },
+  "City Lights": {
+    "title": "City Lights",
+    "director": "Charles Chaplin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2U4NjgzODUtODkyOC00YTE2LTlhNTItYzFlYmM1NTEzZDA2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.5",
+    "releaseVersion": "1931",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Ice Age: Dawn of the Dinosaurs": {
+    "title": "Ice Age: Dawn of the Dinosaurs",
+    "director": "Carlos Saldanha, Michael Thurmeier",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWJjZDYwMjgtZDZiMy00YzcyLThjN2YtYjI1ZDQ2ZDJkOTVmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2009",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Devil in a Blue Dress": {
+    "title": "Devil in a Blue Dress",
+    "director": "Carl Franklin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDM1YzFjMWYtOTEyNS00Mzk3LWFhNzEtYTBlYmMxNDZlYjdlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1995",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "To Rome with Love": {
+    "title": "To Rome with Love",
+    "director": "Woody Allen",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTcwNTg4MDMxM15BMl5BanBnXkFtZTcwNjAzMzY3Nw@@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "2012",
+    "genre": "Comedy, Music, Romance"
+  },
+  "Requiem for a Dream": {
+    "title": "Requiem for a Dream",
+    "director": "Darren Aronofsky",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2ZlMjIzZjctYzA2My00ZWYyLWI4ZjctMGI2NWYyNzFiZjAwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.3",
+    "releaseVersion": "2000",
+    "genre": "Drama"
+  },
+  "Good Bye Lenin!": {
+    "title": "Good Bye Lenin!",
+    "director": "Wolfgang Becker",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjhlNTY2YzUtOWIwYS00MjIwLThjZGUtMDNiNTQzZmM1MTdjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2003",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Spider-Man 2": {
+    "title": "Spider-Man 2",
+    "director": "Sam Raimi",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGQ0YTQyYTgtNWI2YS00NTE2LWJmNDItNTFlMTUwNmFlZTM0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2004",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Cool as Ice": {
+    "title": "Cool as Ice",
+    "director": "David Kellogg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWNiMTcyMzktNjQ5MS00ZDMxLWE5ZGQtYTMwYjBmZDcxODAyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "3.0",
+    "releaseVersion": "1991",
+    "genre": "Comedy, Drama, Music"
+  },
+  "The Secret Garden": {
+    "title": "The Secret Garden",
+    "director": "Agnieszka Holland",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjgyMGI3OTQtYWFjOS00OGNkLTg4NTktMDI4ZWMwODk5ODU5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "1993",
+    "genre": "Drama, Family, Fantasy"
+  },
+  "The Cider House Rules": {
+    "title": "The Cider House Rules",
+    "director": "Lasse Hallström",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWZlYzMyNzMtNjhlMy00ZTAzLWEwMTMtY2YwNzAxMDk1ZTViXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "1999",
+    "genre": "Drama, Romance"
+  },
+  "First Reformed": {
+    "title": "First Reformed",
+    "director": "Paul Schrader",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYTRkOTUxZDItNDU0OC00ODQzLWJkMWEtYjBiODViNGMyYjhjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2017",
+    "genre": "Drama, Mystery, Thriller"
+  },
+  "Love Me If You Dare": {
+    "title": "Love Me If You Dare",
+    "director": "Yann Samuell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTRmYmUwM2QtMWE5MC00MjdjLTg4OTYtMzdjZjljMzRiNmNmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "2003",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "RED": {
+    "title": "RED",
+    "director": "Robert Schwentke",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzg2Mjg1OTk0NF5BMl5BanBnXkFtZTcwMjQ4MTA3Mw@@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2010",
+    "genre": "Action, Comedy, Crime"
+  },
+  "Snow White and the Seven Dwarfs": {
+    "title": "Snow White and the Seven Dwarfs",
+    "director": "William Cottrell, David Hand, Wilfred Jackson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQwMzE2Mzc4M15BMl5BanBnXkFtZTcwMTE4NTc1Nw@@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "1937",
+    "genre": "Animation, Adventure, Family"
+  },
+  "The Legend Is Born: Ip Man": {
+    "title": "The Legend Is Born: Ip Man",
+    "director": "Herman Yau",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjA2ODgyMjE1MF5BMl5BanBnXkFtZTcwMzE3MDU3Ng@@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2010",
+    "genre": "Action, Biography, Drama"
+  },
+  "Ice Station Zebra": {
+    "title": "Ice Station Zebra",
+    "director": "John Sturges",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzE4NDRkOWUtZjVhMy00ZjUxLWIyMjktY2I3MzYwMzM4OWI3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "1968",
+    "genre": "Adventure, Thriller"
+  },
+  "Love & Other Drugs": {
+    "title": "Love & Other Drugs",
+    "director": "Edward Zwick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTgxOTczODEyMF5BMl5BanBnXkFtZTcwMDc0NDY4Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2010",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "White Men Can't Jump": {
+    "title": "White Men Can't Jump",
+    "director": "Ron Shelton",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTE1ZmEyNDgtMjQyOS00YzUyLTlkMjYtNmJkYWUyZDJjYjczXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1992",
+    "genre": "Comedy, Sport"
+  },
+  "The Butterfly's Dream": {
+    "title": "The Butterfly's Dream",
+    "director": "Yilmaz Erdogan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzk4MDM3NmEtMTUzYi00ZTI2LWFhYTQtNTMzN2ViMGVlZTE3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2013",
+    "genre": "Biography, Drama, History"
+  },
+  "In Good Company": {
+    "title": "In Good Company",
+    "director": "Paul Weitz",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjgzMjZhZGItZjM3YS00MTRkLWI4OTgtMmJiMDdmYTIyZDdhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2004",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "American Reunion": {
+    "title": "American Reunion",
+    "director": "Jon Hurwitz, Hayden Schlossberg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY4MTEyMzU1N15BMl5BanBnXkFtZTcwNDQ0NTc1Nw@@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2012",
+    "genre": "Comedy"
+  },
+  "Blue Ruin": {
+    "title": "Blue Ruin",
+    "director": "Jeremy Saulnier",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY4NTM2MDg5OV5BMl5BanBnXkFtZTgwMDA3OTAwMTE@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "2013",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "Rambo: Last Blood": {
+    "title": "Rambo: Last Blood",
+    "director": "Adrian Grunberg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMWM5NzVlNzMtMDNhNy00OGMxLTlmYTktOGIwMzRlZmE0ZWVmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2019",
+    "genre": "Action, Crime, Thriller"
+  },
+  "American Pie 2": {
+    "title": "American Pie 2",
+    "director": "J.B. Rogers",
+    "poster": "https://m.media-amazon.com/images/M/MV5BM2I4MDEwOTctNGE0Yi00NTJlLThiZGEtNzU1YjExNmRlYzI2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2001",
+    "genre": "Comedy"
+  },
+  "The Amazing Spider-Man": {
+    "title": "The Amazing Spider-Man",
+    "director": "Marc Webb",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjMyOTM4MDMxNV5BMl5BanBnXkFtZTcwNjIyNzExOA@@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2012",
+    "genre": "Action, Sci-Fi"
+  },
+  "Ghost World": {
+    "title": "Ghost World",
+    "director": "Terry Zwigoff",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzQ4NmFmYzYtNGJmZi00NGNkLTk2YTktM2Q0MzQ5MWRlZGEyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2001",
+    "genre": "Comedy, Drama"
+  },
+  "The Legend of Bagger Vance": {
+    "title": "The Legend of Bagger Vance",
+    "director": "Robert Redford",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTczMGVhYjgtM2MxNy00NmU0LWIxNjctZWU2ODg1M2U3ODcyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2000",
+    "genre": "Drama, Sport"
+  },
+  "A Midsummer Night's Dream": {
+    "title": "A Midsummer Night's Dream",
+    "director": "Michael Hoffman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTlhNTQ3MzUtZDBjNi00YjRjLWExOTQtMTczYjM0MTkzYzI5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1999",
+    "genre": "Comedy, Fantasy, Romance"
+  },
+  "The Ghost and the Darkness": {
+    "title": "The Ghost and the Darkness",
+    "director": "Stephen Hopkins",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2RmY2IyNGMtMTE1Yi00ZmQ2LTllM2YtYzZmYzIzZmQ1ZTIxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1996",
+    "genre": "Adventure, Drama, Thriller"
+  },
+  "As Good as It Gets": {
+    "title": "As Good as It Gets",
+    "director": "James L. Brooks",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzBiMWJhYmQtOWYzNS00NjgxLWE5NDItNzZlZDQwODBmODNjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1997",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Secret Superstar": {
+    "title": "Secret Superstar",
+    "director": "Advait Chandan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDNmMDAyZjItYWMzOC00YTBhLWE5ZTAtZGFiZDk3YzFjY2VmXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2017",
+    "genre": "Drama, Music"
+  },
+  "Space Jam": {
+    "title": "Space Jam",
+    "director": "Joe Pytka",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGQ3ZDk0M2MtZDNmNi00OWE3LThiODUtMTU3NmVjMTA0ZGQyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1996",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Jurassic World: Rebirth": {
+    "title": "Jurassic World: Rebirth",
+    "director": "Gareth Edwards",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjg2NTcwYWQtYzk4NS00MTJhLWEzZjItMzIxNjk3YzlkYzU0XkEyXkFqcGc@._V1_QL75_UY562_CR0,0,380,562_.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2025",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "The White Ribbon": {
+    "title": "The White Ribbon",
+    "director": "Michael Haneke",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ2OTYyNzUxOF5BMl5BanBnXkFtZTcwMzUwMDY4Mg@@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2009",
+    "genre": "Drama, Mystery, Thriller"
+  },
+  "New Jack City": {
+    "title": "New Jack City",
+    "director": "Mario Van Peebles",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTFlNGE5NWUtNmNkNS00OGJkLWFhNTEtYzFlMWFmNGM1YmJhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "1991",
+    "genre": "Action, Crime, Drama"
+  },
+  "Winnie-the-Pooh: Blood and Honey": {
+    "title": "Winnie-the-Pooh: Blood and Honey",
+    "director": "Rhys Frake-Waterfield",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTA1YjEyNmQtNGNiYi00OWFlLWJlMDQtOWIyZjA5OTZhODVjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "2.9",
+    "releaseVersion": "2023",
+    "genre": "Horror"
+  },
+  "Ghost Stories": {
+    "title": "Ghost Stories",
+    "director": "Jeremy Dyson, Andy Nyman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BY2VmMzFmZjgtOTUzZC00NDUxLTkwOGYtZjA1OTZlYjE5ZDdjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2017",
+    "genre": "Drama, Horror, Mystery"
+  },
+  "The 6th Day": {
+    "title": "The 6th Day",
+    "director": "Roger Spottiswoode",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTA1MzE5MDMtNDcxOC00NTE5LWFkY2EtNWMyYTI1NDQyODIzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "2000",
+    "genre": "Action, Mystery, Sci-Fi"
+  },
+  "The Secret in Their Eyes": {
+    "title": "The Secret in Their Eyes",
+    "director": "Juan José Campanella",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTgwNTI3OTczOV5BMl5BanBnXkFtZTcwMTM3MTUyMw@@._V1_SX300.jpg",
+    "imdbRating": "8.2",
+    "releaseVersion": "2009",
+    "genre": "Drama, Mystery, Romance"
+  },
+  "The Woman King": {
+    "title": "The Woman King",
+    "director": "Gina Prince-Bythewood",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzM4ODY0NzctZDIyNC00MzE4LWI3NDYtYjIyYTUyZWFmYzJkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2022",
+    "genre": "Action, Drama, History"
+  },
+  "Independence Day: Resurgence": {
+    "title": "Independence Day: Resurgence",
+    "director": "Roland Emmerich",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjIyMTg5MTg4OV5BMl5BanBnXkFtZTgwMzkzMjY5NzE@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "2016",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "A House of Dynamite": {
+    "title": "A House of Dynamite",
+    "director": "Kathryn Bigelow",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjAzMjQ4YTUtOGI1Yy00YTFkLTlkMDQtMDEwOWNjYmE3MTU1XkEyXkFqcGc@._V1_QL75_UY562_CR0,0,380,562_.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2025",
+    "genre": "Drama, Thriller"
+  },
+  "It Came from Outer Space": {
+    "title": "It Came from Outer Space",
+    "director": "Jack Arnold",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTUzNzM0MzQxMV5BMl5BanBnXkFtZTgwNTM5NDI1MDE@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1953",
+    "genre": "Horror, Sci-Fi"
+  },
+  "The Book of Life": {
+    "title": "The Book of Life",
+    "director": "Jorge R. Gutiérrez",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTM5MzE5MDA1Nl5BMl5BanBnXkFtZTgwOTA0MDA5MTE@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2014",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "The City of Lost Children": {
+    "title": "The City of Lost Children",
+    "director": "Marc Caro, Jean-Pierre Jeunet",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTc5YWUxOGUtYWQ2OC00ZTMyLWI5MTktNjNkZjNmZTA1OWYyXkEyXkFqcGc@._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "1995",
+    "genre": "Adventure, Drama, Fantasy"
+  },
+  "One Day": {
+    "title": "One Day",
+    "director": "Lone Scherfig",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTQ3NTg2MDI3NF5BMl5BanBnXkFtZTcwMjc5MTA1NA@@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2011",
+    "genre": "Drama, Romance"
+  },
+  "White Christmas": {
+    "title": "White Christmas",
+    "director": "Michael Curtiz",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzZlOTBmZDgtMWIwMS00YTNlLTllNWYtZTk1MmY0ZWU3MzQzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1954",
+    "genre": "Comedy, Musical, Romance"
+  },
+  "Night of the Living Dead": {
+    "title": "Night of the Living Dead",
+    "director": "George A. Romero",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGMyZTA0MWEtZjczMS00ZDE5LTk1OTQtNmIxNGYzNDA2NDVhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "1968",
+    "genre": "Horror, Thriller"
+  },
+  "Monster House": {
+    "title": "Monster House",
+    "director": "Gil Kenan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTIzNjE1NDg1N15BMl5BanBnXkFtZTcwOTg2NTMzMQ@@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2006",
+    "genre": "Animation, Comedy, Family"
+  },
+  "The Last Emperor": {
+    "title": "The Last Emperor",
+    "director": "Bernardo Bertolucci",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYjIxYWFiMDgtZTgyMy00MjFiLWIyMmEtNGIyZjc1NTRlMzQ3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "1987",
+    "genre": "Biography, Drama, History"
+  },
+  "Life of Pi": {
+    "title": "Life of Pi",
+    "director": "Ang Lee",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTg2OTY2ODg5OF5BMl5BanBnXkFtZTcwODM5MTYxOA@@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "2012",
+    "genre": "Adventure, Drama, Fantasy"
+  },
+  "The Amazing Spider-Man 2": {
+    "title": "The Amazing Spider-Man 2",
+    "director": "Marc Webb",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTA5NDYxNTg0OV5BMl5BanBnXkFtZTgwODE5NzU1MTE@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2014",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Star Trek: The Motion Picture": {
+    "title": "Star Trek: The Motion Picture",
+    "director": "Robert Wise",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjcyMmVmMTItNTA3Yy00NGJjLTlmYjQtZWQ3ZjcyNmU5NDQ2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "1979",
+    "genre": "Adventure, Mystery, Sci-Fi"
+  },
+  "Very Bad Things": {
+    "title": "Very Bad Things",
+    "director": "Peter Berg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWQ2YzU0ODItNGRiNC00MmVlLTg5MGMtMmNlNDgyY2M1NGVjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.3",
+    "releaseVersion": "1998",
+    "genre": "Comedy, Crime, Thriller"
+  },
+  "Kantara A Legend: Chapter 1": {
+    "title": "Kantara A Legend: Chapter 1",
+    "director": "Rishab Shetty",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDU2ZTYxYTMtMjhlZC00ZjEwLThhNDUtMzdlNWM4ZDcyYTM1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.5",
+    "releaseVersion": "2025",
+    "genre": "Action, Thriller"
+  },
+  "50 First Dates": {
+    "title": "50 First Dates",
+    "director": "Peter Segal",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjAwMzc4MDgxNF5BMl5BanBnXkFtZTYwNjUwMzE3._V1_QL75_UX380_CR0,1,380,562_.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2004",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "Solo: A Star Wars Story": {
+    "title": "Solo: A Star Wars Story",
+    "director": "Ron Howard",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOTM2NTI3NTc3Nl5BMl5BanBnXkFtZTgwNzM1OTQyNTM@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2018",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Resident Evil: Welcome to Raccoon City": {
+    "title": "Resident Evil: Welcome to Raccoon City",
+    "director": "Johannes Roberts",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDA5MTZlZDEtYzhiYi00MWIyLWI1NWMtNTA0OGY4NWI5ZGVlXkEyXkFqcGc@._V1_QL75_UY562_CR35,0,380,562_.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "2021",
+    "genre": "Action, Horror, Sci-Fi"
+  },
+  "Pirates of the Caribbean: The Curse of the Black Pearl": {
+    "title": "Pirates of the Caribbean: The Curse of the Black Pearl",
+    "director": "Gore Verbinski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDhlMzEyNzItMTA5Mi00YWRhLThlNTktYTQyMTA0MDIyNDEyXkEyXkFqcGc@._V1_QL75_UX380_CR0,2,380,562_.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "2003",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Friday the 13th: The New Blood": {
+    "title": "Friday the 13th: The New Blood",
+    "director": "John Carl Buechler",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTA5ZTFlYzQtMWNmMS00ZDI4LTg4ZWQtNzYzNjFiYzQyODhjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.2",
+    "releaseVersion": "1988",
+    "genre": "Horror, Thriller"
+  },
+  "White Chicks": {
+    "title": "White Chicks",
+    "director": "Keenen Ivory Wayans",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTY3OTg2OTM3OV5BMl5BanBnXkFtZTYwNzY5OTA3._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "2004",
+    "genre": "Comedy, Crime"
+  },
+  "Fire in the Sky": {
+    "title": "Fire in the Sky",
+    "director": "Robert Lieberman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzdhNzkyZWItYWJhNi00YmNhLWFiZGMtNGRkNmYwYWYwYmQyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1993",
+    "genre": "Biography, Drama, Fantasy"
+  },
+  "Training Day": {
+    "title": "Training Day",
+    "director": "Antoine Fuqua",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjRlNjUwOGYtNGQxZS00ZjhkLTg0NDgtYjcwNzZlNDU2YjBlXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2001",
+    "genre": "Crime, Drama, Thriller"
+  },
+  "Shaun of the Dead": {
+    "title": "Shaun of the Dead",
+    "director": "Edgar Wright",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNzNjZGE4YTUtOWU3OC00Mzg2LThjNWItMzUwYzEwMDgxYmVjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.8",
+    "releaseVersion": "2004",
+    "genre": "Comedy, Horror"
+  },
+  "Apollo 10½: A Space Age Childhood": {
+    "title": "Apollo 10½: A Space Age Childhood",
+    "director": "Richard Linklater",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjhjMDc0MGItZjMzMC00ZGIxLWIwODYtZWUwNjllOGI3NzhlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2022",
+    "genre": "Animation, Adventure, Drama"
+  },
+  "An American Werewolf in London": {
+    "title": "An American Werewolf in London",
+    "director": "John Landis",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWYyNmMwMTUtZjE2OC00YWQzLWJmMzctNzhmMDI1OTQwNzdhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.5",
+    "releaseVersion": "1981",
+    "genre": "Comedy, Horror"
+  },
+  "The Ghost Writer": {
+    "title": "The Ghost Writer",
+    "director": "Roman Polanski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTI3NzMwMzkyNV5BMl5BanBnXkFtZTcwODk4NjQxMw@@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2010",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "Montevideo: Taste of a Dream": {
+    "title": "Montevideo: Taste of a Dream",
+    "director": "Dragan Bjelogrlic",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWQxN2Q0ZjktYzMwOS00ZTU3LWE0YzktN2ZkM2NkY2YwMWRiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.1",
+    "releaseVersion": "2010",
+    "genre": "Adventure, Comedy, Drama"
+  },
+  "A Bug's Life": {
+    "title": "A Bug's Life",
+    "director": "John Lasseter, Andrew Stanton",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGI3Mjc1ZjUtYTJhYS00NjBiLTgyYjctODU5NTNlMWJiYjYzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "1998",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "X-Men: The Last Stand": {
+    "title": "X-Men: The Last Stand",
+    "director": "Brett Ratner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMThmOWE3OWEtODJmNC00ZDEzLTk4MWUtNzEzM2RiNmJiZmU3XkEyXkFqcGc@._V1_QL75_UY562_CR4,0,380,562_.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2006",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "The Legend": {
+    "title": "The Legend",
+    "director": "Jerry, Joseph D. Sami",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWU1OTc0YzgtMzJlZC00YmQwLTk5YjAtYzVhM2FlOTU3Y2U1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "4.9",
+    "releaseVersion": "2022",
+    "genre": "Action, Drama, Romance"
+  },
+  "Black Panther: Wakanda Forever": {
+    "title": "Black Panther: Wakanda Forever",
+    "director": "Ryan Coogler",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWY5NDY1ZjItZDQxMy00MTAzLTgyOGQtNTQxYjFiMzZjMjUyXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2022",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Teenage Mutant Ninja Turtles II: The Secret of the Ooze": {
+    "title": "Teenage Mutant Ninja Turtles II: The Secret of the Ooze",
+    "director": "Michael Pressman",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYzQwYzlhMjctMTcxYS00N2NmLTg4YzYtNjJjZjNhZTA0MzFlXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.0",
+    "releaseVersion": "1991",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Dancer in the Dark": {
+    "title": "Dancer in the Dark",
+    "director": "Lars von Trier",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDg3NWFlYWEtZjQ3Ny00Y2ZjLWI3ZWYtN2ZmMDA4MThkZTg2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.9",
+    "releaseVersion": "2000",
+    "genre": "Crime, Drama, Musical"
+  },
+  "The Magic Faraway Tree": {
+    "title": "The Magic Faraway Tree",
+    "director": "Ben Gregor",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZThiYWI3ZTYtMjZmYy00Njc5LWE4OGYtNTlmNTQyYWZmYjQ0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2026",
+    "genre": "Adventure, Family, Fantasy"
+  },
+  "The Boss Baby: Family Business": {
+    "title": "The Boss Baby: Family Business",
+    "director": "Tom McGrath",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjJiYjgzMzctZmE5OC00ODA2LWE1MzktZDdlMDFiNmM5OGQ1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "2021",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Ant-Man and the Wasp": {
+    "title": "Ant-Man and the Wasp",
+    "director": "Peyton Reed",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODVkY2ZmZTAtYzFhMi00YzZlLWE2YWMtMDBiYjY2OTU4ZWM0XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2018",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "The Girl with All the Gifts": {
+    "title": "The Girl with All the Gifts",
+    "director": "Colm McCarthy",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjQ0NzA4NDcxM15BMl5BanBnXkFtZTgwMTk1NjUzOTE@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2016",
+    "genre": "Action, Adventure, Drama"
+  },
+  "Deep Blue Sea": {
+    "title": "Deep Blue Sea",
+    "director": "Renny Harlin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTM5OTUyYWYtMGE2OS00ODEzLTk0ZjctZmQ5NzFlNWQ3OTAxXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.9",
+    "releaseVersion": "1999",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Black Panther": {
+    "title": "Black Panther",
+    "director": "Ryan Coogler",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTg1MTY2MjYzNV5BMl5BanBnXkFtZTgwMTc4NTMwNDI@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2018",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Star Wars: Episode VIII - The Last Jedi": {
+    "title": "Star Wars: Episode VIII - The Last Jedi",
+    "director": "Rian Johnson",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjQ1MzcxNjg4N15BMl5BanBnXkFtZTgwNzgwMjY4MzI@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "2017",
+    "genre": "Action, Adventure, Fantasy"
+  },
+  "Man on Fire": {
+    "title": "Man on Fire",
+    "director": "Tony Scott",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMGMzNjg3ZDgtOGNlNy00NTdjLWI2NDEtMjI1MmEwMTBmMjMxXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2004",
+    "genre": "Action, Crime, Drama"
+  },
+  "City of God": {
+    "title": "City of God",
+    "director": "Kátia Lund, Fernando Meirelles",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYjY4NGI5OTUtY2ZlZS00Zjk4LTk5N2MtN2JmYWVjNGNmMGRlXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg",
+    "imdbRating": "8.6",
+    "releaseVersion": "2004",
+    "genre": "Crime, Drama"
+  },
+  "The Thin Red Line": {
+    "title": "The Thin Red Line",
+    "director": "Terrence Malick",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMzQ5NmViMDUtMjI1NC00ZWJkLTkwNzctMmIxZWY2MzQyZDc2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "1998",
+    "genre": "Drama, History, War"
+  },
+  "Shakespeare in Love": {
+    "title": "Shakespeare in Love",
+    "director": "John Madden",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYmM3MTllNzYtN2MzNS00NWQwLTk0NTEtNjY1MmMwYjNkNTE5XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.1",
+    "releaseVersion": "1998",
+    "genre": "Comedy, Drama, History"
+  },
+  "Harry Potter and the Goblet of Fire": {
+    "title": "Harry Potter and the Goblet of Fire",
+    "director": "Mike Newell",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTIzNzUzOTk2NV5BMl5BanBnXkFtZTYwNTI4MDg2._V1_SX300.jpg",
+    "imdbRating": "7.7",
+    "releaseVersion": "2005",
+    "genre": "Adventure, Family, Fantasy"
+  },
+  "What a Girl Wants": {
+    "title": "What a Girl Wants",
+    "director": "Dennie Gordon",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZjA2ODZkYTctNDQyZC00YjllLTk0ZmMtYjE1NTQ4OWM2NDY2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.8",
+    "releaseVersion": "2003",
+    "genre": "Comedy, Drama, Family"
+  },
+  "The Ice Road": {
+    "title": "The Ice Road",
+    "director": "Jonathan Hensleigh",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDNiMjM2NTYtOGI4MC00YjZkLWE2ZjAtZjcyNDg5ZDNmYWVjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.7",
+    "releaseVersion": "2021",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "The Ice Age Adventures of Buck Wild": {
+    "title": "The Ice Age Adventures of Buck Wild",
+    "director": "Marshall Fels Elliott, John C. Donkin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMjhmNDg4NTQtOWNjYi00NjQ0LTgwNzItZDk5Nzk1ZmZlOWEyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "4.4",
+    "releaseVersion": "2022",
+    "genre": "Animation, Adventure, Comedy"
+  },
+  "Last Action Hero": {
+    "title": "Last Action Hero",
+    "director": "John McTiernan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZGU2NWQyY2ItY2JiZS00ZDJhLWI0NDQtNjMyNWU3MDA1NTgzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "1993",
+    "genre": "Action, Adventure, Comedy"
+  },
+  "Thomas and the Magic Railroad": {
+    "title": "Thomas and the Magic Railroad",
+    "director": "Britt Allcroft",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWRhYTg4MzYtNDg2Yi00ZThkLTgzMWMtMjIwYTIxOTI0YmIyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "4.2",
+    "releaseVersion": "2000",
+    "genre": "Adventure, Comedy, Family"
+  },
+  "Stuck in Love.": {
+    "title": "Stuck in Love.",
+    "director": "Josh Boone",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMTU1NzI5MDU3OV5BMl5BanBnXkFtZTcwNTE0NDMzOQ@@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "2012",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "A Quiet Place: Day One": {
+    "title": "A Quiet Place: Day One",
+    "director": "Michael Sarnoski",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMDdjZTljZWMtMDIwNi00MTA5LTkxZmItNmY0NDA3ZDM0N2M2XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2024",
+    "genre": "Drama, Horror, Sci-Fi"
+  },
+  "Venom: The Last Dance": {
+    "title": "Venom: The Last Dance",
+    "director": "Kelly Marcel",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDMyYWU4NzItZDY0MC00ODE2LTkyYTMtMzNkNDdmYmFhZDg0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.0",
+    "releaseVersion": "2024",
+    "genre": "Action, Adventure, Horror"
+  },
+  "Magic": {
+    "title": "Magic",
+    "director": "Richard Attenborough",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNTY4OTNiZGQtZDRmYy00MGZjLWEyNmYtZmQxZWI0NzBlNTRkXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.8",
+    "releaseVersion": "1978",
+    "genre": "Drama, Horror"
+  },
+  "Judas and the Black Messiah": {
+    "title": "Judas and the Black Messiah",
+    "director": "Shaka King",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWJkZWY5YTAtMTQwMS00MGUyLWJjM2UtMGM5ZmRkMTc4MjRiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2021",
+    "genre": "Biography, Crime, Drama"
+  },
+  "Independence Day": {
+    "title": "Independence Day",
+    "director": "Roland Emmerich",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOGMwN2UwZjEtYjFjMi00ZDA1LWJlYTQtMjA1MTYxMzIyNTdiXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "1996",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Bad Education": {
+    "title": "Bad Education",
+    "director": "Pedro Almodóvar",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODM1NmQ2YmQtM2RkMC00ZTYyLTgwMDktODUzYjFlMzBkYTYzXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.4",
+    "releaseVersion": "2004",
+    "genre": "Crime, Drama"
+  },
+  "Top Secret!": {
+    "title": "Top Secret!",
+    "director": "Jim Abrahams, David Zucker, Jerry Zucker",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWQ0ZDZjYjAtNTM3My00ZGI4LWJjNDYtMjVmM2IwOTdjMjU2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.2",
+    "releaseVersion": "1984",
+    "genre": "Comedy, Crime, Music"
+  },
+  "Shadow of the Vampire": {
+    "title": "Shadow of the Vampire",
+    "director": "E. Elias Merhige",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODcwOWM4MDEtMTMxMS00Zjg0LWJiNmYtYzE5MDFlMWEyYTdhXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.9",
+    "releaseVersion": "2000",
+    "genre": "Drama, Horror"
+  },
+  "Land of Bad": {
+    "title": "Land of Bad",
+    "director": "William Eubank",
+    "poster": "https://m.media-amazon.com/images/M/MV5BOWI2YjMwMGEtZDJlZC00NGVkLTk2OTktMjhjNTZiNTIxOTg3XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.6",
+    "releaseVersion": "2024",
+    "genre": "Action, Thriller"
+  },
+  "Magic Magic": {
+    "title": "Magic Magic",
+    "director": "Sebastián Silva",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNjUyYTc2OTAtNzNmNS00OGZhLTgxY2UtODM2YTMzODhjZTIwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "5.0",
+    "releaseVersion": "2013",
+    "genre": "Drama, Thriller"
+  },
+  "Inside Man": {
+    "title": "Inside Man",
+    "director": "Spike Lee",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWFmMDZkYjktMjYyOS00MTM2LTg2MmQtOTUwMzJjMDlhZDY1XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.6",
+    "releaseVersion": "2006",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "The Night House": {
+    "title": "The Night House",
+    "director": "David Bruckner",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2U1MzRiN2UtZjkyMS00MGEwLWIyYTktNjMyMmUzZmMyMGRjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.4",
+    "releaseVersion": "2020",
+    "genre": "Horror, Mystery, Thriller"
+  },
+  "The Good, the Bad and the Ugly": {
+    "title": "The Good, the Bad and the Ugly",
+    "director": "Sergio Leone",
+    "poster": "https://m.media-amazon.com/images/M/MV5BMWM5ZjQxM2YtNDlmYi00ZDNhLWI4MWUtN2VkYjBlMTY1ZTkwXkEyXkFqcGc@._V1_QL75_UX380_CR0,4,380,562_.jpg",
+    "imdbRating": "8.8",
+    "releaseVersion": "1967",
+    "genre": "Adventure, Drama, Western"
+  },
+  "Raya and the Last Dragon": {
+    "title": "Raya and the Last Dragon",
+    "director": "Don Hall, Carlos López Estrada, Paul Briggs",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2QzZTQ3MzktN2JiYS00MDEzLTgxMWQtZWFmMDI3NWFkZTY0XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2021",
+    "genre": "Animation, Action, Adventure"
+  },
+  "Dream House": {
+    "title": "Dream House",
+    "director": "Jim Sheridan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BYWNkYzBmODAtZGIxOC00MGQ1LWIyYmYtNjE1ZDIxOGEwZDE2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.0",
+    "releaseVersion": "2011",
+    "genre": "Drama, Mystery, Thriller"
+  },
+  "Star Trek Beyond": {
+    "title": "Star Trek Beyond",
+    "director": "Justin Lin",
+    "poster": "https://m.media-amazon.com/images/M/MV5BN2FhNDI1YTYtNWI0OC00ZjYxLWJlYWEtN2ZiZjRmZDY1MWJjXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "7.0",
+    "releaseVersion": "2016",
+    "genre": "Action, Adventure, Sci-Fi"
+  },
+  "Black Coal, Thin Ice": {
+    "title": "Black Coal, Thin Ice",
+    "director": "Yi'nan Diao",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZWUyYTMwZGQtNmJlMy00NThhLTlmYWUtNjJmMWQ2Y2M2OTMwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.7",
+    "releaseVersion": "2014",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "Die Another Day": {
+    "title": "Die Another Day",
+    "director": "Lee Tamahori",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNDZiYWFmOTQtMTQ5Yy00MzA3LWFlNzktZTVmMGQ1MDA4MjEyXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.1",
+    "releaseVersion": "2002",
+    "genre": "Action, Adventure, Thriller"
+  },
+  "The Girl on the Train": {
+    "title": "The Girl on the Train",
+    "director": "Tate Taylor",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZTg4MGViYTMtYTFkMC00YzVlLWExZDItOTM4NTUwMjc2NTE2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.5",
+    "releaseVersion": "2016",
+    "genre": "Crime, Drama, Mystery"
+  },
+  "Indiana Jones and the Last Crusade": {
+    "title": "Indiana Jones and the Last Crusade",
+    "director": "Steven Spielberg",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNGIxNzQ0YzYtMjNmYi00YjBlLWFjNzEtNGE3ZGFmYTczM2MwXkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "8.2",
+    "releaseVersion": "1989",
+    "genre": "Action, Adventure"
+  },
+  "Jersey Girl": {
+    "title": "Jersey Girl",
+    "director": "Kevin Smith",
+    "poster": "https://m.media-amazon.com/images/M/MV5BNWQ0MmNiMTktMTRiNi00NzM3LThjYmQtYjE3YmNiNjg3NDI2XkEyXkFqcGc@._V1_SX300.jpg",
+    "imdbRating": "6.2",
+    "releaseVersion": "2004",
+    "genre": "Comedy, Drama, Romance"
+  },
+  "The Life of Chuck": {
+    "title": "The Life of Chuck",
+    "director": "Mike Flanagan",
+    "poster": "https://m.media-amazon.com/images/M/MV5BZDhlMzJhMTgtN2FhZS00OWQ1LTk3Y2ItZGNiNTQ0ZmUzYmIzXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+    "imdbRating": "7.3",
+    "releaseVersion": "2025",
+    "genre": "Drama, Fantasy, Sci-Fi"
+  }
+}

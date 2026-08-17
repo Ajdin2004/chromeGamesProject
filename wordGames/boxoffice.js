@@ -1,11 +1,13 @@
-// --- Box Office Showdown ---
-// Guess which movie earned more at the worldwide box office.
+// ============================================================
+//  IMDb Rating Rumble
+//  Guess which movie has the higher IMDb rating (or guess the rating!)
+// ============================================================
 
-const MOVIES_URL = './movies_boxoffice.json';
+const DATA_URL = '../data/moviedle_data.json';
 const ROUNDS_PER_GAME = 10;
-const TOTAL_MATCHUP_POOL = 2 * ROUNDS_PER_GAME; // 20 distinct movies per full game
+const STORAGE_KEY = 'imdb_rumble_stats';
 
-// Web Audio Synthesizer for sound effects
+// ---------------- Web Audio Synthesizer ----------------
 let audioCtx = null;
 function initAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -38,10 +40,22 @@ const Sound = {
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(now); osc.stop(now + 0.25);
+    },
+    click() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(700, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(now); osc.stop(now + 0.08);
     }
 };
 
-// State
+// ---------------- State ----------------
 let MOVIES = [];
 let currentPair = null;
 let round = 1;
@@ -53,30 +67,16 @@ let totalWrong = 0;
 let answeredThisRound = false;
 let gameActive = true;
 let currentBatch = [];
+let currentMode = 'duel'; // 'duel' | 'guess' | 'daily'
+let currentDifficulty = 'normal';
+let dailyDate = '';
 
-// Poster cache to avoid repeated API calls for the same movie
-const posterCache = new Map();
+// Guess-the-rating state
+let guessMovie = null;
+let guessAttempts = 0;
+const MAX_GUESS_ATTEMPTS = 5;
 
-// Fetch a movie poster directly from the iTunes Search API (supports CORS, no key needed)
-async function fetchMoviePoster(title) {
-    if (posterCache.has(title)) return posterCache.get(title);
-
-    try {
-        const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(title)}&media=movie&entity=movie&limit=1&country=US`);
-        const data = await response.json();
-        const posterUrl = data.results && data.results.length > 0 && data.results[0].artworkUrl100
-            ? data.results[0].artworkUrl100.replace('100x100', '600x600')
-            : null;
-        posterCache.set(title, posterUrl);
-        return posterUrl;
-    } catch (err) {
-        console.error('Error fetching movie poster:', err);
-        posterCache.set(title, null);
-        return null;
-    }
-}
-
-// DOM Elements
+// ---------------- DOM Elements ----------------
 const vsContainer = document.getElementById('vs-container');
 const resultBox = document.getElementById('result-box');
 const resultTitle = document.getElementById('result-title');
@@ -86,14 +86,18 @@ const toastEl = document.getElementById('toast');
 const scoreVal = document.getElementById('score-val');
 const streakVal = document.getElementById('streak-val');
 const roundVal = document.getElementById('round-val');
+const modeBtns = document.querySelectorAll('.mode-btn');
+const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+const statsBtn = document.getElementById('stats-btn');
+const statsModal = document.getElementById('stats-modal');
+const closeStatsBtn = document.getElementById('close-stats-btn');
+const resetStatsBtn = document.getElementById('reset-stats-btn');
+const guessInput = document.getElementById('guess-input');
+const guessSubmit = document.getElementById('guess-submit');
+const guessFeedback = document.getElementById('guess-feedback');
+const guessHistory = document.getElementById('guess-history');
 
-// Load best streak from localStorage
-bestStreak = parseInt(localStorage.getItem('boxoffice_best_streak') || '0', 10);
-
-function formatMoney(amount) {
-    return '$' + (amount / 1_000_000_000).toFixed(2) + 'B';
-}
-
+// ---------------- Utilities ----------------
 function shuffleArray(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -103,79 +107,149 @@ function shuffleArray(arr) {
     return a;
 }
 
-// Function to fetch top box office movies directly from Wikidata
-async function fetchWikidataMovies() {
-    toastEl.textContent = "Querying live movie data from Wikidata...";
+function parseRating(movie) {
+    const r = parseFloat(movie.imdbRating);
+    return isNaN(r) ? null : r;
+}
 
-    // SPARQL Query: Get top films with a box office gross > $50M to ensure they are major, recognizable movies
-    const sparqlQuery = `
-        SELECT DISTINCT ?filmLabel ?year ?boxoffice ?image WHERE {
-          ?film wdt:P31 wd:Q11424;          # Must be a film
-                wdt:P2142 ?boxoffice;        # Has box office gross
-                wdt:P577 ?pubdate.            # Has publication date
+function formatRating(r) {
+    if (r === null || r === undefined || isNaN(r)) return 'N/A';
+    return r.toFixed(1);
+}
 
-          # Filter out obscure/regional films by setting a blockbuster threshold ($50M+)
-          FILTER(?boxoffice > 50000000)
+function starsHTML(rating) {
+    if (rating === null || rating === undefined || isNaN(rating)) {
+        return '<span class="stars stars-empty">No rating</span>';
+    }
+    const full = Math.round(rating / 2); // out of 5
+    let html = '<span class="stars">';
+    for (let i = 1; i <= 5; i++) {
+        html += `<i class="fa-star ${i <= full ? 'fas' : 'far'}"></i>`;
+    }
+    html += `</span>`;
+    return html;
+}
 
-          OPTIONAL { ?film wdt:P18 ?image. }  # Optional Wikidata image/poster
+function getTodayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
-          BIND(YEAR(?pubdate) AS ?year)
+// Deterministic hash for daily seed
+function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash);
+}
 
-          SERVICE wikibase:label { 
-            bd:serviceParam wikibase:language "en". 
-          }
-        }
-        ORDER BY DESC(?boxoffice)
-        LIMIT 50
-    `;
-
-    const endpointUrl = 'https://query.wikidata.org/sparql?query=' + encodeURIComponent(sparqlQuery);
-
+// ---------------- Stats ----------------
+function getStats() {
     try {
-        const response = await fetch(endpointUrl, {
-            headers: { 'Accept': 'application/sparql-results+json' }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        // Parse Wikidata triples into your existing game format
-        MOVIES = data.results.bindings.map(item => ({
-            title: item.filmLabel.value,
-            year: parseInt(item.year.value, 10),
-            worldwide: parseFloat(item.boxoffice.value),
-            // Convert HTTP image links to HTTPS to avoid mixed content errors
-            poster: item.image ? item.image.value.replace('http://', 'https://') : ''
-        })).filter(movie => movie.title && !movie.title.startsWith('Q')); // Fallback safety filter
-
-        if (MOVIES.length >= 2) {
-            startGame();
-        } else {
-            toastEl.textContent = "Not enough movie records retrieved from Wikidata.";
-        }
-    } catch (err) {
-        console.error("Wikidata query failed:", err);
-        toastEl.textContent = "Failed to fetch Wikidata! Check your network connection.";
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultStats();
+    } catch (e) {
+        return defaultStats();
     }
 }
 
-// Call the Wikidata fetch function instead of local JSON loading
-fetchWikidataMovies();
+function defaultStats() {
+    return {
+        gamesPlayed: 0,
+        wins: 0,
+        totalCorrect: 0,
+        totalWrong: 0,
+        bestStreak: 0,
+        dailyStreak: 0,
+        lastDaily: '',
+        guessGamesPlayed: 0,
+        guessTotalGuesses: 0,
+        guessBestScore: null
+    };
+}
 
+function saveStats(stats) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+}
+
+function updateStatsUI() {
+    const stats = getStats();
+    bestStreak = Math.max(bestStreak, stats.bestStreak);
+    streakVal.textContent = streak;
+    scoreVal.textContent = score;
+}
+
+// ---------------- Data Loading ----------------
+async function loadMovies() {
+    try {
+        const res = await fetch(DATA_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        MOVIES = Object.values(data)
+            .map(m => ({ ...m, rating: parseRating(m) }))
+            .filter(m => m.rating !== null && m.rating > 0);
+        if (MOVIES.length < 2) throw new Error('Not enough movies');
+        init();
+    } catch (err) {
+        console.error('Failed to load movie data:', err);
+        toastEl.textContent = 'Failed to load movie data. Please refresh.';
+    }
+}
+
+// ---------------- Init ----------------
+function init() {
+    // Load best streak
+    const stats = getStats();
+    bestStreak = stats.bestStreak || 0;
+
+    // Event listeners
+    modeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.dataset.mode === currentMode) return;
+            Sound.click();
+            modeBtns.forEach(b => b.classList.toggle('active', b === btn));
+            currentMode = btn.dataset.mode;
+            document.body.dataset.mode = currentMode;
+            // Toggle difficulty visibility
+            document.querySelector('.difficulty-selector').style.display = currentMode === 'daily' ? 'none' : 'flex';
+            startGame();
+        });
+    });
+
+    difficultyBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            Sound.click();
+            difficultyBtns.forEach(b => b.classList.toggle('active', b === btn));
+            currentDifficulty = btn.dataset.difficulty;
+            startGame();
+        });
+    });
+
+    statsBtn.addEventListener('click', () => {
+        Sound.click();
+        renderStats();
+        statsModal.classList.remove('hidden');
+    });
+    closeStatsBtn.addEventListener('click', () => statsModal.classList.add('hidden'));
+    statsModal.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.classList.add('hidden'); });
+    resetStatsBtn.addEventListener('click', () => {
+        if (confirm('Reset all stats?')) {
+            localStorage.removeItem(STORAGE_KEY);
+            renderStats();
+            toastEl.textContent = 'Stats reset!';
+        }
+    });
+
+    guessSubmit.addEventListener('click', handleGuessSubmit);
+    guessInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleGuessSubmit(); });
+
+    startGame();
+}
+
+// ---------------- Game Start ----------------
 function startGame() {
-    if (MOVIES.length < 2) {
-        toastEl.textContent = "Not enough movies in dataset!";
-        return;
-    }
-
-    // Ensure we have enough movies - dynamically build pool
-    currentBatch = shuffleArray(MOVIES);
-    if (currentBatch.length < TOTAL_MATCHUP_POOL) {
-        currentBatch = shuffleArray(MOVIES.concat(MOVIES));
-    }
+    if (MOVIES.length < 2) return;
 
     round = 1;
     score = 0;
@@ -185,20 +259,182 @@ function startGame() {
     gameActive = true;
     answeredThisRound = false;
 
+    if (currentMode === 'daily') {
+        dailyDate = getTodayStr();
+        setupDaily();
+        return;
+    }
+
+    if (currentMode === 'guess') {
+        setupGuessMode();
+        return;
+    }
+
+    // Duel mode
+    setupDuelMode();
+}
+
+function setupDuelMode() {
+    // Filter movies by difficulty
+    let pool = MOVIES;
+    if (currentDifficulty === 'easy') {
+        pool = MOVIES.filter(m => m.rating >= 7.5);
+    } else if (currentDifficulty === 'hard') {
+        pool = MOVIES.filter(m => m.rating >= 5.5);
+    }
+    if (pool.length < 2) pool = MOVIES;
+
+    currentBatch = shuffleArray(pool);
+    if (currentBatch.length < ROUNDS_PER_GAME * 2) {
+        currentBatch = shuffleArray(pool.concat(pool));
+    }
+
     scoreVal.textContent = score;
     streakVal.textContent = streak;
     roundVal.textContent = round;
 
     loadNextRound();
-    toastEl.textContent = 'Which movie earned more at the worldwide box office?';
+    toastEl.textContent = 'Which movie has the higher IMDb rating?';
 }
 
+function setupDaily() {
+    // Deterministic daily selection
+    const seed = hashString(dailyDate);
+    const dailyMovies = [...MOVIES].sort((a, b) => hashString(a.title + dailyDate) - hashString(b.title + dailyDate));
+    currentBatch = dailyMovies.slice(0, ROUNDS_PER_GAME * 2);
+
+    scoreVal.textContent = score;
+    streakVal.textContent = streak;
+    roundVal.textContent = round;
+
+    loadNextRound();
+    toastEl.textContent = `Daily Challenge: ${dailyDate}`;
+}
+
+function setupGuessMode() {
+    // Pick a random movie
+    pickNewGuessMovie();
+    guessAttempts = 0;
+    guessHistory.innerHTML = '';
+    guessFeedback.textContent = '';
+    guessInput.value = '';
+    guessInput.disabled = false;
+    guessSubmit.disabled = false;
+    guessInput.focus();
+
+    resultBox.classList.remove('visible');
+    btnNext.style.display = 'none';
+    vsContainer.style.display = 'none';
+    document.getElementById('guess-game').style.display = 'block';
+    document.getElementById('round-info').style.display = 'none';
+
+    toastEl.textContent = 'Guess the IMDb rating (0.0 - 10.0)';
+}
+
+function pickNewGuessMovie() {
+    guessMovie = MOVIES[Math.floor(Math.random() * MOVIES.length)];
+    guessAttempts = 0;
+    guessHistory.innerHTML = '';
+    guessFeedback.textContent = '';
+
+    // Render the movie card
+    const card = document.getElementById('guess-movie-card');
+    card.innerHTML = '';
+
+    const poster = document.createElement('img');
+    poster.className = 'poster guess-poster';
+    poster.src = guessMovie.poster;
+    poster.alt = guessMovie.title;
+    poster.onerror = () => { poster.src = ''; poster.alt = 'No poster'; };
+    card.appendChild(poster);
+
+    const info = document.createElement('div');
+    info.className = 'guess-movie-info';
+    info.innerHTML = `
+        <div class="guess-movie-title">${guessMovie.title}</div>
+        <div class="guess-movie-meta">${guessMovie.releaseVersion} · ${guessMovie.genre}</div>
+        <div class="guess-movie-meta">Directed by ${guessMovie.director}</div>
+    `;
+    card.appendChild(info);
+}
+
+function handleGuessSubmit() {
+    if (!guessMovie) return;
+    const val = parseFloat(guessInput.value);
+    if (isNaN(val) || val < 0 || val > 10) {
+        guessFeedback.textContent = 'Enter a number between 0.0 and 10.0';
+        guessFeedback.style.color = '#f87171';
+        return;
+    }
+
+    guessAttempts++;
+    const actual = guessMovie.rating;
+    const diff = Math.abs(val - actual);
+    const isCorrect = diff <= 0.5;
+
+    // Add to history
+    const row = document.createElement('div');
+    row.className = 'guess-history-row';
+    row.innerHTML = `<span>Guess ${guessAttempts}: <strong>${val.toFixed(1)}</strong></span><span>${isCorrect ? '🎯' : (val < actual ? '⬆️' : '⬇️')}</span>`;
+    guessHistory.prepend(row);
+
+    if (isCorrect) {
+        // Win!
+        guessFeedback.textContent = `Correct! ${guessMovie.title} is rated ${actual.toFixed(1)}.`;
+        guessFeedback.style.color = '#4ade80';
+        Sound.correct();
+        const stats = getStats();
+        stats.guessGamesPlayed++;
+        stats.guessTotalGuesses += guessAttempts;
+        if (stats.guessBestScore === null || guessAttempts < stats.guessBestScore) {
+            stats.guessBestScore = guessAttempts;
+        }
+        saveStats(stats);
+        guessInput.disabled = true;
+        guessSubmit.disabled = true;
+        btnNext.style.display = 'block';
+        btnNext.innerHTML = '<i class="fa-solid fa-forward"></i> NEXT MOVIE';
+        btnNext.onclick = () => {
+            btnNext.onclick = null;
+            pickNewGuessMovie();
+        };
+    } else if (guessAttempts >= MAX_GUESS_ATTEMPTS) {
+        // Lose
+        guessFeedback.textContent = `Out of guesses! It was ${actual.toFixed(1)}.`;
+        guessFeedback.style.color = '#f87171';
+        Sound.wrong();
+        const stats = getStats();
+        stats.guessGamesPlayed++;
+        stats.guessTotalGuesses += guessAttempts;
+        saveStats(stats);
+        guessInput.disabled = true;
+        guessSubmit.disabled = true;
+        btnNext.style.display = 'block';
+        btnNext.innerHTML = '<i class="fa-solid fa-forward"></i> NEXT MOVIE';
+        btnNext.onclick = () => {
+            btnNext.onclick = null;
+            pickNewGuessMovie();
+        };
+    } else {
+        guessFeedback.textContent = val < actual ? 'Too low! Try higher.' : 'Too high! Try lower.';
+        guessFeedback.style.color = '#fbbf24';
+        Sound.click();
+    }
+
+    guessInput.value = '';
+    guessInput.focus();
+}
+
+// ---------------- Duel Mode ----------------
 function loadNextRound() {
     answeredThisRound = false;
     resultBox.classList.remove('visible');
     btnNext.disabled = true;
+    btnNext.style.display = 'block';
+    vsContainer.style.display = 'grid';
+    document.getElementById('guess-game').style.display = 'none';
+    document.getElementById('round-info').style.display = 'flex';
 
-    // Select two distinct movies from the batch
     let idxA = (round - 1) * 2 % currentBatch.length;
     let idxB = (idxA + 1) % currentBatch.length;
 
@@ -207,11 +443,7 @@ function loadNextRound() {
         idxB = (idxB + 1) % currentBatch.length;
     }
 
-    currentPair = {
-        a: currentBatch[idxA],
-        b: currentBatch[idxB]
-    };
-
+    currentPair = { a: currentBatch[idxA], b: currentBatch[idxB] };
     renderMatchup();
 }
 
@@ -242,54 +474,60 @@ function renderMatchup() {
         card.id = `movie-${side}`;
         card.dataset.side = side;
 
-        // Handle poster image vs fallback cleanly
+        // Poster
         if (movie.poster) {
             const poster = document.createElement('img');
             poster.className = 'poster';
             poster.src = movie.poster;
             poster.alt = movie.title;
+            poster.loading = 'lazy';
             poster.onerror = () => {
-                // If link fails at runtime, replace img element directly
-                poster.replaceWith(createStyledFallbackCard(movie.title, movie.year));
+                poster.replaceWith(createStyledFallbackCard(movie.title, movie.releaseVersion));
             };
             card.appendChild(poster);
         } else {
-            // Append fallback card immediately when no poster URL exists
-            const fallback = createStyledFallbackCard(movie.title, movie.year);
-            card.appendChild(fallback);
-
-            // Fetch a poster from iTunes asynchronously and replace the fallback when it arrives
-            fetchMoviePoster(movie.title).then(posterUrl => {
-                if (posterUrl && card.contains(fallback)) {
-                    const poster = document.createElement('img');
-                    poster.className = 'poster';
-                    poster.src = posterUrl;
-                    poster.alt = movie.title;
-                    poster.onerror = () => {
-                        poster.replaceWith(createStyledFallbackCard(movie.title, movie.year));
-                    };
-                    fallback.replaceWith(poster);
-                }
-            });
+            card.appendChild(createStyledFallbackCard(movie.title, movie.releaseVersion));
         }
 
+        // Title
         const title = document.createElement('div');
         title.className = 'movie-title';
         title.textContent = movie.title;
-
-        const year = document.createElement('div');
-        year.className = 'movie-year';
-        year.textContent = `(${movie.year})`;
-
         card.appendChild(title);
-        card.appendChild(year);
+
+        // Year + genre
+        const meta = document.createElement('div');
+        meta.className = 'movie-meta';
+        meta.textContent = `${movie.releaseVersion} · ${(movie.genre || 'N/A').split(',')[0]}`;
+        card.appendChild(meta);
+
+        // Director
+        const director = document.createElement('div');
+        director.className = 'movie-director';
+        director.textContent = movie.director || '';
+        card.appendChild(director);
+
+        // Stars (hidden until reveal)
+        const stars = document.createElement('div');
+        stars.className = 'movie-stars';
+        stars.id = `stars-${side}`;
+        stars.style.visibility = 'hidden';
+        stars.innerHTML = starsHTML(movie.rating);
+        card.appendChild(stars);
+
+        // Rating badge (hidden until reveal)
+        const ratingBadge = document.createElement('div');
+        ratingBadge.className = 'rating-badge';
+        ratingBadge.id = `rating-${side}`;
+        ratingBadge.style.display = 'none';
+        ratingBadge.innerHTML = `<i class="fa-solid fa-star"></i> ${formatRating(movie.rating)}`;
+        card.appendChild(ratingBadge);
 
         card.addEventListener('click', () => handleGuess(side));
-
         vsContainer.appendChild(card);
     });
 
-    // VS badge in the middle
+    // VS badge
     const vsBadge = document.createElement('div');
     vsBadge.className = 'vs-badge';
     vsBadge.textContent = 'VS';
@@ -304,65 +542,60 @@ function handleGuess(side) {
 
     const picked = side === 'a' ? currentPair.a : currentPair.b;
     const other = side === 'a' ? currentPair.b : currentPair.a;
-    const pickedCorrect = picked.worldwide >= other.worldwide;
-    const isTie = picked.worldwide === other.worldwide;
+    const pickedCorrect = picked.rating >= other.rating;
+    const isTie = picked.rating === other.rating;
 
-    // Disable both card clicks
+    // Reveal ratings
+    ['a', 'b'].forEach(s => {
+        const badge = document.getElementById(`rating-${s}`);
+        if (badge) {
+            badge.style.display = 'flex';
+            const movie = s === 'a' ? currentPair.a : currentPair.b;
+            badge.innerHTML = `<i class="fa-solid fa-star"></i> ${formatRating(movie.rating)}`;
+        }
+        const stars = document.getElementById(`stars-${s}`);
+        if (stars) stars.style.visibility = 'visible';
+    });
+
     document.querySelectorAll('.movie-card').forEach(c => c.classList.add('disabled'));
 
     const pickedCard = document.getElementById(`movie-${side}`);
     const otherCard = document.getElementById(`movie-${isTie ? side : (side === 'a' ? 'b' : 'a')}`);
 
-    if (isTie) {
-        // Tie counts as correct for the player
+    if (isTie || pickedCorrect) {
         pickedCard.classList.add('correct');
+        if (!isTie) otherCard.classList.add('wrong');
         score++;
         streak++;
         totalCorrect++;
         bestStreak = Math.max(bestStreak, streak);
-        localStorage.setItem('boxoffice_best_streak', bestStreak);
-        resultTitle.textContent = 'TIE! ✓';
+        resultTitle.textContent = isTie ? 'TIE! ✓' : 'CORRECT! ✓';
         resultTitle.className = 'result-title correct-text';
-        resultDetail.innerHTML = `<strong>${picked.title}</strong> and <strong>${other.title}</strong> both earned <strong>${formatMoney(picked.worldwide)}</strong>! Point awarded.`;
+        resultDetail.innerHTML = `<strong>${picked.title}</strong> is rated <strong>${formatRating(picked.rating)}</strong> vs <strong>${formatRating(other.rating)}</strong> for ${other.title}.`;
         Sound.correct();
     } else {
-        if (pickedCorrect) {
-            pickedCard.classList.add('correct');
-            otherCard.classList.add('wrong');
-            score++;
-            streak++;
-            totalCorrect++;
-            bestStreak = Math.max(bestStreak, streak);
-            localStorage.setItem('boxoffice_best_streak', bestStreak);
-            resultTitle.textContent = 'CORRECT! ✓';
-            resultTitle.className = 'result-title correct-text';
-            resultDetail.innerHTML = `<strong>${picked.title}</strong> earned <strong>${formatMoney(picked.worldwide)}</strong> vs <strong>${formatMoney(other.worldwide)}</strong> for ${other.title}.`;
-            Sound.correct();
-        } else {
-            pickedCard.classList.add('wrong');
-            otherCard.classList.add('correct');
-            streak = 0;
-            totalWrong++;
-            resultTitle.textContent = 'WRONG! ✗';
-            resultTitle.className = 'result-title';
-            resultTitle.style.color = 'var(--secondary-red)';
-            resultDetail.innerHTML = `<strong>${other.title}</strong> actually earned more: <strong>${formatMoney(other.worldwide)}</strong> vs <strong>${formatMoney(picked.worldwide)}</strong> for ${picked.title}.`;
-            Sound.wrong();
-        }
+        pickedCard.classList.add('wrong');
+        otherCard.classList.add('correct');
+        streak = 0;
+        totalWrong++;
+        resultTitle.textContent = 'WRONG! ✗';
+        resultTitle.className = 'result-title';
+        resultTitle.style.color = 'var(--secondary-red)';
+        resultDetail.innerHTML = `<strong>${other.title}</strong> is rated <strong>${formatRating(other.rating)}</strong> vs <strong>${formatRating(picked.rating)}</strong> for ${picked.title}.`;
+        Sound.wrong();
     }
 
     scoreVal.textContent = score;
     streakVal.textContent = streak;
 
-    // Show result
     resultBox.classList.add('visible');
     btnNext.disabled = false;
 }
 
 btnNext.addEventListener('click', () => {
+    if (currentMode === 'guess') return; // handled separately
     round++;
     if (round > ROUNDS_PER_GAME) {
-        // Game complete
         gameActive = false;
         endGame();
         return;
@@ -380,6 +613,24 @@ function endGame() {
         <div><strong>Best Streak:</strong> ${bestStreak}</div>
     `;
 
+    // Update stats
+    const stats = getStats();
+    stats.gamesPlayed++;
+    if (score >= 8) stats.wins++;
+    stats.totalCorrect += totalCorrect;
+    stats.totalWrong += totalWrong;
+    stats.bestStreak = Math.max(stats.bestStreak, bestStreak);
+    if (currentMode === 'daily') {
+        if (stats.lastDaily === dailyDate) {
+            // Already played today
+        } else {
+            stats.lastDaily = dailyDate;
+            if (score >= 8) stats.dailyStreak++;
+            else stats.dailyStreak = 0;
+        }
+    }
+    saveStats(stats);
+
     btnNext.innerHTML = '<i class="fa-solid fa-rotate-right"></i> PLAY AGAIN';
     btnNext.onclick = () => {
         btnNext.onclick = null;
@@ -396,9 +647,26 @@ function endGame() {
     }
 }
 
-// Lightweight confetti for high scores
+// ---------------- Stats Modal ----------------
+function renderStats() {
+    const stats = getStats();
+    const total = stats.totalCorrect + stats.totalWrong;
+    const accuracy = total > 0 ? Math.round((stats.totalCorrect / total) * 100) : 0;
+    const winRate = stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0;
+
+    document.getElementById('stat-games').textContent = stats.gamesPlayed;
+    document.getElementById('stat-wins').textContent = stats.wins;
+    document.getElementById('stat-winrate').textContent = winRate + '%';
+    document.getElementById('stat-accuracy').textContent = accuracy + '%';
+    document.getElementById('stat-beststreak').textContent = stats.bestStreak;
+    document.getElementById('stat-dailystreak').textContent = stats.dailyStreak;
+    document.getElementById('stat-guessgames').textContent = stats.guessGamesPlayed;
+    document.getElementById('stat-guessbest').textContent = stats.guessBestScore !== null ? stats.guessBestScore : '—';
+}
+
+// ---------------- Confetti ----------------
 function runConfetti() {
-    const confettiColors = ['#facc15', '#00f2fe', '#ef4444', '#22c55e', '#a855f7', '#06b6d4'];
+    const confettiColors = ['#f5c518', '#00f2fe', '#ef4444', '#22c55e', '#a855f7', '#06b6d4'];
     const count = 60;
     const durations = [2500, 2000, 3000, 2800, 3500];
 
@@ -427,7 +695,6 @@ function runConfetti() {
         setTimeout(() => el.remove(), duration);
     }
 
-    // Inject keyframe if not present
     if (!document.getElementById('box-confetti-keyframes')) {
         const style = document.createElement('style');
         style.id = 'box-confetti-keyframes';
@@ -441,6 +708,5 @@ function runConfetti() {
     }
 }
 
-// Start
-fetchWikidataMovies()
-
+// ---------------- Start ----------------
+loadMovies();
