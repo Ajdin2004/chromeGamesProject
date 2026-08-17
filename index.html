@@ -1411,25 +1411,25 @@
                     </div>
                 </div>
             </a>
-
-            <!-- Riddler Card -->
-            <a href="wordGames/riddler.html" class="game-card" data-category="word puzzle" data-name="riddler daily riddle word game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e3a8a, #4338ca, #8b5cf6);">
-                    <div class="badge new">Daily</div>
-                    <button class="fav-star" data-href="wordGames/riddler.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/riddler.html"></span>
-                    <canvas class="preview-canvas" data-type="puzzle-grid"></canvas>
-                    <i class="fa-solid fa-question banner-glyph"></i>
+            <!-- Flag Guessr Card -->
+            <a href="wordGames/flagguessr.html" class="game-card" data-category="word" data-name="flag guessr daily flag guessing game" data-added="2026-08-17">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #5f0c6e, #fe00f1, #6007a3, #1e3a8a);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="wordGames/flagguessr.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="wordGames/flagguessr.html"></span>
+                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
+                    <i class="fa-solid fa-flag banner-glyph"></i>
                 </div>
                 <div class="card-details">
-                    <h3>Daily Riddler</h3>
-                    <p>Solve a short riddle to guess the hidden word in 5 tries. Related-word hints help you narrow each answer.</p>
+                    <h3>Flag Guessr</h3>
+                    <p>Guess the country from its flag in 6 tries. Daily, Endless, and Quiz modes!</p>
                     <div class="card-footer">
-                        <span class="genre-tag">Word Puzzle</span>
+                        <span class="genre-tag">Geography</span>
                         <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
                     </div>
                 </div>
             </a>
+            
 
             <!-- Tunetile Card -->
             <a href="wordGames/tunetile.html" class="game-card" data-category="word" data-name="tunetile music guessing game" data-added="2024-01-01">
@@ -1525,7 +1525,7 @@
                     </div>
                 </div>
             </a>
-
+            
             <!-- Box Office Showdown Card -->
             <a href="wordGames/boxoffice.html" class="game-card" data-category="word puzzle" data-name="box office imdb showdown movie guessing game" data-added="2026-08-08">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #b45309, #f59e0b, #78350f);">
@@ -1564,6 +1564,24 @@
                 </div>
             </a>
 
+            <!-- Riddler Card -->
+            <a href="wordGames/riddler.html" class="game-card" data-category="word puzzle" data-name="riddler daily riddle word game" data-added="2024-01-01">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e3a8a, #4338ca, #8b5cf6);">
+                    <div class="badge new">Daily</div>
+                    <button class="fav-star" data-href="wordGames/riddler.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="wordGames/riddler.html"></span>
+                    <canvas class="preview-canvas" data-type="puzzle-grid"></canvas>
+                    <i class="fa-solid fa-question banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Daily Riddler</h3>
+                    <p>Solve a short riddle to guess the hidden word in 5 tries. Related-word hints help you narrow each answer.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Word Puzzle</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
             <!-- Boggle-like Card -->
             <a href="wordGames/boggle.html" class="game-card" data-category="word" data-name="boggle word search grid" data-added="2024-06-01">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #0b1220);">
@@ -1988,7 +2006,7 @@
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
-                    <p><strong>Box Office Showdown</strong> — Battle through random movie matchups in this fun movie trivia game!</p>
+                    <p><strong>Flag Guessr</strong> — Battle through random flags and guess their origin!</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
@@ -2092,12 +2110,6 @@
                     <i class="fa-solid fa-chess-knight"></i>
                     <h4>Chess Puzzles</h4>
                     <p>Solve tactical checkmates</p>
-                </div>
-                <div class="coming-soon-card">
-                    <span class="coming-soon-badge">Soon</span>
-                    <i class="fa-solid fa-earth-europe"></i>
-                    <h4>Flag Guessr</h4>
-                    <p>Identify flags from around the world</p>
                 </div>
                 <div class="coming-soon-card">
                     <span class="coming-soon-badge">Soon</span>
@@ -2560,6 +2572,29 @@
                     pCtx.lineTo(gx - 8, dotY + 8);
                     pCtx.closePath();
                     pCtx.fill();
+                } else if (type === 'flag-waving') {
+                    // Flag Guessr preview: waving flag with pole
+                    const flagW = width * 0.5;
+                    const flagH = height * 0.4;
+                    const flagX = width / 2 - flagW / 2;
+                    const flagY = height / 2 - flagH / 2;
+                    // Pole
+                    pCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    pCtx.fillRect(flagX - 4, flagY - 10, 4, flagH + 20);
+                    // Flag with waving effect
+                    const colors = ['#00f2fe', '#facc15', '#22c55e', '#ef4444', '#a855f7'];
+                    for (let i = 0; i < 5; i++) {
+                        const wave = Math.sin((frame + i * 3) * 0.15) * 4;
+                        const segW = flagW / 5;
+                        pCtx.fillStyle = colors[i % colors.length];
+                        pCtx.globalAlpha = 0.7;
+                        pCtx.fillRect(flagX + i * segW, flagY + wave, segW + 1, flagH);
+                        pCtx.globalAlpha = 1;
+                    }
+                    // Flag border
+                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    pCtx.lineWidth = 1;
+                    pCtx.strokeRect(flagX, flagY, flagW, flagH);
                 } else if (type === 'checkers-grid') {
                     // Checkers preview: animated 8x8 board with pieces
                     const cell = Math.min(width, height) / 8.2;
@@ -3043,6 +3078,7 @@
             { name: 'Blockudoku', key: 'blockudoku_highscore', icon: 'fa-th-large', href: 'games/blockudoku.html' },
             { name: 'Pac-Man', key: 'pacman_highscore', icon: 'fa-ghost', href: 'games/pacman.html' },
             { name: 'Box Office', key: 'boxoffice_best_streak', icon: 'fa-film', href: 'wordGames/boxoffice.html' },
+            { name: 'Flag Guessr', key: 'flagguessr_streak', icon: 'fa-flag', href: 'wordGames/flagguessr.html' },
             { name: 'Tic-Tac-Toe', key: 'tictactoe_wins', icon: 'fa-hashtag', href: 'games/tictactoe.html' },
             { name: 'Checkers', key: 'checkers_wins', icon: 'fa-chess-pawn', href: 'games/checkers.html' }
         ];

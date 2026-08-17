@@ -26,6 +26,7 @@ Brain-teasing puzzles and daily challenges:
 - **Loldle & Wutherdle:** Niche guessing games (League of Legends and Wuthering Waves).
 - **Zenlessdle & Starraildle:** Daily guessing games (Zenless Zone Zero and Honkai Star Rail).
 - **Earthdle:** Geography guessing game.
+- **Flag Guessr:** Daily flag guessing game with Daily, Endless, and Quiz modes.
 - **Box Office & Video Games:** Trivia based on movies and gaming history.
 - **TuneTile:** Music-based puzzle integration.
 - **Riddler:** Daily logic and word riddles.
