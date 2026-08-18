@@ -1806,6 +1806,25 @@
                 </div>
             </a>
 
+            <!-- Minesweeper -->
+            <a href="games/minesweeper.html" class="game-card" data-category="arcade puzzle" data-name="minesweeper" data-added="2026-08-19">
+                <div class="card-banner" style="background: linear-gradient(-45deg, #1e3a5f, #3b82f6, #0f172a, #1e293b);">
+                    <div class="badge new">New</div>
+                    <button class="fav-star" data-href="games/minesweeper.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                    <span class="last-played" data-href="games/minesweeper.html"></span>
+                    <canvas class="preview-canvas" data-type="minesweeper-grid"></canvas>
+                    <i class="fa-solid fa-bomb banner-glyph"></i>
+                </div>
+                <div class="card-details">
+                    <h3>Minesweeper</h3>
+                    <p>Classic logic puzzle. Reveal safe cells, flag mines, and clear the board across 3 difficulty levels.</p>
+                    <div class="card-footer">
+                        <span class="genre-tag">Puzzle</span>
+                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
+                    </div>
+                </div>
+            </a>
+
             <!-- Neon Pong -->
             <a href="games/pong.html" class="game-card" data-category="action retro" data-name="neon pong" data-added="2024-01-01">
                 <div class="card-banner" style="background: linear-gradient(-45deg, #be123c, #fb7185, #881337, #4c0519);">
@@ -1994,6 +2013,10 @@
             <ul class="changelog-list">
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
+                    <p><strong>Minesweeper</strong> — Classic logic puzzle. Reveal safe cells, flag mines, and clear the board across 3 difficulty levels!</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
                     <p><strong>Checkers</strong> — Classic board strategy duel. Capture, jump, and crown your way to victory against AI or a friend!</p>
                 </li>
                 <li class="changelog-item">
@@ -2098,12 +2121,6 @@
                     <i class="fa-solid fa-gamepad"></i>
                     <h4>Breakout</h4>
                     <p>Smash bricks & save the ball</p>
-                </div>
-                <div class="coming-soon-card">
-                    <span class="coming-soon-badge">Soon</span>
-                    <i class="fa-solid fa-flag"></i>
-                    <h4>Minesweeper</h4>
-                    <p>Clear the grid, avoid the mines</p>
                 </div>
                 <div class="coming-soon-card">
                     <span class="coming-soon-badge">Soon</span>
@@ -2535,6 +2552,63 @@
                             pCtx.fillText('◯', cx, cy);
                         }
                         pCtx.shadowBlur = 0;
+                    }
+                } else if (type === 'minesweeper-grid') {
+                    // Minesweeper preview: animated grid with mines appearing
+                    const cell = Math.min(width, height) / 9.2;
+                    const offsetX = (width - cell * 9) / 2;
+                    const offsetY = (height - cell * 9) / 2;
+                    // Draw grid
+                    pCtx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
+                    pCtx.lineWidth = 1;
+                    for (let i = 0; i <= 9; i++) {
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX + i * cell, offsetY);
+                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
+                        pCtx.stroke();
+                        pCtx.beginPath();
+                        pCtx.moveTo(offsetX, offsetY + i * cell);
+                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
+                        pCtx.stroke();
+                    }
+                    // Animated mines appearing one by one
+                    const mineCount = Math.floor(frame / 15) % 10;
+                    for (let i = 0; i < mineCount; i++) {
+                        const r = Math.floor(i / 3);
+                        const c = i % 3;
+                        const cx = offsetX + (c * 3 + 1.5) * cell;
+                        const cy = offsetY + (r * 3 + 1.5) * cell;
+                        pCtx.fillStyle = '#ef4444';
+                        pCtx.shadowColor = '#ef4444';
+                        pCtx.shadowBlur = 8;
+                        pCtx.beginPath();
+                        pCtx.arc(cx, cy, cell * 0.3, 0, Math.PI * 2);
+                        pCtx.fill();
+                        pCtx.shadowBlur = 0;
+                        // Draw a small cross on top (mine look)
+                        pCtx.strokeStyle = '#ef4444';
+                        pCtx.lineWidth = 2;
+                        pCtx.beginPath();
+                        pCtx.moveTo(cx - cell * 0.2, cy - cell * 0.2);
+                        pCtx.lineTo(cx + cell * 0.2, cy + cell * 0.2);
+                        pCtx.moveTo(cx + cell * 0.2, cy - cell * 0.2);
+                        pCtx.lineTo(cx - cell * 0.2, cy + cell * 0.2);
+                        pCtx.stroke();
+                    }
+                    // Revealed cells with numbers
+                    const revealedCount = Math.floor(frame / 10) % 9;
+                    for (let i = 0; i < revealedCount; i++) {
+                        const r = Math.floor(i / 3);
+                        const c = i % 3;
+                        const cx = offsetX + (c * 3 + 1.5) * cell;
+                        const cy = offsetY + (r * 3 + 1.5) * cell;
+                        pCtx.fillStyle = 'rgba(0, 242, 254, 0.15)';
+                        pCtx.fillRect(cx - cell * 0.4, cy - cell * 0.4, cell * 0.8, cell * 0.8);
+                        pCtx.fillStyle = '#00f2fe';
+                        pCtx.font = `${cell * 0.5}px Outfit, sans-serif`;
+                        pCtx.textAlign = 'center';
+                        pCtx.textBaseline = 'middle';
+                        pCtx.fillText((i % 3) + 1, cx, cy);
                     }
                 } else if (type === 'pacman-dots') {
                     // Pac-Man preview: yellow pac-man eating dots left to right
@@ -3080,7 +3154,8 @@
             { name: 'Box Office', key: 'boxoffice_best_streak', icon: 'fa-film', href: 'wordGames/boxoffice.html' },
             { name: 'Flag Guessr', key: 'flagguessr_streak', icon: 'fa-flag', href: 'wordGames/flagguessr.html' },
             { name: 'Tic-Tac-Toe', key: 'tictactoe_wins', icon: 'fa-hashtag', href: 'games/tictactoe.html' },
-            { name: 'Checkers', key: 'checkers_wins', icon: 'fa-chess-pawn', href: 'games/checkers.html' }
+            { name: 'Checkers', key: 'checkers_wins', icon: 'fa-chess-pawn', href: 'games/checkers.html' },
+            { name: 'Minesweeper', key: 'minesweeper_wins', icon: 'fa-bomb', href: 'games/minesweeper.html' }
         ];
 
         function populateLeaderboard() {
