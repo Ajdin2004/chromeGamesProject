@@ -63,7 +63,10 @@ const RESONATORS_URL = '../data/wuwa_resonators.json';
 
 let RESONATORS = [];
 let TARGET_RESONATOR = null;
-const TODAY_DATE_STR = new Date().toISOString().slice(0, 10);
+let TODAY_DATE_STR = getLocalDateStr();
+function getLocalDateStr(d = new Date()) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 const MAX_GUESSES = 8;
 let guessesHistory = [];
 let gameOver = false;
@@ -201,6 +204,11 @@ function recordGameResult(won, guessesUsed) {
 
 // --- Countdown Timer ---
 function updateCountdown() {
+    const todayStr = getLocalDateStr();
+    if (todayStr !== TODAY_DATE_STR) {
+        TODAY_DATE_STR = todayStr;
+        if (gameMode === 'daily') resetToDaily();
+    }
     const now = new Date();
     const tomorrow = new Date(now);
     tomorrow.setHours(24, 0, 0, 0);
