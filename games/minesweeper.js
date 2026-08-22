@@ -69,7 +69,7 @@ const DIFFICULTIES = {
 
 // --- Game State ---
 let difficulty = 'beginner';
-let board = [];          // 2D array: { mine, revealed, flagged, adjacent }
+let board = [];          // 2D array: { mine, revealed, flagged, adjacent, hit, wrongFlag }
 let gameOver = false;
 let gameWon = false;
 let firstClick = true;
@@ -93,9 +93,30 @@ const scoreBest = document.getElementById('score-best');
 
 // --- Scoreboard Persistence ---
 const STATS_KEY = 'minesweeper_stats';
+const DEFAULT_STATS = { wins: 0, losses: 0, bestTime: { beginner: null, intermediate: null, expert: null } };
+
+// Migrate legacy single bestTime value into per-difficulty format
+function normalizeStats(stats) {
+    if (!stats || typeof stats !== 'object') return JSON.parse(JSON.stringify(DEFAULT_STATS));
+    const normalized = {
+        wins: Number(stats.wins) || 0,
+        losses: Number(stats.losses) || 0,
+        bestTime: { beginner: null, intermediate: null, expert: null }
+    };
+    if (stats.bestTime && typeof stats.bestTime === 'object') {
+        for (const key of Object.keys(normalized.bestTime)) {
+            if (typeof stats.bestTime[key] === 'number') normalized.bestTime[key] = stats.bestTime[key];
+        }
+    } else if (typeof stats.bestTime === 'number') {
+        // Legacy format: single best time was most likely set on the default difficulty
+        normalized.bestTime.beginner = stats.bestTime;
+    }
+    return normalized;
+}
+
 function loadStats() {
-    try { return JSON.parse(localStorage.getItem(STATS_KEY)) || { wins: 0, losses: 0, bestTime: null }; }
-    catch (e) { return { wins: 0, losses: 0, bestTime: null }; }
+    try { return normalizeStats(JSON.parse(localStorage.getItem(STATS_KEY))); }
+    catch (e) { return JSON.parse(JSON.stringify(DEFAULT_STATS)); }
 }
 function saveStats(stats) {
     try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) { /* ignore */ }
@@ -104,7 +125,8 @@ function updateScoreboard() {
     const stats = loadStats();
     scoreWins.textContent = stats.wins;
     scoreLosses.textContent = stats.losses;
-    scoreBest.textContent = stats.bestTime !== null ? `${stats.bestTime}s` : '--';
+    const best = stats.bestTime[difficulty];
+    scoreBest.textContent = (best !== null && best !== undefined) ? `${best}s` : '--';
 }
 
 // --- Board Setup ---
@@ -126,7 +148,7 @@ function initBoard() {
     for (let r = 0; r < rows; r++) {
         const row = [];
         for (let c = 0; c < cols; c++) {
-            row.push({ mine: false, revealed: false, flagged: false, adjacent: 0 });
+            row.push({ mine: false, revealed: false, flagged: false, adjacent: 0, hit: false, wrongFlag: false });
         }
         board.push(row);
     }
@@ -237,11 +259,16 @@ function updateCellDisplay(r, c) {
         cell.classList.add('revealed');
         if (data.mine) {
             cell.classList.add('mine');
+            if (data.hit) cell.classList.add('mine-hit');
             cell.innerHTML = '<i class="fa-solid fa-bomb"></i>';
         } else if (data.adjacent > 0) {
             cell.classList.add(`num-${data.adjacent}`);
             cell.textContent = data.adjacent;
         }
+    } else if (data.wrongFlag) {
+        // Wrongly flagged cell shown after game over
+        cell.classList.add('wrong-flag');
+        cell.innerHTML = '<i class="fa-solid fa-xmark"></i>';
     } else if (data.flagged) {
         cell.classList.add('flagged');
         cell.innerHTML = '<i class="fa-solid fa-flag"></i>';
@@ -260,11 +287,13 @@ function revealAllMines(hitRow, hitCol) {
                 const cell = boardEl.children[r * cols + c];
                 cell.classList.add('mine');
                 if (r === hitRow && c === hitCol) {
+                    data.hit = true;
                     cell.classList.add('mine-hit');
                 }
                 cell.innerHTML = '<i class="fa-solid fa-bomb"></i>';
             } else if (data.flagged) {
                 // Wrong flag
+                data.wrongFlag = true;
                 const cell = boardEl.children[r * cols + c];
                 cell.classList.add('wrong-flag');
                 cell.innerHTML = '<i class="fa-solid fa-xmark"></i>';
@@ -310,7 +339,6 @@ function handleCellClick(r, c) {
         data.revealed = true;
         clearInterval(timerInterval);
         revealAllMines(r, c);
-        updateCellDisplay(r, c);
         statusEl.textContent = 'Game Over! 💥';
         resetBtn.innerHTML = '<i class="fa-solid fa-face-frown"></i>';
         Sound.lose();
@@ -320,7 +348,6 @@ function handleCellClick(r, c) {
         stats.losses++;
         saveStats(stats);
         updateScoreboard();
-        localStorage.setItem('minesweeper_wins', stats.wins);
         return;
     }
 
@@ -340,12 +367,12 @@ function handleCellClick(r, c) {
         // Update stats
         const stats = loadStats();
         stats.wins++;
-        if (stats.bestTime === null || elapsedTime < stats.bestTime) {
-            stats.bestTime = elapsedTime;
+        const currentBest = stats.bestTime[difficulty];
+        if (currentBest === null || currentBest === undefined || elapsedTime < currentBest) {
+            stats.bestTime[difficulty] = elapsedTime;
         }
         saveStats(stats);
         updateScoreboard();
-        localStorage.setItem('minesweeper_wins', stats.wins);
     }
 }
 

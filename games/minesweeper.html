@@ -380,11 +380,8 @@
             .sidebar { height: 100%; }
         }
 
-        @media (max-width: 600px) {
-            #board {
-                --cell-size: 24px;
-            }
-        }
+        /* Note: cell sizing is fully controlled by JS (inline --cell-size),
+           so no CSS override for #board is needed here. */
     </style>
 </head>
 <body>

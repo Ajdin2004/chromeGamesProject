@@ -82,6 +82,25 @@
             padding: 0.3rem;
             border-radius: 12px;
             border: 1px solid var(--card-border);
+            flex-wrap: wrap;
+        }
+
+        /* Board flip (1v1 pass-and-play) */
+        #board {
+            transition: transform 0.4s ease-in-out;
+        }
+
+        #board.flipped {
+            transform: rotate(180deg);
+        }
+
+        #board .glyph {
+            display: inline-block;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        #board.flipped .glyph {
+            transform: rotate(180deg);
         }
 
         .mode-btn {
@@ -331,6 +350,7 @@
     <div class="controls-bar">
         <div class="mode-toggle">
             <button class="mode-btn active" id="btn-vs-ai">Vs AI Engine</button>
+            <button class="mode-btn" id="btn-local">1v1 Local</button>
             <button class="mode-btn" id="btn-puzzles">Puzzles</button>
         </div>
 
@@ -368,6 +388,8 @@
                 <button class="btn-action" id="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Game</button>
                 <button class="btn-action" id="btn-load"><i class="fa-solid fa-folder-open"></i> Load Game</button>
             </div>
+
+            <button class="btn-action" id="btn-flip"><i class="fa-solid fa-repeat"></i> Flip Board</button>
 
             <button class="btn-action btn-primary" id="btn-reset"><i class="fa-solid fa-rotate-right"></i> New Game</button>
         </div>
