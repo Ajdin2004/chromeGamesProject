@@ -929,6 +929,75 @@
 
         .dev-banner.hidden { display: none; }
 
+        /* --- Cookie / Storage Consent Banner --- */
+        .consent-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 1rem 1.5rem;
+            background: rgba(11, 13, 25, 0.95);
+            border-top: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .consent-banner.hidden { display: none; }
+
+        .consent-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            max-width: 640px;
+            line-height: 1.5;
+            flex: 1 1 320px;
+        }
+
+        .consent-text a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .consent-text a:hover { text-decoration: underline; }
+
+        .consent-actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .consent-btn {
+            border: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .consent-btn.accept {
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            color: #fff;
+        }
+
+        .consent-btn.accept:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4); }
+
+        .consent-btn.decline {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .consent-btn.decline:hover { color: var(--text-main); border-color: var(--accent-cyan); }
+
         /* --- About Us Section --- */
         .about-section {
             margin-top: 3rem;
@@ -2214,6 +2283,10 @@
                 <a href="#" id="report-bug-link" class="footer-link" title="Report a bug"><i class="fa-solid fa-bug"></i> Report a Bug</a>
                 <a href="#" id="suggest-game-link" class="footer-link" title="Suggest a game"><i class="fa-solid fa-lightbulb"></i> Suggest a Game</a>
                 <a href="https://github.com/Ajdin2004/chromeGamesProject" target="_blank" rel="noopener" class="footer-link" title="GitHub repository"><i class="fa-brands fa-github"></i> GitHub</a>
+                <a href="privacy-policy.html" class="footer-link" title="Privacy Policy"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a>
+                <a href="terms-of-service.html" class="footer-link" title="Terms of Service"><i class="fa-solid fa-file-contract"></i> Terms of Service</a>
+                <a href="disclaimer.html" class="footer-link" title="Disclaimer"><i class="fa-solid fa-circle-exclamation"></i> Disclaimer</a>
+                <button id="clear-data-footer-btn" class="footer-link" title="Delete all locally stored data (GDPR right to erasure)" style="background:none;border:none;cursor:pointer;font-family:inherit;"><i class="fa-solid fa-trash-can"></i> Clear My Data</button>
             </div>
             <div class="footer-tech">
                 <span class="tech-badge"><i class="fa-brands fa-html5"></i> HTML</span>
@@ -2228,6 +2301,19 @@
 
     <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
+
+    <!-- Cookie & Local Storage Consent Banner (ePrivacy Directive) -->
+    <div id="consent-banner" class="consent-banner hidden" role="dialog" aria-label="Privacy and storage consent">
+        <p class="consent-text">
+            We use your browser's local storage to save favorites, high scores, play history, and theme
+            preferences on your device. No personal data is sent to our servers. See our
+            <a href="privacy-policy.html">Privacy Policy</a>.
+        </p>
+        <div class="consent-actions">
+            <button id="consent-accept" class="consent-btn accept">Accept All</button>
+            <button id="consent-decline" class="consent-btn decline">Essential Only</button>
+        </div>
+    </div>
 
     <!-- Keyboard Hint -->
     <div class="kbd-hint">
@@ -3111,9 +3197,10 @@
             if (e.key.toLowerCase() === 'r' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
                 randomBtn.click();
             }
-            // 'Esc' closes modal
+            // 'Esc' closes modals
             if (e.key === 'Escape') {
                 modal.classList.add('hidden');
+                feedbackModal.classList.add('hidden');
             }
         });
 
@@ -3326,6 +3413,48 @@
                 }
             });
         }
+
+        /* ============================================================
+           COOKIE / STORAGE CONSENT (ePrivacy Directive)
+           ============================================================ */
+        const CONSENT_KEY = 'cookie_consent';
+        const consentBanner = document.getElementById('consent-banner');
+
+        if (!localStorage.getItem(CONSENT_KEY)) {
+            consentBanner.classList.remove('hidden');
+        }
+
+        document.getElementById('consent-accept').addEventListener('click', () => {
+            localStorage.setItem(CONSENT_KEY, 'accepted');
+            consentBanner.classList.add('hidden');
+            showToast('Preferences & scores will be saved locally.', 'fa-circle-check');
+        });
+
+        document.getElementById('consent-decline').addEventListener('click', () => {
+            // Remove any previously stored non-essential data
+            [RECENT_KEY, FAV_KEY, PLAYS_KEY, THEME_KEY, DEV_BANNER_KEY, 'last_played_times'].forEach(k => {
+                try { localStorage.removeItem(k); } catch (err) { /* ignore */ }
+            });
+            localStorage.setItem(CONSENT_KEY, 'essential');
+            consentBanner.classList.add('hidden');
+            showToast('Essential only mode enabled.', 'fa-shield-halved');
+        });
+
+        /* ============================================================
+           CLEAR MY DATA (GDPR Right to Erasure)
+           ============================================================ */
+        document.getElementById('clear-data-footer-btn').addEventListener('click', () => {
+            if (!confirm('This will permanently delete all locally stored data for Chromium Games (favorites, history, scores, theme, consent). Continue?')) return;
+            try {
+                const keys = [];
+                for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+                keys.forEach(k => localStorage.removeItem(k));
+                showToast('All local data has been deleted.', 'fa-trash-can');
+                setTimeout(() => window.location.reload(), 1200);
+            } catch (err) {
+                showToast('Could not clear data.', 'fa-triangle-exclamation');
+            }
+        });
 
         /* ============================================================
            INIT

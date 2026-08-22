@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Chromium Games</title>
+    <meta name="description" content="Privacy Policy for Chromium Games — how we handle your data, local storage, third-party services, and your GDPR rights.">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/10854/10854859.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0d19;
+            --card-bg: rgba(22, 27, 46, 0.65);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary-glow: #7928ca;
+            --secondary-glow: #ff0080;
+            --accent-cyan: #00f2fe;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .legal-container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .back-link:hover { transform: translateX(-4px); }
+
+        .legal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(16px);
+        }
+
+        .legal-card h1 {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--primary-glow), var(--secondary-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .last-updated {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .legal-card h2 {
+            font-size: 1.25rem;
+            margin: 1.75rem 0 0.75rem;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legal-card p, .legal-card li {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .legal-card ul, .legal-card ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .legal-card strong { color: var(--text-main); }
+
+        .legal-card a { color: var(--accent-cyan); }
+
+        code {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .clear-data-btn {
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            border: none;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .clear-data-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 128, 0.4);
+        }
+
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 2rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="legal-container">
+        <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Chromium Games</a>
+
+        <main class="legal-card">
+            <h1><i class="fa-solid fa-shield-halved"></i> Privacy Policy</h1>
+            <p class="last-updated">Last updated: August 22, 2026</p>
+
+            <h2><i class="fa-solid fa-user"></i> 1. Who We Are (Data Controller)</h2>
+            <p>
+                Chromium Games ("we", "us", "the Site") is a free browser games portal operated by
+                <strong>Ajdin</strong>. For any privacy-related questions or requests, you can contact us at:
+                <a href="mailto:ajdin.hasic56@gmail.com">ajdin.hasic56@gmail.com</a>.
+            </p>
+
+            <h2><i class="fa-solid fa-database"></i> 2. Data We Store (Local Storage Only)</h2>
+            <p>
+                Chromium Games does <strong>not</strong> require an account and does <strong>not</strong> store
+                personal data on our servers. All of your data is stored locally in your own browser using
+                <code>localStorage</code>, and it never leaves your device through us. This includes:
+            </p>
+            <ul>
+                <li><strong>Favorites</strong> — which games you starred (<code>favorite_games</code>)</li>
+                <li><strong>Recently played</strong> games and timestamps (<code>recently_played</code>, <code>last_played_times</code>)</li>
+                <li><strong>Play counts</strong> per game (<code>play_counts</code>)</li>
+                <li><strong>Theme preference</strong> (<code>selected_theme</code>)</li>
+                <li><strong>High scores</strong> and game progress (e.g. <code>wordle_streak</code>, <code>snake_highscore</code>)</li>
+                <li><strong>Banner dismissal & consent choices</strong> (<code>dev_banner_dismissed</code>, <code>cookie_consent</code>)</li>
+            </ul>
+            <p>
+                This storage is used to provide core functionality you interact with (saving favorites, scores,
+                preferences). You may decline non-essential storage via the consent banner; the site will still
+                work, but preferences and scores will not persist between visits.
+            </p>
+
+            <h2><i class="fa-solid fa-server"></i> 3. Third-Party Services</h2>
+            <p>
+                When you load this site, your browser connects to the following third parties. These providers
+                receive technical data such as your IP address as part of any web request:
+            </p>
+            <ul>
+                <li><strong>Google Fonts</strong> (fonts.googleapis.com) — used to load the "Outfit" typeface.</li>
+                <li><strong>cdnjs / Cloudflare</strong> (cdnjs.cloudflare.com) — used to load Font Awesome icons.</li>
+                <li><strong>Flaticon CDN</strong> (cdn-icons-png.flaticon.com) — used for the site favicon.</li>
+                <li><strong>iTunes Search API</strong> (via Apple) — queried by the Tunetile game to fetch short music previews.</li>
+                <li><strong>Netlify</strong> — hosts the website and its serverless functions.</li>
+            </ul>
+            <p>
+                We do not use advertising networks, analytics trackers, or social media pixels.
+            </p>
+
+            <h2><i class="fa-solid fa-envelope"></i> 4. Feedback Emails</h2>
+            <p>
+                The "Report a Bug" and "Suggest a Game" features open your own email client with a pre-filled
+                message addressed to us. The pre-filled body includes the message you write, plus your
+                <strong>browser user-agent string</strong> and the current date/time, to help us reproduce bugs.
+                No data is sent until you choose to send the email yourself. If you contact us by email, we use
+                your email address and message solely to respond to your feedback.
+            </p>
+
+            <h2><i class="fa-solid fa-scale-balanced"></i> 5. Your Rights (GDPR)</h2>
+            <p>If you are located in the European Economic Area (EEA), you have the following rights:</p>
+            <ol>
+                <li><strong>Right of access</strong> — you can view everything we store about you directly in your browser's developer tools (Application → Local Storage), since all data is stored locally on your device.</li>
+                <li><strong>Right to erasure</strong> — you can delete all stored data at any time using the button below, or by clearing your browser's site data.</li>
+                <li><strong>Right to rectification & objection</strong> — since data is local, editing or deleting it in your browser exercises these rights instantly.</li>
+                <li><strong>Right to withdraw consent</strong> — you can change or revoke your storage consent choice at any time by clearing the <code>cookie_consent</code> entry or contacting us.</li>
+                <li><strong>Right to lodge a complaint</strong> — with your local data protection authority.</li>
+            </ol>
+
+            <button id="clear-data-btn" class="clear-data-btn"><i class="fa-solid fa-trash-can"></i> Clear My Data</button>
+            <p style="margin-top:0.75rem;">This permanently removes all locally stored favorites, play history, high scores, theme preference, and consent choices for this site.</p>
+
+            <h2><i class="fa-solid fa-child-reaching"></i> 6. Children's Privacy</h2>
+            <p>
+                The Site is suitable for general audiences and does not knowingly collect any personal
+                information from anyone, including children under 16. Since no accounts exist and no data is
+                transmitted to us, no processing of children's data takes place.
+            </p>
+
+            <h2><i class="fa-solid fa-clock-rotate-left"></i> 7. Changes to This Policy</h2>
+            <p>
+                We may update this Privacy Policy from time to time. Changes will be posted on this page with an
+                updated "Last updated" date. Continued use of the Site after changes constitutes acceptance of
+                the revised policy.
+            </p>
+        </main>
+
+        <p class="footer-note">Chromium Games · <a href="terms-of-service.html" style="color:var(--accent-cyan);">Terms of Service</a> · <a href="disclaimer.html" style="color:var(--accent-cyan);">Disclaimer</a></p>
+    </div>
+
+    <script>
+        document.getElementById('clear-data-btn').addEventListener('click', () => {
+            if (!confirm('This will permanently delete all locally stored data for Chromium Games (favorites, history, scores, theme, consent). Continue?')) return;
+            try {
+                const keys = [];
+                for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+                keys.forEach(k => localStorage.removeItem(k));
+                alert('All locally stored data has been deleted.');
+            } catch (e) {
+                alert('Could not clear data: ' + e.message);
+            }
+        });
+    </script>
+</body>
+</html>
