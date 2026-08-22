@@ -931,7 +931,7 @@ function triggerVictoryModal(agent) {
     winElement.textContent = agent.element || 'Unknown';
     winSpecialty.textContent = agent.specialty || 'Unknown';
     winRarity.textContent = agent.rarity || 'Unknown';
-    winVersion.textContent = agent.version || 'Unknown';
+    winVersion.textContent = agent.releaseVersion || 'Unknown';
     winFaction.textContent = agent.faction || 'Unknown';
     winGender.textContent = agent.gender || 'Unknown';
 

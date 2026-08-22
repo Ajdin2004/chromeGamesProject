@@ -137,7 +137,7 @@
     "weapon": "Broadblade",
     "rarity": "5★",
     "role": "Sub-DPS",
-    "faction": "Startorch Academy",
+    "faction": "Ashinohara",
     "gender": "Female",
     "releaseVersion": "2.8",
     "image": "https://static.wikia.nocookie.net/wutheringwaves/images/d/d7/Resonator_Chisa.png/revision/latest/scale-to-width-down/74?cb=20251018043830"
@@ -214,7 +214,7 @@
     "weapon": "Sword",
     "rarity": "5★",
     "role": "Main-DPS",
-    "faction": "Startorch Academy",
+    "faction": "Ashinohara",
     "gender": "Female",
     "releaseVersion": "3.3",
     "image": "https://static.wikia.nocookie.net/wutheringwaves/images/8/8e/Resonator_Hiyuki.png/revision/latest/scale-to-width-down/74?cb=20260501160450"
@@ -614,5 +614,27 @@
     "gender": "Female",
     "releaseVersion": "1.2",
     "image": "https://static.wikia.nocookie.net/wutheringwaves/images/a/a0/Resonator_Zhezhi.png/revision/latest/scale-to-width-down/74?cb=20240812052258"
+  },
+  "Qingxiao": {
+    "name": "Qingxiao",
+    "element": "Aero",
+    "weapon": "Sword",
+    "rarity": "5★",
+    "role": "Main-DPS",
+    "faction": "Mengzhou",
+    "gender": "Female",
+    "releaseVersion": "3.6",
+    "image": "https://static.wikia.nocookie.net/wutheringwaves/images/a/ac/Resonator_Qingxiao.png/revision/latest/scale-to-width-down/74?cb=20260820164907"
+  },
+  "Jingran": {
+    "name": "Jingran",
+    "element": "Fusion",
+    "weapon": "Broadblade",
+    "rarity": "5★",
+    "role": "Main-DPS",
+    "faction": "Mengzhou",
+    "gender": "Male",
+    "releaseVersion": "3.6",
+    "image": "https://static.wikia.nocookie.net/wutheringwaves/images/d/d0/Resonator_Jingran.png/revision/latest/scale-to-width-down/74?cb=20260820165054"
   }
 }

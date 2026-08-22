@@ -80,6 +80,7 @@
   "iq": { "name": "Iraq", "code": "IQ", "continent": "Asia", "capital": "Baghdad", "population": "40.2M" },
   "ie": { "name": "Ireland", "code": "IE", "continent": "Europe", "capital": "Dublin", "population": "4.9M" },
   "il": { "name": "Israel", "code": "IL", "continent": "Asia", "capital": "Jerusalem", "population": "9.2M" },
+  "ps": { "name": "Palestine", "code": "PS", "continent": "Asia", "capital": "Jerusalem", "population": "5.7M" },
   "it": { "name": "Italy", "code": "IT", "continent": "Europe", "capital": "Rome", "population": "60.4M" },
   "jm": { "name": "Jamaica", "code": "JM", "continent": "North America", "capital": "Kingston", "population": "2.9M" },
   "jp": { "name": "Japan", "code": "JP", "continent": "Asia", "capital": "Tokyo", "population": "125.8M" },
