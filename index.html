@@ -362,146 +362,359 @@
             border-color: var(--accent-cyan);
         }
 
-        /* --- Dynamic Responsive Games Grid --- */
-        .games-grid {
+        /* --- Hero Bento Strip --- */
+        .hero-bento {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
+            grid-template-columns: 1.8fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
         }
 
-        @media (min-width: 640px) {
-            .games-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (min-width: 992px) {
-            .games-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (min-width: 1200px) {
-            .games-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-
-        .game-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
+        .bento-tile {
+            position: relative;
             border-radius: 20px;
-            overflow: hidden;
-            backdrop-filter: blur(16px);
-            text-decoration: none;
-            color: inherit;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            padding: 1.4rem 1.5rem;
             display: flex;
             flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            justify-content: flex-end;
+            text-decoration: none;
+            color: inherit;
+            overflow: hidden;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .bento-tile:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        .bento-tile.hidden { display: none; }
+
+        .bento-tile.featured { grid-row: 1 / 3; min-height: 330px; }
+
+        .bento-art {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            opacity: 0.1;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.3s ease;
+        }
+
+        .featured .bento-art { font-size: 12rem; }
+        .bento-tile:hover .bento-art { opacity: 0.22; }
+
+        .bento-info { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
+
+        .bento-kicker {
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+        }
+
+        .bento-tile h2 { margin: 0.35rem 0 0.3rem; font-size: 1.4rem; line-height: 1.2; }
+        .featured h2 { font-size: 2rem; }
+
+        .bento-sub {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.45;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .featured .bento-sub { -webkit-line-clamp: 3; font-size: 0.95rem; }
+
+        .bento-play {
             position: relative;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: cardIn 0.5s ease forwards;
-            transform-style: preserve-3d;
-            content-visibility: auto;
-            contain-intrinsic-size: 320px;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.9rem;
+            padding: 0.55rem 1.2rem;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
+
+        /* --- Bento Strip Animations --- */
+        /* Entrance: staggered rise-in.
+           "backwards" fill applies the hidden state during the delay but releases
+           transform after finishing, so :hover transforms keep working. */
+        @keyframes bentoIn {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+        }
+
+        .bento-tile { animation: bentoIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+        .bento-tile.featured {
+            animation:
+                bentoIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.05s backwards,
+                featuredBreath 6s ease-in-out 1.5s infinite;
+        }
+        #bento-continue { animation-delay: 0.16s; }
+        #bento-daily { animation-delay: 0.27s; }
+
+        /* Trending: slow breathing border glow */
+        @keyframes featuredBreath {
+            0%, 100% { border-color: var(--card-border); box-shadow: 0 0 0 rgba(0, 242, 254, 0); }
+            50% { border-color: var(--accent-cyan); box-shadow: 0 0 24px rgba(0, 242, 254, 0.12); }
+        }
+
+        /* Big background icons drift slowly */
+        @keyframes artFloat {
+            0%, 100% { transform: translate(0, 0) rotate(-4deg) scale(1); }
+            50% { transform: translate(2%, -4%) rotate(3deg) scale(1.06); }
+        }
+        .bento-art { animation: artFloat 8s ease-in-out infinite; }
+
+        /* Per-tile icon personality */
+        #bento-featured .bento-art i { animation: flameFlicker 2.6s ease-in-out infinite; }
+        @keyframes flameFlicker {
+            0%, 100% { transform: scale(1) rotate(-2deg); }
+            50% { transform: scale(1.08) rotate(2deg); }
+        }
+
+        #bento-continue .bento-art i { animation: continueNudge 4.5s ease-in-out infinite; }
+        @keyframes continueNudge {
+            0%, 88%, 100% { transform: translateX(0); }
+            92% { transform: translateX(-8px); }
+            96% { transform: translateX(8px); }
+        }
+
+        #bento-daily .bento-art i { animation: diceWobble 3s ease-in-out infinite; transform-origin: center; }
+        @keyframes diceWobble {
+            0%, 100% { transform: rotate(-10deg) scale(1); }
+            50% { transform: rotate(12deg) scale(1.12); }
+        }
+
+        /* Kicker labels pulse gently */
+        .bento-kicker i { animation: kickerPulse 2.4s ease-in-out infinite; }
+        @keyframes kickerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.55; }
+        }
+
+        /* Periodic shine sweeping across the Play Now pill */
+        .bento-play::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 45%;
+            height: 100%;
+            background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: translateX(-140%) skewX(-20deg);
+            animation: playShine 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes playShine {
+            0%, 55% { transform: translateX(-140%) skewX(-20deg); }
+            100% { transform: translateX(320%) skewX(-20deg); }
+        }
+
+        @media (max-width: 900px) {
+            .hero-bento { grid-template-columns: 1fr; }
+            .bento-tile.featured { grid-row: auto; min-height: 240px; }
+        }
+
+        /* --- Category Shelves --- */
+        .shelf { margin-bottom: 2.4rem; }
+
+        .shelf-head {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.9rem;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .shelf-head i { color: var(--accent-cyan); font-size: 1rem; }
+
+        .shelf-count {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 0.1rem 0.6rem;
+        }
+
+        .shelf-track {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 235px;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 12px 4px 10px;
+            scroll-snap-type: x proximity;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+        }
+
+        @media (max-width: 700px) {
+            .shelf-track {
+                grid-auto-flow: row;
+                grid-template-columns: repeat(2, 1fr);
+                overflow-x: visible;
+            }
+        }
+
+        /* --- Compact Game Tile --- */
+        .game-card.tile {
+            scroll-snap-align: start;
+            background: rgba(22, 27, 46, 0.85);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1rem;
+            padding-top: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            animation: cardIn 0.35s ease backwards;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .game-card.tile:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4), 0 0 12px var(--primary-glow);
         }
 
         @keyframes cardIn {
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(12px); }
         }
 
-        .game-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--primary-glow);
+        .tile-head { display: flex; align-items: center; gap: 0.7rem; }
+
+        .tile-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #fff;
+            background: linear-gradient(135deg, var(--t1, #4f46e5), var(--t2, #818cf8));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 4px 10px rgba(0, 0, 0, 0.3);
         }
+
+        .tile-head h3 { font-size: 1rem; font-weight: 700; line-height: 1.25; margin: 0; }
+
+        .tile-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin: 0;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tile-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .genre-tag {
+            font-size: 0.62rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+        }
+
+        .best-score {
+            display: none;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--star-color);
+            white-space: nowrap;
+        }
+
+        .best-score.visible { display: inline-flex; }
 
         /* --- Favorites Star --- */
         .fav-star {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 8px;
+            right: 8px;
             z-index: 4;
-            font-size: 1.2rem;
+            font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.35);
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(0, 0, 0, 0.4);
+            transition: color 0.2s ease, transform 0.2s ease;
+            background: rgba(0, 0, 0, 0.45);
             border-radius: 50%;
-            width: 34px;
-            height: 34px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             border: none;
         }
 
-        .fav-star:hover { transform: scale(1.2); color: var(--star-color); }
+        .fav-star:hover { transform: scale(1.15); color: var(--star-color); }
         .fav-star.active { color: var(--star-color); text-shadow: 0 0 8px var(--star-color); }
 
         /* --- Last Played Chip --- */
         .last-played {
-            position: absolute;
-            bottom: 8px;
-            left: 10px;
-            z-index: 4;
-            font-size: 0.65rem;
-            color: var(--accent-cyan);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 0.15rem 0.5rem;
-            border-radius: 10px;
             display: none;
-        }
-
-        .last-played.visible { display: block; }
-
-        /* --- Animated Canvas & Fallback Gradient Banner --- */
-        .card-banner {
-            position: relative;
-            width: 100%;
-            height: 160px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #311042, #020617);
-            background-size: 400% 400%;
-            animation: gradientShift 10s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .preview-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .banner-glyph {
-            position: relative;
-            z-index: 2;
-            font-size: 3.5rem;
+            font-size: 0.6rem;
+            font-weight: 600;
             color: var(--accent-cyan);
-            filter: drop-shadow(0 0 15px var(--accent-cyan));
-            transition: transform 0.4s ease, filter 0.4s ease;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 0.12rem 0.5rem;
+            border-radius: 8px;
+            white-space: nowrap;
         }
 
-        .game-card:hover .banner-glyph {
-            transform: scale(1.2) rotate(-5deg);
-            filter: drop-shadow(0 0 25px var(--secondary-glow));
-            color: #fff;
-        }
+        .last-played.visible { display: inline-block; }
 
+        /* --- Badge --- */
         .badge {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: -8px;
+            left: 12px;
             background: var(--accent-cyan);
             color: #000;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             font-weight: 800;
-            padding: 0.25rem 0.60rem;
+            padding: 0.18rem 0.5rem;
             border-radius: 6px;
             text-transform: uppercase;
             z-index: 3;
@@ -510,53 +723,18 @@
 
         .badge.popular { background: #ff0080; color: #fff; }
         .badge.new { background: var(--accent-cyan); color: #000; }
+        .badge.daily { background: var(--star-color); color: #000; }
 
-        .card-details {
-            padding: 1.25rem 1.5rem 1.5rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
+        /* --- Shared Hover Effect Canvas (single element, follows hovered tile) --- */
+        #tile-fx-canvas {
+            position: fixed;
+            z-index: 6;
+            pointer-events: none;
+            border-radius: 16px;
+            display: none;
         }
 
-        .card-details h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
 
-        .card-details p {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 1.25rem;
-            line-height: 1.4;
-            flex-grow: 1;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .genre-tag {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .play-btn {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--accent-cyan);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
 
         /* --- Empty State --- */
         .empty-state {
@@ -1353,7 +1531,9 @@
         @media (prefers-reduced-motion: reduce) {
             .game-card { animation: none; opacity: 1; transform: none; }
             .game-card:hover { transform: none; }
-            .card-banner { animation: none; }
+            .bento-art, .bento-tile { transition: none; animation: none; }
+            .bento-art i, .bento-kicker i { animation: none; }
+            .bento-play::after { display: none; }
             .logo-wrapper { animation: none; }
             .about-icon { animation: none; }
             .about-section::before { animation: none; }
@@ -1361,7 +1541,7 @@
             .dev-banner-content i { animation: none; }
             .about-title { animation: none; }
             .about-made-with i { animation: none; }
-            .theme-btn, .category-btn, .random-btn, .leaderboard-trigger, .continue-btn, .fav-star, .banner-glyph { transition: none; }
+            .theme-btn, .category-btn, .random-btn, .leaderboard-trigger, .continue-btn, .fav-star, .game-card.tile { transition: none; }
         }
     </style>
 </head>
@@ -1440,571 +1620,37 @@
             </div>
         </section>
 
-        <!-- Dynamic Game Cards Grid -->
-        <section id="games-list" class="games-grid">
-
-            <!-- Wordle Card -->
-            <a href="wordGames/wordle.html" class="game-card" data-category="word retro" data-name="wordle daily word game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #064e3b, #047857, #15803d, #022c22);">
-                    <div class="badge new">Daily</div>
-                    <button class="fav-star" data-href="wordGames/wordle.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/wordle.html"></span>
-                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
-                    <i class="fa-solid fa-font banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Wordle</h3>
-                    <p>Guess the 5-letter word in 6 tries. Completely randomized and resets every single day.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Word Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
+        <!-- Hero Bento Strip -->
+        <section id="hero-bento" class="hero-bento">
+            <a id="bento-featured" class="bento-tile featured" href="#">
+                <div class="bento-art"><i id="bento-featured-icon" class="fa-solid fa-fire"></i></div>
+                <div class="bento-info">
+                    <span class="bento-kicker"><i class="fa-solid fa-fire"></i> Trending Now</span>
+                    <h2 id="bento-featured-title">Loading&hellip;</h2>
+                    <p id="bento-featured-desc" class="bento-sub"></p>
+                    <span class="bento-play"><i class="fa-solid fa-play"></i> Play Now</span>
                 </div>
             </a>
-
-            <!-- Earthdle Card -->
-            <a href="wordGames/earthdle.html" class="game-card" data-category="word retro" data-name="earthdle daily geography game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #0369a1, #1e3a8a, #0c4a6e);">
-                    <div class="badge new">Daily</div>
-                    <button class="fav-star" data-href="wordGames/earthdle.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/earthdle.html"></span>
-                    <canvas class="preview-canvas" data-type="globe-rotator"></canvas>
-                    <i class="fa-solid fa-globe banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Earthdle</h3>
-                    <p>Guess the country in 6 tries. Completely randomized and resets every single day.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Geography</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
+            <a id="bento-continue" class="bento-tile hidden" href="#">
+                <div class="bento-art"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="bento-info">
+                    <span class="bento-kicker"><i class="fa-solid fa-clock-rotate-left"></i> Jump Back In</span>
+                    <h2 id="bento-continue-title"></h2>
+                    <p class="bento-sub">Resume where you left off.</p>
                 </div>
             </a>
-            <!-- Flag Guessr Card -->
-            <a href="wordGames/flagguessr.html" class="game-card" data-category="word" data-name="flag guessr daily flag guessing game" data-added="2026-08-17">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #5f0c6e, #fe00f1, #6007a3, #1e3a8a);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/flagguessr.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/flagguessr.html"></span>
-                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
-                    <i class="fa-solid fa-flag banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Flag Guessr</h3>
-                    <p>Guess the country from its flag in 6 tries. Daily, Endless, and Quiz modes!</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Geography</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
+            <a id="bento-daily" class="bento-tile" href="#">
+                <div class="bento-art"><i id="bento-daily-icon" class="fa-solid fa-dice"></i></div>
+                <div class="bento-info">
+                    <span class="bento-kicker"><i class="fa-solid fa-dice"></i> Daily Pick</span>
+                    <h2 id="bento-daily-title"></h2>
+                    <p id="bento-daily-desc" class="bento-sub"></p>
                 </div>
             </a>
-            
-
-            <!-- Tunetile Card -->
-            <a href="wordGames/tunetile.html" class="game-card" data-category="word" data-name="tunetile music guessing game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #0b1220);">
-                    <div class="badge new">Daily</div>
-                    <button class="fav-star" data-href="wordGames/tunetile.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/tunetile.html"></span>
-                    <canvas class="preview-canvas" data-type="music-notes"></canvas>
-                    <i class="fa-solid fa-microphone banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Tunetile</h3>
-                    <p>Guess the song from a short audio clip. Test your music knowledge with this fun guessing game.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Word Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Loldle Card -->
-            <a href="wordGames/loldle.html" class="game-card" data-category="word retro" data-name="loldle daily league of legends game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #581c87, #6b21a8, #3b0764, #1e1b4b);">
-                    <div class="badge new">Daily</div>
-                    <button class="fav-star" data-href="wordGames/loldle.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/loldle.html"></span>
-                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
-                    <i class="fa-solid fa-wand-magic-sparkles banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Loldle</h3>
-                    <p>Guess the League of Legends champion in 8 tries. Reset every single day.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">LoL Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Wutherdle Card -->
-            <a href="wordGames/wuthering.html" class="game-card" data-category="word retro" data-name="wutherdle daily wuthering waves game" data-added="2026-08-09">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0c4a6e, #0ea5e9, #1e3a8a, #0a0e1a);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/wuthering.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/wuthering.html"></span>
-                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
-                    <i class="fa-solid fa-wind banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Wutherdle</h3>
-                    <p>Guess the Wuthering Waves resonator in 8 tries. Reset every single day.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">WuWa Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Zenlessdle Card -->
-            <a href="wordGames/zenlessdle.html" class="game-card" data-category="word retro" data-name="zenlessdle daily zenless zone zero game" data-added="2026-08-15">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #713f12, #eab308, #854d0e, #1c1917);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/zenlessdle.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/zenlessdle.html"></span>
-                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
-                    <i class="fa-solid fa-video banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Zenlessdle</h3>
-                    <p>Guess the Zenless Zone Zero agent in 8 tries. Reset every single day.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">ZZZ Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Starraildle Card -->
-            <a href="wordGames/starraildle.html" class="game-card" data-category="word retro" data-name="starraildle daily honkai star rail game" data-added="2026-08-15">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #581c87, #a855f7, #312e81, #fbbf24);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/starraildle.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/starraildle.html"></span>
-                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
-                    <i class="fa-solid fa-train-subway banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Starraildle</h3>
-                    <p>Guess the Honkai Star Rail character in 8 tries. Reset every single day.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">HSR Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Genshindle Card -->
-            <a href="wordGames/genshindle.html" class="game-card" data-category="word retro" data-name="genshindle daily genshin impact game" data-added="2026-08-22">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #78350f, #d4af37, #8b5cf6, #1e1b4b);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/genshindle.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/genshindle.html"></span>
-                    <canvas class="preview-canvas" data-type="orb-orbs"></canvas>
-                    <i class="fa-solid fa-wind banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Genshindle</h3>
-                    <p>Guess the Genshin Impact character in 8 tries. Reset every single day.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Genshin Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-            
-            <!-- Box Office Showdown Card -->
-            <a href="wordGames/boxoffice.html" class="game-card" data-category="word puzzle" data-name="box office imdb showdown movie guessing game" data-added="2026-08-08">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #b45309, #f59e0b, #78350f);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/boxoffice.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/boxoffice.html"></span>
-                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
-                    <i class="fa-solid fa-film banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>IMDB Showdown</h3>
-                    <p>Which movie has the highest IMDB rating? Battle through random movie matchups in this fun movie trivia game.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Movie Trivia</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Game Showdown Card -->
-            <a href="wordGames/videogames.html" class="game-card" data-category="word puzzle" data-name="box office showdown movie guessing game" data-added="2026-08-08">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #b45309, #f59e0b, #78350f);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/videogames.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/videogames.html"></span>
-                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
-                    <i class="fa-solid fa-gamepad banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Game Showdown</h3>
-                    <p>Which game sold more copies? Battle through random game matchups in this fun video game trivia game.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Video Game Trivia</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Riddler Card -->
-            <a href="wordGames/riddler.html" class="game-card" data-category="word puzzle" data-name="riddler daily riddle word game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e3a8a, #4338ca, #8b5cf6);">
-                    <div class="badge new">Daily</div>
-                    <button class="fav-star" data-href="wordGames/riddler.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/riddler.html"></span>
-                    <canvas class="preview-canvas" data-type="puzzle-grid"></canvas>
-                    <i class="fa-solid fa-question banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Daily Riddler</h3>
-                    <p>Solve a short riddle to guess the hidden word in 5 tries. Related-word hints help you narrow each answer.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Word Puzzle</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-            <!-- Boggle-like Card -->
-            <a href="wordGames/boggle.html" class="game-card" data-category="word" data-name="boggle word search grid" data-added="2024-06-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #0b1220);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="wordGames/boggle.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="wordGames/boggle.html"></span>
-                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
-                    <i class="fa-solid fa-dice banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Grid Word Finder</h3>
-                    <p>Find as many words as you can on a 4x4 letter grid. Words must be adjacent and at least 3 letters long.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Word Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-                        <!-- Solitaire -->
-            <a href="games/solitaire.html" class="game-card" data-category="arcade retro" data-name="solitaire classic card game" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #065f46, #10b981, #064e3b, #022c22);">
-                    <button class="fav-star" data-href="games/solitaire.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/solitaire.html"></span>
-                    <canvas class="preview-canvas" data-type="card-shuffle"></canvas>
-                    <i class="fa-solid fa-clover banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Solitaire</h3>
-                    <p>Classic Klondike solitaire. Build four stacks of cards by suit from Ace to King.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Card Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Poker -->
-            <a href="games/poker.html" class="game-card" data-category="arcade retro" data-name="poker texas holdem card game" data-added="2026-08-07">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #7c2d12, #f97316, #431407, #1c1917);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/poker.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/poker.html"></span>
-                    <canvas class="preview-canvas" data-type="poker-cards"></canvas>
-                    <i class="fa-solid fa-diamond banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Texas Hold'em</h3>
-                    <p>Play poker against 3 AI opponents. Bluff, raise, and win the pot with the best hand.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Card Game</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Flappy Bird Clone -->
-            <a href="games/flappybird.html" class="game-card" data-category="arcade retro" data-name="flappy bird clone" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #38bdf8, #0369a1, #0c4a6e);">
-                    <div class="badge popular">Popular</div>
-                    <button class="fav-star" data-href="games/flappybird.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/flappybird.html"></span>
-                    <canvas class="preview-canvas" data-type="bouncing-bird"></canvas>
-                    <i class="fa-solid fa-dove banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Flappy Bird Clone</h3>
-                    <p>Navigate through obstacles in this classic physics-based arcade challenge.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Arcade</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Chrome Dino -->
-            <a href="games/dino.html" class="game-card" data-category="arcade retro" data-name="chrome dino runner" data-added="2026-08-10">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #1a1a2e, #535353, #2d2d44, #0f0f1a);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/dino.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/dino.html"></span>
-                    <canvas class="preview-canvas" data-type="bouncing-bird"></canvas>
-                    <i class="fa-solid fa-dragon banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Chrome Dino</h3>
-                    <p>Draw your dinosaur, jump and duck through the desert in this classic endless runner.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Arcade</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Pool -->
-            <a href="games/pool.html" class="game-card" data-category="arcade" data-name="pool" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #0284c7, #38bdf8, #0369a1, #0c4a6e);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/pool.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/pool.html"></span>
-                    <canvas class="preview-canvas" data-type="matrix-rain"></canvas>
-                    <i class="fa-solid fa-circle banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>8-Ball Pool</h3>
-                    <p>Classic pool game with 1v1 and Bot modes.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Arcade</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Snake -->
-            <a href="games/snake.html" class="game-card" data-category="arcade retro" data-name="snake" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #14532d, #16a34a, #052e16, #065f46);">
-                    <button class="fav-star" data-href="games/snake.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/snake.html"></span>
-                    <canvas class="preview-canvas" data-type="snake-trail"></canvas>
-                    <i class="fa-solid fa-staff-snake banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Snake</h3>
-                    <p>Classic snake game with customizable map sizes and multi-fruit spawns.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Retro</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Block Puzzler -->
-            <a href="games/blockpuzzler.html" class="game-card" data-category="arcade action" data-name="block puzzler tetris" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #7e22ce, #a855f7, #4c1d95, #3b0764);">
-                    <button class="fav-star" data-href="games/blockpuzzler.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/blockpuzzler.html"></span>
-                    <canvas class="preview-canvas" data-type="falling-blocks"></canvas>
-                    <i class="fa-solid fa-cubes banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Block Puzzler</h3>
-                    <p>Tetris-style puzzle game with ghost pieces and line-clearing mechanics.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Arcade</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Blockudoku -->
-            <a href="games/blockudoku.html" class="game-card" data-category="arcade puzzle" data-name="blockudoku sudoku block puzzle" data-added="2026-08-08">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #4c1d95, #7e22ce, #a855f7, #6d28d9);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/blockudoku.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/blockudoku.html"></span>
-                    <canvas class="preview-canvas" data-type="blockudoku-grid"></canvas>
-                    <i class="fa-solid fa-th-large banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Blockudoku</h3>
-                    <p>Place blocks on a 9x9 grid. Clear rows, columns, and 3x3 blocks in this Sudoku-meets-Tetris puzzle.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Puzzle</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Chess -->
-            <a href="games/chess.html" class="game-card" data-category="arcade action" data-name="chess" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #334155, #475569, #0f172a, #1e293b);">
-                    <button class="fav-star" data-href="games/chess.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/chess.html"></span>
-                    <canvas class="preview-canvas" data-type="chess-grid"></canvas>
-                    <i class="fa-solid fa-chess banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Chess</h3>
-                    <p>Classic strategy game for two players with all standard rules and features.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Strategy</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Checkers -->
-            <a href="games/checkers.html" class="game-card" data-category="arcade strategy" data-name="checkers" data-added="2026-08-13">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #1e1b4b, #4338ca, #312e81, #0f172a);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/checkers.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/checkers.html"></span>
-                    <canvas class="preview-canvas" data-type="checkers-grid"></canvas>
-                    <i class="fa-solid fa-chess-pawn banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Checkers</h3>
-                    <p>Classic board strategy duel. Capture, jump, and crown your way to victory.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Strategy</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Tic-Tac-Toe -->
-            <a href="games/tictactoe.html" class="game-card" data-category="arcade strategy" data-name="tic tac toe" data-added="2026-08-12">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #062a3a, #0e7490, #164e63, #083344);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/tictactoe.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/tictactoe.html"></span>
-                    <canvas class="preview-canvas" data-type="tictactoe-grid"></canvas>
-                    <i class="fa-solid fa-hashtag banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Tic-Tac-Toe</h3>
-                    <p>Classic 3x3 strategy duel. Play vs AI with 5 difficulty levels, 2-player local, and win-in-one puzzles.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Strategy</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Minesweeper -->
-            <a href="games/minesweeper.html" class="game-card" data-category="arcade puzzle" data-name="minesweeper" data-added="2026-08-19">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #1e3a5f, #3b82f6, #0f172a, #1e293b);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/minesweeper.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/minesweeper.html"></span>
-                    <canvas class="preview-canvas" data-type="minesweeper-grid"></canvas>
-                    <i class="fa-solid fa-bomb banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Minesweeper</h3>
-                    <p>Classic logic puzzle. Reveal safe cells, flag mines, and clear the board across 3 difficulty levels.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Puzzle</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Neon Pong -->
-            <a href="games/pong.html" class="game-card" data-category="action retro" data-name="neon pong" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #be123c, #fb7185, #881337, #4c0519);">
-                    <button class="fav-star" data-href="games/pong.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/pong.html"></span>
-                    <canvas class="preview-canvas" data-type="pong-paddles"></canvas>
-                    <i class="fa-solid fa-table-tennis-paddle-ball banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Neon Pong</h3>
-                    <p>Fast-paced pong with 1P vs AI and 2P local multiplayer modes.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Action</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Highway Racer -->
-            <a href="games/highway.html" class="game-card" data-category="action" data-name="highway racer" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #c2410c, #f97316, #7c2d12, #431407);">
-                    <button class="fav-star" data-href="games/highway.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/highway.html"></span>
-                    <canvas class="preview-canvas" data-type="highway-grid"></canvas>
-                    <i class="fa-solid fa-car-side banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Highway Racer</h3>
-                    <p>Dodge oncoming traffic in a high-speed pseudo-3D racer.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Driving</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Asteroids -->
-            <a href="games/asteroids.html" class="game-card" data-category="action" data-name="asteroids" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #1e1b4b, #4338ca, #312e81, #0f172a);">
-                    <button class="fav-star" data-href="games/asteroids.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/asteroids.html"></span>
-                    <canvas class="preview-canvas" data-type="flight-radar"></canvas>
-                    <i class="fa-solid fa-rocket banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Asteroids</h3>
-                    <p>Defend your ship against waves of asteroids in this classic arcade game.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Arcade</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Space Invaders -->
-            <a href="games/spaceinvaders.html" class="game-card" data-category="action" data-name="space invaders" data-added="2024-01-01">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #1e1b4b, #4338ca, #312e81, #0f172a);">
-                    <button class="fav-star" data-href="games/spaceinvaders.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/spaceinvaders.html"></span>
-                    <canvas class="preview-canvas" data-type="flight-radar"></canvas>
-                    <i class="fa-solid fa-plane banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Space Invaders</h3>
-                    <p>Defend Earth from alien invaders in this iconic arcade game.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Arcade</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Pac-Man -->
-            <a href="games/pacman.html" class="game-card" data-category="arcade retro" data-name="pacman pac man maze" data-added="2026-08-11">
-                <div class="card-banner" style="background: linear-gradient(-45deg, #1a1a2e, #facc15, #3b0764, #0f0f1a);">
-                    <div class="badge new">New</div>
-                    <button class="fav-star" data-href="games/pacman.html" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <span class="last-played" data-href="games/pacman.html"></span>
-                    <canvas class="preview-canvas" data-type="pacman-dots"></canvas>
-                    <i class="fa-solid fa-ghost banner-glyph"></i>
-                </div>
-                <div class="card-details">
-                    <h3>Pac-Man</h3>
-                    <p>Classic maze chase. Eat dots, dodge ghosts, and grab power pellets.</p>
-                    <div class="card-footer">
-                        <span class="genre-tag">Arcade</span>
-                        <span class="play-btn"><i class="fa-solid fa-play"></i> Play</span>
-                    </div>
-                </div>
-            </a>
-
         </section>
+
+        <!-- Category Shelves (tiles rendered by JS) -->
+        <div id="shelves"></div>
 
         <!-- Empty State -->
         <div id="empty-state" class="empty-state">
@@ -2308,7 +1954,7 @@
                 <span class="tech-badge"><i class="fa-brands"></i>Netlify</span>
             </div>
             <p class="footer-credit">Chromium Games · Browser arcade powered by boredom · Built by Ajdin · <span id="footer-year"></span></p>
-            <p class="footer-version">v1.0.0 · Beta</p>
+            <p class="footer-version">v1.4.0 · Beta</p>
         </footer>
     </div>
 
@@ -2351,6 +1997,12 @@
         const isLowEnd = (navigator.hardwareConcurrency || 8) <= 4 || window.innerWidth < 768;
         const FPS_CAP = isLowEnd ? 20 : 30;
         const FRAME_INTERVAL = 1000 / FPS_CAP;
+        // Cache the accent color instead of reading computed styles every frame
+        let cachedAccent = '#00f2fe';
+        function refreshAccentColor() {
+            cachedAccent = getComputedStyle(document.body).getPropertyValue('--accent-cyan').trim() || '#00f2fe';
+        }
+        refreshAccentColor();
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -2384,10 +2036,9 @@
             }
 
             draw() {
-                const primaryColor = getComputedStyle(document.body).getPropertyValue('--accent-cyan').trim() || '#00f2fe';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = primaryColor;
+                ctx.fillStyle = cachedAccent;
                 ctx.fill();
             }
 
@@ -2423,7 +2074,6 @@
         }
 
         function drawConnections() {
-            const primaryColor = getComputedStyle(document.body).getPropertyValue('--accent-cyan').trim() || '#00f2fe';
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
@@ -2433,7 +2083,7 @@
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = primaryColor;
+                        ctx.strokeStyle = cachedAccent;
                         ctx.globalAlpha = 0.15 * (1 - dist / 120);
                         ctx.lineWidth = 0.5;
                         ctx.stroke();
@@ -2461,394 +2111,6 @@
             animId = requestAnimationFrame(animate);
         }
 
-        /* ============================================================
-           PREVIEW CANVAS ANIMATIONS (with IntersectionObserver + throttle)
-           ============================================================ */
-        const previewCanvases = document.querySelectorAll('.preview-canvas');
-        const previewStates = new Map();
-
-        previewCanvases.forEach(c => {
-            const pCtx = c.getContext('2d');
-            if (!pCtx) return;
-
-            let width, height;
-            function resizePreview() {
-                width = c.width = c.parentElement.clientWidth;
-                height = c.height = c.parentElement.clientHeight;
-            }
-            resizePreview();
-
-            const type = c.dataset.type;
-            let frame = 0;
-            let lastRender = 0;
-            let visible = false;
-            const FPS = 30;
-            const frameInterval = 1000 / FPS;
-
-            function renderPreview(now) {
-                if (!visible) return;
-                if (now - lastRender < frameInterval) {
-                    requestAnimationFrame(renderPreview);
-                    return;
-                }
-                lastRender = now;
-                pCtx.clearRect(0, 0, width, height);
-                frame++;
-
-                if (type === 'snake-trail') {
-                    pCtx.fillStyle = '#22c55e';
-                    for (let i = 0; i < 5; i++) {
-                        let x = (Math.sin((frame + i * 15) * 0.05) * 40) + width / 2;
-                        let y = (Math.cos((frame + i * 15) * 0.05) * 20) + height / 2;
-                        pCtx.beginPath();
-                        pCtx.arc(x, y, 6 - i, 0, Math.PI * 2);
-                        pCtx.fill();
-                    }
-                } else if (type === 'falling-blocks') {
-                    pCtx.fillStyle = 'rgba(168, 85, 247, 0.4)';
-                    let yPos = (frame * 2) % height;
-                    pCtx.fillRect(width / 2 - 20, yPos, 15, 15);
-                    pCtx.fillRect(width / 2, yPos - 30, 15, 15);
-                } else if (type === 'pong-paddles') {
-                    pCtx.fillStyle = '#38bdf8';
-                    let yLeft = Math.sin(frame * 0.05) * 30 + height / 2;
-                    let yRight = Math.cos(frame * 0.05) * 30 + height / 2;
-                    pCtx.fillRect(15, yLeft - 15, 6, 30);
-                    pCtx.fillRect(width - 21, yRight - 15, 6, 30);
-                } else if (type === 'highway-grid') {
-                    pCtx.strokeStyle = 'rgba(249, 115, 22, 0.3)';
-                    pCtx.lineWidth = 1;
-                    let offset = (frame * 2) % 20;
-                    for (let x = 0; x < width; x += 20) {
-                        pCtx.beginPath();
-                        pCtx.moveTo(x, 0);
-                        pCtx.lineTo(x, height);
-                        pCtx.stroke();
-                    }
-                    for (let y = offset; y < height; y += 20) {
-                        pCtx.beginPath();
-                        pCtx.moveTo(0, y);
-                        pCtx.lineTo(width, y);
-                        pCtx.stroke();
-                    }
-                } else if (type === 'flight-radar') {
-                    pCtx.strokeStyle = 'rgba(99, 102, 241, 0.4)';
-                    pCtx.lineWidth = 2;
-                    pCtx.beginPath();
-                    pCtx.arc(width / 2, height / 2, (frame % 80), 0, Math.PI * 2);
-                    pCtx.stroke();
-                } else if (type === 'card-shuffle') {
-                    pCtx.fillStyle = 'rgba(16, 185, 129, 0.3)';
-                    for (let i = 0; i < 3; i++) {
-                        let x = width / 2 - 20 + i * 10;
-                        let y = height / 2 - 15 + Math.sin((frame + i * 20) * 0.1) * 5;
-                        pCtx.beginPath();
-                        pCtx.roundRect(x, y, 20, 30, 4);
-                        pCtx.fill();
-                        pCtx.strokeStyle = 'rgba(255,255,255,0.2)';
-                        pCtx.stroke();
-                    }
-                } else if (type === 'poker-cards') {
-                    pCtx.fillStyle = 'rgba(249, 115, 22, 0.3)';
-                    for (let i = 0; i < 3; i++) {
-                        let x = width / 2 - 25 + i * 12;
-                        let y = height / 2 - 10 + Math.sin((frame + i * 15) * 0.08) * 4;
-                        pCtx.beginPath();
-                        pCtx.roundRect(x, y, 18, 26, 4);
-                        pCtx.fill();
-                        pCtx.strokeStyle = 'rgba(255,255,255,0.2)';
-                        pCtx.stroke();
-                    }
-                    pCtx.fillStyle = 'rgba(250, 204, 21, 0.5)';
-                    pCtx.beginPath();
-                    pCtx.arc(width / 2, height / 2 + 20, 8, 0, Math.PI * 2);
-                    pCtx.fill();
-                    pCtx.strokeStyle = 'rgba(255,255,255,0.3)';
-                    pCtx.stroke();
-                } else if (type === 'blockudoku-grid') {
-                    // Animated 3x3 blockudoku grid preview
-                    const cell = Math.min(width, height) / 9;
-                    const offsetX = (width - cell * 9) / 2;
-                    const offsetY = (height - cell * 9) / 2;
-                    const colors = ['#a855f7', '#00f2fe', '#facc15', '#22c55e', '#ef4444', '#3b82f6'];
-                    // Draw grid
-                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-                    pCtx.lineWidth = 1;
-                    for (let i = 0; i <= 9; i++) {
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX + i * cell, offsetY);
-                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
-                        pCtx.stroke();
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX, offsetY + i * cell);
-                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
-                        pCtx.stroke();
-                    }
-                    // Thicker sub-grid lines
-                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                    pCtx.lineWidth = 2;
-                    for (let i = 0; i <= 9; i += 3) {
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX + i * cell, offsetY);
-                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
-                        pCtx.stroke();
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX, offsetY + i * cell);
-                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
-                        pCtx.stroke();
-                    }
-                    // Animated blocks filling in
-                    const blockCount = Math.floor(frame / 4) % 81;
-                    for (let i = 0; i < blockCount; i++) {
-                        const r = Math.floor(i / 9);
-                        const c = i % 9;
-                        pCtx.fillStyle = colors[(r + c) % colors.length];
-                        pCtx.globalAlpha = 0.7;
-                        pCtx.fillRect(offsetX + c * cell + 1, offsetY + r * cell + 1, cell - 2, cell - 2);
-                        pCtx.globalAlpha = 1;
-                    }
-                } else if (type === 'tictactoe-grid') {
-                    // Tic-Tac-Toe preview: animated 3x3 grid with X and O marks
-                    const cell = Math.min(width, height) / 3.2;
-                    const offsetX = (width - cell * 3) / 2;
-                    const offsetY = (height - cell * 3) / 2;
-                    // Draw grid lines
-                    pCtx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
-                    pCtx.lineWidth = 2;
-                    for (let i = 1; i < 3; i++) {
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX + i * cell, offsetY);
-                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 3);
-                        pCtx.stroke();
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX, offsetY + i * cell);
-                        pCtx.lineTo(offsetX + cell * 3, offsetY + i * cell);
-                        pCtx.stroke();
-                    }
-                    // Animated X and O marks filling in
-                    const pos = Math.floor(frame / 20) % 9;
-                    const marks = [
-                        { r: 0, c: 0, t: 'X' }, { r: 0, c: 1, t: 'O' }, { r: 0, c: 2, t: 'X' },
-                        { r: 1, c: 0, t: 'O' }, { r: 1, c: 1, t: 'X' }, { r: 1, c: 2, t: 'O' },
-                        { r: 2, c: 0, t: 'X' }, { r: 2, c: 1, t: 'O' }, { r: 2, c: 2, t: 'X' }
-                    ];
-                    for (let i = 0; i < pos; i++) {
-                        const m = marks[i];
-                        const cx = offsetX + m.c * cell + cell / 2;
-                        const cy = offsetY + m.r * cell + cell / 2;
-                        pCtx.font = `${cell * 0.6}px Outfit, sans-serif`;
-                        pCtx.textAlign = 'center';
-                        pCtx.textBaseline = 'middle';
-                        if (m.t === 'X') {
-                            pCtx.fillStyle = '#00f2fe';
-                            pCtx.shadowColor = '#00f2fe';
-                            pCtx.shadowBlur = 8;
-                            pCtx.fillText('✕', cx, cy);
-                        } else {
-                            pCtx.fillStyle = '#ff0080';
-                            pCtx.shadowColor = '#ff0080';
-                            pCtx.shadowBlur = 8;
-                            pCtx.fillText('◯', cx, cy);
-                        }
-                        pCtx.shadowBlur = 0;
-                    }
-                } else if (type === 'minesweeper-grid') {
-                    // Minesweeper preview: animated grid with mines appearing
-                    const cell = Math.min(width, height) / 9.2;
-                    const offsetX = (width - cell * 9) / 2;
-                    const offsetY = (height - cell * 9) / 2;
-                    // Draw grid
-                    pCtx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
-                    pCtx.lineWidth = 1;
-                    for (let i = 0; i <= 9; i++) {
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX + i * cell, offsetY);
-                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 9);
-                        pCtx.stroke();
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX, offsetY + i * cell);
-                        pCtx.lineTo(offsetX + cell * 9, offsetY + i * cell);
-                        pCtx.stroke();
-                    }
-                    // Animated mines appearing one by one
-                    const mineCount = Math.floor(frame / 15) % 10;
-                    for (let i = 0; i < mineCount; i++) {
-                        const r = Math.floor(i / 3);
-                        const c = i % 3;
-                        const cx = offsetX + (c * 3 + 1.5) * cell;
-                        const cy = offsetY + (r * 3 + 1.5) * cell;
-                        pCtx.fillStyle = '#ef4444';
-                        pCtx.shadowColor = '#ef4444';
-                        pCtx.shadowBlur = 8;
-                        pCtx.beginPath();
-                        pCtx.arc(cx, cy, cell * 0.3, 0, Math.PI * 2);
-                        pCtx.fill();
-                        pCtx.shadowBlur = 0;
-                        // Draw a small cross on top (mine look)
-                        pCtx.strokeStyle = '#ef4444';
-                        pCtx.lineWidth = 2;
-                        pCtx.beginPath();
-                        pCtx.moveTo(cx - cell * 0.2, cy - cell * 0.2);
-                        pCtx.lineTo(cx + cell * 0.2, cy + cell * 0.2);
-                        pCtx.moveTo(cx + cell * 0.2, cy - cell * 0.2);
-                        pCtx.lineTo(cx - cell * 0.2, cy + cell * 0.2);
-                        pCtx.stroke();
-                    }
-                    // Revealed cells with numbers
-                    const revealedCount = Math.floor(frame / 10) % 9;
-                    for (let i = 0; i < revealedCount; i++) {
-                        const r = Math.floor(i / 3);
-                        const c = i % 3;
-                        const cx = offsetX + (c * 3 + 1.5) * cell;
-                        const cy = offsetY + (r * 3 + 1.5) * cell;
-                        pCtx.fillStyle = 'rgba(0, 242, 254, 0.15)';
-                        pCtx.fillRect(cx - cell * 0.4, cy - cell * 0.4, cell * 0.8, cell * 0.8);
-                        pCtx.fillStyle = '#00f2fe';
-                        pCtx.font = `${cell * 0.5}px Outfit, sans-serif`;
-                        pCtx.textAlign = 'center';
-                        pCtx.textBaseline = 'middle';
-                        pCtx.fillText((i % 3) + 1, cx, cy);
-                    }
-                } else if (type === 'pacman-dots') {
-                    // Pac-Man preview: yellow pac-man eating dots left to right
-                    pCtx.fillStyle = 'rgba(255, 184, 174, 0.8)';
-                    const dotY = height / 2;
-                    for (let i = 0; i < 8; i++) {
-                        const dx = (frame * 2 + i * 18) % (width + 40) - 20;
-                        pCtx.beginPath();
-                        pCtx.arc(dx, dotY, 3, 0, Math.PI * 2);
-                        pCtx.fill();
-                    }
-                    // Pac-Man with chomping mouth
-                    const px = (frame * 2) % (width + 40) - 20;
-                    const r = 14;
-                    const mouth = Math.abs(Math.sin(frame * 0.3)) * 0.5;
-                    pCtx.fillStyle = '#facc15';
-                    pCtx.shadowColor = '#facc15';
-                    pCtx.shadowBlur = 12;
-                    pCtx.beginPath();
-                    pCtx.arc(px, dotY, r, mouth, Math.PI * 2 - mouth);
-                    pCtx.lineTo(px, dotY);
-                    pCtx.closePath();
-                    pCtx.fill();
-                    pCtx.shadowBlur = 0;
-                    // Little ghost following
-                    pCtx.fillStyle = '#ef4444';
-                    const gx = (frame * 2 + 90) % (width + 40) - 20;
-                    pCtx.beginPath();
-                    pCtx.arc(gx, dotY, 8, Math.PI, 0);
-                    pCtx.lineTo(gx + 8, dotY + 8);
-                    pCtx.lineTo(gx + 5, dotY + 8);
-                    pCtx.lineTo(gx + 2, dotY + 4);
-                    pCtx.lineTo(gx - 1, dotY + 8);
-                    pCtx.lineTo(gx - 5, dotY + 8);
-                    pCtx.lineTo(gx - 8, dotY + 8);
-                    pCtx.closePath();
-                    pCtx.fill();
-                } else if (type === 'flag-waving') {
-                    // Flag Guessr preview: waving flag with pole
-                    const flagW = width * 0.5;
-                    const flagH = height * 0.4;
-                    const flagX = width / 2 - flagW / 2;
-                    const flagY = height / 2 - flagH / 2;
-                    // Pole
-                    pCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                    pCtx.fillRect(flagX - 4, flagY - 10, 4, flagH + 20);
-                    // Flag with waving effect
-                    const colors = ['#00f2fe', '#facc15', '#22c55e', '#ef4444', '#a855f7'];
-                    for (let i = 0; i < 5; i++) {
-                        const wave = Math.sin((frame + i * 3) * 0.15) * 4;
-                        const segW = flagW / 5;
-                        pCtx.fillStyle = colors[i % colors.length];
-                        pCtx.globalAlpha = 0.7;
-                        pCtx.fillRect(flagX + i * segW, flagY + wave, segW + 1, flagH);
-                        pCtx.globalAlpha = 1;
-                    }
-                    // Flag border
-                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                    pCtx.lineWidth = 1;
-                    pCtx.strokeRect(flagX, flagY, flagW, flagH);
-                } else if (type === 'checkers-grid') {
-                    // Checkers preview: animated 8x8 board with pieces
-                    const cell = Math.min(width, height) / 8.2;
-                    const offsetX = (width - cell * 8) / 2;
-                    const offsetY = (height - cell * 8) / 2;
-                    // Draw alternating board squares
-                    for (let r = 0; r < 8; r++) {
-                        for (let c = 0; c < 8; c++) {
-                            const isDark = (r + c) % 2 === 1;
-                            pCtx.fillStyle = isDark ? 'rgba(0, 242, 254, 0.15)' : 'rgba(255, 255, 255, 0.04)';
-                            pCtx.fillRect(offsetX + c * cell, offsetY + r * cell, cell, cell);
-                        }
-                    }
-                    // Draw border
-                    pCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                    pCtx.lineWidth = 1;
-                    for (let i = 0; i <= 8; i++) {
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX + i * cell, offsetY);
-                        pCtx.lineTo(offsetX + i * cell, offsetY + cell * 8);
-                        pCtx.stroke();
-                        pCtx.beginPath();
-                        pCtx.moveTo(offsetX, offsetY + i * cell);
-                        pCtx.lineTo(offsetX + cell * 8, offsetY + i * cell);
-                        pCtx.stroke();
-                    }
-                    // Animated pieces on dark squares
-                    const pieceRows = [0, 1, 2, 5, 6, 7];
-                    const colors = ['#ff0080', '#00f2fe'];
-                    for (let i = 0; i < pieceRows.length; i++) {
-                        const row = pieceRows[i];
-                        const colorIdx = row < 3 ? 0 : 1;
-                        pCtx.fillStyle = colors[colorIdx];
-                        pCtx.shadowColor = colors[colorIdx];
-                        pCtx.shadowBlur = 6;
-                        for (let c = 0; c < 8; c++) {
-                            if ((row + c) % 2 === 1) {
-                                const cx = offsetX + c * cell + cell / 2;
-                                const cy = offsetY + row * cell + cell / 2;
-                                pCtx.beginPath();
-                                pCtx.arc(cx, cy, cell * 0.33, 0, Math.PI * 2);
-                                pCtx.fill();
-                            }
-                        }
-                        pCtx.shadowBlur = 0;
-                    }
-                    // Animate a piece moving diagonally
-                    const moveRow = 2 + Math.floor(frame / 25) % 5;
-                    const dir = Math.floor(frame / 25) % 2 === 0 ? 1 : -1;
-                    const moveCol = moveRow % 2 === 0 ? (dir === 1 ? 1 : 6) : (dir === 1 ? 0 : 7);
-                    const bobY = Math.sin(frame * 0.1) * 2;
-                    pCtx.fillStyle = '#ff0080';
-                    pCtx.shadowColor = '#ff0080';
-                    pCtx.shadowBlur = 10;
-                    pCtx.beginPath();
-                    const mcy = offsetY + (moveRow + 0.5) * cell + bobY;
-                    const mcx = offsetX + (moveCol + 0.5) * cell;
-                    pCtx.arc(mcx, mcy, cell * 0.33, 0, Math.PI * 2);
-                    pCtx.fill();
-                    pCtx.shadowBlur = 0;
-                } else {
-                    pCtx.fillStyle = 'rgba(0, 242, 254, 0.25)';
-                    let x = Math.sin(frame * 0.03) * 30 + width / 2;
-                    let y = Math.cos(frame * 0.03) * 20 + height / 2;
-                    pCtx.beginPath();
-                    pCtx.arc(x, y, 12, 0, Math.PI * 2);
-                    pCtx.fill();
-                }
-
-                requestAnimationFrame(renderPreview);
-            }
-
-            // IntersectionObserver: only render when visible
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    visible = entry.isIntersecting;
-                    if (visible) requestAnimationFrame(renderPreview);
-                });
-            }, { rootMargin: '100px' });
-            observer.observe(c);
-        });
 
         /* ============================================================
            STORAGE HELPERS
@@ -2894,6 +2156,7 @@
             if (theme !== 'default') document.body.classList.add(`theme-${theme}`);
             themeBtns.forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
             localStorage.setItem(THEME_KEY, theme);
+            if (typeof refreshAccentColor === 'function') refreshAccentColor();
         }
 
         themeBtns.forEach(btn => {
@@ -2926,6 +2189,269 @@
         /* ============================================================
            SEARCH, FILTER, SORT
            ============================================================ */
+        /* ============================================================
+           GAME DATA (single source of truth for shelves, bento & search)
+           ============================================================ */
+        const GAMES = [
+            { name: 'Daily Wordle', href: 'wordGames/wordle.html', icon: 'fa-font', c1: '#059669', c2: '#34d399', categories: ['word', 'retro'], added: '2024-01-01', badge: 'Daily', tag: 'Word Game', key: 'wordle_streak', desc: 'Guess the 5-letter word in 6 tries. Completely randomized and resets every single day.' },
+            { name: 'Daily Earthdle', href: 'wordGames/earthdle.html', icon: 'fa-globe', c1: '#0284c7', c2: '#38bdf8', categories: ['word', 'retro'], added: '2024-01-01', badge: 'Daily', tag: 'Geography', key: '', desc: 'Guess the country in 6 tries. Completely randomized and resets every single day.' },
+            { name: 'Flag Guessr', href: 'wordGames/flagguessr.html', icon: 'fa-flag', c1: '#a21caf', c2: '#e879f9', categories: ['word'], added: '2026-08-17', badge: '', tag: 'Geography', key: 'flagguessr_streak', desc: 'Guess the country from its flag in 6 tries. Daily, Endless, and Quiz modes!' },
+            { name: 'Tunetile', href: 'wordGames/tunetile.html', icon: 'fa-microphone', c1: '#4f46e5', c2: '#818cf8', categories: ['word'], added: '2024-01-01', badge: 'Daily', tag: 'Music Game', key: '', desc: 'Guess the song from a short audio clip. Test your music knowledge with this fun guessing game.' },
+            { name: 'Daily Loldle', href: 'wordGames/loldle.html', icon: 'fa-wand-magic-sparkles', c1: '#7e22ce', c2: '#c084fc', categories: ['word', 'retro'], added: '2024-01-01', badge: 'Daily', tag: 'LoL Game', key: '', desc: 'Guess the League of Legends champion in 8 tries. Reset every single day.' },
+            { name: 'Daily Wutherdle', href: 'wordGames/wuthering.html', icon: 'fa-wind', c1: '#0ea5e9', c2: '#67e8f9', categories: ['word', 'retro'], added: '2026-08-09', badge: '', tag: 'WuWa Game', key: '', desc: 'Guess the Wuthering Waves resonator in 8 tries. Reset every single day.' },
+            { name: 'Daily Zenlessdle', href: 'wordGames/zenlessdle.html', icon: 'fa-video', c1: '#ca8a04', c2: '#fde047', categories: ['word', 'retro'], added: '2026-08-15', badge: '', tag: 'ZZZ Game', key: '', desc: 'Guess the Zenless Zone Zero agent in 8 tries. Reset every single day.' },
+            { name: 'Daily Starraildle', href: 'wordGames/starraildle.html', icon: 'fa-train-subway', c1: '#a855f7', c2: '#fbbf24', categories: ['word', 'retro'], added: '2026-08-15', badge: '', tag: 'HSR Game', key: '', desc: 'Guess the Honkai Star Rail character in 8 tries. Reset every single day.' },
+            { name: 'Daily Genshindle', href: 'wordGames/genshindle.html', icon: 'fa-wind', c1: '#b45309', c2: '#d4af37', categories: ['word', 'retro'], added: '2026-08-22', badge: '', tag: 'Genshin Game', key: '', desc: 'Guess the Genshin Impact character in 8 tries. Reset every single day.' },
+            { name: 'IMDB Showdown', href: 'wordGames/boxoffice.html', icon: 'fa-film', c1: '#b45309', c2: '#f59e0b', categories: ['word', 'puzzle'], added: '2026-08-08', badge: '', tag: 'Movie Trivia', key: 'boxoffice_best_streak', desc: 'Which movie has the highest IMDB rating? Battle through random movie matchups.' },
+            { name: 'Game Showdown', href: 'wordGames/videogames.html', icon: 'fa-gamepad', c1: '#92400e', c2: '#fbbf24', categories: ['word', 'puzzle'], added: '2026-08-08', badge: '', tag: 'Video Game Trivia', key: '', desc: 'Which game sold more copies? Battle through random game matchups in this trivia game.' },
+            { name: 'Daily Riddler', href: 'wordGames/riddler.html', icon: 'fa-question', c1: '#4338ca', c2: '#8b5cf6', categories: ['word', 'puzzle'], added: '2024-01-01', badge: 'Daily', tag: 'Word Puzzle', key: '', desc: 'Solve a short riddle to guess the hidden word in 5 tries. Related-word hints help you narrow each answer.' },
+            { name: 'Grid Word Finder', href: 'wordGames/boggle.html', icon: 'fa-dice', c1: '#334155', c2: '#64748b', categories: ['word'], added: '2024-06-01', badge: '', tag: 'Word Game', key: '', desc: 'Find as many words as you can on a 4x4 letter grid. Words must be adjacent and at least 3 letters long.' },
+            { name: 'Solitaire', href: 'games/solitaire.html', icon: 'fa-clover', c1: '#065f46', c2: '#10b981', categories: ['arcade', 'retro'], added: '2024-01-01', badge: '', tag: 'Card Game', key: '', desc: 'Classic Klondike solitaire. Build four stacks of cards by suit from Ace to King.' },
+            { name: "Texas Hold'em", href: 'games/poker.html', icon: 'fa-diamond', c1: '#ea580c', c2: '#fb923c', categories: ['arcade', 'retro'], added: '2026-08-07', badge: '', tag: 'Card Game', key: 'poker_best_chips', desc: 'Play poker against 3 AI opponents. Bluff, raise, and win the pot with the best hand.' },
+            { name: 'Flappy Bird Clone', href: 'games/flappybird.html', icon: 'fa-dove', c1: '#0284c7', c2: '#38bdf8', categories: ['arcade', 'retro'], added: '2024-01-01', badge: '', tag: 'Arcade', key: 'flappy_highscore', desc: 'Navigate through obstacles in this classic physics-based arcade challenge.' },
+            { name: 'Chrome Dino', href: 'games/dino.html', icon: 'fa-dragon', c1: '#535353', c2: '#9ca3af', categories: ['arcade', 'retro'], added: '2026-08-10', badge: '', tag: 'Arcade', key: 'dino_highscore', desc: 'Draw your dinosaur, jump and duck through the desert in this classic endless runner.' },
+            { name: '8-Ball Pool', href: 'games/pool.html', icon: 'fa-circle', c1: '#0891b2', c2: '#22d3ee', categories: ['arcade'], added: '2024-01-01', badge: '', tag: 'Sports', key: '', desc: 'Classic pool game with 1v1 and Bot modes.' },
+            { name: 'Snake', href: 'games/snake.html', icon: 'fa-staff-snake', c1: '#16a34a', c2: '#4ade80', categories: ['arcade', 'retro'], added: '2024-01-01', badge: '', tag: 'Retro', key: 'snake_highscore', desc: 'Classic snake game with customizable map sizes and multi-fruit spawns.' },
+            { name: 'Block Puzzler', href: 'games/blockpuzzler.html', icon: 'fa-cubes', c1: '#9333ea', c2: '#c084fc', categories: ['arcade', 'puzzle'], added: '2024-01-01', badge: '', tag: 'Puzzle', key: 'blockpuzzler_highscore', desc: 'Tetris-style puzzle game with ghost pieces and line-clearing mechanics.' },
+            { name: 'Blockudoku', href: 'games/blockudoku.html', icon: 'fa-th-large', c1: '#7e22ce', c2: '#a855f7', categories: ['arcade', 'puzzle'], added: '2026-08-08', badge: '', tag: 'Puzzle', key: 'blockudoku_highscore', desc: 'Place blocks on a 9x9 grid. Clear rows, columns, and 3x3 blocks in this Sudoku-meets-Tetris puzzle.' },
+            { name: 'Chess', href: 'games/chess.html', icon: 'fa-chess', c1: '#475569', c2: '#94a3b8', categories: ['arcade', 'strategy'], added: '2024-01-01', badge: '', tag: 'Strategy', key: '', desc: 'Classic strategy game for two players with all standard rules and features.' },
+            { name: 'Checkers', href: 'games/checkers.html', icon: 'fa-chess-pawn', c1: '#4f46e5', c2: '#818cf8', categories: ['arcade', 'strategy'], added: '2026-08-13', badge: '', tag: 'Strategy', key: 'checkers_wins', desc: 'Classic board strategy duel. Capture, jump, and crown your way to victory.' },
+            { name: 'Tic-Tac-Toe', href: 'games/tictactoe.html', icon: 'fa-hashtag', c1: '#0e7490', c2: '#22d3ee', categories: ['arcade', 'strategy'], added: '2026-08-12', badge: '', tag: 'Strategy', key: 'tictactoe_wins', desc: 'Classic 3x3 strategy duel. Play vs AI with 5 difficulty levels, 2-player local, and win-in-one puzzles.' },
+            { name: 'Minesweeper', href: 'games/minesweeper.html', icon: 'fa-bomb', c1: '#2563eb', c2: '#60a5fa', categories: ['arcade', 'puzzle'], added: '2026-08-19', badge: '', tag: 'Puzzle', key: 'minesweeper_wins', desc: 'Classic logic puzzle. Reveal safe cells, flag mines, and clear the board across 3 difficulty levels.' },
+            { name: 'Neon Pong', href: 'games/pong.html', icon: 'fa-table-tennis-paddle-ball', c1: '#e11d48', c2: '#fb7185', categories: ['action', 'retro'], added: '2024-01-01', badge: '', tag: 'Retro', key: 'pong_highscore', desc: 'Fast-paced pong with 1P vs AI and 2P local multiplayer modes.' },
+            { name: 'Highway Racer', href: 'games/highway.html', icon: 'fa-car-side', c1: '#ea580c', c2: '#f97316', categories: ['action'], added: '2024-01-01', badge: '', tag: 'Driving', key: 'highway_highscore', desc: 'Dodge oncoming traffic in a high-speed pseudo-3D racer.' },
+            { name: 'Asteroids', href: 'games/asteroids.html', icon: 'fa-rocket', c1: '#4338ca', c2: '#818cf8', categories: ['action'], added: '2024-01-01', badge: '', tag: 'Arcade', key: '', desc: 'Defend your ship against waves of asteroids in this classic arcade game.' },
+            { name: 'Space Invaders', href: 'games/spaceinvaders.html', icon: 'fa-plane', c1: '#6366f1', c2: '#a5b4fc', categories: ['action'], added: '2024-01-01', badge: '', tag: 'Arcade', key: '', desc: 'Defend Earth from alien invaders in this iconic arcade game.' },
+            { name: 'Pac-Man', href: 'games/pacman.html', icon: 'fa-ghost', c1: '#eab308', c2: '#facc15', categories: ['arcade', 'retro'], added: '2026-08-11', badge: '', tag: 'Arcade', key: 'pacman_highscore', desc: 'Classic maze chase. Eat dots, dodge ghosts, and grab power pellets.' }
+        ];
+        const SHELVES = [
+            { id: 'word', title: 'Word & Daily Games', icon: 'fa-spell-check', match: g => g.categories.includes('word') },
+            { id: 'brain', title: 'Strategy & Puzzle', icon: 'fa-chess-knight', match: g => g.categories.includes('strategy') || g.categories.includes('puzzle') },
+            { id: 'arcade', title: 'Arcade Floor', icon: 'fa-gamepad', match: g => g.categories.includes('arcade') },
+            { id: 'action', title: 'Action Alley', icon: 'fa-bolt', match: g => g.categories.includes('action') }
+        ];
+
+        function buildTile(g) {
+            const a = document.createElement('a');
+            a.href = g.href;
+            a.className = 'game-card tile';
+            a.dataset.category = g.categories.join(' ');
+            a.dataset.name = (g.name + ' ' + g.desc + ' ' + g.tag).toLowerCase();
+            a.dataset.added = g.added;
+            const badgeHtml = g.badge ? `<div class="badge ${g.badge.toLowerCase()}">${g.badge}</div>` : '';
+            a.innerHTML = `
+                ${badgeHtml}
+                <button class="fav-star" data-href="${g.href}" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                <div class="tile-head">
+                    <div class="tile-icon" style="--t1:${g.c1};--t2:${g.c2}"><i class="fa-solid ${g.icon}"></i></div>
+                    <h3>${g.name}</h3>
+                </div>
+                <p class="tile-desc">${g.desc}</p>
+                <div class="tile-foot">
+                    <span class="genre-tag">${g.tag}</span>
+                    <span class="last-played" data-href="${g.href}"></span>
+                    <span class="best-score" data-key="${g.key || ''}"><i class="fa-solid fa-trophy"></i> <span></span></span>
+                </div>`;
+            return a;
+        }
+
+        function buildShelves() {
+            const wrap = document.getElementById('shelves');
+            wrap.innerHTML = '';
+            SHELVES.forEach(sh => {
+                const games = GAMES.filter(sh.match);
+                if (!games.length) return;
+                const sec = document.createElement('section');
+                sec.className = 'shelf';
+                sec.innerHTML = `
+                    <div class="shelf-head"><i class="fa-solid ${sh.icon}"></i> ${sh.title} <span class="shelf-count">${games.length}</span></div>
+                    <div class="shelf-track"></div>`;
+                const track = sec.querySelector('.shelf-track');
+                games.forEach(g => {
+                    const tile = buildTile(g);
+                    tile._game = g;
+                    tile.dataset.shelf = sh.id;
+                    track.appendChild(tile);
+                });
+                wrap.appendChild(sec);
+            });
+        }
+        buildShelves();
+
+        function findGame(href) {
+            const p = normalizePath(href);
+            return GAMES.find(g => normalizePath(g.href) === p);
+        }
+
+        /* ============================================================
+           SHARED HOVER EFFECT
+           One canvas, one requestAnimationFrame loop — animates ONLY
+           the currently hovered tile and stops when the pointer leaves.
+           ============================================================ */
+        const fxCanvas = document.createElement('canvas');
+        fxCanvas.id = 'tile-fx-canvas';
+        document.body.appendChild(fxCanvas);
+        const fxCtx = fxCanvas.getContext('2d');
+        let fxTile = null;
+        let fxFrame = 0;
+        let fxLast = 0;
+        let fxSeeds = [];
+        const FX_INTERVAL = 1000 / 30; // cap at 30 FPS
+
+        function fxStart(tile) {
+            if (prefersReducedMotion) return;
+            fxTile = tile;
+            fxFrame = 0;
+            fxLast = 0;
+            fxSeeds = Array.from({ length: 14 }, () => Math.random());
+            fxCanvas.style.borderRadius = getComputedStyle(tile).borderRadius || '16px';
+            fxCanvas.style.display = 'block';
+            requestAnimationFrame(fxDraw);
+        }
+
+        function fxStop() {
+            fxTile = null;
+            fxCanvas.style.display = 'none';
+        }
+
+        function fxDraw(now) {
+            if (!fxTile || !document.body.contains(fxTile)) { fxStop(); return; }
+            if (now - fxLast < FX_INTERVAL) { requestAnimationFrame(fxDraw); return; }
+            fxLast = now;
+
+            // Track the tile's live position (handles scroll/layout shifts)
+            const rect = fxTile.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const w = Math.max(1, Math.round(rect.width));
+            const h = Math.max(1, Math.round(rect.height));
+            if (fxCanvas.width !== w * dpr || fxCanvas.height !== h * dpr) {
+                fxCanvas.width = w * dpr;
+                fxCanvas.height = h * dpr;
+            }
+            fxCanvas.style.left = rect.left + 'px';
+            fxCanvas.style.top = rect.top + 'px';
+            fxCanvas.style.width = w + 'px';
+            fxCanvas.style.height = h + 'px';
+
+            const ctx = fxCtx;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+            fxFrame++;
+
+            const game = fxTile._game || {};
+            const col = game.c2 || '#00f2fe';
+            const type = fxTile.dataset.fx || fxTile.dataset.shelf || 'arcade';
+            ctx.save();
+
+            if (type === 'word') {
+                /* Drifting letters from the game name */
+                ctx.font = "700 13px Outfit, sans-serif";
+                ctx.textBaseline = 'middle';
+                const chars = ((game.name || '') + ' ').split('');
+                fxSeeds.forEach((s, i) => {
+                    const x = ((s * w) + Math.sin((fxFrame + i * 20) * 0.02) * 12 + w) % w;
+                    const y = h - (((fxFrame * (0.3 + s * 0.4)) + s * h * 2) % (h + 20)) - 10;
+                    ctx.globalAlpha = 0.10 + 0.08 * Math.sin((fxFrame + i * 30) * 0.05);
+                    ctx.fillStyle = col;
+                    ctx.fillText(chars[i % chars.length], x, y);
+                });
+            } else if (type === 'brain') {
+                /* Pulsing grid with a breathing node */
+                ctx.strokeStyle = col;
+                ctx.lineWidth = 1;
+                const step = 22, pulse = 0.5 + 0.5 * Math.sin(fxFrame * 0.04);
+                ctx.globalAlpha = 0.06 + 0.06 * pulse;
+                for (let x = step; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+                for (let y = step; y < h; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+                ctx.globalAlpha = 0.15;
+                ctx.fillStyle = col;
+                ctx.beginPath();
+                ctx.arc(w / 2, h / 2, 8 + 5 * pulse, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (type === 'action') {
+                /* Speed streaks */
+                ctx.strokeStyle = col;
+                ctx.lineWidth = 2;
+                fxSeeds.forEach((s, i) => {
+                    const y = (s * h + i * 7) % h;
+                    const x = w - ((fxFrame * (2 + s * 3) + s * w * 2) % (w + 60));
+                    ctx.globalAlpha = 0.12 + 0.1 * s;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + 24 + s * 26, y);
+                    ctx.stroke();
+                });
+            } else if (type === 'trending') {
+                /* Rising ember sparks */
+                ctx.fillStyle = col;
+                fxSeeds.forEach((s, i) => {
+                    const x = ((s * w) + Math.sin((fxFrame + i * 25) * 0.03) * 14 + w) % w;
+                    const y = h - (((fxFrame * (0.5 + s * 0.8)) + s * h * 2) % (h + 24));
+                    ctx.globalAlpha = 0.12 + 0.12 * Math.abs(Math.sin((fxFrame + i * 40) * 0.07));
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1.5 + s * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            } else if (type === 'continue') {
+                /* Rotating dashed replay ring */
+                ctx.strokeStyle = col;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.18;
+                ctx.setLineDash([6, 10]);
+                ctx.lineDashOffset = -fxFrame * 0.6;
+                ctx.beginPath();
+                ctx.arc(w / 2, h / 2, Math.min(w, h) * 0.28, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            } else if (type === 'daily') {
+                /* Twinkling sparkles */
+                ctx.strokeStyle = col;
+                ctx.lineWidth = 1.5;
+                fxSeeds.forEach((s, i) => {
+                    const x = s * w;
+                    const y = (s * h * 3) % h;
+                    const tw = Math.max(0, Math.sin(fxFrame * 0.05 + i * 1.7));
+                    const size = 3 + tw * 4;
+                    ctx.globalAlpha = 0.1 + 0.15 * tw;
+                    ctx.beginPath();
+                    ctx.moveTo(x - size, y);
+                    ctx.lineTo(x + size, y);
+                    ctx.moveTo(x, y - size);
+                    ctx.lineTo(x, y + size);
+                    ctx.stroke();
+                });
+            } else {
+                /* Bouncing pixels (arcade default) */
+                ctx.fillStyle = col;
+                fxSeeds.slice(0, 3).forEach((s, i) => {
+                    const size = 8 + i * 3;
+                    const x = Math.abs(Math.sin(fxFrame * (0.03 + s * 0.02) + i)) * (w - size - 8) + 4;
+                    const y = Math.abs(Math.cos(fxFrame * (0.025 + s * 0.02) + i * 2)) * (h - size - 8) + 4;
+                    ctx.globalAlpha = 0.16;
+                    ctx.fillRect(x, y, size, size);
+                });
+            }
+
+            ctx.restore();
+            requestAnimationFrame(fxDraw);
+        }
+
+        /* Event delegation: survives sort/filter re-appends.
+           Attached to shelves AND the bento strip (one global rAF serves all). */
+        function attachFxHover(container) {
+            if (!container) return;
+            container.addEventListener('mouseover', (e) => {
+                const tile = e.target.closest('[data-fx], .game-card.tile');
+                if (tile && tile !== fxTile) fxStart(tile);
+            });
+            container.addEventListener('mouseout', (e) => {
+                if (fxTile && (!e.relatedTarget || !fxTile.contains(e.relatedTarget))) fxStop();
+            });
+        }
+        attachFxHover(document.getElementById('shelves'));
+        attachFxHover(document.getElementById('hero-bento'));
+
+
         const searchInput = document.getElementById('search-input');
         const categoryBtns = document.querySelectorAll('.category-btn');
         const cards = Array.from(document.querySelectorAll('.game-card'));
@@ -2990,6 +2516,18 @@
                         lastPlayed.classList.remove('visible');
                     }
                 }
+
+                // Personal best chip (reads the same key the game page writes)
+                const bestEl = card.querySelector('.best-score');
+                if (bestEl && bestEl.dataset.key) {
+                    const val = localStorage.getItem(bestEl.dataset.key);
+                    if (val && parseInt(val, 10) > 0) {
+                        bestEl.querySelector('span').textContent = `Best: ${val}`;
+                        bestEl.classList.add('visible');
+                    } else {
+                        bestEl.classList.remove('visible');
+                    }
+                }
             });
         }
 
@@ -3024,13 +2562,18 @@
                 if (show) visibleCount++;
             });
 
+            // Hide shelves that have no visible tiles
+            document.querySelectorAll('.shelf').forEach(shelf => {
+                const anyVisible = Array.from(shelf.querySelectorAll('.game-card')).some(c => c.style.display !== 'none');
+                shelf.style.display = anyVisible ? '' : 'none';
+            });
+
             // Empty state
             emptyState.classList.toggle('visible', visibleCount === 0);
         }
 
         function sortGames() {
             const sort = sortSelect.value;
-            const grid = document.getElementById('games-list');
             const arr = Array.from(cards);
 
             if (sort === 'az') {
@@ -3048,12 +2591,12 @@
                 });
             }
 
-            arr.forEach(card => grid.appendChild(card));
+            arr.forEach(card => { if (card.parentElement) card.parentElement.appendChild(card); });
             // Re-apply entrance animation
             arr.forEach((card, i) => {
                 card.style.animation = 'none';
                 card.offsetHeight;
-                card.style.animation = `cardIn 0.4s ease ${i * 0.03}s forwards`;
+                card.style.animation = `cardIn 0.4s ease ${i * 0.03}s backwards`;
             });
         }
 
@@ -3155,12 +2698,22 @@
         function updateContinue() {
             try {
                 const recent = getJSON(RECENT_KEY, []).map(normalizePath);
+                const bc = document.getElementById('bento-continue');
                 if (recent.length > 0) {
                     continueBtn.classList.remove('hidden');
-                    const name = cards.find(c => normalizePath(getCardHref(c)) === recent[0])?.querySelector('h3')?.textContent || 'last game';
+                    const game = findGame(recent[0]);
+                    const name = game ? game.name : 'last game';
                     continueBtn.innerHTML = `<i class="fa-solid fa-play"></i> ${name}`;
+                    if (bc) {
+                        bc.classList.remove('hidden');
+                        bc.href = recent[0];
+                        bc._game = game;
+                        bc.dataset.fx = 'continue';
+                        document.getElementById('bento-continue-title').textContent = name;
+                    }
                 } else {
                     continueBtn.classList.add('hidden');
+                    if (bc) bc.classList.add('hidden');
                 }
             } catch (e) {
                 console.warn('updateContinue failed:', e);
@@ -3412,7 +2965,7 @@
                 if (!badge) {
                     badge = document.createElement('div');
                     badge.className = 'badge';
-                    card.querySelector('.card-banner').appendChild(badge);
+                    card.appendChild(badge);
                 }
 
                 if (isPopular) {
@@ -3422,7 +2975,13 @@
                     badge.textContent = 'New';
                     badge.className = 'badge new';
                 } else {
-                    badge.remove();
+                    const g = findGame(href);
+                    if (g && g.badge === 'Daily') {
+                        badge.textContent = 'Daily';
+                        badge.className = 'badge daily';
+                    } else {
+                        badge.remove();
+                    }
                 }
             });
         }
@@ -3470,10 +3029,65 @@
         });
 
         /* ============================================================
+           HERO BENTO (Trending / Continue / Daily Pick)
+           ============================================================ */
+        function buildBento() {
+            const plays = getJSON(PLAYS_KEY, {});
+            // Featured: most played game (falls back to the first game)
+            let featured = GAMES[0], maxPlays = -1;
+            GAMES.forEach(g => {
+                const p = plays[normalizePath(g.href)] || 0;
+                if (p > maxPlays) { maxPlays = p; featured = g; }
+            });
+            const fTitle = document.getElementById('bento-featured-title');
+            const fDesc = document.getElementById('bento-featured-desc');
+            const fIcon = document.getElementById('bento-featured-icon');
+            const fTile = document.getElementById('bento-featured');
+            if (fTitle && fDesc && fIcon && fTile) {
+                fTitle.textContent = featured.name;
+                fDesc.textContent = featured.desc;
+                fIcon.className = `fa-solid ${featured.icon}`;
+                fTile.href = featured.href;
+                fTile.style.background = `linear-gradient(135deg, ${featured.c1}22, ${featured.c2}11)`;
+                fTile._game = featured;
+                fTile.dataset.fx = 'trending';
+            }
+            // Daily pick: rotates once per day
+            const dayIndex = Math.floor(Date.now() / 86400000) % GAMES.length;
+            const daily = GAMES[dayIndex];
+            const dTitle = document.getElementById('bento-daily-title');
+            const dDesc = document.getElementById('bento-daily-desc');
+            const dIcon = document.getElementById('bento-daily-icon');
+            const dTile = document.getElementById('bento-daily');
+            if (dTitle && dDesc && dIcon && dTile) {
+                dTitle.textContent = daily.name;
+                dDesc.textContent = daily.desc;
+                dIcon.className = `fa-solid ${daily.icon}`;
+                dTile.href = daily.href;
+                dTile.style.background = `linear-gradient(135deg, ${daily.c1}22, ${daily.c2}11)`;
+                dTile._game = daily;
+                dTile.dataset.fx = 'daily';
+            }
+        }
+
+        function wireBento() {
+            ['bento-featured', 'bento-daily', 'bento-continue'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('click', () => {
+                    const href = el.getAttribute('href');
+                    if (href && href !== '#') recordPlay(href);
+                });
+            });
+        }
+
+        /* ============================================================
            INIT
            ============================================================ */
         updateRecentVisibility();
         updateCardMeta();
+        buildBento();
+        wireBento();
         updateStats();
         updateBadges();
         updateContinue();
