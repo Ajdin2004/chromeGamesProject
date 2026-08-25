@@ -30,6 +30,7 @@ Brain-teasing puzzles and daily challenges:
 - **Box Office & Video Games:** Trivia based on movies and gaming history.
 - **TuneTile:** Music-based puzzle integration.
 - **Riddler:** Daily logic and word riddles.
+- **Trivia Orbs:** A cozy daily trivia game powered by the Open Trivia Database — 10 shared questions per day, orb currency, streak freezes, orb-priced lifelines (50/50, Hint, Skip), plus an Endless practice mode with category/difficulty pickers and a Wordle-style share grid. Questions are proxied through `/api/trivia` (`netlify/functions/trivia.js`) for caching/rate-limit protection, with a direct-API fallback.
 
 ## 🎨 Hub Features
 

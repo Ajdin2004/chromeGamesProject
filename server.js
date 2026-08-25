@@ -189,6 +189,22 @@ async function proxyGamePoster(req, res) {
   });
 }
 
+// Trivia Orbs — reuse the Netlify function logic for local development
+const triviaFunction = require('./netlify/functions/trivia.js');
+
+async function proxyTrivia(req, res) {
+  const query = parseQueryParams(req.url);
+  try {
+    const result = await triviaFunction.handler({ queryStringParameters: query });
+    sendResponse(res, result.statusCode, result.body, result.headers || {});
+  } catch (error) {
+    sendResponse(res, 500, JSON.stringify({ error: error.message || 'Trivia proxy failed.' }), {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    });
+  }
+}
+
 const server = http.createServer((req, res) => {
   const parsed = url.parse(req.url);
   const pathname = parsed.pathname;
@@ -205,6 +221,11 @@ const server = http.createServer((req, res) => {
 
   if (pathname === '/api/poster' || pathname === '/.netlify/functions/poster') {
     proxyGamePoster(req, res);
+    return;
+  }
+
+  if (pathname === '/api/trivia' || pathname === '/.netlify/functions/trivia') {
+    proxyTrivia(req, res);
     return;
   }
 
