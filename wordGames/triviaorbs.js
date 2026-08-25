@@ -26,7 +26,12 @@ var CONFIG = {
   FREEZE_MILESTONE: 7,     // earn a freeze token every N-day streak
   STORAGE_KEY: 'triviaOrbs.v1',
   API_URL: '/api/trivia',
-  FALLBACK_URL: 'https://opentdb.com/api.php'
+  FALLBACK_URL: 'https://opentdb.com/api.php',
+  LIFELINES: {
+    fifty: { cost: 15, label: '50 / 50' },
+    hint:  { cost: 10, label: 'Hint' },
+    skip:  { cost: 5,  label: 'Skip' }
+  }
 };
 
 var DIFFICULTY_MULTIPLIER = { easy: 1, medium: 1.5, hard: 2 };
