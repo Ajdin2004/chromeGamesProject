@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#070a14">
+    <title>Category Gauntlet | Chromium Games</title>
+    <link rel="icon" type="image/png" href="https://png.pngtree.com/recommend-works/png-clipart/20241224/ourmid/pngtree-red-question-mark-symbol-png-image_14540396.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --ink: #eaf2ff;
+            --muted: #8ea0c6;
+            --gold: #ffc93c;
+            --gold2: #f5a623;
+            --cyan: #39e3ff;
+            --green: #34d399;
+            --red: #fb5f6a;
+            --panel: rgba(19, 26, 52, 0.64);
+            --inner: rgba(10, 14, 28, 0.55);
+            --line: rgba(255, 255, 255, 0.10);
+            --line2: rgba(255, 255, 255, 0.18);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
+        html, body { height: 100%; }
+
+        body {
+            color: var(--ink);
+            min-height: 100dvh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: clamp(0.6rem, 1.4vh, 1.4rem);
+            overflow-x: hidden;
+        }
+
+        /* Ambient gradient + subtle film glow */
+        body::before {
+            content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+            background:
+                radial-gradient(58% 52% at 12% 6%, rgba(255, 201, 60, 0.16), transparent 60%),
+                radial-gradient(52% 46% at 92% 10%, rgba(57, 227, 255, 0.14), transparent 58%),
+                radial-gradient(72% 64% at 50% 108%, rgba(157, 138, 255, 0.18), transparent 62%),
+                linear-gradient(160deg, #070a14 0%, #0a0f22 55%, #0a1024 100%);
+        }
+        body::after {
+            content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .55;
+            background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 26px 26px;
+            -webkit-mask-image: radial-gradient(circle at 50% 22%, #000, transparent 72%);
+            mask-image: radial-gradient(circle at 50% 22%, #000, transparent 72%);
+        }
+/* ---- Shell ---- */
+        .app { width: 100%; max-width: 660px; display: flex; flex-direction: column; gap: 0.85rem; }
+
+        /* ---- Header ---- */
+        .header-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+        .header-left { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+        .back-btn { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.4rem; transition: color 0.2s ease; }
+        .back-btn:hover { color: var(--cyan); }
+        .brand-mark { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 0.95rem; color: #171207; background: linear-gradient(135deg, var(--gold), var(--gold2)); box-shadow: 0 6px 18px rgba(255, 201, 60, 0.35); }
+        .header-title { font-size: 1.1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .header-title em { font-style: normal; background: linear-gradient(90deg, var(--gold), var(--gold2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .header-controls { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+        .header-stats { display: flex; gap: 0.4rem; }
+        .stat-badge { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 0.34rem 0.68rem; font-size: 0.7rem; font-weight: 700; color: var(--muted); display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+        .stat-badge i { color: var(--gold); font-size: 0.72rem; }
+        .stat-badge strong { color: var(--ink); font-size: 0.76rem; }
+
+        .icon-btn { background: var(--panel); border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; transition: all 0.18s ease; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+        .icon-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+        .icon-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255, 201, 60, 0.12); }
+        .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* ---- Main panel (glass, fits viewport) ---- */
+        .game-panel {
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            padding: clamp(1rem, 2.2vh, 1.5rem);
+            box-shadow: 0 30px 90px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+            -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+            max-height: calc(100dvh - 3.2rem);
+            overflow-y: auto;
+            scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
+        }
+        .game-panel::-webkit-scrollbar { width: 6px; }
+        .game-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+
+        /* ---- Start screen ---- */
+        .start-screen { display: flex; flex-direction: column; align-items: center; gap: 1.05rem; text-align: center; padding: 0.3rem 0 0.2rem; }
+        .start-ring { flex: none; width: clamp(92px, 13vmin, 104px); height: clamp(92px, 13vmin, 104px); border-radius: 26px; padding: 6px; background: conic-gradient(from 210deg, var(--gold), var(--gold2), #ffe08a, var(--gold2), var(--gold)); box-shadow: 0 16px 44px rgba(255, 201, 60, 0.4); }
+        .start-ring .inner { width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(160deg, #1b1508, #2a1f06); display: grid; place-items: center; color: var(--gold); }
+        .start-ring i { font-size: clamp(2rem, 4.4vh, 2.4rem); filter: drop-shadow(0 3px 8px rgba(0,0,0,0.45)); animation: floaty 3.6s ease-in-out infinite; }
+        @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .start-title { font-size: clamp(1.5rem, 4.6vh, 1.95rem); font-weight: 800; letter-spacing: 0.3px; }
+        .start-title em { font-style: normal; background: linear-gradient(90deg, var(--gold), var(--gold2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .start-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.6; max-width: 520px; }
+        .start-desc strong { color: var(--ink); }
+        .rules-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+        .rule-chip { background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 0.85rem; font-size: 0.74rem; font-weight: 700; color: var(--muted); display: inline-flex; align-items: center; gap: 0.4rem; }
+        .rule-chip i { color: var(--gold); font-size: 0.8rem; }
+        .btn-start { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #171207; font-weight: 800; font-size: 0.98rem; letter-spacing: 0.6px; border: none; padding: 0.95rem clamp(2rem, 6vw, 3rem); border-radius: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.55rem; box-shadow: 0 12px 30px rgba(255, 201, 60, 0.3); transition: all 0.2s ease; margin-top: 0.15rem; }
+        .btn-start:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .btn-start:active { transform: scale(0.97); }
+/* ---- Run UI ---- */
+        .run-ui { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.4vh, 0.9rem); }
+        .hud-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+        #lives-row { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 1.05rem; background: var(--inner); border: 1px solid var(--line); border-radius: 12px; padding: 0.42rem 0.78rem; }
+        #lives-row .heart { color: var(--red); filter: drop-shadow(0 2px 6px rgba(251,95,104,0.35)); transition: 0.3s ease; }
+        #lives-row .heart.lost { color: rgba(251,95,104,0.18); filter: none; }
+        .hud-chips { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+        .hud-chip { background: var(--inner); border: 1px solid var(--line); border-radius: 12px; padding: 0.42rem 0.7rem; font-size: 0.7rem; font-weight: 700; color: var(--muted); display: inline-flex; align-items: center; gap: 0.4rem; }
+        .hud-chip i { color: var(--gold); font-size: 0.78rem; }
+        .hud-chip .lbl { color: var(--muted); }
+        .hud-chip .val { color: var(--ink); font-weight: 800; font-size: 0.82rem; }
+        .hud-chip .slash { color: var(--muted); font-weight: 700; }
+
+        /* Segmented stage progress track */
+        .stage-track { display: flex; align-items: center; gap: 4px; padding: 0.15rem 0; }
+        .stage-dot { flex: 1; height: 8px; border-radius: 99px; background: rgba(255,255,255,0.08); position: relative; transition: background 0.3s ease; }
+        .stage-dot::after { content: ""; position: absolute; top: 0; left: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, var(--green), #2dd4bf); border-radius: 99px; transform: scaleX(0); transform-origin: left; transition: transform 0.45s ease; }
+        .stage-dot.done { background: rgba(52,211,153,0.2); }
+        .stage-dot.done::after { transform: scaleX(1); }
+        .stage-dot.current { background: linear-gradient(90deg, var(--gold), var(--gold2)); box-shadow: 0 0 12px rgba(255, 201, 60, 0.5); }
+
+        /* Timer */
+        .timer-track { height: 11px; border-radius: 99px; background: rgba(255,255,255,0.07); overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
+        #timer-fill { height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--cyan), #a3f7ff); transition: width 0.1s linear, background 0.3s ease; }
+        #timer-fill.danger { background: linear-gradient(90deg, var(--red), #ffb3b9); }
+
+        /* ---- Question card ---- */
+        .q-card { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)); border: 1px solid var(--line2); border-radius: 16px; padding: clamp(0.9rem, 2vh, 1.15rem); }
+        .q-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
+        #q-category { background: rgba(255,201,60,0.1); border: 1px solid rgba(255,201,60,0.35); color: var(--gold); font-size: 0.66rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; padding: 0.26rem 0.7rem; border-radius: 999px; }
+        #q-difficulty { font-size: 0.68rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); display: inline-flex; align-items: center; gap: 0.4rem; }
+        #q-difficulty::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+        #q-difficulty.diff-easy { color: var(--green); }
+        #q-difficulty.diff-medium { color: var(--gold); }
+        #q-difficulty.diff-hard { color: var(--red); }
+        .q-text { font-size: clamp(0.98rem, 2.1vh, 1.15rem); font-weight: 700; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+/* ---- Answers ---- */
+        .answers-grid { display: flex; flex-direction: column; gap: 0.6rem; counter-reset: answer; }
+        .answer-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: var(--inner); border: 1px solid var(--line); border-radius: 13px; padding: 0.8rem 0.9rem; color: var(--ink); font-size: 0.92rem; font-weight: 600; line-height: 1.35; text-align: left; cursor: pointer; counter-increment: answer; transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease; }
+        .answer-btn::before { content: counter(answer, upper-alpha); flex: none; width: 30px; height: 30px; border-radius: 9px; background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--muted); font-weight: 800; font-size: 0.78rem; display: inline-flex; align-items: center; justify-content: center; transition: 0.15s ease; }
+        .answer-btn:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--gold); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .answer-btn:hover:not(:disabled)::before { border-color: var(--gold); color: var(--gold); }
+        .answer-btn:active:not(:disabled) { transform: scale(0.98); }
+        .answer-btn.correct { background: rgba(52,211,153,0.14); border-color: var(--green); }
+        .answer-btn.correct::before { content: "\2713"; background: rgba(52,211,153,0.2); border-color: var(--green); color: var(--green); }
+        .answer-btn.wrong { background: rgba(251,95,104,0.12); border-color: var(--red); }
+        .answer-btn.wrong::before { content: "\2715"; background: rgba(251,95,104,0.2); border-color: var(--red); color: var(--red); }
+        .answer-btn.eliminated { opacity: 0.28; pointer-events: none; filter: grayscale(0.4); }
+        .answer-btn:disabled { cursor: default; }
+
+        /* ---- Lifelines ---- */
+        .lifeline-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .icon-btn.life { flex: 1; min-width: 130px; width: auto; height: 40px; font-size: 0.82rem; font-weight: 700; gap: 0.45rem; }
+        .icon-btn.life i { color: var(--gold); }
+        .icon-btn.life:disabled { opacity: 0.35; }
+
+        /* ---- Feedback / loading ---- */
+        .toast { text-align: center; font-weight: 700; font-size: 0.86rem; min-height: 20px; color: var(--gold); }
+        .toast.good { color: var(--green); }
+        .toast.bad { color: var(--red); }
+        .loading-box { display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 2rem 0; color: var(--muted); font-weight: 700; }
+        .loading-box i { color: var(--gold); }
+/* ---- Stage banner ---- */
+        #stage-banner { position: fixed; top: 1rem; left: 50%; transform: translate(-50%, -16px); z-index: 900; pointer-events: none; opacity: 0; transition: opacity 0.28s ease, transform 0.28s ease; }
+        #stage-banner.active { opacity: 1; transform: translate(-50%, 0); }
+        #stage-banner-inner { background: rgba(13,17,34,0.92); border: 1px solid rgba(255,201,60,0.4); border-radius: 18px; box-shadow: 0 14px 44px rgba(0,0,0,0.6); padding: 0.8rem 1.7rem; text-align: center; max-width: min(90vw, 430px); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+        .banner-stage { font-size: 0.64rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 0.2rem; }
+        .banner-name { font-size: 1.3rem; font-weight: 800; background: linear-gradient(90deg, var(--gold), var(--gold2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .banner-diff { margin-top: 0.2rem; font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+
+        /* ---- Modals ---- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(6,9,18,0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { position: relative; z-index: 1; width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; background: linear-gradient(180deg, rgba(20,27,52,0.97), rgba(14,18,36,0.99)); border: 1px solid var(--line2); border-radius: 22px; padding: 1.6rem 1.4rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.95rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); transform: translateY(14px) scale(0.96); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3); }
+        .modal-overlay.active .modal-card { transform: none; }
+        .modal-title { font-size: 1.35rem; font-weight: 800; color: var(--gold); }
+        .modal-title i { margin-right: 0.35rem; }
+        .modal-title.lose { color: var(--red); }
+        .modal-title.win { color: var(--green); }
+        .modal-sub { color: var(--muted); font-size: 0.82rem; }
+        .win-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; background: var(--inner); border: 1px solid var(--line); border-radius: 14px; padding: 0.85rem; font-size: 0.8rem; text-align: left; }
+        .win-stats div { display: flex; flex-direction: column; gap: 0.15rem; }
+        .win-stats div strong { color: var(--gold); font-size: 0.64rem; letter-spacing: 0.5px; text-transform: uppercase; }
+        .win-stats div span { color: var(--ink); font-weight: 800; font-size: 1.05rem; }
+        .new-best { color: var(--green); font-weight: 800; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem; animation: pulse 1.3s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+        .btn-close-win { width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #171207; font-weight: 800; border: none; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: filter 0.2s ease, transform 0.15s ease; box-shadow: 0 10px 24px rgba(255,201,60,0.25); }
+        .btn-close-win:hover { filter: brightness(1.08); }
+        .btn-share { width: 100%; background: rgba(57,227,255,0.08); border: 1px solid rgba(57,227,255,0.5); color: var(--cyan); font-weight: 800; padding: 0.8rem; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: 0.2s ease; }
+        .btn-share:hover { background: rgba(57,227,255,0.18); }
+        #confetti-canvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 22px; }
+/* ---- Stats / help ---- */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; width: 100%; }
+        .stat-cell { background: var(--inner); border: 1px solid var(--line); border-radius: 14px; padding: 0.7rem 0.3rem; }
+        .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+        .stat-label { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 0.15rem; }
+        .help-content { width: 100%; text-align: left; font-size: 0.84rem; line-height: 1.6; color: var(--muted); }
+        .help-content h3 { color: var(--gold); font-size: 0.92rem; margin: 0.85rem 0 0.3rem; }
+        .help-content h3:first-child { margin-top: 0.2rem; }
+        .help-content ul { padding-left: 1.1rem; }
+        .help-content li { margin-bottom: 0.2rem; }
+        .help-content strong { color: var(--ink); }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 560px) {
+            body { justify-content: flex-start; }
+            .header-stats { display: none; }
+            .game-panel { padding: 1rem; }
+            .q-text { font-size: 1rem; }
+            .stage-dot { height: 6px; }
+        }
+        @media (max-height: 680px) {
+            body { justify-content: flex-start; }
+            .game-panel { padding: 0.9rem; }
+            .run-ui { gap: 0.55rem; }
+            .q-card { padding: 0.85rem; }
+            .q-text { font-size: 0.95rem; line-height: 1.4; }
+            .answer-btn { padding: 0.6rem 0.75rem; }
+            .start-screen { gap: 0.75rem; }
+            .start-ring { width: 78px; height: 78px; }
+            .start-ring i { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header-bar">
+            <div class="header-left">
+                <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+                <span class="brand-mark"><i class="fa-solid fa-trophy"></i></span>
+                <h1 class="header-title">Category <em>Gauntlet</em></h1>
+            </div>
+            <div class="header-controls">
+                <div class="header-stats">
+                    <span class="stat-badge"><i class="fa-solid fa-crown"></i> Best <strong id="stat-best-score">0</strong></span>
+                    <span class="stat-badge"><i class="fa-solid fa-route"></i> Stage <strong id="stat-best-stage">–</strong></span>
+                </div>
+                <button id="btn-sfx" class="icon-btn" title="Toggle Sound" aria-label="Toggle sound"><i class="fa-solid fa-volume-high"></i></button>
+                <button id="btn-stats" class="icon-btn" title="Statistics" aria-label="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
+                <button id="btn-help" class="icon-btn" title="How to Play" aria-label="How to play"><i class="fa-solid fa-circle-question"></i></button>
+            </div>
+        </header>
+
+        <main class="game-panel">
+            <!-- Start Screen -->
+            <section id="start-screen" class="start-screen">
+                <div class="start-ring"><div class="inner"><i class="fa-solid fa-trophy"></i></div></div>
+                <div class="start-title">Category <em>Gauntlet</em></div>
+                <p class="start-desc">
+                    Survive <strong>8 escalating trivia categories</strong> — from General Knowledge all the way
+                    to History. Clear the required questions to advance; wrong answers and timeouts cost a life!
+                </p>
+                <div class="rules-chips">
+                    <span class="rule-chip"><i class="fa-solid fa-heart"></i> 3 Lives</span>
+                    <span class="rule-chip"><i class="fa-solid fa-stopwatch"></i> Beat the Clock</span>
+                    <span class="rule-chip"><i class="fa-solid fa-scissors"></i> One 50/50</span>
+                    <span class="rule-chip"><i class="fa-solid fa-forward"></i> One Skip</span>
+                </div>
+                <button id="btn-start" class="btn-start"><i class="fa-solid fa-play"></i>START RUN</button>
+            </section>
+            <!-- Run UI -->
+            <section id="run-ui" class="run-ui" style="display:none;">
+                <div class="hud-row">
+                    <div id="lives-row" aria-label="Lives remaining"></div>
+                    <div class="hud-chips">
+                        <span class="hud-chip"><i class="fa-solid fa-star"></i><span class="lbl">Score</span><span id="score-val" class="val">0</span></span>
+                        <span class="hud-chip"><i class="fa-solid fa-list-check"></i><span class="lbl">Stage</span><span class="stage-x"><span id="stage-num" class="val">1</span><span class="slash">/8</span></span></span>
+                        <span class="hud-chip"><i class="fa-solid fa-bullseye"></i><span class="lbl">Goal</span><span id="stage-progress-text" class="val">0/3</span></span>
+                    </div>
+                </div>
+
+                <div id="stage-dots" class="stage-track" aria-label="Stage progress"></div>
+
+                <div class="timer-track" aria-hidden="true"><div id="timer-fill"></div></div>
+
+                <div class="q-card">
+                    <div class="q-meta">
+                        <span id="q-category">—</span>
+                        <span id="q-difficulty">—</span>
+                    </div>
+                    <div id="question-text" class="q-text">Loading questions…</div>
+                </div>
+
+                <div id="answers-grid" class="answers-grid"></div>
+
+                <div id="feedback" class="toast" role="status"></div>
+
+                <div class="lifeline-row">
+                    <button id="btn-fifty" class="icon-btn life" disabled><i class="fa-solid fa-scissors"></i><span>50 / 50</span></button>
+                    <button id="btn-skip" class="icon-btn life" disabled><i class="fa-solid fa-forward"></i><span>Skip</span></button>
+                </div>
+            </section>
+
+            <!-- Loading Box -->
+            <div id="loading-box" class="loading-box" style="display:none;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading questions…
+            </div>
+        </main>
+    </div>
+    <!-- Stage Banner -->
+    <div id="stage-banner" class="stage-banner" aria-live="polite">
+        <div id="stage-banner-inner">
+            <div class="banner-stage" id="banner-stage">STAGE 1 OF 8</div>
+            <div class="banner-name" id="banner-name">General Knowledge</div>
+            <div class="banner-diff" id="banner-diff">Easy · get 3 correct</div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameover-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title lose"><i class="fa-solid fa-heart-crack"></i>Gauntlet Failed</div>
+            <p class="modal-sub">You ran out of lives. Sharpen up and try again!</p>
+            <div class="win-stats">
+                <div><strong>Final Score</strong><span id="go-score">0</span></div>
+                <div><strong>Stage Reached</strong><span id="go-stage">–</span></div>
+                <div><strong>Correct</strong><span id="go-correct">0</span></div>
+                <div><strong>Best Score</strong><span id="go-best">0</span></div>
+            </div>
+            <div id="go-newbest" class="new-best" style="display:none;"><i class="fa-solid fa-crown"></i> NEW BEST SCORE!</div>
+            <button id="btn-play-again-lose" class="btn-share"><i class="fa-solid fa-rotate-right"></i> Try Again</button>
+            <button id="btn-close-lose" class="btn-close-win">BACK TO START</button>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="modal-overlay">
+        <canvas id="confetti-canvas"></canvas>
+        <div class="modal-card">
+            <div class="modal-title win"><i class="fa-solid fa-trophy"></i>Gauntlet Conquered!</div>
+            <p class="modal-sub">You survived all 8 categories. Legendary!</p>
+            <div class="win-stats">
+                <div><strong>Final Score</strong><span id="vic-score">0</span></div>
+                <div><strong>Lives Left</strong><span id="vic-lives">0</span></div>
+                <div><strong>Accuracy</strong><span id="vic-accuracy">0%</span></div>
+                <div><strong>Best Score</strong><span id="vic-best">0</span></div>
+            </div>
+            <div id="vic-newbest" class="new-best" style="display:none;"><i class="fa-solid fa-crown"></i> NEW BEST SCORE!</div>
+            <button id="btn-play-again-vic" class="btn-share"><i class="fa-solid fa-rotate-right"></i>Run It Again</button>
+            <button id="btn-close-vic" class="btn-close-win">BACK TO START</button>
+        </div>
+    </div>
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title"><i class="fa-solid fa-chart-simple"></i>Statistics</div>
+            <div class="stats-grid">
+                <div class="stat-cell"><div class="stat-num" id="stats-played">0</div><div class="stat-label">Runs</div></div>
+                <div class="stat-cell"><div class="stat-num" id="stats-best-score">0</div><div class="stat-label">Best Score</div></div>
+                <div class="stat-cell"><div class="stat-num" id="stats-best-stage">–</div><div class="stat-label">Best Stage</div></div>
+                <div class="stat-cell"><div class="stat-num" id="stats-accuracy">0%</div><div class="stat-label">Accuracy</div></div>
+            </div>
+            <button id="btn-close-stats" class="btn-close-win">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title"><i class="fa-solid fa-circle-question"></i>How to Play</div>
+            <div class="help-content">
+                <h3>🎯 Objective</h3>
+                <p>Clear all <strong>8 trivia categories</strong> in a single run without running out of lives!</p>
+
+                <h3>🗺️ The Gauntlet</h3>
+                <ul>
+                    <li>Each stage is a new category with escalating difficulty (easy → hard)</li>
+                    <li>Answer the required number of questions correctly to unlock the next stage</li>
+                    <li>General Knowledge → Video Games → Film → Science &amp; Nature → Computers → Geography → Mythology → History</li>
+                </ul>
+
+                <h3>❤️ Lives &amp; Clock</h3>
+                <ul>
+                    <li>You start with <strong>3 lives</strong> — wrong answers and timeouts cost one</li>
+                    <li>A wrong answer does <strong>not</strong> reset your stage progress</li>
+                    <li>Faster answers earn bigger time bonuses; harder questions are worth more points</li>
+                </ul>
+
+                <h3>🛟 Lifelines</h3>
+                <p>Once per run: <strong>50/50</strong> removes two wrong answers, and <strong>Skip</strong> jumps to the next question without penalty.</p>
+            </div>
+            <button id="btn-close-help" class="btn-close-win">GOT IT</button>
+        </div>
+    </div>
+
+    <script src="gauntlet.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
