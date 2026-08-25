@@ -5,7 +5,8 @@
    (netlify/functions/trivia.js) with a direct-API fallback.
 
    Features:
-   - Daily "Orb Drop": 10 questions, refreshed every UTC day
+   - Daily "Orb Drop": 10 questions, refreshed every day at
+     local midnight
    - Endless practice rounds (category + difficulty picker)
    - Orbs currency, streaks with forgiving freeze tokens,
      and orb-priced lifelines (50/50, Hint, Skip)
@@ -86,12 +87,12 @@ function shuffleSeeded(arr, rng) {
   return out;
 }
 
-/** UTC calendar day key, e.g. '2026-08-26'. */
+/** LOCAL calendar day key, e.g. '2026-08-26'. Dailies reset at local midnight. */
 function todayKey(date) {
   var d = date || new Date();
-  var y = d.getUTCFullYear();
-  var m = ('0' + (d.getUTCMonth() + 1)).slice(-2);
-  var day = ('0' + d.getUTCDate()).slice(-2);
+  var y = d.getFullYear();
+  var m = ('0' + (d.getMonth() + 1)).slice(-2);
+  var day = ('0' + d.getDate()).slice(-2);
   return y + '-' + m + '-' + day;
 }
 
@@ -278,6 +279,8 @@ function showTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(function (b) {
     b.classList.toggle('active', b.dataset.tab === tab);
   });
+  // Always leave any active round/results view when returning to a tab.
+  if (tab === 'daily') showScreen('screen-daily-wrap');
   stopCountdown();
   if (tab === 'stats') renderStats();
   refreshHomeScreens();
@@ -335,7 +338,8 @@ function normalizeQuestion(q) {
 }
 
 function fetchDailyQuestions() {
-  return apiGet(CONFIG.API_URL + '?mode=daily').then(function (data) {
+  // Pass the player's local date so the server seeds/caches per local day.
+  return apiGet(CONFIG.API_URL + '?mode=daily&date=' + todayKey()).then(function (data) {
     if (!data.questions || !data.questions.length) throw new Error('empty daily set');
     return data.questions.map(normalizeQuestion);
   }).catch(function (err) {
@@ -643,8 +647,9 @@ function fallbackCopy(text, done) {
 
 function msUntilNextDrop() {
   var now = new Date();
-  var next = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0);
-  return next - now.getTime();
+  // Next local midnight
+  var next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+  return next.getTime() - now.getTime();
 }
 
 function startCountdown() {

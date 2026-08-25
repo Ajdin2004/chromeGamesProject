@@ -24,6 +24,10 @@ var DAILY_POOL = 14;
 
 var dailyCache = { date: null, payload: null };
 
+function isValidDateKey(s) {
+  return typeof s === 'string' && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s);
+}
+
 function json(status, body) {
   return {
     statusCode: status,
@@ -74,18 +78,33 @@ function decodeB64(s) {
   return Buffer.from(String(s), 'base64').toString('utf8');
 }
 
-/** Fetch from OpenTDB; retries once after 5s on rate-limit (code 5). */
-async function callOpentdb(params) {
-  var qs = new URLSearchParams(Object.assign({ type: 'multiple', encode: 'base64' }, params));
-  var data = await attempt(qs);
-  if (data && data.response_code === 5) {
-    await sleep(5200);
-    data = await attempt(qs);
-  }
-  if (!data || data.response_code !== 0 || !Array.isArray(data.results) || !data.results.length) {
-    throw new Error('OpenTDB unavailable (response_code ' + (data ? data.response_code : 'n/a') + ')');
-  }
-  return data.results.map(decodeQuestion);
+/** Fetch from OpenTDB; retries once after 5s on rate-limit (code 5).
+ *  All calls are serialized through a queue with >=5.2s spacing so
+ *  concurrent requests never trip OpenTDB's per-IP rate limit. */
+var upstreamQueue = Promise.resolve();
+var lastUpstreamAt = 0;
+
+function callOpentdb(params) {
+  var run = async function () {
+    var qs = new URLSearchParams(Object.assign({ type: 'multiple', encode: 'base64' }, params));
+    var wait = lastUpstreamAt + 5200 - Date.now();
+    if (wait > 0) await sleep(wait);
+
+    var data = await attempt(qs);
+    if (data && data.response_code === 5) {
+      await sleep(5200);
+      lastUpstreamAt = Date.now();
+      data = await attempt(qs);
+    }
+    if (!data || data.response_code !== 0 || !Array.isArray(data.results) || !data.results.length) {
+      throw new Error('OpenTDB unavailable (response_code ' + (data ? data.response_code : 'n/a') + ')');
+    }
+    lastUpstreamAt = Date.now();
+    return data.results.map(decodeQuestion);
+  };
+  var p = upstreamQueue.then(run, run);
+  upstreamQueue = p.catch(function () {});
+  return p;
 }
 
 async function attempt(qs) {
@@ -109,9 +128,10 @@ function decodeQuestion(q) {
   };
 }
 
-/** Daily set: fixed-size mixed pool, deterministically cut down by date seed. */
-async function getDailySet() {
-  var date = utcToday();
+/** Daily set keyed by the player's LOCAL date (sent by the client) so the
+ *  puzzle rotates at local midnight; falls back to UTC day if not supplied. */
+async function getDailySet(requestedDate) {
+  var date = isValidDateKey(requestedDate) ? requestedDate : utcToday();
   if (dailyCache.date === date && dailyCache.payload) return dailyCache.payload;
 
   var pool = await callOpentdb({ amount: String(DAILY_POOL) });
@@ -143,7 +163,7 @@ exports.handler = async function (event) {
   var params = (event && event.queryStringParameters) || {};
   try {
     if ((params.mode || 'endless') === 'daily') {
-      return json(200, await getDailySet());
+      return json(200, await getDailySet(params.date));
     }
     // Endless / practice passthrough
     var amount = parseInt(params.amount, 10);

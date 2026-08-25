@@ -36,9 +36,12 @@ test('shuffleSeeded keeps all elements and respects the seed', () => {
   assert.deepStrictEqual(src, ['a', 'b', 'c', 'd', 'e'], 'input array untouched');
 });
 
-test('todayKey returns UTC YYYY-MM-DD', () => {
-  const d = new Date(Date.UTC(2026, 7, 26, 23, 59, 59));
+test('todayKey returns LOCAL YYYY-MM-DD (dailies reset at local midnight)', () => {
+  // Constructed in LOCAL time — late-night hours must stay on the same key.
+  const d = new Date(2026, 7, 26, 23, 59, 59);
   assert.strictEqual(core.todayKey(d), '2026-08-26');
+  const d2 = new Date(2026, 11, 31, 12, 0, 0);
+  assert.strictEqual(core.todayKey(d2), '2026-12-31');
 });
 
 test('diffInDays computes whole-day gaps', () => {
