@@ -643,6 +643,7 @@ function getVersionDirection(guessVersion, targetVersion) {
     return null;                    // Equal
 }
 
+// --- Autocomplete ---
 function handleAutocomplete() {
     const val = inputEl.value.toLowerCase().trim();
     suggestionsEl.innerHTML = '';
@@ -653,9 +654,12 @@ function handleAutocomplete() {
         return;
     }
 
+    // FIXED: Strictly filter by startsWith and sort alphabetically
     currentMatches = CHARACTERS.filter(r =>
-        r.name.toLowerCase().startsWith(val) || r.name.toLowerCase().includes(val)
-    ).slice(0, 8);
+        r.name.toLowerCase().startsWith(val)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 8);
 
     if (currentMatches.length > 0) {
         suggestionsEl.style.display = 'block';

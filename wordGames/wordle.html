@@ -171,6 +171,98 @@
         .toast.show {
             opacity: 1;
         }
+
+        /* Header action buttons */
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            color: var(--primary-cyan);
+            border-color: var(--primary-cyan);
+        }
+
+        /* Stats Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            backdrop-filter: blur(12px);
+            position: relative;
+            min-width: 300px;
+        }
+
+        .modal h3 {
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 1.25rem;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
     </style>
 </head>
 <body>
@@ -178,6 +270,23 @@
     <div class="header-bar">
         <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
         <h2>Daily Wordle</h2>
+        <div class="header-actions">
+            <button id="share-btn" class="icon-btn" title="Share result"><i class="fa-solid fa-share-nodes"></i></button>
+            <button id="stats-btn" class="icon-btn" title="Stats"><i class="fa-solid fa-chart-simple"></i></button>
+        </div>
+    </div>
+
+    <div id="stats-modal" class="modal-overlay">
+        <div class="modal">
+            <button id="stats-close" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            <h3>Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat"><span class="stat-num" id="stat-played">0</span><span class="stat-label">Played</span></div>
+                <div class="stat"><span class="stat-num" id="stat-win-pct">0</span><span class="stat-label">Win %</span></div>
+                <div class="stat"><span class="stat-num" id="stat-streak">0</span><span class="stat-label">Streak</span></div>
+                <div class="stat"><span class="stat-num" id="stat-max-streak">0</span><span class="stat-label">Max</span></div>
+            </div>
+        </div>
     </div>
 
     <div id="toast" class="toast">Not in word list</div>

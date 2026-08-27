@@ -651,6 +651,7 @@ function getVersionDirection(guessVersion, targetVersion) {
     return null;                    // Equal
 }
 
+// --- Autocomplete ---
 function handleAutocomplete() {
     const val = inputEl.value.toLowerCase().trim();
     suggestionsEl.innerHTML = '';
@@ -661,13 +662,16 @@ function handleAutocomplete() {
         return;
     }
 
-    currentMatches = CHARACTERS.filter(c =>
-        c.name.toLowerCase().startsWith(val) || c.name.toLowerCase().includes(val)
-    ).slice(0, 8);
+    // FIXED: Strictly filter by startsWith and sort alphabetically
+    currentMatches = CHARACTERS.filter(r =>
+        r.name.toLowerCase().startsWith(val)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 8);
 
     if (currentMatches.length > 0) {
         suggestionsEl.style.display = 'block';
-        currentMatches.forEach((c, idx) => {
+        currentMatches.forEach((r, idx) => {
             const div = document.createElement('div');
             div.className = `suggestion-item ${idx === 0 ? 'active' : ''}`;
             div.setAttribute('role', 'option');
@@ -677,11 +681,11 @@ function handleAutocomplete() {
             info.className = 'suggestion-info';
 
             const img = document.createElement('img');
-            img.src = c.image;
-            img.alt = c.name;
+            img.src = r.image;
+            img.alt = r.name;
 
             const nameSpan = document.createElement('span');
-            nameSpan.textContent = c.name;
+            nameSpan.textContent = r.name;
 
             info.appendChild(img);
             info.appendChild(nameSpan);
@@ -697,7 +701,7 @@ function handleAutocomplete() {
 
             div.addEventListener('click', () => {
                 suggestionActiveIndex = idx;
-                selectCharacter(c.name);
+                selectCharacter(r.name);
             });
 
             suggestionsEl.appendChild(div);

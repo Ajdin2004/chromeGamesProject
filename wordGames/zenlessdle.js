@@ -661,9 +661,11 @@ function handleAutocomplete() {
         return;
     }
 
-    currentMatches = AGENTS.filter(a =>
-        a.name.toLowerCase().startsWith(val) || a.name.toLowerCase().includes(val)
-    ).slice(0, 8);
+    currentMatches = AGENTS.filter(c => 
+        c.name.toLowerCase().startsWith(val)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 8);
 
     if (currentMatches.length > 0) {
         suggestionsEl.style.display = 'block';

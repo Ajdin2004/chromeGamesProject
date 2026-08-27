@@ -598,17 +598,6 @@ function animateConfetti() {
     }
 }
 
-// --- Autocomplete ---
-function updateActiveSuggestion() {
-    const items = suggestionsEl.querySelectorAll('.suggestion-item');
-    items.forEach((item, idx) => {
-        item.classList.toggle('active', idx === suggestionActiveIndex);
-    });
-    if (suggestionActiveIndex >= 0 && items[suggestionActiveIndex]) {
-        items[suggestionActiveIndex].scrollIntoView({ block: 'nearest' });
-    }
-}
-
 function selectCountrySuggestion(country) {
     inputEl.value = country.name;
     suggestionsEl.style.display = 'none';
@@ -625,16 +614,26 @@ function handleAutocomplete() {
         suggestionsEl.style.display = 'none';
         return;
     }
-    const matches = COUNTRIES.filter(c => c.name.toLowerCase().includes(val)).slice(0, 8);
+
+    // FIXED: Changed .includes() to .startsWith() and added alphabetical sorting
+    const matches = COUNTRIES.filter(c => 
+        c.name.toLowerCase().startsWith(val)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, 8);
+
     if (matches.length > 0) {
         currentMatches = matches;
         suggestionActiveIndex = 0;
         suggestionsEl.style.display = 'block';
+        
         matches.forEach((c, idx) => {
             const div = document.createElement('div');
             div.className = 'suggestion-item';
             div.textContent = c.name;
+            
             if (idx === suggestionActiveIndex) div.classList.add('active');
+            
             div.addEventListener('click', () => selectCountrySuggestion(c));
             suggestionsEl.appendChild(div);
         });

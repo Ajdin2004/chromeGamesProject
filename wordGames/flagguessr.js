@@ -692,9 +692,24 @@ function handleAutocomplete() {
         return;
     }
 
-    currentMatches = COUNTRIES.filter(c =>
-        c.name.toLowerCase().startsWith(val) || c.name.toLowerCase().includes(val)
-    ).slice(0, 8);
+    // 1. Filter all countries that contain the string
+    // 2. Sort them so "startsWith" matches appear first
+    // 3. Take the top 8
+    currentMatches = COUNTRIES.filter(c => 
+        c.name.toLowerCase().includes(val)
+    ).sort((a, b) => {
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+        const aStarts = aName.startsWith(val);
+        const bStarts = bName.startsWith(val);
+
+        // Put countries that START with the value at the top
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+
+        // If both start with it, or both only contain it, sort alphabetically
+        return aName.localeCompare(bName);
+    }).slice(0, 8);
 
     if (currentMatches.length > 0) {
         suggestionsEl.style.display = 'block';
