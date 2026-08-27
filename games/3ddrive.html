@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Neon Horizon | Ultra 3D Procedural Drive</title>
+    <title>Neon Horizon | BETA</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3774/3774278.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -167,12 +168,58 @@
             font-weight: 600;
             text-transform: uppercase;
         }
+        #mobile-controls {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 0;
+            width: 100vw;
+            padding: 0 1.5rem;
+            display: none; /* Hidden on desktop */
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .d-pad, .action-pad {
+            display: flex;
+            gap: 0.6rem;
+            pointer-events: auto;
+        }
+        .touch-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            background: var(--glass);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent; /* Removes default mobile tap flash */
+            touch-action: none; /* Prevents double-tap zooming on the buttons */
+        }
+        .touch-btn:active {
+            background: rgba(0, 242, 254, 0.2);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            transform: scale(0.95);
+        }
+        .boost-btn {
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            color: var(--pink);
+        }
+
         @media (max-width: 768px) {
             .controls-hint {
-                font-size: 0.6rem;
-                padding: 0.5rem 1rem;
-                white-space: normal;
-                max-width: 95vw;
+                display: none; /* Hide keyboard text on mobile */
+            }
+            #mobile-controls {
+                display: flex; /* Show touch controls */
+            }
+            .hud.bottom {
+                bottom: 6rem; /* Push auxiliary buttons up slightly */
             }
             .speed-val {
                 font-size: 2.6rem;
@@ -207,12 +254,13 @@
     <div id="loading">
         <div class="spinner"></div>
         <div class="loading-text">Compiling Shader Engine &amp; Infinite World…</div>
+        <div class="loading-text">This is an experimental game</div>
     </div>
 
     <div id="canvas-container"></div>
 
     <div class="hud top-left">
-        <a href="../index.html" class="glass back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <a href="../index.html" class="glass back-btn"><i class="fa-solid fa-arrow-left"></i> Hub  BETA</a>
         <div class="glass speedometer">
             <div class="speed-val" id="speed-display">0</div>
             <div class="speed-label">KM / H</div>
@@ -231,6 +279,19 @@
         <div class="controls-hint">
             <strong>W/S</strong> Drive &nbsp;|&nbsp; <strong>A/D</strong> Steer &nbsp;|&nbsp; <strong>Shift</strong> Boost &nbsp;|&nbsp;
             <strong>C</strong> Camera &nbsp;|&nbsp; <strong>Q/E</strong> Theme &nbsp;|&nbsp; <strong>L</strong> Lights &nbsp;|&nbsp; <strong>R</strong> Reset
+        </div>
+    </div>
+
+    <!-- NEW: Mobile Controls Overlay -->
+    <div id="mobile-controls">
+        <div class="d-pad">
+            <button id="btn-left" class="glass touch-btn"><i class="fa-solid fa-chevron-left"></i></button>
+            <button id="btn-right" class="glass touch-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="action-pad">
+            <button id="btn-brake" class="glass touch-btn"><i class="fa-solid fa-chevron-down"></i></button>
+            <button id="btn-gas" class="glass touch-btn"><i class="fa-solid fa-chevron-up"></i></button>
+            <button id="btn-boost" class="glass touch-btn boost-btn">B</button>
         </div>
     </div>
     

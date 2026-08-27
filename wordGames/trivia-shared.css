@@ -1,0 +1,88 @@
+/* ============================================================
+   TRIVIA FAMILY SHARED DESIGN SYSTEM
+   (Category Gauntlet / Trivia Daily / Trivia Orbs)
+   Navy + gold glass "arcade" look.
+   Link BEFORE each game's own <style> block:
+       <link rel="stylesheet" href="trivia-shared.css">
+   ============================================================ */
+
+:root {
+    --ink: #eaf2ff;
+    --muted: #8ea0c6;
+    --gold: #ffc93c;
+    --gold2: #f5a623;
+    --cyan: #39e3ff;
+    --green: #34d399;
+    --red: #fb5f6a;
+    --panel: rgba(19, 26, 52, 0.64);
+    --inner: rgba(10, 14, 28, 0.55);
+    --line: rgba(255, 255, 255, 0.10);
+    --line2: rgba(255, 255, 255, 0.18);
+}
+
+/* ---- Base reset ---- */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+html, body { height: 100%; }
+
+/* ---- Opt-in arcade ambience (add class="arcade-bg" to <body>) ---- */
+body.arcade-bg {
+    color: var(--ink);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.6rem, 1.4vh, 1.4rem);
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Ambient gradient + subtle film glow */
+body.arcade-bg::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+        radial-gradient(58% 52% at 12% 6%, rgba(255, 201, 60, 0.08), transparent 60%),
+        radial-gradient(52% 46% at 92% 10%, rgba(57, 227, 255, 0.14), transparent 58%),
+        radial-gradient(72% 64% at 50% 108%, rgba(157, 138, 255, 0.18), transparent 62%),
+        linear-gradient(160deg, #070a14 0%, #0a0f22 55%, #0a1024 100%);
+}
+body.arcade-bg::after {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .55;
+    background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(circle at 50% 22%, #000, transparent 72%);
+    mask-image: radial-gradient(circle at 50% 22%, #000, transparent 72%);
+}
+
+/* Light-family variant (opt-in via data-theme="light" on <html>) */
+[data-theme="light"] body.arcade-bg::before {
+    background:
+        radial-gradient(58% 52% at 12% 6%, rgba(180, 116, 9, 0.10), transparent 60%),
+        radial-gradient(52% 46% at 92% 10%, rgba(8, 145, 178, 0.12), transparent 58%),
+        radial-gradient(72% 64% at 50% 108%, rgba(99, 102, 241, 0.10), transparent 62%),
+        linear-gradient(160deg, #f4f7fc 0%, #eef2f7 55%, #e7edf6 100%);
+}
+[data-theme="light"] body.arcade-bg::after {
+    opacity: .25;
+    background-image: radial-gradient(rgba(15, 23, 42, .08) 1px, transparent 1px);
+}
+
+/* ---- Shared header chrome ---- */
+.header-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+.header-left { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+.back-btn { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.4rem; transition: color 0.2s ease; }
+.back-btn:hover { color: var(--cyan); }
+.brand-mark { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 0.95rem; color: #171207; background: linear-gradient(135deg, var(--gold), var(--gold2)); box-shadow: 0 6px 18px rgba(255, 201, 60, 0.35); }
+.header-title { font-size: 1.1rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header-title em { font-style: normal; background: linear-gradient(90deg, var(--gold), var(--gold2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.header-controls { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.header-stats { display: flex; gap: 0.4rem; }
+.stat-badge { background: var(--panel); border: 1px solid var(--line); border-radius: 11px; padding: 0.34rem 0.68rem; font-size: 0.7rem; font-weight: 700; color: var(--muted); display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.stat-badge i { color: var(--gold); font-size: 0.72rem; }
+.stat-badge strong { color: var(--ink); font-size: 0.76rem; }
+
+.icon-btn { background: var(--panel); border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; transition: all 0.18s ease; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.icon-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+.icon-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255, 201, 60, 0.12); }
+.icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }

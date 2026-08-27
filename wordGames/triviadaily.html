@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Trivia Daily - one shared puzzle per day with three mini-game rounds. Resets at midnight.">
+    <title>Trivia Daily | Chromium Games</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127919;</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="trivia-shared.css">
+    <style>
+        :root {
+            --bg: #070a14;
+            --bg-accent: #0a1024;
+            --card: rgba(19,26,52,0.64);
+            --item-bg: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.10);
+            --text: #eaf2ff;
+            --muted: #8ea0c6;
+            --accent: #ffc93c;
+            --accent2: #f5a623;
+            --accent-contrast: #171207;
+            --accent-soft: rgba(255,201,60,0.12);
+            --green: #34d399;
+            --orange: #f59e0b;
+            --red: #fb5f6a;
+            --shadow: 0 18px 50px rgba(0,0,0,0.45);
+            --modal-bg1: rgba(16,23,47,0.97);
+            --modal-bg2: rgba(10,15,34,0.97);
+        }
+        [data-theme="light"] {
+            --bg: #eef2f7;
+            --bg-accent: #e7edf6;
+            --card: rgba(255,255,255,0.92);
+            --item-bg: #eef2f7;
+            --border: rgba(15,23,42,0.14);
+            --text: #0f172a;
+            --muted: #5b6b82;
+            --accent: #b45309;
+            --accent2: #d97706;
+            --accent-contrast: #ffffff;
+            --accent-soft: rgba(180,83,9,0.12);
+            --shadow: 0 10px 30px rgba(15,23,42,0.12);
+            --modal-bg1: rgba(255,255,255,0.98);
+            --modal-bg2: rgba(244,247,252,0.98);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Outfit", sans-serif; user-select: none; -webkit-user-select: none; }
+        body {
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 1rem;
+            color: var(--text); transition: color .3s ease;
+        }
+        /* Arcade ambience — matches the shared design system (light variant below) */
+        body::before {
+            content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+            background:
+                radial-gradient(58% 52% at 12% 6%, rgba(255, 201, 60, 0.08), transparent 60%),
+                radial-gradient(52% 46% at 92% 10%, rgba(57, 227, 255, 0.14), transparent 58%),
+                radial-gradient(72% 64% at 50% 108%, rgba(157, 138, 255, 0.18), transparent 62%),
+                linear-gradient(160deg, #070a14 0%, #0a0f22 55%, #0a1024 100%);
+        }
+        body::after {
+            content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .55;
+            background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 26px 26px;
+            -webkit-mask-image: radial-gradient(circle at 50% 22%, #000, transparent 72%);
+            mask-image: radial-gradient(circle at 50% 22%, #000, transparent 72%);
+        }
+        [data-theme="light"] body::before {
+            background:
+                radial-gradient(58% 52% at 12% 6%, rgba(180, 116, 9, 0.10), transparent 60%),
+                radial-gradient(52% 46% at 92% 10%, rgba(8, 145, 178, 0.12), transparent 58%),
+                radial-gradient(72% 64% at 50% 108%, rgba(99, 102, 241, 0.10), transparent 62%),
+                linear-gradient(160deg, #f4f7fc 0%, #eef2f7 55%, #e7edf6 100%);
+        }
+        [data-theme="light"] body::after {
+            opacity: .25;
+            background-image: radial-gradient(rgba(15, 23, 42, .08) 1px, transparent 1px);
+        }
+        .header-bar { max-width: 640px; margin-bottom: .75rem; }
+        .sub-header { display: flex; align-items: center; gap: .6rem; color: var(--muted); font-size: .85rem; font-weight: 600; margin-bottom: .9rem; }
+        #countdown { font-variant-numeric: tabular-nums; }
+        .round-tabs { display: flex; gap: .6rem; margin-bottom: 1rem; }
+        .tab { width: 34px; height: 34px; border-radius: 999px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; color: var(--muted); background: var(--card); transition: all .25s ease; }
+        .tab.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); transform: scale(1.12); }
+        .tab.done { background: var(--green); border-color: var(--green); color: #fff; }
+        main { width: 100%; max-width: 640px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 30px 90px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); padding: 1.25rem; transition: background .3s ease, border-color .3s ease; }
+        .card.anim { animation: slideUp .35s ease; }
+        .card.flash-good { animation: pop .4s ease; }
+        .card.flash-bad { animation: shake .4s ease; }
+        .round-title { font-size: 1.05rem; display: flex; align-items: center; gap: .5rem; }
+        .round-title i { color: var(--accent); }
+        .round-prompt { color: var(--muted); font-size: .92rem; line-height: 1.45; margin: .35rem 0 1rem; }
+        .rank-list { display: flex; flex-direction: column; gap: .6rem; }
+        .rank-item { display: flex; align-items: center; gap: .6rem; padding: .7rem .8rem; background: var(--item-bg); border: 1px solid var(--border); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease; }
+        .rank-item.dragging { opacity: .9; z-index: 10; cursor: grabbing; border-color: var(--accent); box-shadow: 0 8px 22px rgba(0,0,0,.3); }
+        .rank-pos { width: 26px; height: 26px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: .8rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .rank-handle { cursor: grab; color: var(--muted); padding: .2rem .1rem; touch-action: none; }
+        .rank-label { flex: 1; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+        .rank-btns { display: flex; flex-direction: column; gap: 3px; }
+        .mini-btn { width: 28px; height: 21px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .6rem; display: flex; align-items: center; justify-content: center; transition: all .15s ease; }
+        .mini-btn:hover { color: var(--accent); border-color: var(--accent); }
+        .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+        .option { padding: .95rem .5rem; border: 1.5px solid var(--border); border-radius: 12px; background: var(--item-bg); color: var(--text); cursor: pointer; font-weight: 600; font-size: .95rem; text-align: center; transition: all .18s ease; }
+        .option:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .option.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+        @media (max-width: 560px) { .options { grid-template-columns: 1fr; } }
+        .target-wrap { margin-top: .5rem; }
+        .target-value { font-size: 2rem; font-weight: 800; color: var(--accent); text-align: center; font-variant-numeric: tabular-nums; margin-bottom: .4rem; }
+        .range { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 99px; outline: none; margin: .8rem 0 .5rem; background: linear-gradient(90deg, var(--accent) var(--fill,50%), var(--item-bg) var(--fill,50%)); }
+        .range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 3px solid var(--card); box-shadow: 0 0 0 2px var(--accent); cursor: pointer; transition: transform .15s ease; }
+        .range::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        .range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 3px solid var(--card); box-shadow: 0 0 0 2px var(--accent); cursor: pointer; }
+        .target-scale { display: flex; justify-content: space-between; color: var(--muted); font-size: .72rem; font-weight: 600; }
+        .round-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 1.25rem; gap: .75rem; }
+        .score-chip { color: var(--muted); font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
+        .btn { padding: .68rem 1.3rem; border-radius: 12px; border: none; font-weight: 800; font-size: .9rem; letter-spacing: .4px; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; transition: transform .15s ease, filter .2s ease; }
+        .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--accent-contrast); box-shadow: 0 6px 18px rgba(245,166,35,0.35); }
+        .btn.primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn.primary:active { transform: scale(.97); }
+        .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+        .btn:disabled { opacity: .4; pointer-events: none; }
+        .feedback { margin-top: 1rem; padding: .75rem .9rem; border-radius: 12px; font-weight: 700; font-size: .9rem; text-align: center; animation: fadeIn .3s ease; }
+        .feedback.good { background: rgba(34,197,94,.14); color: var(--green); border: 1px solid var(--green); }
+        .feedback.bad { background: rgba(239,68,68,.14); color: var(--red); border: 1px solid var(--red); }
+        .course { margin-top: .9rem; display: flex; align-items: center; gap: .6rem; }
+        .course-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--item-bg); border: 1px solid var(--border); }
+        .course-dot.hit { background: var(--green); border-color: var(--green); }
+        .course-range { flex: 1; height: 8px; border-radius: 99px; background: var(--item-bg); position: relative; overflow: hidden; }
+        .course-range.hit i { position: absolute; top: -3px; width: 3px; height: 14px; background: var(--green); left: var(--hit,50%); }
+        .second-line { text-align: center; color: var(--muted); font-size: .85rem; margin-top: .6rem; font-weight: 600; }
+        /* modal */
+        .overlay { position: fixed; inset: 0; background: rgba(5,8,18,.78); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 100; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+        .overlay.show { opacity: 1; pointer-events: auto; }
+        .modal { background: linear-gradient(160deg, var(--modal-bg1), var(--modal-bg2)); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); width: 100%; max-width: 460px; padding: 1.5rem; max-height: 90vh; overflow-y: auto; transform: translateY(14px) scale(.97); transition: transform .28s ease; }
+        .overlay.show .modal, [data-theme] .modal { transform: translateY(0) scale(1); }
+        .modal h2 { display: flex; align-items: center; gap: .5rem; font-size: 1.15rem; margin-bottom: 1rem; }
+        .modal h2 i { color: var(--accent); }
+        .total-score { font-size: 2.6rem; font-weight: 800; text-align: center; margin: .4rem 0; font-variant-numeric: tabular-nums; }
+        .total-score span { font-size: 1.1rem; color: var(--muted); }
+        .verdict { text-align: center; font-weight: 800; margin-bottom: .25rem; }
+        .sub-line { text-align: center; color: var(--muted); font-size: .85rem; font-weight: 600; margin-bottom: 1rem; }
+        .breakdown { display: flex; flex-direction: column; gap: .6rem; margin: 1rem 0; }
+        .brow { display: flex; align-items: center; gap: .6rem; padding: .55rem .7rem; border-radius: 10px; border: 1px solid var(--border); background: var(--item-bg); }
+        .brow i { width: 22px; text-align: center; color: var(--accent); }
+        .brow-name { flex: 1; font-weight: 600; font-size: .85rem; }
+        .brow-pts { font-weight: 800; font-size: .8rem; font-variant-numeric: tabular-nums; }
+        .bar { height: 6px; border-radius: 99px; background: var(--item-bg); overflow: hidden; }
+        .bar i { display: block; height: 100%; border-radius: 99px; background: var(--accent); width: 0; transition: width .8s ease; }
+        .bar.warn i { background: var(--orange); }
+        .bar.bad i { background: var(--red); }
+        .drop-reveal { margin-top:.45rem; font-size:.78rem; color: var(--muted); line-height:1.5; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin: 1rem 0 .2rem; }
+        .stat { background: var(--item-bg); border: 1px solid var(--border); border-radius: 12px; padding: .6rem .3rem; text-align: center; }
+        .stat b { display: block; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+        .stat span { font-size: .66rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+        .modal-actions { display: flex; gap: .6rem; margin-top: 1rem; }
+        .modal-actions .btn { flex: 1; justify-content: center; }
+        .next { text-align: center; color: var(--muted); font-size: .8rem; font-weight: 600; margin-top: .8rem; }
+        .help-list { display: flex; flex-direction: column; gap: .9rem; }
+        .help-item h3 { font-size: .9rem; margin-bottom: .2rem; color: var(--accent); }
+        .help-item p, .help-item li { color: var(--muted); font-size: .82rem; line-height: 1.45; }
+        .help-item ul { padding-left: 1.1rem; margin-top:.15rem; }
+        .solved-panel { text-align: center; }
+        .solved-emoji { font-size: 3rem; animation: pop .5s ease; }
+        .solved-panel h2 { font-size: 1.3rem; margin: .6rem 0 .4rem; }
+        .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--bg); font-weight: 800; font-size: .85rem; padding: .6rem 1.1rem; border-radius: 99px; opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 200; box-shadow: var(--shadow); }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+        @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.03)} 100%{transform:scale(1)} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    </style>
+</head>
+<body class="theme-bg">
+    <header class="header-bar">
+        <div class="header-left">
+            <a class="back-btn" href="../../index.html" title="Back to Arcade Hub"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+            <div class="brand-mark"><i class="fa-solid fa-bullseye"></i></div>
+            <h1 class="header-title">Trivia <em>Daily</em></h1>
+        </div>
+        <div class="header-controls">
+            <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+            <button class="icon-btn" id="helpBtn" title="How to play" aria-label="How to play"><i class="fa-solid fa-circle-question"></i></button>
+        </div>
+    </header>
+
+    <div class="sub-header">
+        <span id="dayLabel">Daily Trivia #—</span>
+        <span>·</span>
+        <span><i class="fa-regular fa-clock"></i> next in <span id="countdown">--:--:--</span></span>
+    </div>
+
+    <nav class="round-tabs" aria-label="Rounds">
+        <span class="tab" id="tab1"><i class="fa-solid fa-arrow-down-wide-short"></i></span>
+        <span class="tab" id="tab2"><i class="fa-solid fa-shield-halved"></i></span>
+        <span class="tab" id="tab3"><i class="fa-solid fa-crosshairs"></i></span>
+    </nav>
+
+    <main>
+        <section class="card anim" id="roundCard">
+            <h2 class="round-title" id="roundTitle"></h2>
+            <p class="round-prompt" id="roundPrompt"></p>
+            <div id="roundBody"></div>
+            <div id="feedback"></div>
+            <div class="round-actions">
+                <div class="score-chip" id="scoreChip">Score: <strong>0</strong>/1000</div>
+                <button class="btn primary" id="submitBtn">Submit Round 1 <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Results modal -->
+    <div class="overlay" id="resultsOverlay" hidden>
+        <div class="modal">
+            <button class="modal-close" id="closeResults" aria-label="Close results"><i class="fa-solid fa-xmark"></i></button>
+            <h2><i class="fa-solid fa-trophy"></i> Results</h2>
+            <div class="total-score"><span>Total</span><br><span id="totalScore">0</span><span> / 1000</span></div>
+            <div class="verdict" id="verdict"></div>
+            <div class="sub-line" id="verdictSub"></div>
+            <div class="breakdown" id="breakdown"></div>
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="modal-actions">
+                <button class="btn primary" id="copyBtn"><i class="fa-solid fa-share-nodes"></i> Copy Score</button>
+                <button class="btn ghost" id="closeBtn">Close</button>
+            </div>
+            <div class="next" id="nextPuzzle">Next puzzle in --:--:--</div>
+        </div>
+    </div>
+
+    <!-- Help modal -->
+    <div class="overlay" id="helpOverlay" hidden>
+        <div class="modal">
+            <button class="modal-close" id="closeHelp" aria-label="Close help"><i class="fa-solid fa-xmark"></i></button>
+            <h2><i class="fa-solid fa-circle-question"></i> How to Play</h2>
+            <div class="help-list">
+                <div class="help-item">
+                    <h3>Round 1 — Rank the Stat</h3>
+                    <p>Drag each tile with the handle (or use the ▲▼ buttons) to order the four items from highest to lowest value. <strong>85 pts</strong> for every item in the correct slot.</p>
+                </div>
+                <div class="help-item">
+                    <h3>Round 2 — Find the Outlier</h3>
+                    <p>Tap the one of four items that does <em>not</em> fit the day's hidden rule. <strong>330 pts</strong> if correct.</p>
+                </div>
+                <div class="help-item">
+                    <h3>Round 3 — Target Guess</h3>
+                    <p>Drag the slider to guess the exact stat. The closer you are, the more of <strong>330 pts</strong> you earn — an exact match scores the max.</p>
+                </div>
+                <div class="help-item">
+                    <h3>Daily reset</h3>
+                    <p>A new shared puzzle unlocks at local midnight (00:00). You can only play once per calendar day, and your streak is tracked automatically.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="triviadaily.js"></script>
+</body>
+</html>
+

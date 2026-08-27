@@ -169,7 +169,7 @@
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
+        renderer.toneMappingExposure = 1.15;
         container.appendChild(renderer.domElement);
 
         // Post-Processing Composer
@@ -177,12 +177,12 @@
         const renderPass = new THREE.RenderPass(scene, camera);
         composer.addPass(renderPass);
 
-        // Unreal Bloom Glow Pass — tuned for neon
+        // Unreal Bloom Glow Pass — tuned for neon (subtle so lights don't blow out)
         const bloomPass = new THREE.UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.75, // Strength
-            0.35, // Radius
-            0.6 // Threshold
+            0.45, // Strength
+            0.4, // Radius
+            0.75 // Threshold
         );
         composer.addPass(bloomPass);
 
@@ -204,6 +204,7 @@
         sunLight.shadow.bias = -0.0008;
         sunLight.shadow.normalBias = 0.02;
         scene.add(sunLight);
+        scene.add(sunLight.target);
 
         // Fill light from below for cyber glow
         const fillLight = new THREE.DirectionalLight(0x00f2fe, 0.3);
@@ -212,6 +213,45 @@
 
         const hemiLight = new THREE.HemisphereLight(0xff77a9, 0x111428, 0.5);
         scene.add(hemiLight);
+
+        // ---- Distant starfield (fixed dome that follows the car) ----
+        const STAR_COUNT = 1600;
+        const starPos = new Float32Array(STAR_COUNT * 3);
+        const starCol = new Float32Array(STAR_COUNT * 3);
+        const _starDir = new THREE.Vector3();
+        for (let i = 0; i < STAR_COUNT; i++) {
+            // Random direction on the upper hemisphere, weighted toward the horizon
+            const az = Math.random() * Math.PI * 2;
+            const el = Math.asin(0.04 + Math.random() * Math.random() * 0.96);
+            _starDir.set(Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az));
+            starPos[i * 3] = _starDir.x * 1400;
+            starPos[i * 3 + 1] = _starDir.y * 1400;
+            starPos[i * 3 + 2] = _starDir.z * 1400;
+            // Subtle natural color variation: white / blue-white / warm
+            const t = Math.random();
+            let r = 0.75 + t * 0.25,
+                g = 0.78 + t * 0.22,
+                b = 1.0;
+            if (Math.random() < 0.18) { r = 1.0; g = 0.85; b = 0.7; }
+            const bright = 0.45 + Math.random() * 0.55;
+            starCol[i * 3] = r * bright;
+            starCol[i * 3 + 1] = g * bright;
+            starCol[i * 3 + 2] = b * bright;
+        }
+        const starGeom = new THREE.BufferGeometry();
+        starGeom.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        starGeom.setAttribute('color', new THREE.BufferAttribute(starCol, 3));
+        const starMat = new THREE.PointsMaterial({
+            size: 1.8,
+            sizeAttenuation: false,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.9,
+            depthWrite: false,
+            fog: false,
+        });
+        const starField = new THREE.Points(starGeom, starMat);
+        scene.add(starField);
 
         // ---------------------------------------------------------
         // 4. World Geometry Parameters
@@ -248,6 +288,10 @@
                 fbm(x * 0.08, 100, z * 0.08, 2) * 2;
         }
 
+        // Curvature-smoothed road generation — produces drivable sweeping curves
+        // (turn rate is limited so the road can never hairpin into itself)
+        let roadHeading = 0;
+        let roadCurv = 0;
         function generateRoadPoints(startIdx, count) {
             for (let i = 0; i < count; i++) {
                 const idx = startIdx + i;
@@ -256,15 +300,23 @@
                     roadPoints[0] = new THREE.Vector3(0, y, 0);
                     roadTangents[0] = new THREE.Vector3(0, 0, 1);
                     roadNormals[0] = new THREE.Vector3(0, 1, 0);
-                    roadBinormals[0] = new THREE.Vector3(1, 0, 0);
+                    roadBinormals[0] = new THREE.Vector3(-1, 0, 0);
+                    roadHeading = 0;
+                    roadCurv = 0;
                     addToRoadGrid(0);
                     continue;
                 }
-                const t = idx * 0.0016;
-                const angle = fbm(t * 10, 0, 0) * Math.PI * 2.8 + fbm(t * 3, 120, 0) * 2.2;
                 const prev = roadPoints[idx - 1];
-                const x = prev.x + Math.sin(angle) * SEGMENT_DIST;
-                const z = prev.z + Math.cos(angle) * SEGMENT_DIST;
+                const t = idx * 0.0016;
+                // Pursue a low-frequency noise target curvature; clamp the max turn rate.
+                // Max curvature 0.022 rad/unit => minimum turn radius ~45 m.
+                const targetCurv = fbm(t * 10, 0, 0) * 0.05 + fbm(t * 3, 120, 0) * 0.03;
+                roadCurv += (targetCurv - roadCurv) * 0.09;
+                roadCurv = THREE.MathUtils.clamp(roadCurv, -0.022, 0.022);
+                roadHeading += roadCurv * SEGMENT_DIST;
+
+                const x = prev.x + Math.sin(roadHeading) * SEGMENT_DIST;
+                const z = prev.z + Math.cos(roadHeading) * SEGMENT_DIST;
                 const y = getTerrainHeight(x, z);
                 roadPoints[idx] = new THREE.Vector3(x, y, z);
 
@@ -309,37 +361,138 @@
             return Math.sqrt((p.x - x) ** 2 + (p.z - z) ** 2);
         }
 
+        // True perpendicular distance + interpolated elevation of the road corridor
+        function getRoadCorridor(x, z) {
+            const baseIdx = getNearestRoadIndex(x, z);
+            let bestD2 = Infinity, bestY = 0, found = false;
+            const lo = Math.max(1, baseIdx - 3),
+                hi = Math.min(roadPoints.length - 1, baseIdx + 2);
+            for (let i = lo; i <= hi; i++) {
+                const a = roadPoints[i - 1],
+                    b = roadPoints[i];
+                const abx = b.x - a.x,
+                    abz = b.z - a.z;
+                const len2 = abx * abx + abz * abz;
+                if (len2 < 1e-6) continue;
+                let tt = ((x - a.x) * abx + (z - a.z) * abz) / len2;
+                tt = Math.max(0, Math.min(1, tt));
+                const px = a.x + abx * tt,
+                    pz = a.z + abz * tt;
+                const dx = px - x,
+                    dz = pz - z;
+                const d2 = dx * dx + dz * dz;
+                if (d2 < bestD2) {
+                    bestD2 = d2;
+                    bestY = a.y + (b.y - a.y) * tt;
+                    found = true;
+                }
+            }
+            if (!found) return null;
+            return { dist: Math.sqrt(bestD2), height: bestY };
+        }
+
+        function getRoadDistance(x, z) {
+            const c = getRoadCorridor(x, z);
+            return c ? c.dist : Infinity;
+        }
+
+        const ROAD_BLEND_OUT = 30;
+
+        function smootherstep(edge0, edge1, xx) {
+            const t = Math.min(1, Math.max(0, (xx - edge0) / (edge1 - edge0)));
+            return t * t * (3 - 2 * t);
+        }
+
+        // Terrain height with the road corridor cut/fill blended in.
+        // Single source of truth used by BOTH terrain mesh generation and physics.
+        function getBlendedGroundHeight(x, z) {
+            const raw = getTerrainHeight(x, z);
+            const c = getRoadCorridor(x, z);
+            if (!c || c.dist >= ROAD_BLEND_OUT) return raw;
+            const inner = ROAD_HALF - 1;
+            if (c.dist <= inner) return c.height;
+            const t = smootherstep(inner, ROAD_BLEND_OUT, c.dist);
+            return raw * t + c.height * (1 - t);
+        }
+
+        // Sample the terrain EXACTLY like the rendered mesh does (bilinear between
+        // chunk-grid vertices), so the car can never float or sink into the ground.
+        const TERRAIN_STEP = CHUNK_SIZE / CHUNK_RES;
+
+        function sampleTerrainMeshHeight(x, z) {
+            const cxi = Math.round(x / CHUNK_SIZE);
+            const czi = Math.round(z / CHUNK_SIZE);
+            const ox = cxi * CHUNK_SIZE,
+                oz = czi * CHUNK_SIZE;
+            const half = CHUNK_SIZE / 2;
+            const lx = x - (ox - half);
+            const lz = z - (oz - half);
+            let gx = lx / TERRAIN_STEP,
+                gz = lz / TERRAIN_STEP;
+            const ix = Math.min(CHUNK_RES - 1, Math.floor(gx)),
+                fx = gx - ix;
+            const iz = Math.min(CHUNK_RES - 1, Math.floor(gz)),
+                fz = gz - iz;
+            const vx0 = ox - half + ix * TERRAIN_STEP,
+                vz0 = oz - half + iz * TERRAIN_STEP;
+            const h00 = getBlendedGroundHeight(vx0, vz0);
+            const h10 = getBlendedGroundHeight(vx0 + TERRAIN_STEP, vz0);
+            const h01 = getBlendedGroundHeight(vx0, vz0 + TERRAIN_STEP);
+            const h11 = getBlendedGroundHeight(vx0 + TERRAIN_STEP, vz0 + TERRAIN_STEP);
+            return lerp(lerp(h00, h10, fx), lerp(h01, h11, fx), fz);
+        }
+
+        // Physical ground under a point: terrain grid height, raised onto the road
+        // slab when inside the corridor (the road mesh is lifted by ROAD_LIFT).
+        function getGroundUnder(x, z) {
+            const base = sampleTerrainMeshHeight(x, z);
+            const c = getRoadCorridor(x, z);
+            if (c && c.dist < ROAD_HALF + 1) return c.height + ROAD_LIFT;
+            return base;
+        }
+
         // ---------------------------------------------------------
         // 6. Terrain & Detailed Asset Instancing
         // ---------------------------------------------------------
         const chunks = new Map();
 
-        // High-Detail Low-Poly Tree (Pine Model)
-        const pine1 = new THREE.ConeGeometry(2.8, 5.5, 6);
-        pine1.translate(0, 4.2, 0);
-        const pine2 = new THREE.ConeGeometry(2.2, 4.5, 6);
-        pine2.translate(0, 6.6, 0);
-        const pine3 = new THREE.ConeGeometry(1.6, 3.5, 6);
-        pine3.translate(0, 8.6, 0);
-        // Merge cones into one geometry for instancing
-        const treeGeom = new THREE.BufferGeometry();
-        const tempPositions = [];
-        const tempNormals = [];
-        const geoms = [pine1, pine2, pine3];
-        for (const g of geoms) {
-            const pos = g.attributes.position;
-            const norm = g.attributes.normal;
+        // High-Detail Low-Poly Tree (Pine Model) — trunk + 3 canopy tiers with
+        // baked vertex colors (single instanced material renders both parts)
+        const tpos = [];
+        const tcol = [];
+
+        function bakePart(geom, r, g, b) {
+            // Unpack indexed geometry into flat triangles so vertices connect correctly
+            const flatGeom = geom.index ? geom.toNonIndexed() : geom;
+            const pos = flatGeom.attributes.position;
+            
             for (let i = 0; i < pos.count; i++) {
-                tempPositions.push(pos.getX(i), pos.getY(i), pos.getZ(i));
-                tempNormals.push(norm.getX(i), norm.getY(i), norm.getZ(i));
+                tpos.push(pos.getX(i), pos.getY(i), pos.getZ(i));
+                tcol.push(r, g, b);
             }
         }
-        treeGeom.setAttribute('position', new THREE.Float32BufferAttribute(tempPositions, 3));
-        treeGeom.setAttribute('normal', new THREE.Float32BufferAttribute(tempNormals, 3));
+        {
+            const trunk = new THREE.CylinderGeometry(0.22, 0.44, 3.6, 6);
+            trunk.translate(0, 1.8, 0);
+            bakePart(trunk, 0.33, 0.22, 0.12);
+            const c1 = new THREE.ConeGeometry(2.8, 5.5, 6);
+            c1.translate(0, 4.0, 0);
+            bakePart(c1, 0.10, 0.29, 0.17);
+            const c2 = new THREE.ConeGeometry(2.2, 4.5, 6);
+            c2.translate(0, 6.4, 0);
+            bakePart(c2, 0.12, 0.35, 0.19);
+            const c3 = new THREE.ConeGeometry(1.6, 3.5, 6);
+            c3.translate(0, 8.4, 0);
+            bakePart(c3, 0.16, 0.42, 0.23);
+        }
+        const treeGeom = new THREE.BufferGeometry();
+        treeGeom.setAttribute('position', new THREE.Float32BufferAttribute(tpos, 3));
+        treeGeom.setAttribute('color', new THREE.Float32BufferAttribute(tcol, 3));
         treeGeom.computeVertexNormals();
 
         const treeMat = new THREE.MeshStandardMaterial({
-            color: 0x1a4a2e,
+            color: 0xffffff,
+            vertexColors: true,
             roughness: 0.85,
             flatShading: true,
             metalness: 0.0
@@ -382,7 +535,7 @@
             for (let i = 0; i < pos.count; i++) {
                 const wx = pos.getX(i) + offX;
                 const wz = pos.getZ(i) + offZ;
-                const h = getTerrainHeight(wx, wz);
+                const h = getBlendedGroundHeight(wx, wz);
                 pos.setY(i, h);
 
                 // Richer gradient
@@ -412,8 +565,8 @@
             for (let i = 0; i < 55; i++) {
                 const tx = offX + (Math.random() - 0.5) * CHUNK_SIZE;
                 const tz = offZ + (Math.random() - 0.5) * CHUNK_SIZE;
-                if (getDistanceToRoad(tx, tz) < 22) continue;
-                const th = getTerrainHeight(tx, tz);
+                if (getRoadDistance(tx, tz) < 22) continue;
+                const th = sampleTerrainMeshHeight(tx, tz);
                 if (th < 0.5 || th > 28) continue;
 
                 const s = 0.7 + Math.random() * 1.0;
@@ -426,8 +579,8 @@
             for (let i = 0; i < 16; i++) {
                 const rx = offX + (Math.random() - 0.5) * CHUNK_SIZE;
                 const rz = offZ + (Math.random() - 0.5) * CHUNK_SIZE;
-                if (getDistanceToRoad(rx, rz) < 16) continue;
-                const rh = getTerrainHeight(rx, rz);
+                if (getRoadDistance(rx, rz) < 16) continue;
+                const rh = sampleTerrainMeshHeight(rx, rz);
                 if (rh < 0 || rh > 30) continue;
                 const s = 0.5 + Math.random() * 2.4;
                 const rot = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.random() * 0.3, Math.random() * 6.28, Math
@@ -441,8 +594,8 @@
             for (let i = 0; i < 80; i++) {
                 const gx2 = offX + (Math.random() - 0.5) * CHUNK_SIZE;
                 const gz2 = offZ + (Math.random() - 0.5) * CHUNK_SIZE;
-                if (getDistanceToRoad(gx2, gz2) < 18) continue;
-                const gh2 = getTerrainHeight(gx2, gz2);
+                if (getRoadDistance(gx2, gz2) < 18) continue;
+                const gh2 = sampleTerrainMeshHeight(gx2, gz2);
                 if (gh2 < 0.2 || gh2 > 22) continue;
                 const s = 0.4 + Math.random() * 0.8;
                 const p = new THREE.Vector3(gx2 - offX, gh2, gz2 - offZ);
@@ -455,6 +608,7 @@
                 const it = new THREE.InstancedMesh(treeGeom, treeMat, treeMatrices.length);
                 for (let i = 0; i < treeMatrices.length; i++) it.setMatrixAt(i, treeMatrices[i]);
                 it.instanceMatrix.needsUpdate = true;
+                it.frustumCulled = false; // instance bounds span the chunk; don't cull by origin sphere
                 it.castShadow = true;
                 it.receiveShadow = true;
                 group.add(it);
@@ -464,6 +618,7 @@
                 const ir = new THREE.InstancedMesh(rockGeom, rockMat, rockMatrices.length);
                 for (let i = 0; i < rockMatrices.length; i++) ir.setMatrixAt(i, rockMatrices[i]);
                 ir.instanceMatrix.needsUpdate = true;
+                ir.frustumCulled = false;
                 ir.castShadow = true;
                 ir.receiveShadow = true;
                 group.add(ir);
@@ -473,6 +628,7 @@
                 const ig = new THREE.InstancedMesh(grassGeom, grassMat, grassMatrices.length);
                 for (let i = 0; i < grassMatrices.length; i++) ig.setMatrixAt(i, grassMatrices[i]);
                 ig.instanceMatrix.needsUpdate = true;
+                ig.frustumCulled = false;
                 ig.castShadow = true;
                 ig.receiveShadow = true;
                 group.add(ig);
@@ -614,20 +770,67 @@
             blending: THREE.AdditiveBlending,
         });
 
-        const sharedRoadGeom = new THREE.PlaneGeometry(ROAD_WIDTH, SEGMENT_DIST, 6, 2);
-        // Adjust UVs so texture maps nicely
-        const uvs = sharedRoadGeom.attributes.uv;
-        for (let i = 0; i < uvs.count; i++) {
-            // u: 0..1 across width, v: 0..1 along length
-            // We want the texture to stretch across the full road width and repeat every segment
+        // ---- Continuous gap-free road ribbons ----
+        // Surface + edge glow are built as shared-vertex ribbon strips following the
+        // road centerline, so consecutive quads can never show seams or wedge gaps.
+        const ROAD_VIS_RADIUS = 130;
+        const ROAD_CHUNK_SEGS = 32; // segments merged per draw call
+        const ROAD_LIFT = 0.12;
+        const EDGE_HALF_WIDTH = 0.22;
+
+        const _rvPrev = new THREE.Vector3();
+        const _rvNext = new THREE.Vector3();
+        const _rvT = new THREE.Vector3();
+        const _rvB = new THREE.Vector3();
+        const _rvN = new THREE.Vector3();
+        const _rvUp = new THREE.Vector3(0, 1, 0);
+
+        // Builds a ribbon over roadPoints[idx0 .. idx0+segCount].
+        // [latA, latB] = signed lateral offsets from the centerline (along binormal).
+        function buildRibbonGeometry(idx0, segCount, latA, latB, lift) {
+            const sections = segCount + 1;
+            const pos = new Float32Array(sections * 6);
+            const nor = new Float32Array(sections * 6);
+            const uva = new Float32Array(sections * 4);
+            let vDist = 0;
+            for (let c = 0; c < sections; c++) {
+                const i = idx0 + c;
+                if (c > 0) vDist += roadPoints[i].distanceTo(roadPoints[i - 1]);
+                _rvPrev.copy(roadPoints[Math.max(0, i - 1)]);
+                _rvNext.copy(roadPoints[Math.min(roadPoints.length - 1, i + 1)]);
+                _rvT.subVectors(_rvNext, _rvPrev).normalize();
+                _rvB.crossVectors(_rvT, _rvUp).normalize();
+                _rvN.crossVectors(_rvB, _rvT).normalize();
+
+                const p = roadPoints[i];
+                const cx = p.x + _rvN.x * lift,
+                    cy = p.y + _rvN.y * lift,
+                    cz = p.z + _rvN.z * lift;
+                const bx = _rvB.x, by = _rvB.y, bz = _rvB.z;
+                let o = c * 6;
+                pos[o] = cx + bx * latA; pos[o + 1] = cy + by * latA; pos[o + 2] = cz + bz * latA;
+                pos[o + 3] = cx + bx * latB; pos[o + 4] = cy + by * latB; pos[o + 5] = cz + bz * latB;
+                nor[o] = _rvN.x; nor[o + 1] = _rvN.y; nor[o + 2] = _rvN.z;
+                nor[o + 3] = _rvN.x; nor[o + 4] = _rvN.y; nor[o + 5] = _rvN.z;
+                const v = vDist / SEGMENT_DIST; // one texture period per segment length
+                o = c * 4;
+                uva[o] = 0; uva[o + 1] = v;
+                uva[o + 2] = 1; uva[o + 3] = v;
+            }
+            const idxArr = [];
+            for (let c = 0; c < segCount; c++) {
+                const a = c * 2;
+                idxArr.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+            }
+            const g = new THREE.BufferGeometry();
+            g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+            g.setAttribute('uv', new THREE.BufferAttribute(uva, 2));
+            g.setIndex(idxArr);
+            return g;
         }
 
-        const roadMeshes = new Map();
-        const roadMeshPool = [];
-        const ROAD_VIS_RADIUS = 130;
-
-        // Edge strip geometry
-        const edgeStripGeom = new THREE.PlaneGeometry(0.4, SEGMENT_DIST, 1, 2);
+        // Per-chunk road meshes (surface + two neon edge lines)
         const edgeStripMatL = new THREE.MeshBasicMaterial({
             color: 0x00f2fe,
             transparent: true,
@@ -635,73 +838,24 @@
             side: THREE.DoubleSide,
             blending: THREE.AdditiveBlending,
         });
-        const edgeStripMatR = new THREE.MeshBasicMaterial({
-            color: 0x00f2fe,
-            transparent: true,
-            opacity: 0.35,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending,
-        });
+        const edgeStripMatR = edgeStripMatL;
+        const roadChunkMeshes = new Map(); // chunkId -> { mesh, geometry }
+        const edgeChunkMeshesL = new Map();
+        const edgeChunkMeshesR = new Map();
 
-        function getRoadMesh() {
-            if (roadMeshPool.length) {
-                const m = roadMeshPool.pop();
-                m.visible = true;
-                return m;
-            }
-            const m = new THREE.Mesh(sharedRoadGeom, sharedRoadMat);
-            m.receiveShadow = true;
-            m.castShadow = false;
-            return m;
+        function makeChunkEntry(group, geometry, material) {
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.receiveShadow = true;
+            group.add(mesh);
+            return { mesh, geometry };
         }
 
-        function positionRoadMesh(mesh, idx) {
-            const p1 = roadPoints[idx];
-            const p2 = roadPoints[idx + 1];
-            const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
-            const tangent = roadTangents[idx];
-            const binormal = roadBinormals[idx];
-            const normal = roadNormals[idx];
-
-            mesh.position.copy(mid).addScaledVector(normal, 0.12);
-            const m = new THREE.Matrix4();
-            m.makeBasis(binormal, tangent, normal);
-            mesh.setRotationFromMatrix(m);
-        }
-
-        // Edge strip cache
-        const edgeMeshesL = new Map();
-        const edgeMeshesR = new Map();
-        const edgePoolL = [];
-        const edgePoolR = [];
-
-        function getEdgeMesh(side) {
-            const pool = side === 'L' ? edgePoolL : edgePoolR;
-            if (pool.length) {
-                const m = pool.pop();
-                m.visible = true;
-                return m;
-            }
-            const mat = side === 'L' ? edgeStripMatL : edgeStripMatR;
-            const m = new THREE.Mesh(edgeStripGeom, mat);
-            m.renderOrder = 1;
-            return m;
-        }
-
-        function positionEdgeMesh(mesh, idx, offset) {
-            const p1 = roadPoints[idx];
-            const p2 = roadPoints[idx + 1];
-            const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
-            const tangent = roadTangents[idx];
-            const binormal = roadBinormals[idx];
-            const normal = roadNormals[idx];
-
-            // offset along binormal (sideways)
-            const pos = mid.clone().addScaledVector(binormal, offset).addScaledVector(normal, 0.12);
-            mesh.position.copy(pos);
-            const m = new THREE.Matrix4();
-            m.makeBasis(binormal, tangent, normal);
-            mesh.setRotationFromMatrix(m);
+        function removeChunk(map, key) {
+            const e = map.get(key);
+            if (!e) return;
+            if (e.mesh.parent) e.mesh.parent.remove(e.mesh);
+            e.geometry.dispose();
+            map.delete(key);
         }
 
         function updateRoadMesh(carIdx) {
@@ -709,50 +863,34 @@
             const end = carIdx + ROAD_VIS_RADIUS;
             if (end >= roadPoints.length - 1) generateRoadPoints(roadPoints.length, end - roadPoints.length + 100);
 
-            // Main road segments
-            for (let i = start; i < end && i < roadPoints.length - 1; i++) {
-                if (!roadMeshes.has(i)) {
-                    const mesh = getRoadMesh();
-                    positionRoadMesh(mesh, i);
-                    roadGroup.add(mesh);
-                    roadMeshes.set(i, mesh);
+            // Chunks are pure functions of their id (they always cover the full
+            // segment span), so they can never go stale when the window slides.
+            const firstChunk = Math.max(0, Math.floor(start / ROAD_CHUNK_SEGS));
+            const lastChunk = Math.floor(end / ROAD_CHUNK_SEGS);
 
-                    // Edge strips
-                    const eL = getEdgeMesh('L');
-                    positionEdgeMesh(eL, i, -ROAD_HALF + 0.25);
-                    roadGroup.add(eL);
-                    edgeMeshesL.set(i, eL);
+            for (let ck = firstChunk; ck <= lastChunk; ck++) {
+                if (roadChunkMeshes.has(ck)) continue;
+                const s0 = ck * ROAD_CHUNK_SEGS;
+                if (s0 >= roadPoints.length - 1) continue;
+                const count = Math.min(ROAD_CHUNK_SEGS, roadPoints.length - 1 - s0);
 
-                    const eR = getEdgeMesh('R');
-                    positionEdgeMesh(eR, i, ROAD_HALF - 0.25);
-                    roadGroup.add(eR);
-                    edgeMeshesR.set(i, eR);
-                }
+                const surface = buildRibbonGeometry(s0, count, -ROAD_HALF, ROAD_HALF, ROAD_LIFT);
+                roadChunkMeshes.set(ck, makeChunkEntry(roadGroup, surface, sharedRoadMat));
+
+                const edgeL = buildRibbonGeometry(s0, count, -(ROAD_HALF - EDGE_HALF_WIDTH), -ROAD_HALF, ROAD_LIFT + 0.02);
+                edgeChunkMeshesL.set(ck, makeChunkEntry(roadGroup, edgeL, edgeStripMatL));
+
+                const edgeR = buildRibbonGeometry(s0, count, ROAD_HALF - EDGE_HALF_WIDTH, ROAD_HALF, ROAD_LIFT + 0.02);
+                edgeChunkMeshesR.set(ck, makeChunkEntry(roadGroup, edgeR, edgeStripMatR));
             }
 
-            // Cleanup
-            for (const [idx, mesh] of roadMeshes) {
-                if (idx < start || idx > end) {
-                    roadGroup.remove(mesh);
-                    mesh.visible = false;
-                    roadMeshPool.push(mesh);
-                    roadMeshes.delete(idx);
-                }
-            }
-            for (const [idx, mesh] of edgeMeshesL) {
-                if (idx < start || idx > end) {
-                    roadGroup.remove(mesh);
-                    mesh.visible = false;
-                    edgePoolL.push(mesh);
-                    edgeMeshesL.delete(idx);
-                }
-            }
-            for (const [idx, mesh] of edgeMeshesR) {
-                if (idx < start || idx > end) {
-                    roadGroup.remove(mesh);
-                    mesh.visible = false;
-                    edgePoolR.push(mesh);
-                    edgeMeshesR.delete(idx);
+            // Cleanup chunks fully outside the visible window (with margin)
+            for (const key of Array.from(roadChunkMeshes.keys())) {
+                if ((key + 1) * ROAD_CHUNK_SEGS < start - ROAD_CHUNK_SEGS ||
+                    key * ROAD_CHUNK_SEGS > end + ROAD_CHUNK_SEGS) {
+                    removeChunk(roadChunkMeshes, key);
+                    removeChunk(edgeChunkMeshesL, key);
+                    removeChunk(edgeChunkMeshesR, key);
                 }
             }
         }
@@ -802,129 +940,222 @@
         // 9. Ultra-Detailed Cyber Supercar Model
         // ---------------------------------------------------------
         const carGroup = new THREE.Group();
+        carGroup.rotation.order = 'YXZ'; // MUST be YXZ so pitch/roll aligns with heading
+
+        // Helper to taper BoxGeometries into sleek, aerodynamic wedge shapes
+        function createWedge(w, h, d, topScaleX, topShiftZ) {
+            const geom = new THREE.BoxGeometry(w, h, d);
+            const pos = geom.attributes.position;
+            for (let i = 0; i < pos.count; i++) {
+                if (pos.getY(i) > 0) { // Target the top vertices
+                    pos.setX(i, pos.getX(i) * topScaleX);
+                    pos.setZ(i, pos.getZ(i) + topShiftZ);
+                }
+            }
+            geom.computeVertexNormals();
+            return geom;
+        }
 
         // Main Metallic Bodywork — pearlescent
         const bodyMat = new THREE.MeshStandardMaterial({
             color: 0x00c8d6,
-            metalness: 0.85,
-            roughness: 0.18,
-            envMapIntensity: 1.8,
-            emissive: 0x001a2a,
-            emissiveIntensity: 0.05,
+            metalness: 0.65,
+            roughness: 0.25,
+            envMapIntensity: 1.2,
+            emissive: 0x003340,
+            emissiveIntensity: 0.18,
         });
-        const chassis = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.6, 4.8), bodyMat);
-        chassis.position.y = 0.58;
+        // Aggressive wedge-shaped chassis (sloped hood)
+        const chassis = new THREE.Mesh(createWedge(2.4, 0.5, 4.8, 0.85, -0.4), bodyMat);
+        chassis.position.y = 0.55;
         chassis.castShadow = true;
         carGroup.add(chassis);
 
-        // Body accents
-        const accentMat = new THREE.MeshStandardMaterial({
-            color: 0x222233,
-            metalness: 0.9,
-            roughness: 0.2,
-        });
-        const fender = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.25, 4.2), accentMat);
-        fender.position.y = 0.35;
-        carGroup.add(fender);
+        // Dark side skirts and splitters
+        const accentMat = new THREE.MeshStandardMaterial({ color: 0x111118, metalness: 0.8, roughness: 0.35 });
+        const skirt = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.15, 4.6), accentMat);
+        skirt.position.y = 0.32;
+        carGroup.add(skirt);
+        
 
-        // Glass Canopy
+        // Glass Canopy (Steep fastback windshield slope)
         const glassMat = new THREE.MeshStandardMaterial({
-            color: 0x080818,
-            metalness: 0.95,
-            roughness: 0.02,
-            transparent: true,
-            opacity: 0.7,
-            envMapIntensity: 2.0,
+            color: 0x080818, metalness: 0.7, roughness: 0.1,
+            transparent: true, opacity: 0.85, envMapIntensity: 1.5,
         });
-        const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.5, 2.2), glassMat);
-        cabin.position.set(0, 1.1, -0.3);
+        const cabin = new THREE.Mesh(createWedge(1.7, 0.4, 2.2, 0.65, -0.7), glassMat);
+        cabin.position.set(0, 1.0, -0.2);
         cabin.castShadow = true;
         carGroup.add(cabin);
 
-        // Spoiler
+        // 80s Cyberpunk Rear Engine Louvers
+        for (let i = 0; i < 4; i++) {
+            const louver = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.04, 0.3), accentMat);
+            louver.position.set(0, 0.88 - i * 0.08, -1.5 - i * 0.28);
+            louver.rotation.x = 0.25;
+            carGroup.add(louver);
+        }
+
+        // Swept-back modern Spoiler
         const spoilerMat = new THREE.MeshStandardMaterial({ color: 0x111122, metalness: 0.8, roughness: 0.3 });
-        const spoiler = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.08, 0.5), spoilerMat);
-        spoiler.position.set(0, 1.0, -2.5);
+        const spoiler = new THREE.Mesh(createWedge(2.1, 0.06, 0.6, 0.9, -0.2), spoilerMat);
+        spoiler.position.set(0, 1.15, -2.4);
         carGroup.add(spoiler);
-        const spoilerLegs = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.3, 0.08), spoilerMat);
-        spoilerLegs.position.set(-0.6, 0.85, -2.5);
+
+        // Angled spoiler struts
+        const spoilerLegs = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 0.2), spoilerMat);
+        spoilerLegs.position.set(-0.7, 0.95, -2.35);
+        spoilerLegs.rotation.x = -0.3; 
         carGroup.add(spoilerLegs);
-        const spoilerLegs2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.3, 0.08), spoilerMat);
-        spoilerLegs2.position.set(0.6, 0.85, -2.5);
+        const spoilerLegs2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 0.2), spoilerMat);
+        spoilerLegs2.position.set(0.7, 0.95, -2.35);
+        spoilerLegs2.rotation.x = -0.3;
         carGroup.add(spoilerLegs2);
+
+        // Dual Exhaust Pipes
+        const exhaustGeom = new THREE.CylinderGeometry(0.12, 0.12, 0.3, 12);
+        exhaustGeom.rotateX(Math.PI / 2);
+        const exMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.9, roughness: 0.4 });
+        const ex1 = new THREE.Mesh(exhaustGeom, exMat);
+        ex1.position.set(-0.5, 0.4, -2.5);
+        carGroup.add(ex1);
+        const ex2 = new THREE.Mesh(exhaustGeom, exMat);
+        ex2.position.set(0.5, 0.4, -2.5);
+        carGroup.add(ex2);
 
         // Wheels & Brake Calipers
         const wGeom = new THREE.CylinderGeometry(0.42, 0.42, 0.38, 24);
         wGeom.rotateZ(Math.PI / 2);
         const wMat = new THREE.MeshStandardMaterial({
             color: 0x1a1a22,
-            roughness: 0.4,
-            metalness: 0.9,
+            roughness: 0.55,
+            metalness: 0.5,
         });
         const rimMat = new THREE.MeshStandardMaterial({
             color: 0x8888aa,
-            roughness: 0.2,
-            metalness: 0.95,
+            roughness: 0.3,
+            metalness: 0.7,
         });
+        const rimGeom = new THREE.CylinderGeometry(0.28, 0.28, 0.39, 16);
+        rimGeom.rotateZ(Math.PI / 2);
+        // Wheels — steering pivot mount > suspension group > spinning tire
         const wheels = [];
-        const wheelMounts = [];
+        const rims = [];
+        const wheelMounts = []; // yaw pivots (front pair steers)
+        const suspensions = []; // vertical spring travel groups
+        const WHEEL_REST_Y = 0.42; // ride height: wheel centre above contact patch
         const wheelPositions = [
-            [-1.2, 0.42, 1.55],
-            [1.2, 0.42, 1.55],
-            [-1.2, 0.42, -1.55],
-            [1.2, 0.42, -1.55]
+            [-1.2, WHEEL_REST_Y, 1.55],
+            [1.2, WHEEL_REST_Y, 1.55],
+            [-1.2, WHEEL_REST_Y, -1.55],
+            [1.2, WHEEL_REST_Y, -1.55]
         ];
         wheelPositions.forEach((p) => {
             const mount = new THREE.Group();
-            mount.position.set(...p);
+            mount.position.set(p[0], 0, p[2]);
+            const spring = new THREE.Group();
+            // Placeholder height; driven every frame by suspension physics
+            spring.position.y = WHEEL_REST_Y;
             const w = new THREE.Mesh(wGeom, wMat);
             w.castShadow = true;
-            mount.add(w);
-            // Rim
-            const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.39, 16), rimMat);
-            rim.rotation.z = Math.PI / 2;
-            mount.add(rim);
+            spring.add(w);
+            // Rim (geometry pre-rotated so it spins cleanly with the tire)
+            const rim = new THREE.Mesh(rimGeom, rimMat);
+            spring.add(rim);
+            mount.add(spring);
             carGroup.add(mount);
             wheels.push(w);
+            rims.push(rim);
             wheelMounts.push(mount);
+            suspensions.push(spring);
         });
+        const suspOffsets = [0, 0, 0, 0]; // per-tire display extension (mount->tyre)
+        let steerVisual = 0;
 
-        // Headlights
+        // ---- Semi-rigid-body suspension model ----
+        // Tires are PINNED to the ground (with a small embed for tire squish);
+        // the chassis floats on 4 spring-dampers. Body Y/pitch/roll are integrated
+        // from the summed spring forces & torques each substep, so bumps produce
+        // real weight transfer, vibration and natural settle.
+        const WHEEL_R = 0.42;          // tire radius
+        const TIRE_EMBED = 0.05;       // deliberate clip into ground = squish
+        const SUSP_LN = 0.38;          // relaxed mount->tire-centre length
+        const SUSP_COMP_MAX = 0.24;    // max compression below rest
+        const SUSP_EXT_MAX = 0.16;     // max droop beyond rest
+        const SPRING_K = 60;           // N/m per corner
+        const BUMP_K = 320;            // bump-stop stiffness past travel
+        const SUSP_C = 4.0;            // damping per corner (~0.6 ratio)
+        const CAR_MASS = 1.8;          // kg (scaled)
+        const SUSP_GRAV = 30;          // world gravity
+        const I_PITCH = 1.4;           // m * lever^2 point-mass inertia about x
+        const I_ROLL = 1.5;            // about z
+        const F_MIN = -90,
+            F_MAX = 260;               // force clamp (stability)
+        // Integrated chassis state (body origin = ground-plane datum)
+        let suspY = 0, suspTheta = 0, suspPhi = 0;      // heave, pitch (x), roll (z)
+        let suspVy = 0, suspWTheta = 0, suspWPhi = 0;   // velocities
+
+        // Snap the suspension to the ground pose (spawn / reset / teleport)
+        function initSuspension() {
+            const cosH = Math.cos(car.heading),
+                sinH = Math.sin(car.heading);
+            const gY = [];
+            for (const lp of wheelPositions) {
+                const wxp = car.position.x + lp[0] * cosH + lp[2] * sinH;
+                const wzp = car.position.z - lp[0] * sinH + lp[2] * cosH;
+                gY.push(getGroundUnder(wxp, wzp));
+            }
+            const frontY = (gY[0] + gY[1]) / 2,
+                rearY = (gY[2] + gY[3]) / 2;
+            const leftY = (gY[0] + gY[2]) / 2,
+                rightY = (gY[1] + gY[3]) / 2;
+            // Update the starting Y coordinate calculation
+            suspY = (frontY + rearY) / 2 - 0.065;
+            suspTheta = Math.atan2(rearY - frontY, 3.1);
+            suspPhi = Math.atan2(rightY - leftY, 2.4);
+            suspVy = suspWTheta = suspWPhi = 0;
+            for (let i = 0; i < suspensions.length; i++) {
+                // Change the subtraction to an addition
+                suspOffsets[i] = SUSP_LN + CAR_MASS * SUSP_GRAV / (4 * SPRING_K);
+                suspensions[i].position.y = suspOffsets[i];
+            }
+            car.position.y = suspY;
+        }
+
+        // Headlights (Aggressive sleek slits)
         const hlMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const hlGeom = new THREE.BoxGeometry(0.45, 0.12, 0.06);
+        const hlGeom = new THREE.BoxGeometry(0.65, 0.06, 0.05);
         const hlL = new THREE.Mesh(hlGeom, hlMat);
-        hlL.position.set(-0.8, 0.7, 2.42);
+        hlL.position.set(-0.7, 0.58, 2.42);
         carGroup.add(hlL);
         const hlR = new THREE.Mesh(hlGeom, hlMat);
-        hlR.position.set(0.8, 0.7, 2.42);
+        hlR.position.set(0.7, 0.58, 2.42);
         carGroup.add(hlR);
 
         // Headlight glow
         const glowHlMat = new THREE.MeshBasicMaterial({
-            color: 0x88ddff,
-            transparent: true,
-            opacity: 0.15,
-            blending: THREE.AdditiveBlending,
+            color: 0x88ddff, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending,
         });
-        const hlGlowL = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.3, 0.1), glowHlMat);
-        hlGlowL.position.set(-0.8, 0.7, 2.45);
+        const hlGlowL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.1), glowHlMat);
+        hlGlowL.position.set(-0.7, 0.58, 2.45);
         carGroup.add(hlGlowL);
-        const hlGlowR = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.3, 0.1), glowHlMat);
-        hlGlowR.position.set(0.8, 0.7, 2.45);
+        const hlGlowR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.1), glowHlMat);
+        hlGlowR.position.set(0.7, 0.58, 2.45);
         carGroup.add(hlGlowR);
 
-        // Spotlights
-        const spotL = new THREE.SpotLight(0x88ddff, 4.5, 120, Math.PI / 5, 0.4, 1);
+        // Spotlights — soft beams (intensity shared with the L-toggle logic)
+        const HEADLIGHT_INTENSITY = 1.4;
+        const spotL = new THREE.SpotLight(0x88ddff, HEADLIGHT_INTENSITY, 80, Math.PI / 6, 0.55, 1);
         spotL.position.set(-0.8, 0.7, 2.2);
         spotL.target.position.set(-0.8, 0, 20);
         carGroup.add(spotL, spotL.target);
-        const spotR = new THREE.SpotLight(0x88ddff, 4.5, 120, Math.PI / 5, 0.4, 1);
+        const spotR = new THREE.SpotLight(0x88ddff, HEADLIGHT_INTENSITY, 80, Math.PI / 6, 0.55, 1);
         spotR.position.set(0.8, 0.7, 2.2);
         spotR.target.position.set(0.8, 0, 20);
         carGroup.add(spotR, spotR.target);
 
         // Neon Underglow
-        const underglow = new THREE.PointLight(0x00f2fe, 3.5, 9);
+        const underglow = new THREE.PointLight(0x00f2fe, 1.2, 8);
         underglow.position.set(0, 0.08, 0);
         carGroup.add(underglow);
         // Physical underglow strip
@@ -938,21 +1169,18 @@
         strip.position.set(0, 0.12, 0);
         carGroup.add(strip);
 
-        // Brake Lights
+        // Cyberpunk Full-Width Tail Light Bar
         const tlMatOff = new THREE.MeshBasicMaterial({ color: 0x22000a });
-        const tlGeom = new THREE.BoxGeometry(0.5, 0.12, 0.05);
-        const tlL = new THREE.Mesh(tlGeom, tlMatOff.clone());
-        tlL.position.set(-0.8, 0.75, -2.42);
-        carGroup.add(tlL);
-        const tlR = new THREE.Mesh(tlGeom, tlMatOff.clone());
-        tlR.position.set(0.8, 0.75, -2.42);
-        carGroup.add(tlR);
+        const tlGeom = new THREE.BoxGeometry(2.1, 0.08, 0.05);
+        const tailLightBar = new THREE.Mesh(tlGeom, tlMatOff);
+        tailLightBar.position.set(0, 0.65, -2.42);
+        carGroup.add(tailLightBar);
 
         const brakeL = new THREE.PointLight(0xff0055, 0, 12);
-        brakeL.position.set(-0.8, 0.75, -2.5);
+        brakeL.position.set(-0.8, 0.65, -2.5);
         carGroup.add(brakeL);
         const brakeR = new THREE.PointLight(0xff0055, 0, 12);
-        brakeR.position.set(0.8, 0.75, -2.5);
+        brakeR.position.set(0.8, 0.65, -2.5);
         carGroup.add(brakeR);
 
         scene.add(carGroup);
@@ -1016,13 +1244,13 @@
             position: new THREE.Vector3(0, 0, 0),
             velocity: new THREE.Vector3(0, 0, 0),
             heading: 0,
-            maxSpeed: 44,
-            accel: 26,
-            brake: 40,
-            friction: 2.2,
-            offRoadFriction: 8.0,
-            lateralFriction: 11.0,
-            steerSpeed: 3.4,
+            maxSpeed: 48,           // Slightly higher top speed to compensate for slower acceleration
+            accel: 14,              // Down from 26: gives the engine a sense of load
+            brake: 40,              
+            friction: 0.6,          // Down from 2.2: the car will now coast and carry momentum
+            offRoadFriction: 5.0,   // Down from 8.0
+            lateralFriction: 4.5,   // Down from 11.0: allows a slight, natural drift in hard corners
+            steerSpeed: 1.6,        // Down from 3.4: simulates the physical weight of steering the column[cite: 2]
             boost: false,
             roadDistance: 0
         };
@@ -1032,11 +1260,13 @@
             const k = e.key.toLowerCase();
             keys[k] = true;
             if (e.key === 'Shift') car.boost = true;
-            if (k === 'c') cycleCamera();
-            if (k === 'q') cycleWeather(-1);
-            if (k === 'e') cycleWeather(1);
-            if (k === 'l') toggleHeadlights();
-            if (k === 'r') resetCar();
+            if (!e.repeat) {
+                if (k === 'c') cycleCamera();
+                if (k === 'q') cycleWeather(-1);
+                if (k === 'e') cycleWeather(1);
+                if (k === 'l') toggleHeadlights();
+                if (k === 'r') resetCar();
+            }
             initAudio();
             createEngineSound();
             createWindSound();
@@ -1047,6 +1277,41 @@
             if (e.key === 'Shift') car.boost = false;
         });
         window.addEventListener('click', initAudio);
+
+        // Mobile Touch Controls
+        const touchMappings = {
+            'btn-left': 'a',
+            'btn-right': 'd',
+            'btn-gas': 'w',
+            'btn-brake': 's',
+            'btn-boost': 'shift'
+        };
+
+        for (const [id, key] of Object.entries(touchMappings)) {
+            const btn = document.getElementById(id);
+            if (!btn) continue;
+
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Stop screen from scrolling/zooming
+                keys[key] = true;
+                if (key === 'shift') car.boost = true;
+                
+                // Initialize audio context on first touch
+                initAudio();
+                createEngineSound();
+                createWindSound();
+            });
+
+            const clearTouch = (e) => {
+                e.preventDefault();
+                keys[key] = false;
+                if (key === 'shift') car.boost = false;
+            };
+
+            btn.addEventListener('touchend', clearTouch);
+            btn.addEventListener('touchcancel', clearTouch);
+        }
+        
 
         function updatePhysics(dt) {
             const throttle = (keys['w'] || keys['arrowup']) ? 1 : (keys['s'] || keys['arrowdown']) ? -1 : 0;
@@ -1073,7 +1338,7 @@
             let fVec = forward.clone().multiplyScalar(vF);
             let rVec = right.clone().multiplyScalar(vR);
 
-            const onRoad = getDistanceToRoad(car.position.x, car.position.z) < ROAD_HALF + 1.5;
+            const onRoad = getRoadDistance(car.position.x, car.position.z) < ROAD_HALF + 1.5;
             const fric = onRoad ? car.friction : car.offRoadFriction;
             fVec.multiplyScalar(Math.max(0, 1 - fric * dt));
             rVec.multiplyScalar(Math.max(0, 1 - car.lateralFriction * dt));
@@ -1083,31 +1348,98 @@
 
             car.position.addScaledVector(car.velocity, dt);
 
-            // Terrain alignment
-            const gh = getTerrainHeight(car.position.x, car.position.z);
-            const hFx = getTerrainHeight(car.position.x + 0.6, car.position.z);
-            const hFz = getTerrainHeight(car.position.x, car.position.z + 0.6);
-            const slopeX = (hFx - gh) * 1.5;
-            const slopeZ = (hFz - gh) * 1.5;
+            // ---- Four pinned tires + spring-damper body dynamics ----
+            // 1) Pin each tire exactly onto the ground under it (slight embed),
+            //    then integrate the chassis on the four springs in substeps.
+            const cosH = Math.cos(car.heading),
+                sinH = Math.sin(car.heading);
+            const tireTargetY = [];
+            const wposXZ = [];
+            for (let i = 0; i < wheelPositions.length; i++) {
+                const lp = wheelPositions[i];
+                const wxp = car.position.x + lp[0] * cosH + lp[2] * sinH;
+                const wzp = car.position.z - lp[0] * sinH + lp[2] * cosH;
+                wposXZ.push([lp[0], lp[2]]);
+                // Tire centre sits embedded into the surface -> visible squish
+                tireTargetY.push(getGroundUnder(wxp, wzp) + WHEEL_R - TIRE_EMBED);
+            }
 
-            car.position.y = gh + 0.52;
+            // Dynamic weight-transfer biases (superposed on spring dynamics):
+            
+            const dhDt = (car.heading - (car.prevH !== undefined ? car.prevH : car.heading)) / Math.max(dt, 1e-4);
+            car.prevH = car.heading;
 
+            // Calculate pitch bias purely from driver input to prevent gravity-induced nose dives
+            const driverAccel = throttle > 0 ? acc : throttle < 0 ? -car.brake : 0;
+            const tqPitchBias = -CAR_MASS * driverAccel * 0.3;   
+            const tqRollBias = -CAR_MASS * (speed * dhDt) * 0.5; // turn -> lean out
+
+            const SUB_DT = 0.008;
+            let remaining = dt;
+            while (remaining > 1e-5) {
+                const h = Math.min(SUB_DT, remaining);
+                remaining -= h;
+                let sumF = 0, sumTQ_P = tqPitchBias, sumTQ_R = tqRollBias;
+                for (let i = 0; i < wheelPositions.length; i++) {
+                    const lx = wposXZ[i][0], lz = wposXZ[i][1];
+                    // Current mount-point world height for this corner
+                    const mountY = suspY + suspPhi * lx - suspTheta * lz;
+                    // Suspension drop u = tyre centre below mount (compression < rest)
+                    let u = tireTargetY[i] - mountY;
+                    const uRaw = u;
+
+                    // u INCREASES when the suspension compresses.
+                    if (u < SUSP_LN - SUSP_EXT_MAX) u = SUSP_LN - SUSP_EXT_MAX;   // full droop
+                    if (u > SUSP_LN + SUSP_COMP_MAX) u = SUSP_LN + SUSP_COMP_MAX; // metal-on-metal stop
+                    suspOffsets[i] = u;
+                    // Mount vertical velocity (thousands of tiny moves add up here)
+                    const mvY = suspVy + suspWPhi * lx - suspWTheta * lz;
+                    // Force pushes UP (positive) when compressed (u > SUSP_LN)
+                    let F = SPRING_K * (u - SUSP_LN) - SUSP_C * mvY;
+                    if (uRaw > SUSP_LN + SUSP_COMP_MAX) {
+                    F += BUMP_K * (uRaw - (SUSP_LN + SUSP_COMP_MAX));
+                    }
+                    sumF += F;
+                    sumTQ_P += -F * lz;  // pitch torque about x
+                    sumTQ_R += F * lx;   // roll torque about z
+                }
+                suspVy += (sumF / CAR_MASS - SUSP_GRAV) * h;
+                suspWTheta += (sumTQ_P / I_PITCH) * h;
+                suspWPhi += (sumTQ_R / I_ROLL) * h;
+                suspY += suspVy * h;
+                suspTheta += suspWTheta * h;
+                suspPhi += suspWPhi * h;
+                // Safety bounds (game never leaves the ground for long)
+                suspTheta = THREE.MathUtils.clamp(suspTheta, -0.45, 0.45);
+                suspPhi = THREE.MathUtils.clamp(suspPhi, -0.4, 0.4);
+            }
+
+            // 2) Body follows the integrated suspension state
+            car.position.y = suspY;
             carGroup.position.copy(car.position);
             carGroup.rotation.y = car.heading;
-            carGroup.rotation.z = THREE.MathUtils.lerp(carGroup.rotation.z, slopeX - vR * 0.03, 0.16);
-            carGroup.rotation.x = THREE.MathUtils.lerp(carGroup.rotation.x, -slopeZ - vF * 0.015, 0.16);
+            carGroup.rotation.x = suspTheta;
+            carGroup.rotation.z = suspPhi;
 
-            // Steering animation
-            wheelMounts[0].rotation.y = steerInput * 0.45;
-            wheelMounts[1].rotation.y = steerInput * 0.45;
-            wheels.forEach(w => w.rotation.x += speed * dt * 3.8);
+            // 3) Wheels stay glued to their pinned targets regardless of pose
+            for (let i = 0; i < suspensions.length; i++) {
+                suspensions[i].position.y = suspOffsets[i];
+            }
+
+            // Smoothed steering animation (front wheels pivot on their mounts)
+            steerVisual += (steerInput * 0.45 - steerVisual) * Math.min(1, 9 * dt);
+            wheelMounts[0].rotation.y = steerVisual;
+            wheelMounts[1].rotation.y = steerVisual;
+            for (let i = 0; i < wheels.length; i++) {
+                wheels[i].rotation.x += speed * dt * 3.8;
+                rims[i].rotation.x = wheels[i].rotation.x;
+            }
 
             // Brake lights
             const braking = keys['s'] || keys['arrowdown'];
-            brakeL.intensity = braking ? 4.0 : 0.1;
-            brakeR.intensity = braking ? 4.0 : 0.1;
-            tlL.material.color.setHex(braking ? 0xff0044 : 0x22000a);
-            tlR.material.color.setHex(braking ? 0xff0044 : 0x22000a);
+            brakeL.intensity = braking ? 2.2 : 0.08;
+            brakeR.intensity = braking ? 2.2 : 0.08;
+            tailLightBar.material.color.setHex(braking ? 0xff0044 : 0x22000a);
 
             car.roadDistance += vF * dt;
             if (car.roadDistance < 0) car.roadDistance = 0;
@@ -1141,23 +1473,36 @@
             document.getElementById('cam-display').textContent = cameraModes[camIdx].name;
             // Snap camera on switch
             const mode = cameraModes[camIdx];
-            const off = mode.offset.clone();
-            if (camIdx === 0) off.applyAxisAngle(new THREE.Vector3(0, 1, 0), car.heading);
-            camTargetPos.copy(car.position).add(off);
-            camTargetLook.copy(car.position).add(mode.look);
+            const sf = getModeFrame(mode);
+            camTargetPos.copy(car.position).add(sf.off);
+            camTargetLook.copy(car.position).add(sf.look);
             camera.position.copy(camTargetPos);
             camera.lookAt(camTargetLook);
             camera.fov = mode.fov;
             camera.updateProjectionMatrix();
         }
 
+        const _camYAxis = new THREE.Vector3(0, 1, 0);
+
+        // Rotates a camera mode's offset & look-ahead into the car's heading frame,
+        // so every camera genuinely follows where the car points — not world axes.
+        function getModeFrame(mode) {
+            const off = mode.offset.clone();
+            const look = mode.look.clone();
+            off.applyAxisAngle(_camYAxis, car.heading);
+            look.applyAxisAngle(_camYAxis, car.heading);
+            return { off, look };
+        }
+
         function updateCamera(dt) {
             const mode = cameraModes[camIdx];
-            let off = mode.offset.clone();
-            if (camIdx === 0) off.applyAxisAngle(new THREE.Vector3(0, 1, 0), car.heading);
+            const frame = getModeFrame(mode);
 
-            const desiredPos = car.position.clone().add(off);
-            const desiredLook = car.position.clone().add(mode.look);
+            // Velocity look-ahead keeps the car framed while braking/cornering
+            const lead = car.velocity.clone().multiplyScalar(0.25);
+            if (lead.length() > 6) lead.setLength(6);
+            const desiredPos = car.position.clone().add(frame.off);
+            const desiredLook = car.position.clone().add(frame.look).add(lead);
 
             if (!camInitialized) {
                 camTargetPos.copy(desiredPos);
@@ -1170,9 +1515,12 @@
                 return;
             }
 
-            const lerpSpeed = camIdx === 1 ? 8 : 5;
-            camTargetPos.lerp(desiredPos, lerpSpeed * dt);
-            camTargetLook.lerp(desiredLook, lerpSpeed * dt);
+            // Frame-rate independent exponential smoothing — the camera can no
+            // longer fall behind at high speed, and steering swings are damped.
+            const k = camIdx === 1 ? 22 : 10;
+            const alpha = 1 - Math.exp(-k * dt);
+            camTargetPos.lerp(desiredPos, alpha);
+            camTargetLook.lerp(desiredLook, Math.min(1, alpha * 1.6));
 
             camera.position.copy(camTargetPos);
             camera.lookAt(camTargetLook);
@@ -1187,22 +1535,26 @@
         // ---------------------------------------------------------
         const weatherPresets = [{
             name: 'Sunset',
-            bg: 0x180b28,
-            fog: 0x180b28,
-            fogD: 0.0018,
+            bg: 0x120720,
+            fog: 0x120720,
+            fogD: 0.0022,
             sun: 0xff7744,
-            sunI: 2.2,
-            amb: 0.4,
-            hemi: 0xff77a9
+            sunI: 1.5,
+            amb: 0.26,
+            hemiI: 0.3,
+            hemi: 0xff77a9,
+            stars: 0.85
         }, {
             name: 'Cyber Neon',
-            bg: 0x050812,
-            fog: 0x050812,
-            fogD: 0.0028,
+            bg: 0x02030a,
+            fog: 0x02030a,
+            fogD: 0.0030,
             sun: 0x00f2fe,
-            sunI: 1.0,
-            amb: 0.2,
-            hemi: 0x00f2fe
+            sunI: 0.65,
+            amb: 0.14,
+            hemiI: 0.2,
+            hemi: 0x00f2fe,
+            stars: 1.0
         }, {
             name: 'Daylight',
             bg: 0x6ab0f0,
@@ -1210,8 +1562,10 @@
             fogD: 0.0010,
             sun: 0xffeedd,
             sunI: 2.0,
-            amb: 0.6,
-            hemi: 0x88bbff
+            amb: 0.55,
+            hemiI: 0.5,
+            hemi: 0x88bbff,
+            stars: 0.12
         }];
         let weatherIdx = 0;
         let headlightsOn = true;
@@ -1229,7 +1583,9 @@
             sunLight.color.setHex(p.sun);
             sunLight.intensity = p.sunI;
             ambientLight.intensity = p.amb;
+            hemiLight.intensity = p.hemiI !== undefined ? p.hemiI : 0.5;
             hemiLight.color.setHex(p.hemi);
+            if (typeof starMat !== 'undefined') starMat.opacity = p.stars !== undefined ? p.stars : 0.9;
             if (sunMesh) {
                 sunMesh.material.color.setHex(p.sun);
             }
@@ -1237,8 +1593,8 @@
 
         function toggleHeadlights() {
             headlightsOn = !headlightsOn;
-            spotL.intensity = headlightsOn ? 4.5 : 0;
-            spotR.intensity = headlightsOn ? 4.5 : 0;
+            spotL.intensity = headlightsOn ? HEADLIGHT_INTENSITY : 0;
+            spotR.intensity = headlightsOn ? HEADLIGHT_INTENSITY : 0;
         }
 
         function resetCar() {
@@ -1246,17 +1602,18 @@
             const rp = roadPoints[idx];
             const t = roadTangents[idx];
             car.position.copy(rp);
-            car.position.y = getTerrainHeight(rp.x, rp.z) + 0.5;
             car.velocity.set(0, 0, 0);
             car.heading = Math.atan2(t.x, t.z);
+            car.prevVF = 0;           // Clear historical velocity
+            car.prevH = car.heading;  // Clear historical heading
             car.roadDistance = idx * SEGMENT_DIST;
+            initSuspension();
             // Reset camera
             camInitialized = false;
             const mode = cameraModes[camIdx];
-            const off = mode.offset.clone();
-            if (camIdx === 0) off.applyAxisAngle(new THREE.Vector3(0, 1, 0), car.heading);
-            camTargetPos.copy(car.position).add(off);
-            camTargetLook.copy(car.position).add(mode.look);
+            const rf = getModeFrame(mode);
+            camTargetPos.copy(car.position).add(rf.off);
+            camTargetLook.copy(car.position).add(rf.look);
             camera.position.copy(camTargetPos);
             camera.lookAt(camTargetLook);
             camera.fov = mode.fov;
@@ -1276,8 +1633,18 @@
             updatePhysics(dt);
             updateChunks(car.position.x, car.position.z);
 
-            const carIdx = Math.max(0, Math.floor(car.roadDistance / SEGMENT_DIST));
+            // Road window follows the car's projected position on the centerline
+            // (not the accumulated odometer), keeping it in sync off-road/reversing.
+            const carIdx = Math.max(0, getNearestRoadIndex(car.position.x, car.position.z));
             updateRoadMesh(carIdx);
+
+            // Keep the shadow-casting light centered on the car so shadows persist
+            sunLight.position.set(car.position.x + 170, car.position.y + 190, car.position.z + 170);
+            sunLight.target.position.copy(car.position);
+            sunLight.target.updateMatrixWorld();
+
+            // Keep the star dome centered on the car so it is always overhead
+            starField.position.set(car.position.x, 0, car.position.z);
 
             updateCamera(dt);
             composer.render();
@@ -1296,10 +1663,9 @@
         // Force camera init
         camInitialized = false;
         const mode = cameraModes[0];
-        const off = mode.offset.clone();
-        off.applyAxisAngle(new THREE.Vector3(0, 1, 0), car.heading);
-        camTargetPos.copy(car.position).add(off);
-        camTargetLook.copy(car.position).add(mode.look);
+        const imf = getModeFrame(mode);
+        camTargetPos.copy(car.position).add(imf.off);
+        camTargetLook.copy(car.position).add(imf.look);
         camera.position.copy(camTargetPos);
         camera.lookAt(camTargetLook);
         camera.fov = mode.fov;

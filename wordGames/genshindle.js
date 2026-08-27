@@ -722,6 +722,7 @@ function triggerShake() {
 }
 
 inputEl.addEventListener('input', debounce(handleAutocomplete, 120));
+btnGuess.addEventListener('click', submitGuess);
 
 function debounce(fn, wait = 150) {
     let t;

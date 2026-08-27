@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Darts · Enhanced</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body {
+            background: #0b0d19; min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 1rem; color: #f0f4f8;
+        }
+        .header { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 520px; margin-bottom: 0.8rem; }
+        .back { color: #f0f4f8; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; transition: 0.2s; }
+        .back:hover { color: #fb7185; }
+        .title-wrap { display: flex; align-items: center; gap: 0.5rem; font-weight: 800; font-size: 1.05rem; }
+        .title-wrap i { color: #fb7185; }
+        .new-btn {
+            background: rgba(251,113,133,0.12); border: 1px solid rgba(251,113,133,0.35); color: #fb7185;
+            font-weight: 700; font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 30px;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 0.35rem;
+        }
+        .new-btn:hover { background: rgba(251,113,133,0.22); box-shadow: 0 0 14px rgba(251,113,133,0.25); }
+        .scoreboard { width: 100%; max-width: 520px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 0.8rem; }
+        .sb-cell {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 13px; padding: 0.55rem 0.4rem; text-align: center;
+        }
+        .sb-cell.hot { border-color: rgba(251,113,133,0.45); background: rgba(251,113,133,0.07); }
+        .sb-val { font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .sb-label { font-size: 0.62rem; color: #94a3b8; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.1rem; }
+        .dart-pips { display: flex; gap: 0.45rem; justify-content: center; align-items: center; margin-bottom: 0.55rem; min-height: 1.1rem; }
+        .pip { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid #475569; transition: 0.2s; }
+        .pip.thrown { background: #fb7185; border-color: #fb7185; box-shadow: 0 0 8px rgba(251,113,133,0.5); }
+        .visit-log { margin-top: 0.7rem; font-size: 0.72rem; color: #94a3b8; font-weight: 600; display: flex; gap: 0.6rem; min-height: 1rem; }
+        .visit-log span { color: #f0f4f8; }
+        .board-wrapper {
+            position: relative; border-radius: 20px; overflow: hidden; width: 100%;
+            box-shadow: 0 20px 50px rgba(251,113,133,0.12); border: 1px solid rgba(255,255,255,0.06); max-width: 520px;
+        }
+        canvas { display: block; width: 100%; height: auto; touch-action: manipulation; cursor: crosshair; }
+        .toast {
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%) translateY(-70px);
+            background: rgba(10,12,24,0.92); border: 1px solid rgba(251,113,133,0.4); color: #f0f4f8;
+            padding: 0.5rem 1rem; border-radius: 30px; font-size: 0.82rem; font-weight: 700;
+            opacity: 0; transition: 0.3s ease; pointer-events: none; white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .overlay {
+            position: absolute; inset: 0; background: rgba(7,9,18,0.88); backdrop-filter: blur(4px);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.7rem; text-align: center; padding: 1.5rem; z-index: 5;
+        }
+        .overlay.visible { display: flex; }
+        .overlay h2 { font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+        .overlay h2.win { color: #fb7185; }
+        .overlay h2 i { filter: drop-shadow(0 0 12px rgba(251,113,133,0.6)); }
+        .overlay p { color: #94a3b8; font-size: 0.85rem; font-weight: 600; line-height: 1.6; max-width: 340px; }
+        .overlay p strong { color: #f0f4f8; }
+        .big-stat { font-size: 2.2rem; font-weight: 800; color: #fb7185; font-variant-numeric: tabular-nums; }
+        .big-stat-label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; font-weight: 600; margin-top: -0.4rem; }
+        .play-btn {
+            background: linear-gradient(135deg, #be123c, #fb7185); color: white; border: none;
+            font-weight: 800; font-family: inherit; font-size: 0.9rem; padding: 0.7rem 1.8rem;
+            border-radius: 40px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
+            margin-top: 0.5rem; transition: 0.2s; box-shadow: 0 8px 24px rgba(190,18,60,0.4);
+        }
+        .play-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(190,18,60,0.55); }
+        .hint { margin-top: 0.7rem; font-size: 0.72rem; color: #94a3b8; font-weight: 600; text-align: center; max-width: 520px; line-height: 1.6; }
+        .hint i { color: #fb7185; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a class="back" href="../index.html"><i class="fa-solid fa-arrow-left"></i> Back</a>
+        <div class="title-wrap"><i class="fa-solid fa-bullseye"></i> Neon Darts</div>
+        <button id="btn-new" class="new-btn"><i class="fa-solid fa-rotate-right"></i> New Game</button>
+    </div>
+
+    <div class="scoreboard">
+        <div class="sb-cell hot">
+            <div class="sb-val" id="remaining">501</div>
+            <div class="sb-label">Remaining</div>
+        </div>
+        <div class="sb-cell">
+            <div class="sb-val" id="last-throw">—</div>
+            <div class="sb-label">Last Throw</div>
+        </div>
+        <div class="sb-cell">
+            <div class="sb-val" id="darts-used">0</div>
+            <div class="sb-label">Darts Thrown</div>
+        </div>
+        <div class="sb-cell">
+            <div class="sb-val" id="best">—</div>
+            <div class="sb-label">Best Finish</div>
+        </div>
+    </div>
+
+    <div class="dart-pips" id="pips"></div>
+
+    <div class="board-wrapper">
+        <canvas id="board" class="clickable"></canvas>
+        <div class="toast" id="toast"></div>
+        <div class="overlay visible" id="start-overlay">
+            <h2><i class="fa-solid fa-bullseye"></i> Neon Darts</h2>
+            <p><strong>Checkout from 501</strong> in as few darts as possible.<br>
+               Tap once to stop the crosshair sideways, again to lock it vertically.<br>Darts land where you aim… mostly.</p>
+            <button class="play-btn" id="btn-start"><i class="fa-solid fa-play"></i> Throw First Dart</button>
+        </div>
+        <div class="overlay" id="win-overlay">
+            <h2 class="win"><i class="fa-solid fa-trophy"></i> Game Shot!</h2>
+            <div class="big-stat" id="win-darts">0</div>
+            <div class="big-stat-label">Darts To Checkout</div>
+            <p id="win-detail"></p>
+            <button class="play-btn" id="btn-again"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+        </div>
+    </div>
+
+    <div class="visit-log" id="visit-log"></div>
+
+    <p class="hint">
+        <i class="fa-solid fa-circle-info"></i>
+        Tap / Click / Space stops the sweeping crosshair. Faster sweeps scatter more.
+        Doubles &amp; triples count. Finish exactly on zero — going below zero or landing on 1 is a bust and costs you the visit.
+    </p>
+
+    <script src="darts.js"></script>
+</body>
+</html>

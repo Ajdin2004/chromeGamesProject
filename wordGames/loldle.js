@@ -485,7 +485,7 @@ function resetBoard() {
     guessesHistory = [];
     gameOver = false;
     lastGameWon = false;
-    guessessContainer.innerHTML = '';
+    guessesContainer.innerHTML = '';
     hintBox.style.display = 'none';
     inputEl.disabled = false;
     btnGuess.disabled = false;
@@ -696,13 +696,13 @@ function humanizeResource(res) {
 async function fetchChampionsData() {
     try {
         try {
-            const overridesRes = await fetch('./data/champion_details.json');
+            const overridesRes = await fetch('../data/champion_details.json');
             if (overridesRes.ok) {
                 const overrides = await overridesRes.json();
                 Object.keys(overrides).forEach(k => {
                     CHAMPION_DETAILS[k] = Object.assign({}, CHAMPION_DETAILS[k] || {}, overrides[k]);
                 });
-                console.info('Loaded champion overrides from ./data/champion_details.json');
+                console.info('Loaded champion overrides from ../data/champion_details.json');
             }
         } catch (e) {
             console.info('No local champion_details.json found or failed to load; continuing without overrides.');

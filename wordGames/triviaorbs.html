@@ -7,31 +7,28 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="trivia-shared.css">
     <style>
         :root {
-            --bg-color: #070b18;
-            --card-bg: rgba(17, 22, 45, 0.88);
-            --card-border: rgba(140, 160, 255, 0.16);
-            --primary-purple: #8b5cf6;
-            --accent-cyan: #22d3ee;
-            --correct-green: #22c55e;
-            --wrong-red: #ef4444;
-            --skip-gold: #facc15;
-            --text-main: #eef2ff;
-            --text-muted: #94a3b8;
+            --bg-color: #070a14;
+            --card-bg: rgba(19, 26, 52, 0.64);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --primary-purple: #ffc93c;              /* family accent (gold) */
+            --accent-cyan: #39e3ff;
+            --correct-green: #34d399;
+            --wrong-red: #fb5f6a;
+            --skip-gold: #f59e0b;                   /* shifted orange so it never collides with gold "current" */
+            --text-main: #eaf2ff;
+            --text-muted: #8ea0c6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
 
         body {
-            background:
-                radial-gradient(ellipse at 15% 10%, rgba(139, 92, 246, 0.14), transparent 35%),
-                radial-gradient(ellipse at 85% 90%, rgba(34, 211, 238, 0.12), transparent 35%),
-                linear-gradient(rgba(7, 11, 24, 0.92), rgba(7, 11, 24, 0.97)),
-                url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
-            background-size: cover;
+            background: linear-gradient(160deg, #070a14 0%, #0a0f22 55%, #0a1024 100%);
             color: var(--text-main);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -39,41 +36,14 @@
             overflow-x: hidden;
         }
 
+        
         .header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             width: 100%;
             max-width: 720px;
             margin-bottom: 1.25rem;
             gap: 0.75rem;
         }
-
-        .back-btn {
-            color: var(--text-main);
-            text-decoration: none;
-            width: 42px; height: 42px;
-            display: grid; place-items: center;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--card-border);
-            transition: transform 0.2s, background 0.2s;
-        }
-        .back-btn:hover { transform: translateX(-3px); background: rgba(255,255,255,0.12); }
-
-        .brand {
-            font-weight: 800;
-            letter-spacing: 2px;
-            font-size: 1.05rem;
-            background: linear-gradient(90deg, var(--primary-purple), var(--accent-cyan));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            white-space: nowrap;
-        }
-        .brand i { -webkit-text-fill-color: var(--accent-cyan); margin-right: 6px; }
-
-        .header-controls { display: flex; gap: 0.5rem; position: relative; }
+    .header-controls { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
 
         .chip {
             display: inline-flex;
@@ -111,7 +81,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .tab-btn.active { background: linear-gradient(135deg, var(--primary-purple), #6d28d9); color: #fff; box-shadow: 0 4px 16px rgba(139,92,246,0.4); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #171207; box-shadow: 0 4px 16px rgba(245, 166, 35, 0.4); }
         .tab-btn:not(.active):hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
 
         .card {
@@ -142,14 +112,14 @@
             padding: 15px;
             border: none;
             border-radius: 14px;
-            background: linear-gradient(135deg, var(--primary-purple), #ec4899);
-            color: #fff;
+            background: linear-gradient(135deg, var(--gold), var(--gold2));
+            color: #171207;
             font-family: inherit;
             font-size: 1.05rem;
             font-weight: 800;
             cursor: pointer;
             transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
-            box-shadow: 0 6px 24px rgba(139, 92, 246, 0.45);
+            box-shadow: 0 6px 24px rgba(255, 201, 60, 0.35);
         }
         .btn-primary:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
         .btn-primary:disabled { cursor: default; filter: saturate(0.35) brightness(0.7); box-shadow: none; }
@@ -202,7 +172,7 @@
             background: rgba(255,255,255,0.14);
             transition: all 0.25s;
         }
-        .dot-current { box-shadow: 0 0 0 2px var(--accent-cyan); background: rgba(34,211,238,0.5); }
+        .dot-current { box-shadow: 0 0 0 2px var(--gold); background: rgba(255,201,60,0.5); }
         .dot-correct { background: var(--correct-green); }
         .dot-wrong { background: var(--wrong-red); }
         .dot-skipped { background: var(--skip-gold); }
@@ -240,7 +210,7 @@
             cursor: pointer;
             transition: transform 0.12s, background 0.15s, border-color 0.15s;
         }
-        .answer-btn:hover:not(:disabled) { transform: translateX(4px); background: rgba(139,92,246,0.16); border-color: var(--primary-purple); }
+        .answer-btn:hover:not(:disabled) { transform: translateX(4px); background: rgba(255,201,60,0.14); border-color: var(--gold); }
         .answer-key {
             flex-shrink: 0;
             width: 28px; height: 28px;
@@ -286,7 +256,7 @@
             cursor: pointer;
             transition: background 0.15s, opacity 0.15s;
         }
-        .ll-btn:hover:not(:disabled) { background: rgba(34,211,238,0.12); border-color: var(--accent-cyan); }
+        .ll-btn:hover:not(:disabled) { background: rgba(255,201,60,0.12); border-color: var(--gold); }
         .ll-btn:disabled { opacity: 0.35; cursor: default; }
         .ll-cost { font-size: 0.72rem; color: var(--skip-gold); }
 
@@ -314,7 +284,7 @@
             border: 1px solid var(--card-border);
             text-align: center;
         }
-        .stat-box .val { font-size: 1.5rem; font-weight: 800; color: var(--accent-cyan); }
+        .stat-box .val { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
         .stat-box .lbl { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
         #history-list { list-style: none; }
@@ -348,23 +318,112 @@
 
         @media (max-width: 480px) {
             .card { padding: 1.15rem; }
-            .brand { display: none; }
+            .brand-mark { display: none; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
 
 
+/* ============================================================
+           V2 Visual Polish — aurora, card glow, answer hover, sheen
+           ============================================================ */
+        body { position: relative; }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -20%;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(30% 24% at 16% 10%, rgba(255, 201, 60, 0.16), transparent 60%),
+                radial-gradient(28% 22% at 86% 16%, rgba(57, 227, 255, 0.14), transparent 60%),
+                radial-gradient(34% 26% at 82% 92%, rgba(157, 138, 255, 0.20), transparent 62%),
+                radial-gradient(26% 22% at 28% 96%, rgba(57, 227, 255, 0.14), transparent 60%);
+            filter: blur(26px);
+            animation: auroraDrift 26s ease-in-out infinite alternate;
+        }
+        @keyframes auroraDrift {
+            0%   { transform: translate3d(-3%, -2%, 0) rotate(0deg) scale(1); }
+            50%  { transform: translate3d(2%, 2%, 0) rotate(1.5deg) scale(1.05); }
+            100% { transform: translate3d(-1%, 1%, 0) rotate(-1deg) scale(1.03); }
+        }
+        .header-bar, .tabs, main { position: relative; z-index: 1; }
+
+        /* Card — soft glass depth + gradient top highlight */
+        .card {
+            position: relative;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            transition: transform 0.22s ease, border-color 0.22s ease;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 16%; right: 16%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 201, 60, 0.85), rgba(57, 227, 255, 0.7), transparent);
+            opacity: 0.85;
+        }
+        .card:hover { transform: translateY(-2px); border-color: rgba(255, 201, 60, 0.45); }
+
+        /* Primary CTA — animated sheen sweep */
+        .btn-primary { position: relative; overflow: hidden; }
+        .btn-primary::after {
+            content: "";
+            position: absolute;
+            top: 0; bottom: 0; left: -70%; width: 42%;
+            background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-22deg);
+            animation: btnSheen 5s ease-in-out infinite;
+        }
+        @keyframes btnSheen { 0% { left: -70%; } 48% { left: 135%; } 100% { left: 135%; } }
+
+        /* Answer buttons — hover lift, glow, key badge accent */
+        .answer-btn { position: relative; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03); }
+        .answer-btn:hover:not(:disabled) {
+            transform: translateX(4px) translateY(-1px);
+            background: rgba(255, 201, 60, 0.18);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 201, 60, 0.4);
+        }
+        .answer-btn:hover:not(:disabled) .answer-key {
+            background: linear-gradient(135deg, var(--gold), var(--gold2));
+            color: #171207;
+            border-color: transparent;
+        }
+        .answer-btn.is-correct { box-shadow: 0 8px 22px rgba(34, 197, 94, 0.25); }
+        .answer-btn.is-wrong { box-shadow: 0 8px 22px rgba(239, 68, 68, 0.22); }
+
+        /* Progress dots — glow accents */
+        .dot { transition: all 0.25s, transform 0.25s; }
+        .dot-current { box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgba(255, 201, 60, 0.6); transform: scale(1.15); }
+        .dot-correct { box-shadow: 0 0 10px rgba(34, 197, 94, 0.55); }
+        .dot-wrong { box-shadow: 0 0 8px rgba(239, 68, 68, 0.55); }
+        .dot-skipped { box-shadow: 0 0 8px rgba(250, 204, 21, 0.55); }
+
+        /* Keywords / meta chips */
+        .meta-chip { letter-spacing: 0.4px; }
+
+        /* Stats — hover lift + glow */
+        .stat-box { transition: transform 0.18s ease, border-color 0.18s ease; }
+        .stat-box:hover { transform: translateY(-2px); border-color: rgba(255, 201, 60, 0.5); }
+        .stat-box .val { text-shadow: 0 0 14px rgba(255, 201, 60, 0.35); }
+
+        /* Results — score glow */
+        .big-score { filter: drop-shadow(0 4px 18px rgba(255, 201, 60, 0.3)); }
+
+        .float-orb { font-size: 0.9rem; text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
     </style>
 </head>
 <body>
-    <div class="header-bar">
-        <a class="back-btn" href="../index.html" title="Back to Arcade Hub"><i class="fa-solid fa-arrow-left"></i></a>
-        <div class="brand"><i class="fa-solid fa-circle-nodes"></i>TRIVIA ORBS</div>
-        <div class="header-controls">
-            <div class="chip" title="Daily streak"><i class="fa-solid fa-fire" style="color:#fb923c"></i><span id="hud-streak">0</span></div>
-            <div class="chip" title="Orbs"><i class="fa-solid fa-coins" style="color:#facc15"></i><span id="hud-orbs">0</span></div>
+    <header class="header-bar">
+        <div class="header-left">
+            <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+            <span class="brand-mark"><i class="fa-solid fa-trophy"></i></span>
+            <h1 class="header-title">Trivia <em>Orbs</em></h1>
         </div>
-    </div>
+        <div class="header-stats">
+            <span class="chip" title="Daily streak"><i class="fa-solid fa-fire" style="color:#fb923c"></i><strong id="hud-streak">0</strong></span>
+            <span class="chip" title="Orbs"><i class="fa-solid fa-coins" style="color:#facc15"></i><strong id="hud-orbs">0</strong></span>
+        </div>
+    </header>
 
     <main id="to-app">
         <nav class="tabs">
@@ -391,7 +450,7 @@
                     <h2>How it works</h2>
                     <p class="sub" style="margin-bottom:0.5rem;">
                         🟢 Correct answers earn <b>10–20 orbs</b> (by difficulty) plus streak bonuses.<br>
-                        💡 Spend orbs on lifelines: <b>50/50</b>, a gentle <b>Hint</b>, or a no-penalty <b>Skip</b>.<br>
+                        💡 Spend orbs on lifelines: <b>50/50</b>, or a no-penalty <b>Skip</b>.<br>
                         ❄️ Missed a day? A banked <b>streak freeze</b> protects your streak automatically.<br>
                         ⭐ A perfect drop earns a <b>+25 orb</b> bonus and every 7-day streak banks another freeze.
                     </p>
@@ -416,9 +475,6 @@
                 <div class="lifelines">
                     <button class="ll-btn" id="btn-ll-fifty" title="Remove two wrong answers">
                         <i class="fa-solid fa-scissors"></i> 50/50 <span class="ll-cost">🪙 15</span>
-                    </button>
-                    <button class="ll-btn" id="btn-ll-hint" title="Reveal a gentle hint">
-                        <i class="fa-solid fa-lightbulb"></i> Hint <span class="ll-cost">🪙 10</span>
                     </button>
                     <button class="ll-btn" id="btn-ll-skip" title="Skip with no penalty">
                         <i class="fa-solid fa-forward"></i> Skip <span class="ll-cost">🪙 5</span>

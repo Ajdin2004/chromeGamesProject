@@ -724,6 +724,7 @@
         .badge.popular { background: #ff0080; color: #fff; }
         .badge.new { background: var(--accent-cyan); color: #000; }
         .badge.daily { background: var(--star-color); color: #000; }
+        .badge.beta { background: #ff0000; color: #fff; }
 
         /* --- Shared Hover Effect Canvas (single element, follows hovered tile) --- */
         #tile-fx-canvas {
@@ -1746,6 +1747,14 @@
             <h2 class="section-heading"><i class="fa-solid fa-fire"></i> What's New</h2>
             <ul class="changelog-list">
                 <li class="changelog-item">
+                    <span class="changelog-tag new">New Experimantal</span>
+                    <p><strong>Flight Simulator, Neon Horizon</strong> — These games are currently experimental and unstable test builds.</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
+                    <p><strong>Darts</strong> — Classic pub darts. Time your throw, checkout from 501, and finish in as few darts as possible.</p>
+                </li>
+                <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
                     <p><strong>Minesweeper</strong> — Classic logic puzzle. Reveal safe cells, flag mines, and clear the board across 3 difficulty levels!</p>
                 </li>
@@ -1760,6 +1769,14 @@
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
                     <p><strong>Category Gauntlet</strong> — Survive 8 escalating trivia categories! 3 lives, a ticking clock, and one-shot lifelines. How deep can you go?</p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
+                    <p><strong>Daily Trivia</strong> — Daily trivia game. :/ </p>
+                </li>
+                <li class="changelog-item">
+                    <span class="changelog-tag new">New</span>
+                    <p><strong>Trivia Orbs</strong> — A cozy daily trivia drop: 10 questions, collect orbs, keep your streak with forgiving lifelines.</p>
                 </li>
                 <li class="changelog-item">
                     <span class="changelog-tag new">New</span>
@@ -1925,12 +1942,6 @@
                     <i class="fa-solid fa-cubes-stacked"></i>
                     <h4>Stack Builder</h4>
                     <p>Stack blocks as high as you can</p>
-                </div>
-                <div class="coming-soon-card">
-                    <span class="coming-soon-badge">Idea</span>
-                    <i class="fa-solid fa-bullseye"></i>
-                    <h4>Darts</h4>
-                    <p>Aim for the bullseye</p>
                 </div>
             </div>
         </section>
@@ -2206,6 +2217,7 @@
             { name: 'Daily Zenlessdle', href: 'wordGames/zenlessdle.html', icon: 'fa-video', c1: '#ca8a04', c2: '#fde047', categories: ['word', 'retro'], added: '2026-08-15', badge: '', tag: 'ZZZ Game', key: '', desc: 'Guess the Zenless Zone Zero agent in 8 tries. Reset every single day.' },
             { name: 'Daily Starraildle', href: 'wordGames/starraildle.html', icon: 'fa-train-subway', c1: '#a855f7', c2: '#fbbf24', categories: ['word', 'retro'], added: '2026-08-15', badge: '', tag: 'HSR Game', key: '', desc: 'Guess the Honkai Star Rail character in 8 tries. Reset every single day.' },
             { name: 'Daily Genshindle', href: 'wordGames/genshindle.html', icon: 'fa-wind', c1: '#b45309', c2: '#d4af37', categories: ['word', 'retro'], added: '2026-08-22', badge: '', tag: 'Genshin Game', key: '', desc: 'Guess the Genshin Impact character in 8 tries. Reset every single day.' },
+            { name: 'Daily Trivia', href: 'wordGames/triviadaily.html', icon: 'fa-dice', c1: '#b45309', c2: '#d4af37', categories: ['word', 'puzzle'], added: '2026-08-22', badge: '', tag: 'Trivia Game', key: '', desc: 'Daily trivia game.' },
             { name: 'IMDB Showdown', href: 'wordGames/boxoffice.html', icon: 'fa-film', c1: '#b45309', c2: '#f59e0b', categories: ['word', 'puzzle'], added: '2026-08-08', badge: '', tag: 'Movie Trivia', key: 'boxoffice_best_streak', desc: 'Which movie has the highest IMDB rating? Battle through random movie matchups.' },
             { name: 'Category Gauntlet', href: 'wordGames/gauntlet.html', icon: 'fa-trophy', c1: '#b45309', c2: '#f59e0b', categories: ['word', 'puzzle'], added: '2026-08-25', badge: '', tag: 'Trivia Quiz', key: 'gauntlet_best_score', desc: 'Survive 8 escalating trivia categories with 3 lives, a ticking clock, and one-shot lifelines.' },
             { name: 'Trivia Orbs', href: 'wordGames/triviaorbs.html', icon: 'fa-circle-nodes', c1: '#6d28d9', c2: '#22d3ee', categories: ['word', 'puzzle'], added: '2026-08-26', badge: 'New', tag: 'Trivia Quiz', key: 'triviaorbs_best_streak', desc: 'A cozy daily trivia drop: 10 questions, collect orbs, keep your streak with forgiving lifelines.' },
@@ -2228,7 +2240,10 @@
             { name: 'Highway Racer', href: 'games/highway.html', icon: 'fa-car-side', c1: '#ea580c', c2: '#f97316', categories: ['action'], added: '2024-01-01', badge: '', tag: 'Driving', key: 'highway_highscore', desc: 'Dodge oncoming traffic in a high-speed pseudo-3D racer.' },
             { name: 'Asteroids', href: 'games/asteroids.html', icon: 'fa-rocket', c1: '#4338ca', c2: '#818cf8', categories: ['action'], added: '2024-01-01', badge: '', tag: 'Arcade', key: '', desc: 'Defend your ship against waves of asteroids in this classic arcade game.' },
             { name: 'Space Invaders', href: 'games/spaceinvaders.html', icon: 'fa-plane', c1: '#6366f1', c2: '#a5b4fc', categories: ['action'], added: '2024-01-01', badge: '', tag: 'Arcade', key: '', desc: 'Defend Earth from alien invaders in this iconic arcade game.' },
-            { name: 'Pac-Man', href: 'games/pacman.html', icon: 'fa-ghost', c1: '#eab308', c2: '#facc15', categories: ['arcade', 'retro'], added: '2026-08-11', badge: '', tag: 'Arcade', key: 'pacman_highscore', desc: 'Classic maze chase. Eat dots, dodge ghosts, and grab power pellets.' }
+            { name: 'Pac-Man', href: 'games/pacman.html', icon: 'fa-ghost', c1: '#eab308', c2: '#facc15', categories: ['arcade', 'retro'], added: '2026-08-11', badge: '', tag: 'Arcade', key: 'pacman_highscore', desc: 'Classic maze chase. Eat dots, dodge ghosts, and grab power pellets.' },
+            { name: 'Neon Horizon', href: 'games/3ddrive.html', icon: 'fa-road', c1: '#7c3aed', c2: '#22d3ee', categories: ['action'], added: '2026-08-26', badge: 'Beta', tag: 'Driving', key: '', desc: 'Ultra 3D procedural driving. Cruise an endless neon horizon at full throttle.' },
+            { name: 'Flight Simulator', href: 'games/flightsim.html', icon: 'fa-plane-up', c1: '#0f766e', c2: '#5eead4', categories: ['action'], added: '2026-08-26', badge: 'Beta', tag: 'Simulator', key: '', desc: 'Advanced 6DOF flight simulator. Take the controls and master the skies.' },
+            { name: 'Darts', href: 'games/darts.html', icon: 'fa-bullseye', c1: '#be123c', c2: '#fb7185', categories: ['arcade'], added: '2026-08-26', badge: 'New', tag: 'Sports', key: 'darts_highscore', desc: 'Classic pub darts. Time your throw, checkout from 501, and finish in as few darts as possible.' }
         ];
         const SHELVES = [
             { id: 'word', title: 'Word & Daily Games', icon: 'fa-spell-check', match: g => g.categories.includes('word') },
@@ -2815,7 +2830,8 @@
             { name: 'Trivia Orbs', key: 'triviaorbs_best_streak', icon: 'fa-circle-nodes', href: 'wordGames/triviaorbs.html' },
             { name: 'Tic-Tac-Toe', key: 'tictactoe_wins', icon: 'fa-hashtag', href: 'games/tictactoe.html' },
             { name: 'Checkers', key: 'checkers_wins', icon: 'fa-chess-pawn', href: 'games/checkers.html' },
-            { name: 'Minesweeper', key: 'minesweeper_wins', icon: 'fa-bomb', href: 'games/minesweeper.html' }
+            { name: 'Minesweeper', key: 'minesweeper_wins', icon: 'fa-bomb', href: 'games/minesweeper.html' },
+            { name: 'Darts', key: 'darts_highscore', icon: 'fa-bullseye', href: 'games/darts.html' }
         ];
 
         function populateLeaderboard() {
@@ -2938,7 +2954,10 @@
         const footerFavsEl = document.getElementById('footer-favs');
 
         function updateStats() {
-            const totalGames = cards.length;
+            // Count unique games from the data source, NOT DOM cards:
+            // games with overlapping category tags render on multiple shelves,
+            // so counting .game-card elements inflates the number.
+            const totalGames = GAMES.length;
             const counts = getJSON(PLAYS_KEY, {});
             const totalPlays = Object.values(counts).reduce((a, b) => a + b, 0);
             const favs = getJSON(FAV_KEY, []).map(normalizePath).length;
@@ -2975,6 +2994,7 @@
                     card.appendChild(badge);
                 }
 
+                
                 if (isPopular) {
                     badge.textContent = 'Popular';
                     badge.className = 'badge popular';
@@ -2989,6 +3009,11 @@
                     } else {
                         badge.remove();
                     }
+                }
+
+                if (badge === 'Beta'){
+                    badge.textContent = 'Beta';
+                    badge.className = 'badge beta';
                 }
             });
         }

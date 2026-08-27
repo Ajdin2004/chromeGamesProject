@@ -1,7 +1,12 @@
 /* Tunetile — Songdle-style overhaul using iTunes API with Safe Redirect Bypass */
 
 const ITUNES_BASE = 'https://itunes.apple.com/search';
-const TODAY = new Date().toISOString().slice(0, 10);
+
+// Use LOCAL date (not UTC/ISO) so the daily song resets exactly at 00:00 local time
+function getLocalDateStr(d = new Date()) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+let TODAY = getLocalDateStr();
 const SEED = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
 
 const CURATED_TERMS = [
@@ -13,6 +18,10 @@ const MAX_ATTEMPTS = 6;
 const INITIAL_REVEAL_SECONDS = 3;
 const REVEAL_INCREMENT = 3;
 const MAX_PREVIEW_SECONDS = 30;
+
+// Cover-art progressive de-blur (clears up with each wrong guess)
+const ARTWORK_BLUR_START_PX = 6;
+const ARTWORK_BLUR_STEP_PX = 1;
 
 // DOM References
 let playBtn = document.getElementById('playMelodyBtn');
@@ -29,6 +38,7 @@ let suggestionTimer = null;
 let suggestionCache = {};
 let suggestionDisabled = false;
 let answerTitleElement = null;
+let coverArtElement = null;
 
 // Game State
 let dailyTrack = null;
@@ -156,6 +166,20 @@ function celebrateSuccess() {
 
 function updateAttemptDisplay() {
     if (attemptDisplay) attemptDisplay.textContent = `${attempts}/${MAX_ATTEMPTS}`;
+}
+
+// --- Progressive Cover-Art De-blur ---
+function getArtworkBlurPx() {
+    if (gameOver) return 0; // Fully revealed on win/game-over
+    return Math.max(0, ARTWORK_BLUR_START_PX - attempts * ARTWORK_BLUR_STEP_PX);
+}
+
+function updateArtworkBlur() {
+    if (!coverArtElement) return;
+    const blurPx = getArtworkBlurPx();
+    coverArtElement.style.filter = `blur(${blurPx}px)`;
+    // Slight scale compensates for blurred edge bleed-through on fully clear images
+    coverArtElement.style.transform = blurPx > 0 ? 'scale(1.06)' : 'scale(1)';
 }
 
 // --- Dynamic Hint Generation ---
@@ -373,7 +397,7 @@ async function fetchDailyTrack() {
                     trackName: item.trackName,
                     artistName: item.artistName,
                     previewUrl: item.previewUrl,
-                    artwork: item.artworkUrl100 || item.artworkUrl60,
+                    artwork: (item.artworkUrl100 || item.artworkUrl60 || '').replace(/\/(\d+)x\1/, '/300x300'),
                     collectionName: item.collectionName || ''
                 };
                 localStorage.setItem(`tunetile_track_${TODAY}`, JSON.stringify(dailyTrack));
@@ -420,6 +444,7 @@ async function handleGuess() {
         if (guessBtn) guessBtn.disabled = true;
         playFullPreview();
         revealAnswer();
+        updateArtworkBlur();
         saveState(true);
         hideSuggestions();
         return;
@@ -427,6 +452,8 @@ async function handleGuess() {
 
     attempts++;
     updateAttemptDisplay();
+    // Reveal more of the album art with every wrong guess
+    updateArtworkBlur();
     // Switch input state to enable browser autofill on Attempt 2+
     updateAutofillState();
 
@@ -437,6 +464,7 @@ async function handleGuess() {
         if (guessBtn) guessBtn.disabled = true;
         playFullPreview();
         revealAnswer();
+        updateArtworkBlur();
         saveState(false);
         hideSuggestions();
         return;
@@ -481,10 +509,14 @@ async function init() {
     const art = document.createElement('img');
     art.src = dailyTrack.artwork;
     art.alt = dailyTrack.trackName;
+    art.id = 'coverArt';
     art.style.width = '64px'; 
     art.style.height = '64px'; 
     art.style.borderRadius = '10px'; 
     art.style.marginRight = '10px';
+    art.style.transition = 'filter 0.7s ease, transform 0.7s ease';
+    coverArtElement = art;
+    updateArtworkBlur();
 
     const melodyBox = document.querySelector('.melody-box');
     if (melodyBox) {
@@ -618,6 +650,35 @@ async function init() {
         });
     }
 }
+
+// --- Daily Reset Timer (counts down to 00:00 local time) ---
+function msUntilLocalMidnight() {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0, 0);
+    return midnight.getTime() - now.getTime();
+}
+
+function updateResetTimer() {
+    const el = document.getElementById('resetTimer');
+    if (!el) return;
+    const totalSec = Math.max(0, Math.floor(msUntilLocalMidnight() / 1000));
+    const hours = Math.floor(totalSec / 3600);
+    const minutes = Math.floor((totalSec % 3600) / 60);
+    const seconds = totalSec % 60;
+    el.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function checkDayRollover() {
+    if (getLocalDateStr() === TODAY) return false;
+    // Local 00:00 passed while the page was open — reload to pick up the new song & fresh state
+    location.reload();
+    return true;
+}
+
+updateResetTimer();
+setInterval(() => {
+    if (!checkDayRollover()) updateResetTimer();
+}, 1000);
 
 // Safely boot when DOM is ready
 if (document.readyState === 'loading') {

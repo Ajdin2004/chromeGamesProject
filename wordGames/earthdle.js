@@ -308,7 +308,11 @@ let worldGlobe;
 let geoJsonFeatures = [];
 let COUNTRIES = [];
 let TARGET_COUNTRY = null;
-const TODAY_DATE_STR = new Date().toISOString().slice(0, 10);
+// Use LOCAL date (not UTC/ISO) so the daily puzzle resets exactly at 00:00 local time
+function getLocalDateStr(d = new Date()) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+let TODAY_DATE_STR = getLocalDateStr();
 const MAX_GUESSES = 6;
 let guessesHistory = [];
 let gameOver = false;
@@ -355,6 +359,9 @@ const endlessScoreEl = document.getElementById('endless-score');
 const endlessRoundNum = document.getElementById('endless-round-num');
 const endlessWinsNum = document.getElementById('endless-wins-num');
 const endlessStreakNum = document.getElementById('endless-streak-num');
+const difficultySelectorEl = document.getElementById('difficulty-selector');
+const dailyCountdownEl = document.getElementById('daily-countdown');
+const countdownTimerEl = document.getElementById('countdown-timer');
 const confettiCanvas = document.getElementById('confetti-canvas');
 let currentMatches = [];
 let suggestionActiveIndex = -1;
@@ -698,20 +705,77 @@ async function shareResult() {
     }
 }
 
-// --- Facts ---
+// --- Flags Data & Facts ---
+// Shared dataset from Flag Guessr (covers more countries) + its flag CDN for flag images
+const FLAGS_URL = '../data/flags.json';
+const FLAG_CDN = 'https://flagcdn.com/w320/';
+let FLAGS_BY_NAME = {};
+// Natural Earth map names differ from flags.json names — alias them here
+const NAME_ALIASES = {
+    'United States of America': 'United States',
+    'Dem. Rep. Congo': 'DR Congo',
+    'Dominican Rep.': 'Dominican Republic',
+    'Central African Rep.': 'Central African Republic',
+    'Eq. Guinea': 'Equatorial Guinea',
+    'Solomon Is.': 'Solomon Islands',
+    'Czechia': 'Czech Republic',
+    'Bosnia and Herz.': 'Bosnia and Herzegovina',
+    'S. Sudan': 'South Sudan'
+};
+
+async function fetchFlagsData() {
+    try {
+        const res = await fetch(FLAGS_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        FLAGS_BY_NAME = {};
+        Object.values(data).forEach(c => {
+            FLAGS_BY_NAME[c.name.toLowerCase()] = c;
+        });
+        Object.entries(NAME_ALIASES).forEach(([mapName, canonical]) => {
+            const entry = FLAGS_BY_NAME[canonical.toLowerCase()];
+            if (entry) FLAGS_BY_NAME[mapName.toLowerCase()] = entry;
+        });
+    } catch (e) { /* flags dataset unavailable — facts fall back to embedded data */ }
+}
+
+function getFlagEntry(countryName) {
+    if (!FLAGS_BY_NAME) return null;
+    const aliasName = NAME_ALIASES[countryName];
+    return FLAGS_BY_NAME[countryName.toLowerCase()] ||
+           (aliasName ? FLAGS_BY_NAME[aliasName.toLowerCase()] : null) ||
+           null;
+}
+
 function showFacts(countryName) {
-    const facts = COUNTRY_FACTS[countryName];
-    if (!facts) {
+    const flagEntry = getFlagEntry(countryName);
+    const legacy = COUNTRY_FACTS[countryName];
+
+    if (!flagEntry && !legacy) {
         factsTitle.textContent = countryName;
         factsContent.innerHTML = '<p style="text-align:center; color: var(--text-muted);">No detailed facts available for this country.</p>';
     } else {
-        factsTitle.textContent = `${facts.flag} ${countryName}`;
+        factsTitle.textContent = countryName;
+
+        // Prefer a real flag image from the Flag Guessr CDN; fall back to emoji
+        let flagHtml = '';
+        if (flagEntry) {
+            flagHtml = `<div class="fact-flag"><img src="${FLAG_CDN}${flagEntry.code.toLowerCase()}.png" alt="Flag of ${countryName}" onerror="this.style.display='none'"></div>`;
+        } else if (legacy.flag) {
+            flagHtml = `<div class="fact-flag">${legacy.flag}</div>`;
+        }
+
+        const capital = (flagEntry && flagEntry.capital) || (legacy && legacy.capital);
+        const population = (flagEntry && flagEntry.population) || (legacy && legacy.population);
+        const continent = (flagEntry && flagEntry.continent) || (legacy && legacy.continent);
+        const area = legacy && legacy.area;
+
         factsContent.innerHTML = `
-            <div class="fact-flag">${facts.flag}</div>
-            <div class="fact-row"><span class="fact-label">Capital</span><span class="fact-value">${facts.capital}</span></div>
-            <div class="fact-row"><span class="fact-label">Population</span><span class="fact-value">${facts.population}</span></div>
-            <div class="fact-row"><span class="fact-label">Area</span><span class="fact-value">${facts.area}</span></div>
-            <div class="fact-row"><span class="fact-label">Continent</span><span class="fact-value">${facts.continent}</span></div>
+            ${flagHtml}
+            ${capital ? `<div class="fact-row"><span class="fact-label">Capital</span><span class="fact-value">${capital}</span></div>` : ''}
+            ${population ? `<div class="fact-row"><span class="fact-label">Population</span><span class="fact-value">${population}</span></div>` : ''}
+            ${area ? `<div class="fact-row"><span class="fact-label">Area</span><span class="fact-value">${area}</span></div>` : ''}
+            ${continent ? `<div class="fact-row"><span class="fact-label">Continent</span><span class="fact-value">${continent}</span></div>` : ''}
         `;
     }
     factsModal.classList.add('active');
@@ -756,12 +820,16 @@ function switchMode(mode) {
     if (mode === 'daily') {
         gameTitle.textContent = 'Daily 3D Earthdle';
         endlessScoreEl.style.display = 'none';
+        difficultySelectorEl.style.display = 'none';
+        dailyCountdownEl.style.display = 'flex';
         resetGameState();
         setupDailyTarget();
         restoreProgress();
     } else {
         gameTitle.textContent = 'Endless Earthdle';
         endlessScoreEl.style.display = 'flex';
+        difficultySelectorEl.style.display = 'flex';
+        dailyCountdownEl.style.display = 'none';
         endlessRound = 1;
         endlessWins = 0;
         endlessStreak = 0;
@@ -1036,10 +1104,50 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     btn.addEventListener('click', () => switchDifficulty(btn.dataset.diff));
 });
 
+// --- Daily Reset & Cooldown (exact 00:00 local time) ---
+function getMsUntilLocalMidnight() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+}
+
+function formatCooldown(ms) {
+    const totalSec = Math.max(0, Math.floor(ms / 1000));
+    const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+    const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+    const s = String(totalSec % 60).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
+
+function updateCountdown() {
+    if (currentMode !== 'daily') return;
+    countdownTimerEl.textContent = formatCooldown(getMsUntilLocalMidnight());
+}
+
+// Detect the local date rollover and reset the daily game instantly at midnight,
+// even while the tab is left open (no reload needed).
+function checkMidnightReset() {
+    const todayStr = getLocalDateStr();
+    if (todayStr === TODAY_DATE_STR) return;
+    TODAY_DATE_STR = todayStr;
+    if (currentMode !== 'daily') return;
+    if (!COUNTRIES.length) return; // dataset not loaded yet
+    gameOver = false;
+    resetGameState();
+    setupDailyTarget();
+    toastEl.textContent = "New Daily Earthdle unlocked! Guess today's mystery country!";
+}
+
+setInterval(() => {
+    checkMidnightReset();
+    updateCountdown();
+}, 1000);
+updateCountdown();
+
 // --- Init ---
 loadSettings();
 loadStats();
 loadAchievements();
+fetchFlagsData();
 initGlobe();
 setupDynamicResize();
 fetchGeoJsonDataset();

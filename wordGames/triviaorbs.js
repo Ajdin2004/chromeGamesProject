@@ -382,6 +382,11 @@ function beginRound(mode, questions) {
     runStreak: 0,         // consecutive correct within this round
     answered: false
   };
+  // The round & results screens live inside #screen-daily. If the player
+  // started an Endless round from the Endless tab, that section is hidden, so
+  // switch to the daily tab first (idempotent for daily rounds) to make the
+  // active round actually visible on screen.
+  showTab('daily');
   showScreen('screen-round');
   renderQuestion();
 }
