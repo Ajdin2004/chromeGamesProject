@@ -578,6 +578,59 @@
             }
         }
 
+        .shelf-track {
+            cursor: grab;
+        }
+
+        .shelf-track.is-dragging {
+            cursor: grabbing;
+            scroll-snap-type: none;
+            scroll-behavior: auto;
+            user-select: none;
+        }
+
+        .shelf-track.is-dragging .game-card.tile {
+            pointer-events: none;
+        }
+
+        /* --- Shelf Nav Buttons --- */
+        .shelf-nav {
+            margin-left: auto;
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .shelf-nav-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .shelf-nav-btn:hover {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            background: rgba(0, 242, 254, 0.08);
+        }
+
+        .shelf-nav-btn:disabled {
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        @media (max-width: 700px) {
+            .shelf-nav { display: none; }
+        }
+
+        /* --- Compact Game Tile --- */
         /* --- Compact Game Tile --- */
         .game-card.tile {
             scroll-snap-align: start;
@@ -1969,7 +2022,7 @@
                 <span class="tech-badge"><i class="fa-brands"></i>Netlify</span>
             </div>
             <p class="footer-credit">Chromium Games · Browser arcade powered by boredom · Built by Ajdin · <span id="footer-year"></span></p>
-            <p class="footer-version">v1.4.0 · Beta</p>
+            <p class="footer-version">v1.4.5 · Beta</p>
         </footer>
     </div>
 
@@ -2285,7 +2338,13 @@
                 const sec = document.createElement('section');
                 sec.className = 'shelf';
                 sec.innerHTML = `
-                    <div class="shelf-head"><i class="fa-solid ${sh.icon}"></i> ${sh.title} <span class="shelf-count">${games.length}</span></div>
+                    <div class="shelf-head">
+                        <i class="fa-solid ${sh.icon}"></i> ${sh.title} <span class="shelf-count">${games.length}</span>
+                        <div class="shelf-nav">
+                            <button class="shelf-nav-btn" data-dir="-1" title="Scroll back" aria-label="Scroll ${sh.title} back"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="shelf-nav-btn" data-dir="1" title="Scroll forward" aria-label="Scroll ${sh.title} forward"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
                     <div class="shelf-track"></div>`;
                 const track = sec.querySelector('.shelf-track');
                 games.forEach(g => {
@@ -2303,6 +2362,156 @@
             const p = normalizePath(href);
             return GAMES.find(g => normalizePath(g.href) === p);
         }
+
+        /* ============================================================
+           SHELF DRAG / SWIPE GESTURES
+           Pointer-based drag-to-scroll on every .shelf-track with
+           momentum inertia. Native touch panning is left alone;
+           mouse/pen drags are handled here. Clicks are suppressed
+           when the gesture moved, so tiles don't open accidentally.
+           ============================================================ */
+        const DRAG_THRESHOLD = 6;   // px before a drag registers
+        const MOMENTUM_DECAY = 0.965; // slower decay = longer glide
+        const MOMENTUM_BOOST = 2.2;  // multiplies release velocity for a bigger fling
+
+        function setupShelfGestures(track) {
+            if (track.dataset.gesturesBound) return;
+            track.dataset.gesturesBound = 'true';
+
+            let pointerId = null;
+            let startX = 0;
+            let startY = 0;
+            let startScroll = 0;
+            let lastX = 0;
+            let lastT = 0;
+            let velocity = 0;
+            let dragging = false;
+            let moved = false;
+            let raf = 0;
+
+            function momentum() {
+                if (!dragging && Math.abs(velocity) > 0.2) {
+                    track.scrollLeft -= velocity;
+                    velocity *= MOMENTUM_DECAY;
+                    raf = requestAnimationFrame(momentum);
+                }
+            }
+
+            function stopMomentum() {
+                cancelAnimationFrame(raf);
+                raf = 0;
+            }
+
+            track.addEventListener('pointerdown', (e) => {
+                // Only mouse/pen; touch uses native scrolling/panning
+                if (e.pointerType === 'touch') return;
+                if (e.button !== 0) return;
+                pointerId = e.pointerId;
+                dragging = false;
+                moved = false;
+                stopMomentum();
+                startX = lastX = e.clientX;
+                startY = e.clientY;
+                startScroll = track.scrollLeft;
+                lastT = performance.now();
+                velocity = 0;
+            });
+
+            track.addEventListener('pointermove', (e) => {
+                if (pointerId === null || e.pointerId !== pointerId) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                if (!dragging) {
+                    if (Math.abs(dx) < DRAG_THRESHOLD) return;
+                    // If the gesture is more vertical than horizontal, let it be
+                    if (Math.abs(dy) > Math.abs(dx)) { pointerId = null; return; }
+                    dragging = true;
+                    moved = true;
+                    track.classList.add('is-dragging');
+                    track.setPointerCapture(pointerId);
+                }
+
+                const now = performance.now();
+                const dt = Math.max(1, now - lastT);
+                velocity = (e.clientX - lastX) / dt * 16; // px per frame approx
+                lastX = e.clientX;
+                lastT = now;
+                track.scrollLeft = startScroll - dx;
+                e.preventDefault();
+            });
+
+            function endDrag(e) {
+                if (pointerId === null || (e && e.pointerId !== pointerId)) return;
+                pointerId = null;
+                if (dragging) {
+                    dragging = false;
+                    track.classList.remove('is-dragging');
+                    if (Math.abs(velocity) > 1) {
+                        velocity *= MOMENTUM_BOOST;
+                        momentum();
+                    }
+                }
+            }
+
+            track.addEventListener('pointerup', endDrag);
+            track.addEventListener('pointercancel', endDrag);
+            track.addEventListener('lostpointercapture', endDrag);
+
+            // Suppress accidental clicks on tiles after a drag gesture
+            track.addEventListener('click', (e) => {
+                if (moved) {
+                    moved = false;
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+
+            // Keep the nav buttons' disabled state in sync while scrolling
+            track.addEventListener('scroll', () => updateShelfNav(track), { passive: true });
+            // Nav button clicks cancel any inertial glide before stepping
+            track.addEventListener('shelfnavstep', stopMomentum);
+            updateShelfNav(track);
+        }
+
+        function updateShelfNav(track) {
+            const shelf = track.closest('.shelf');
+            if (!shelf) return;
+            const maxScroll = track.scrollWidth - track.clientWidth;
+            const prev = shelf.querySelector('.shelf-nav-btn[data-dir="-1"]');
+            const next = shelf.querySelector('.shelf-nav-btn[data-dir="1"]');
+            if (prev) prev.disabled = track.scrollLeft <= 1;
+            if (next) next.disabled = track.scrollLeft >= maxScroll - 1;
+        }
+
+        // Card-by-card scrolling via the shelf nav buttons
+        function bindShelfNavButtons() {
+            document.querySelectorAll('.shelf-nav-btn').forEach(btn => {
+                if (btn.dataset.navBound) return;
+                btn.dataset.navBound = 'true';
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const shelf = btn.closest('.shelf');
+                    const track = shelf && shelf.querySelector('.shelf-track');
+                    if (!track) return;
+                    const card = track.querySelector('.game-card.tile');
+                    const step = card ? card.offsetWidth + 16 : 251; // 1rem gap
+                    stopTrackMomentum(track);
+                    track.scrollBy({ left: step * Number(btn.dataset.dir), behavior: 'smooth' });
+                });
+            });
+        }
+
+        function stopTrackMomentum(track) {
+            // Cancel any inertial glide from a swipe before stepping
+            track.dispatchEvent(new CustomEvent('shelfnavstep'));
+        }
+
+        function bindAllShelves() {
+            document.querySelectorAll('.shelf-track').forEach(setupShelfGestures);
+            bindShelfNavButtons();
+        }
+        bindAllShelves();
 
         /* ============================================================
            SHARED HOVER EFFECT
@@ -3006,14 +3215,12 @@
                     if (g && g.badge === 'Daily') {
                         badge.textContent = 'Daily';
                         badge.className = 'badge daily';
+                    } else if (g && g.badge === 'Beta') {
+                        badge.textContent = 'Beta';
+                        badge.className = 'badge beta';
                     } else {
                         badge.remove();
                     }
-                }
-
-                if (badge === 'Beta'){
-                    badge.textContent = 'Beta';
-                    badge.className = 'badge beta';
                 }
             });
         }
