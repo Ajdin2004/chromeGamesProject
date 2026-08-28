@@ -1,11 +1,10 @@
-/* Riddler — Daily 7-letter word riddle validated against the Dictionary API */
+/* Riddler — Daily 7-letter word riddle game */
 
-const JSON_DATA_PATH = '../data/riddler_entries.json';
+const JSON_DATA_PATH = '../data/riddle_entries_356.json';
 const TODAY_DATE_STR = new Date().toISOString().slice(0, 10);
 const SEED = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
 const MAX_ATTEMPTS = 5;
 const SAVE_KEY = `riddler_save_${TODAY_DATE_STR}_v7`;
-const DICT_API = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
 const MAX_GUESS_LENGTH = 7;
 const MIN_GUESS_LENGTH = 5;
 
@@ -38,18 +37,14 @@ function setMessage(text, type = 'info') {
 }
 
 async function isValidDictionaryWord(word) {
+    // Dictionary API (dictionaryapi.dev) does not support CORS for browser requests,
+    // so we validate words locally by checking they contain only letters.
     const key = word.toUpperCase();
     if (dictCache[key] !== undefined) return dictCache[key];
 
-    try {
-        const res = await fetch(`${DICT_API}${encodeURIComponent(word.toLowerCase())}`);
-        const valid = res.ok;
-        dictCache[key] = valid;
-        return valid;
-    } catch (e) {
-        dictCache[key] = true;
-        return true;
-    }
+    const valid = /^[A-Z]+$/.test(key) && key.length >= MIN_GUESS_LENGTH && key.length <= MAX_GUESS_LENGTH;
+    dictCache[key] = valid;
+    return valid;
 }
 
 // --- Daily Word Selection (7-letter, dictionary-verified) ---
@@ -254,6 +249,13 @@ async function initializeGame() {
 
     riddleTextEl.textContent = dailyEntry.clue;
     lengthBadgeEl.textContent = `${targetLength} letters`;
+
+    // Update mobile clue elements
+    const mobileRiddleTextEl = document.getElementById('mobile-riddle-text');
+    const mobileLengthBadgeEl = document.getElementById('mobile-length-badge');
+    if (mobileRiddleTextEl) mobileRiddleTextEl.textContent = dailyEntry.clue;
+    if (mobileLengthBadgeEl) mobileLengthBadgeEl.textContent = `${targetLength} letters`;
+
     initBoard();
     restoreProgress();
 

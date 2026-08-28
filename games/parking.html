@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Parking Mania</title>
+    <link rel="icon" type="image/png" href="https://a.storyblok.com/f/118112/3200x1440/65ff1ae54d/twingo_jaune.png/m/1536x0/filters:format(png)">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body {
+            background: #0b0d19;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: #f0f4f8;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 440px;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .back {
+            color: #f0f4f8;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .back:hover { color: #00f2fe; }
+        .title { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; }
+        .stats {
+            display: flex;
+            gap: 0.8rem;
+            background: rgba(255,255,255,0.04);
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.8rem;
+            align-items: center;
+        }
+        .stats i { color: #facc15; margin-right: 0.2rem; }
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255,255,255,0.04);
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.8rem;
+            margin-bottom: 0.6rem;
+        }
+        .volume-control i { color: #4facfe; }
+        .volume-control input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 70px;
+            height: 4px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.15);
+            outline: none;
+            cursor: pointer;
+        }
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00f2fe;
+            border: 2px solid #0b0d19;
+            box-shadow: 0 0 8px rgba(0,242,254,0.5);
+            cursor: pointer;
+        }
+        .volume-control input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #00f2fe;
+            border: 2px solid #0b0d19;
+            box-shadow: 0 0 8px rgba(0,242,254,0.5);
+            cursor: pointer;
+        }
+        .volume-control input[type="range"]::-moz-range-track {
+            height: 4px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.15);
+        }
+        .game-wrapper {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 242, 254, 0.12);
+            border: 1px solid rgba(255,255,255,0.06);
+            max-width: 440px;
+            width: 100%;
+            aspect-ratio: 400 / 600;
+            background: #101426;
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent;
+        }
+        .controls {
+            margin-top: 0.6rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+        .controls i { margin-right: 0.2rem; color: #4facfe; }
+        .shop-toggle {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #f0f4f8;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+        .shop-toggle:hover { background: #00f2fe22; color: #00f2fe; }
+        .shop-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .shop-overlay.open { display: flex; }
+        .shop-panel {
+            background: #141b2d;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 1.5rem;
+            max-width: 420px;
+            width: 92%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+        }
+        .shop-panel h2 { margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+        .shop-panel h2 i { color: #facc15; }
+        .close-shop { background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; }
+        .close-shop:hover { color: #fff; }
+        .section-header {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00f2fe;
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 800;
+        }
+        .vehicle-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 14px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: 0.2s;
+        }
+        .vehicle-card:hover { background: rgba(255,255,255,0.06); }
+        .vehicle-card .info { display: flex; align-items: center; gap: 0.8rem; }
+        .vehicle-card .color-dot {
+            width: 28px; height: 28px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .name { font-weight: 600; font-size: 0.9rem; }
+        .price { font-size: 0.75rem; color: #94a3b8; }
+        .price i { color: #facc15; margin-right: 0.2rem; }
+        .buy-btn {
+            background: #00f2fe22;
+            border: 1px solid #00f2fe44;
+            color: #00f2fe;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .buy-btn:hover { background: #00f2fe44; }
+        .buy-btn.owned { background: #22c55e22; border-color: #22c55e44; color: #22c55e; cursor: default; }
+        .buy-btn.equipped { background: #facc1522; border-color: #facc1544; color: #facc15; cursor: default; }
+        .achievement-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #141b2d;
+            border: 1px solid #facc1544;
+            border-radius: 16px;
+            padding: 0.6rem 1.4rem;
+            color: #facc15;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .achievement-toast.show { opacity: 1; }
+        .achievement-toast i { font-size: 1.2rem; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4facfe44; border-radius: 10px; }
+
+        /* Clean, Unobtrusive Mobile Touch Controls */
+        .touch-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: auto;
+            display: none;
+            z-index: 10;
+            touch-action: none;
+        }
+        @media (pointer: coarse), (max-width: 768px) {
+            .touch-layer { display: block; }
+        }
+        .touch-btn {
+            position: absolute;
+            pointer-events: auto;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            color: #00f2fe;
+            border-radius: 14px;
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            backdrop-filter: blur(6px);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .touch-btn:active, .touch-btn.pressed {
+            background: rgba(0, 242, 254, 0.4);
+            color: #fff;
+            transform: scale(0.92);
+        }
+        .touch-btn-left  { left: 12px;  bottom: 16px; }
+        .touch-btn-right { left: 82px;  bottom: 16px; }
+        .touch-btn-brake { right: 82px; bottom: 16px; border-color: rgba(239, 68, 68, 0.45); color: #ef4444; }
+        .touch-btn-gas   { right: 12px; bottom: 16px; border-color: rgba(34, 197, 94, 0.45); color: #22c55e; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+    <span class="title">Parking Mania</span>
+    <div class="stats">
+        <span><i class="fa-solid fa-coins"></i> <span id="currencyDisplay">0</span></span>
+        <button class="shop-toggle" id="shopToggle"><i class="fa-solid fa-warehouse"></i></button>
+    </div>
+</div>
+<div class="volume-control">
+    <i class="fa-solid fa-volume-high" id="volumeIcon"></i>
+    <input type="range" id="volumeSlider" min="0" max="100" value="80">
+</div>
+<div class="game-wrapper">
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+    <!-- Minimal Touch Overlay -->
+    <div class="touch-layer" id="touchLayer">
+        <button class="touch-btn touch-btn-left" id="tLeft"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="touch-btn touch-btn-right" id="tRight"><i class="fa-solid fa-arrow-right"></i></button>
+        <button class="touch-btn touch-btn-brake" id="tBrake"><i class="fa-solid fa-arrow-down"></i></button>
+        <button class="touch-btn touch-btn-gas" id="tGas"><i class="fa-solid fa-arrow-up"></i></button>
+    </div>
+</div>
+<div class="controls">
+    <span><i class="fa-solid fa-arrow-up"></i><i class="fa-solid fa-arrow-down"></i> Gas / Reverse</span>
+    <span><i class="fa-solid fa-arrow-left"></i><i class="fa-solid fa-arrow-right"></i> Steer</span>
+    <span><strong>Space</strong> Handbrake</span>
+    <span><strong>R</strong> Retry</span>
+</div>
+
+<!-- Garage Modal -->
+<div class="shop-overlay" id="garageOverlay">
+    <div class="shop-panel">
+        <h2><span><i class="fa-solid fa-warehouse"></i> Garage</span> <span><i class="fa-solid fa-coins"></i> <span id="garageCurrency">0</span> <button class="close-shop" id="closeShop"><i class="fa-solid fa-xmark"></i></button></span></h2>
+
+        <div class="section-header">Vehicle Skins</div>
+        <div id="garageList"></div>
+    </div>
+</div>
+
+<div class="achievement-toast" id="achievementToast"><i class="fa-solid fa-trophy"></i> <span id="achText">Achievement Unlocked!</span></div>
+    <script src="parking.js"></script>
+</body>
+</html>

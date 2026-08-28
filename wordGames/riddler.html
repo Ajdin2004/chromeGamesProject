@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riddler | Chromium Games</title>
-    <link rel="icon" type="image/png" href="https://png.pngtree.com/recommend-works/png-clipart/20241224/ourmid/pngtree-red-question-mark-symbol-png-image_14540396.png">
+    <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/en/6/68/Riddler.png?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -94,6 +94,10 @@
             gap: 1.25rem;
         }
 
+        .mobile-clue-display {
+            display: none;
+        }
+
         .panel-label {
             font-size: clamp(0.75rem, 0.9vw, 0.95rem);
             color: var(--text-muted);
@@ -140,6 +144,7 @@
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
+            overflow: hidden;
         }
 
         .board-grid {
@@ -257,6 +262,215 @@
         @media (max-width: 900px) {
             .layout { grid-template-columns: 1fr; }
         }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0.75rem;
+                align-items: stretch;
+            }
+
+            .header-bar {
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .back-btn {
+                font-size: 0.9rem;
+                padding: 0.4rem 0;
+            }
+
+            .page-title {
+                font-size: 1.4rem;
+                margin-left: auto;
+            }
+
+            .layout {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            /* Reorder: board first, riddle panel last */
+            .board-panel {
+                order: 1;
+            }
+
+            .riddle-panel {
+                order: 2;
+                gap: 0.75rem;
+            }
+
+            /* Show mobile clue display above guesses */
+            .mobile-clue-display {
+                display: block;
+                background: rgba(2, 12, 28, 0.85);
+                border: 1px solid rgba(0, 242, 254, 0.2);
+                border-radius: 14px;
+                padding: 0.85rem 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .mobile-clue-badge {
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--text-muted);
+                font-weight: 700;
+                margin-bottom: 0.4rem;
+            }
+
+            .mobile-clue-text {
+                font-size: 1rem;
+                line-height: 1.5;
+                color: var(--text-main);
+                margin-bottom: 0.5rem;
+            }
+
+            .mobile-length-badge {
+                display: inline-flex;
+            }
+
+            .mobile-length-badge span {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.6rem;
+                border-radius: 999px;
+                font-weight: 700;
+                background: rgba(0, 242, 254, 0.12);
+                color: var(--primary-cyan);
+            }
+
+            /* Hide original riddle card on mobile */
+            .riddle-card {
+                display: none;
+            }
+
+            .panel {
+                border-radius: 16px;
+                padding: 1rem;
+                width: 100%;
+            }
+
+            .riddle-clue {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+
+            .status-row {
+                margin-bottom: 0.75rem;
+            }
+
+            .badge {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.6rem;
+            }
+
+            .hint-panel {
+                padding: 0.75rem;
+                border-radius: 12px;
+            }
+
+            .hint-row {
+                font-size: 0.8rem;
+            }
+
+            .board-grid {
+                gap: 0.35rem;
+                margin-bottom: 1rem;
+                max-width: 100%;
+            }
+
+            .board-row {
+                gap: 0.25rem;
+            }
+
+            .tile {
+                width: auto;
+                height: auto;
+                font-size: clamp(0.9rem, 3.5vw, 1.5rem);
+                border-radius: 8px;
+            }
+
+            .tile.empty {
+                border-width: 1px;
+            }
+
+            .guess-form {
+                gap: 0.5rem;
+                flex-direction: column;
+            }
+
+            .guess-input {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+                border-radius: 12px;
+                width: 100%;
+                min-width: unset;
+            }
+
+            .guess-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.95rem;
+                border-radius: 12px;
+                width: 100%;
+            }
+
+            .message {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+                min-height: 2.5rem;
+                border-radius: 12px;
+            }
+
+            .panel-label {
+                font-size: 0.7rem;
+            }
+
+            /* Hide on-screen keyboard on mobile */
+            #keyboard {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 380px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .panel {
+                padding: 0.75rem;
+            }
+
+            .riddle-card {
+                padding: 0.75rem;
+            }
+
+            .riddle-clue {
+                font-size: 0.9rem;
+            }
+
+            .board-row {
+                gap: 0.2rem;
+            }
+
+            .tile {
+                width: auto;
+                height: auto;
+                font-size: clamp(0.75rem, 3vw, 1.2rem);
+                border-radius: 6px;
+            }
+
+            .guess-input {
+                padding: 0.65rem 0.75rem;
+                font-size: 0.9rem;
+            }
+
+            .guess-button {
+                padding: 0.65rem 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -283,6 +497,11 @@
         </section>
 
         <section class="panel board-panel">
+            <div class="mobile-clue-display">
+                <div class="mobile-clue-badge">Today's clue</div>
+                <p id="mobile-riddle-text" class="mobile-clue-text">Solve the riddle to reveal the secret word.</p>
+                <div class="mobile-length-badge"><span id="mobile-length-badge">7 letters</span></div>
+            </div>
             <div class="panel-label">Your Guesses</div>
             <div id="board" class="board-grid"></div>
             <div class="hint-panel">
