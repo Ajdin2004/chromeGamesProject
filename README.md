@@ -31,6 +31,7 @@ Brain-teasing puzzles and daily challenges:
 - **TuneTile:** Music-based puzzle integration.
 - **Riddler:** Daily logic and word riddles.
 - **Trivia Orbs:** A cozy daily trivia game powered by the Open Trivia Database — 10 shared questions per day, orb currency, streak freezes, orb-priced lifelines (50/50, Hint, Skip), plus an Endless practice mode with category/difficulty pickers and a Wordle-style share grid. Questions are proxied through `/api/trivia` (`netlify/functions/trivia.js`) for caching/rate-limit protection, with a direct-API fallback.
+- **Typing Rush:** Type progressively harder dictionary words (12 escalating difficulty tiers) before the per-word clock runs out. Rush mode adds 3 lives, combos and time bonuses; Practice mode is a relaxed WPM trainer.
 
 ## 🎨 Hub Features
 

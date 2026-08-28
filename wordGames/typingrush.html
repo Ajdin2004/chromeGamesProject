@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Typing Rush | Chromium Games</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230b0d19'/><rect x='14' y='28' width='14' height='14' rx='3' fill='%2322d3ee'/><rect x='33' y='28' width='14' height='14' rx='3' fill='%2322d3ee'/><rect x='52' y='28' width='14' height='14' rx='3' fill='%2322d3ee'/><rect x='71' y='28' width='14' height='14' rx='3' fill='%2322d3ee'/><rect x='14' y='48' width='14' height='14' rx='3' fill='%237c3aed'/><rect x='33' y='48' width='14' height='14' rx='3' fill='%237c3aed'/><rect x='52' y='48' width='14' height='14' rx='3' fill='%237c3aed'/><rect x='71' y='48' width='14' height='14' rx='3' fill='%237c3aed'/><rect x='14' y='68' width='14' height='14' rx='3' fill='%23a78bfa'/><rect x='33' y='68' width='14' height='14' rx='3' fill='%23a78bfa'/><rect x='52' y='68' width='14' height='14' rx='3' fill='%23a78bfa'/><rect x='71' y='68' width='14' height='14' rx='3' fill='%23a78bfa'/></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0d19;
+            --card-bg: rgba(22, 27, 46, 0.85);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --violet: #7c3aed;
+            --violet-soft: #a78bfa;
+            --cyan: #22d3ee;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(900px 480px at 12% -10%, rgba(124, 58, 237, 0.24), transparent 62%),
+                radial-gradient(820px 460px at 108% 112%, rgba(34, 211, 238, 0.16), transparent 62%);
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 720px;
+            margin-bottom: 1rem;
+        }
+        .back-btn {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s ease;
+        }
+        .back-btn:hover { color: var(--cyan); }
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            background: linear-gradient(90deg, var(--violet-soft), var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-actions { display: flex; gap: 0.5rem; }
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .icon-btn.off { color: var(--text-muted); opacity: 0.55; }
+        .game-card {
+            width: min(720px, 100%);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 1.4rem 1.5rem 1.6rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .hud-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 0.55rem 0.3rem;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hud-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            display: block;
+        }
+        .hud-num {
+            font-size: 1.25rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1.2;
+        }
+        .hud-num.score { color: var(--cyan); }
+        .hud-num.best { color: #facc15; }
+        .hud-num.combo { color: var(--violet-soft); }
+        .hud-num.tier { color: #fb923c; }
+        .hud-num.words { color: #4ade80; }
+
+        .lives-row {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 0.7rem;
+            min-height: 1.6rem;
+        }
+        .lives-row.hidden { visibility: hidden; }
+        .hearts { display: flex; gap: 6px; font-size: 1.15rem; }
+        .hearts i.filled { color: #f43f5e; text-shadow: 0 0 12px rgba(244, 63, 94, 0.7); }
+        .hearts i.empty { color: rgba(255, 255, 255, 0.14); }
+
+        .mode-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.22rem 0.8rem;
+            border-radius: 99px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .mode-tag.rush { background: rgba(244, 63, 94, 0.16); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.35); }
+        .mode-tag.practice { background: rgba(74, 222, 128, 0.14); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.35); }
+
+        .word-area {
+            position: relative;
+            width: 100%;
+            margin-top: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .word-tiles {
+            display: flex;
+            justify-content: center;
+            flex-wrap: nowrap;
+            gap: 6px;
+            min-height: 64px;
+        }
+        .word-tile {
+            width: 50px;
+            height: 58px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.04);
+            transition: all 0.12s ease;
+        }
+        .word-tile.active {
+            border-color: var(--cyan);
+            box-shadow: 0 0 16px rgba(34, 211, 238, 0.35);
+            color: rgba(255, 255, 255, 0.92);
+            transform: translateY(-2px);
+        }
+        .word-tile.correct {
+            border-color: var(--correct);
+            background: var(--correct);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.5);
+        }
+        .word-tile.wrong {
+            border-color: var(--wrong);
+            background: var(--wrong);
+            color: #fff;
+        }
+        .word-tiles.len9 .word-tile { width: 42px; height: 52px; font-size: 1.45rem; }
+        .word-tiles.len12 .word-tile { width: 34px; height: 44px; font-size: 1.05rem; }
+
+        .score-float {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #4ade80;
+            pointer-events: none;
+            animation: floatUp 0.9s ease forwards;
+            text-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+            z-index: 5;
+        }
+        @keyframes floatUp {
+            from { opacity: 1; transform: translate(-50%, 0); }
+            to { opacity: 0; transform: translate(-50%, -34px); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-7px); }
+            40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.3s ease; }
+        .timer-wrap {
+            width: 100%;
+            max-width: 560px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 0.9rem;
+        }
+        .timer-wrap.practice { visibility: hidden; }
+        .timer-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--correct), #eab308);
+            transition: width 0.12s linear;
+        }
+        .timer-fill.danger { background: linear-gradient(90deg, #fbbf24, var(--wrong)); }
+
+        .feedback {
+            min-height: 2rem;
+            margin-top: 0.55rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--cyan);
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+        .feedback.bad { color: #fb7185; }
+
+        .keyboard {
+            width: 100%;
+            max-width: 640px;
+            margin-top: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .key-row { display: flex; justify-content: center; gap: 6px; }
+        .key {
+            min-width: 40px;
+            height: 46px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1.02rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.09s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .key:hover { background: rgba(255, 255, 255, 0.14); }
+        .key:active, .key.pressed { transform: scale(0.93); background: rgba(34, 211, 238, 0.28); }
+
+        .skip-btn {
+            margin-top: 0.9rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.3rem;
+            border-radius: 99px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .skip-btn:hover { color: #fff; border-color: #fb7185; background: rgba(244, 63, 94, 0.12); }
+
+        .key-capture {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            font-size: 16px;
+            border: 0;
+            padding: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(11, 13, 25, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+        }
+        .overlay.hidden { display: none; }
+        .overlay-card {
+            position: relative;
+            background: rgba(22, 27, 46, 0.98);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 580px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            animation: pop 0.25s ease;
+        }
+        @keyframes pop {
+            from { transform: scale(0.92); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .overlay-card h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--violet-soft), var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .overlay-card .subtitle {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin: 0.4rem 0 1rem;
+            line-height: 1.5;
+        }
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin: 0 0 1.3rem;
+        }
+        .mode-card {
+            border: 2px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1rem 0.9rem;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.15s ease;
+            text-align: left;
+        }
+        .mode-card h4 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .mode-card h4 i { margin-right: 0.4rem; }
+        .mode-card p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+        .mode-card.active {
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.08);
+            box-shadow: 0 0 22px rgba(34, 211, 238, 0.18);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--violet), var(--cyan));
+            border: none;
+            color: #fff;
+            padding: 0.85rem 2.4rem;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 26px rgba(124, 58, 237, 0.45);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-weight: 700;
+            padding: 0.75rem 1.6rem;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-ghost:hover { color: #fff; border-color: var(--cyan); }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
+            margin: 1.3rem 0;
+        }
+        .stat-cell {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 0.85rem 0.3rem;
+        }
+        .stat-num { display: block; font-size: 1.45rem; font-weight: 800; color: var(--cyan); }
+        .stat-label {
+            font-size: 0.66rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .newbest-badge {
+            display: inline-block;
+            margin-bottom: 0.4rem;
+            background: linear-gradient(135deg, #f59e0b, #f43f5e);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.35rem 1rem;
+            border-radius: 99px;
+            box-shadow: 0 4px 18px rgba(244, 63, 94, 0.45);
+            animation: pop 0.4s ease;
+        }
+
+        .best-line {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.1rem;
+        }
+        .best-line strong { color: #facc15; }
+
+        .go-actions {
+            display: flex;
+            gap: 0.7rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 26px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(22, 27, 46, 0.97);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.7rem 1.4rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            max-width: 90vw;
+            text-align: center;
+        }
+        .toast.show { opacity: 1; }
+
+        .foot-hint {
+            margin-top: 1.1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .foot-hint kbd {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 0.1rem 0.5rem;
+            font-family: inherit;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 560px) {
+            .game-card { padding: 1rem 0.9rem 1.2rem; }
+            .word-tile { width: 36px; height: 46px; font-size: 1.3rem; }
+            .word-tiles.len9 .word-tile { width: 32px; height: 42px; font-size: 1.1rem; }
+            .word-tiles.len12 .word-tile { width: 26px; height: 38px; font-size: 0.85rem; }
+            .hud { gap: 0.35rem; }
+            .key { min-width: 30px; height: 42px; font-size: 0.9rem; }
+            .mode-grid { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <span class="header-title">⌨ Typing Rush</span>
+        <div class="header-actions">
+            <button id="sound-btn" class="icon-btn" title="Toggle sound"><i class="fa-solid fa-volume-high"></i></button>
+            <button id="stats-btn" class="icon-btn" title="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
+        </div>
+    </div>
+
+    <div class="game-card">
+        <div class="hud">
+            <div class="hud-item"><span class="hud-label">Score</span><span id="score-val" class="hud-num score">0</span></div>
+            <div class="hud-item"><span class="hud-label">Best</span><span id="best-val" class="hud-num best">0</span></div>
+            <div class="hud-item"><span class="hud-label">Combo</span><span id="combo-val" class="hud-num combo">×1</span></div>
+            <div class="hud-item"><span class="hud-label">Tier</span><span id="tier-val" class="hud-num tier">1/12</span></div>
+            <div class="hud-item"><span class="hud-label">Words</span><span id="words-val" class="hud-num words">0</span></div>
+        </div>
+
+        <div class="lives-row" id="lives-row">
+            <span id="mode-tag" class="mode-tag rush">Rush</span>
+            <span class="hearts" id="lives-val"></span>
+        </div>
+
+        <div class="word-area" id="word-area">
+            <div class="word-tiles" id="word-tiles"></div>
+            <div class="timer-wrap" id="timer-wrap">
+                <div class="timer-fill" id="timer-fill"></div>
+            </div>
+            <div class="feedback" id="feedback">Ready when you are…</div>
+        </div>
+
+        <div class="keyboard" id="keyboard">
+            <div class="key-row">
+                <button class="key" data-key="q">Q</button>
+                <button class="key" data-key="w">W</button>
+                <button class="key" data-key="e">E</button>
+                <button class="key" data-key="r">R</button>
+                <button class="key" data-key="t">T</button>
+                <button class="key" data-key="y">Y</button>
+                <button class="key" data-key="u">U</button>
+                <button class="key" data-key="i">I</button>
+                <button class="key" data-key="o">O</button>
+                <button class="key" data-key="p">P</button>
+            </div>
+            <div class="key-row">
+                <button class="key" data-key="a">A</button>
+                <button class="key" data-key="s">S</button>
+                <button class="key" data-key="d">D</button>
+                <button class="key" data-key="f">F</button>
+                <button class="key" data-key="g">G</button>
+                <button class="key" data-key="h">H</button>
+                <button class="key" data-key="j">J</button>
+                <button class="key" data-key="k">K</button>
+                <button class="key" data-key="l">L</button>
+            </div>
+            <div class="key-row">
+                <button class="key" data-key="z">Z</button>
+                <button class="key" data-key="x">X</button>
+                <button class="key" data-key="c">C</button>
+                <button class="key" data-key="v">V</button>
+                <button class="key" data-key="b">B</button>
+                <button class="key" data-key="n">N</button>
+                <button class="key" data-key="m">M</button>
+            </div>
+        </div>
+
+        <button id="skip-btn" class="skip-btn"><i class="fa-solid fa-forward"></i> Skip Word</button>
+        <div class="foot-hint">Type on your keyboard or tap the on-screen keys · <kbd>Space</kbd> to skip</div>
+    </div>
+
+    <input id="key-capture" class="key-capture" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div id="toast" class="toast"></div>
+    <div id="start-overlay" class="overlay">
+        <div class="overlay-card">
+            <h2>Typing Rush</h2>
+            <p class="subtitle">Spell progressively harder words from the dictionary before the clock runs out. Every word gets longer, rarer, and faster — how far can you go?</p>
+            <div class="mode-grid">
+                <div class="mode-card active" data-mode="rush" id="mode-rush">
+                    <h4><i class="fa-solid fa-bolt" style="color:#f43f5e"></i>Rush</h4>
+                    <p>3 lives. Each word has a timer. Wrong key or timeout costs a heart — earn one back every 8 words. High scores count!</p>
+                </div>
+                <div class="mode-card" data-mode="practice" id="mode-practice">
+                    <h4><i class="fa-solid fa-mug-hot" style="color:#4ade80"></i>Practice</h4>
+                    <p>No timer, no lives. Relaxed typing at your own pace, still tracks words, accuracy and WPM.</p>
+                </div>
+            </div>
+            <button class="btn-primary" id="start-btn"><i class="fa-solid fa-play"></i> Start</button>
+        </div>
+    </div>
+
+    <div id="gameover-overlay" class="overlay hidden">
+        <div class="overlay-card">
+            <div id="go-newbest" class="newbest-badge hidden">★ New Best Score!</div>
+            <h2>Game Over</h2>
+            <div class="results-grid">
+                <div class="stat-cell"><span class="stat-num" id="go-score">0</span><span class="stat-label">Score</span></div>
+                <div class="stat-cell"><span class="stat-num" id="go-words">0</span><span class="stat-label">Words</span></div>
+                <div class="stat-cell"><span class="stat-num" id="go-tier">1/12</span><span class="stat-label">Best Tier</span></div>
+                <div class="stat-cell"><span class="stat-num" id="go-wpm">0</span><span class="stat-label">WPM</span></div>
+                <div class="stat-cell"><span class="stat-num" id="go-acc">100%</span><span class="stat-label">Accuracy</span></div>
+                <div class="stat-cell"><span class="stat-num" id="go-combo">×1</span><span class="stat-label">Combo</span></div>
+            </div>
+            <p class="best-line">Personal best: <strong id="go-best">0</strong></p>
+            <div class="go-actions">
+                <button class="btn-primary" id="playagain-btn"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+                <button class="btn-ghost" id="menu-btn"><i class="fa-solid fa-house"></i> Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="stats-modal" class="overlay hidden">
+        <div class="overlay-card">
+            <button id="stats-close" class="icon-btn" style="position:absolute;top:1rem;right:1rem" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            <h2>Statistics</h2>
+            <div class="results-grid">
+                <div class="stat-cell"><span class="stat-num" id="stat-games">0</span><span class="stat-label">Games</span></div>
+                <div class="stat-cell"><span class="stat-num" id="stat-best-score">0</span><span class="stat-label">Rush Best</span></div>
+                <div class="stat-cell"><span class="stat-num" id="stat-best-wpm">0</span><span class="stat-label">Best WPM</span></div>
+                <div class="stat-cell"><span class="stat-num" id="stat-best-tier">1</span><span class="stat-label">Best Tier</span></div>
+                <div class="stat-cell"><span class="stat-num" id="stat-combo">×1</span><span class="stat-label">Longest Combo</span></div>
+                <div class="stat-cell"><span class="stat-num" id="stat-acc">100%</span><span class="stat-label">Accuracy</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="typingrush.js"></script>
+</body>
+</html>
