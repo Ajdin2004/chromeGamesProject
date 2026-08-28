@@ -564,7 +564,9 @@
             grid-auto-columns: 235px;
             gap: 1rem;
             overflow-x: auto;
-            padding: 12px 4px 10px;
+            /* extra top room so the "New/Popular/Beta/Daily" badges that sit
+               on the cards' top edge aren't clipped by the scroll container */
+            padding: 16px 4px 10px;
             scroll-snap-type: x proximity;
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
@@ -573,8 +575,16 @@
         @media (max-width: 700px) {
             .shelf-track {
                 grid-auto-flow: row;
-                grid-template-columns: repeat(2, 1fr);
+                /* minmax(0,1fr) stops long titles forcing a column wider;
+                   grid-auto-rows:1fr makes every row the same height, so all
+                   shelves scale identically no matter how many games they hold */
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-auto-rows: 1fr;
                 overflow-x: visible;
+            }
+
+            .game-card.tile {
+                min-height: 165px;
             }
         }
 
@@ -645,6 +655,7 @@
             text-decoration: none;
             color: inherit;
             position: relative;
+            min-width: 0;
             animation: cardIn 0.35s ease backwards;
             transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
         }
@@ -659,7 +670,7 @@
             from { opacity: 0; transform: translateY(12px); }
         }
 
-        .tile-head { display: flex; align-items: center; gap: 0.7rem; }
+        .tile-head { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
 
         .tile-icon {
             width: 44px;
@@ -675,7 +686,14 @@
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .tile-head h3 { font-size: 1rem; font-weight: 700; line-height: 1.25; margin: 0; }
+        .tile-head h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.25;
+            margin: 0;
+            min-width: 0;
+            overflow-wrap: break-word;
+        }
 
         .tile-desc {
             font-size: 0.78rem;
@@ -1462,6 +1480,191 @@
             opacity: 0.5;
         }
 
+        /* --- FAQ Section --- */
+        .faq-section {
+            margin-top: 1.5rem;
+            padding: 1.5rem 3rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .faq-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 50%);
+            opacity: 0.06;
+            animation: aboutGlow 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .faq-section .section-heading {
+            justify-content: center;
+            position: relative;
+        }
+
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            max-width: 920px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, transform 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: var(--accent-cyan);
+            transform: translateX(4px);
+        }
+
+        .faq-item.open {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 242, 254, 0.04);
+            box-shadow: 0 0 18px rgba(0, 242, 254, 0.12);
+            transform: none;
+        }
+
+        .faq-question {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.9rem 1.1rem;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .faq-question i:not(.fa-chevron-down) {
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 6px var(--accent-cyan));
+        }
+
+        .faq-item:nth-child(5n+2) .faq-question i:not(.fa-chevron-down) { color: var(--primary-glow); filter: drop-shadow(0 0 6px var(--primary-glow)); }
+        .faq-item:nth-child(5n+3) .faq-question i:not(.fa-chevron-down) { color: var(--secondary-glow); filter: drop-shadow(0 0 6px var(--secondary-glow)); }
+        .faq-item:nth-child(5n+4) .faq-question i:not(.fa-chevron-down) { color: var(--star-color); filter: drop-shadow(0 0 6px var(--star-color)); }
+        .faq-item:nth-child(5n+5) .faq-question i:not(.fa-chevron-down) { color: #22c55e; filter: drop-shadow(0 0 6px #22c55e); }
+
+        .faq-question i.fa-chevron-down {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            transition: transform 0.25s ease, color 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-item.open .faq-question i.fa-chevron-down {
+            transform: rotate(180deg);
+            color: var(--accent-cyan);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer-inner {
+            margin: 0 1.1rem 1rem;
+            padding: 0.75rem 1rem;
+            border-left: 2px solid var(--accent-cyan);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0 10px 10px 0;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .faq-answer-inner strong { color: var(--text-main); }
+
+        .faq-answer-inner a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .faq-answer-inner a:hover { text-decoration: underline; }
+
+        /* Stretch the FAQ list on large screens */
+        @media (min-width: 1100px) {
+            .faq-list { max-width: 1080px; }
+            .faq-item { border-radius: 16px; }
+            .faq-question { font-size: 1.02rem; padding: 1rem 1.3rem; }
+            .faq-answer-inner { font-size: 0.9rem; }
+        }
+
+        @media (min-width: 1500px) {
+            .faq-list { max-width: 1280px; gap: 0.9rem; }
+            .faq-question { font-size: 1.08rem; padding: 1.1rem 1.5rem; }
+            .faq-answer-inner { font-size: 0.95rem; padding: 0.9rem 1.2rem; }
+        }
+
+        @media (max-width: 600px) {
+            .faq-section { padding: 1.5rem 1rem; }
+            .faq-question { padding: 0.8rem 0.9rem; }
+            .faq-answer-inner { margin: 0 0.9rem 0.9rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .faq-answer { transition: none; }
+            .faq-question i.fa-chevron-down { transition: none; }
+            .faq-item { transition: none; }
+            .faq-section::before { animation: none; }
+        }
+
+        /* --- Coming Soon --- */
+        .coming-soon-section {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px dashed var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+        }
+
+        .coming-soon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .coming-soon-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coming-soon-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-glow);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
         .coming-soon-card h4 {
             font-size: 1rem;
             color: var(--text-main);
@@ -1795,12 +1998,82 @@
             <p class="about-made-with">Made to cure boredom</p>
         </section>
 
+        <!-- FAQ Section -->
+        <section id="faq" class="faq-section" aria-label="Frequently Asked Questions">
+            <h2 class="section-heading"><i class="fa-solid fa-circle-question"></i> FAQ</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">
+                        <i class="fa-solid fa-circle-half-stroke"></i> Is Chromium Games free to play?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer"><div class="faq-answer-inner">
+                        Yes! Every game on the site is 100% free, with no accounts, downloads, or ads required. Just open a game and play.
+                    </div></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">
+                        <i class="fa-solid fa-database"></i> Where are my scores and favorites saved?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer"><div class="faq-answer-inner">
+                        Everything (high scores, favorites, play history, and theme) is stored locally in your browser's local storage — nothing is sent to a server. Clearing your browser data or using the <strong>Clear My Data</strong> button in the footer will erase it.
+                    </div></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">
+                        <i class="fa-solid fa-calendar-day"></i> How do the daily games work?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer"><div class="faq-answer-inner">
+                        Daily games like Wordle, Loldle, and Riddler give everyone the same puzzle each day and reset at midnight. Come back tomorrow for a brand-new challenge and keep your streak alive.
+                    </div></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">
+                        <i class="fa-solid fa-keyboard"></i> Are there keyboard shortcuts on this page?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer"><div class="faq-answer-inner">
+                        Yes — press <strong>/</strong> to jump into search, <strong>R</strong> to launch a random game, and <strong>Esc</strong> to close any open modal. The shelves also support drag-to-swipe scrolling, and each shelf has arrow buttons for card-by-card browsing.
+                    </div></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">
+                        <i class="fa-solid fa-trophy"></i> How does the leaderboard work?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer"><div class="faq-answer-inner">
+                        The leaderboard shows your personal bests for games that track scores, sorted and ranked in one place. Open it any time with the trophy button in the top bar. It's local to your device — there's no online ranking yet.
+                    </div></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">
+                        <i class="fa-solid fa-mobile-screen"></i> Does it work on mobile?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer"><div class="faq-answer-inner">
+                        Absolutely. The site is fully responsive, and most games support touch controls. On smaller screens the shelves switch to a 2-column grid instead of horizontal scrolling.
+                    </div></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" type="button" aria-expanded="false">
+                        <i class="fa-solid fa-bug"></i> Found a bug or have a game idea?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer"><div class="faq-answer-inner">
+                        Use the <strong>Report a Bug</strong> or <strong>Suggest a Game</strong> links in the footer — they open a pre-filled email. You can also open an issue on the <a href="https://github.com/Ajdin2004/chromeGamesProject" target="_blank" rel="noopener">GitHub repository</a>.
+                    </div></div>
+                </div>
+            </div>
+        </section>
+
         <!-- What's New / Changelog -->
         <section class="changelog-section">
             <h2 class="section-heading"><i class="fa-solid fa-fire"></i> What's New</h2>
             <ul class="changelog-list">
                 <li class="changelog-item">
-                    <span class="changelog-tag new">New Experimantal</span>
+                    <span class="changelog-tag new">Test</span>
                     <p><strong>Flight Simulator, Neon Horizon</strong> — These games are currently experimental and unstable test builds.</p>
                 </li>
                 <li class="changelog-item">
@@ -2022,7 +2295,7 @@
                 <span class="tech-badge"><i class="fa-brands"></i>Netlify</span>
             </div>
             <p class="footer-credit">Chromium Games · Browser arcade powered by boredom · Built by Ajdin · <span id="footer-year"></span></p>
-            <p class="footer-version">v1.4.5 · Beta</p>
+            <p class="footer-version">v1.5.6 · Beta</p>
         </footer>
     </div>
 
@@ -3319,6 +3592,43 @@
                 });
             });
         }
+
+        /* ============================================================
+           FAQ ACCORDION
+           ============================================================ */
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.closest('.faq-item');
+                const answer = item.querySelector('.faq-answer');
+                const isOpen = item.classList.contains('open');
+
+                // Close any other open item (one-at-a-time accordion)
+                document.querySelectorAll('.faq-item.open').forEach(other => {
+                    if (other === item) return;
+                    other.classList.remove('open');
+                    other.querySelector('.faq-answer').style.maxHeight = '';
+                    other.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+                });
+
+                if (isOpen) {
+                    item.classList.remove('open');
+                    answer.style.maxHeight = '';
+                    btn.setAttribute('aria-expanded', 'false');
+                } else {
+                    item.classList.add('open');
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+
+        // Recompute open answers' max-height when the viewport resizes
+        // (font sizes change across the FAQ breakpoints, which would clip)
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.faq-item.open .faq-answer').forEach(answer => {
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            });
+        });
 
         /* ============================================================
            INIT
