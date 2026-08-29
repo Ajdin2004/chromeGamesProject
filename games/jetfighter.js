@@ -24,9 +24,9 @@ resize();
 
 // Reduced airframe speeds by ~18% to slow down gameplay pace
 const AIRFRAMES = {
-    f16: { name: 'F-16 FALCON', speed: 6.0, turn: .052, hp: 85, missiles: 6, flares: 7, color: '#60a5fa' },
-    mig29: { name: 'MIG-29 FULCRUM', speed: 5.4, turn: .046, hp: 110, missiles: 7, flares: 8, color: '#a3e635' },
-    su27: { name: 'SU-27 FLANKER', speed: 4.9, turn: .038, hp: 145, missiles: 8, flares: 10, color: '#fbbf24' }
+    f16: { name: 'F-16 FALCON', speed: 8.9, turn: .092, hp: 85, missiles: 6, flares: 7, color: '#60a5fa' },
+    mig29: { name: 'MIG-29 FULCRUM', speed: 8.2, turn: .076, hp: 110, missiles: 7, flares: 8, color: '#a3e635' },
+    su27: { name: 'SU-27 FLANKER', speed: 7.6, turn: .068, hp: 145, missiles: 8, flares: 10, color: '#fbbf24' }
 };
 
 // Math Helpers
@@ -81,9 +81,9 @@ let state = 'select', paused = false, selected = 'f16', player = null;
 let wave = 1, score = 0, kills = 0;
 let highScore = parseInt(localStorage.getItem('jetfighter_highscore') || '0', 10);
 let enemies = [], bases = [], bullets = [], missiles = [], flares = [], particles = [], crates = [], terrain = [];
-let keys = {}, frame = 0, spawnTimer = 0, waveTimer = 0, banner = '', bannerTimer = 0, shake = 0, lastLock = null, warningTick = 0;
-const cam = { x: 0, y: 0 };
-const friendlyAirfield = { x: WORLD / 2, y: WORLD - 650, angle: -Math.PI / 2 };
+let keys = {}, frame = 0, spawnTimer = 0, waveTimer = 0, banner = '', bannerTimer = 0, shake = 0, lastLock = null, warningTick = 0, radarTick = 0, radarSpike = false;
+const cam = { x: 0, y: 0, zoom: 1 };
+let friendlyAirfield = { x: WORLD / 2, y: WORLD - 650, angle: -Math.PI / 2 };
 const touch = { stick: null, dx: 0, dy: 0, cannon: false };
 
 // --- Entity Generation ---
@@ -111,12 +111,13 @@ function newAircraft(type, x, y, enemy = false) {
     return {
         type, x, y,
         angle: enemy ? rnd(0, TAU) : -Math.PI / 2,
-        speed: enemy ? s.speed * .72 : 2.5,
+        speed: enemy ? s.speed * .55 : 2.5,
         throttle: .55,
         hp: s.hp, maxHp: s.hp,
         r: 18, enemy,
         fire: 0, missile: 0, flare: 0,
         missiles: s.missiles, flares: s.flares,
+        flareRegen: 0,
         dead: false, contrail: 0,
         // AI specific attributes
         tracking: false,
@@ -129,7 +130,7 @@ function safeLocation(min = 1000) {
     do {
         p = { x: rnd(500, WORLD - 500), y: rnd(500, WORLD - 500) };
         tries++;
-    } while (player && dist(p, player) < min && tries < 40);
+    } while (tries < 40 && ((player && dist(p, player) < min) || dist(p, friendlyAirfield) < min + 300));
     return p;
 }
 
@@ -149,7 +150,7 @@ function spawnEnemy(source) {
     
     e.hp *= boost;
     e.maxHp = e.hp;
-    e.speed *= Math.min(1.45, boost);
+    e.speed *= Math.min(1.18, boost);
     e.angle = Math.atan2(player.y - e.y, player.x - e.x);
     e.wanderAngle = e.angle;
     e.missile = rnd(200, 450);
@@ -161,10 +162,15 @@ function startGame() {
     initAudio();
     wave = 1; score = 0; kills = 0; frame = 0;
     enemies = []; bases = []; bullets = []; missiles = []; flares = []; particles = []; crates = [];
+    // Randomize friendly airfield location each mission, kept clear of the map edges
+    friendlyAirfield.x = rnd(1100, WORLD - 1100);
+    friendlyAirfield.y = rnd(1100, WORLD - 1100);
+
     makeTerrain();
-    
+
     player = newAircraft(selected, friendlyAirfield.x, friendlyAirfield.y);
     player.angle = friendlyAirfield.angle;
+    cam.zoom = 1;
     
     state = 'playing';
     paused = false;
@@ -270,8 +276,8 @@ function launch(a, target) {
     a.missiles--;
     a.missile = 90;
     Sound.missile();
-    // Adjusted initial missile speed
-    missiles.push({ x: a.x, y: a.y, px: a.x, py: a.y, angle: a.angle, speed: 6.5, target, enemy: a.enemy, life: 300, owner: a });
+    // Adjusted initial missile speed (dodgeable)
+    missiles.push({ x: a.x, y: a.y, px: a.x, py: a.y, angle: a.angle, speed: 5.5, target, enemy: a.enemy, life: 300, owner: a });
     shake = 3;
     return true;
 }
@@ -318,6 +324,16 @@ function updatePlayer() {
     
     if (keys[' '] || touch.cannon) shoot(player);
     
+    // Flares regenerate slowly over time (1 every 5 seconds up to airframe max)
+    player.flareRegen++;
+    if (player.flareRegen >= 300) {
+        player.flareRegen = 0;
+        if (player.flares < s.flares) {
+            player.flares++;
+            Sound.pickup();
+        }
+    }
+    
     [player, ...enemies].forEach(a => {
         a.fire = Math.max(0, a.fire - 1);
         a.missile = Math.max(0, a.missile - 1);
@@ -361,7 +377,7 @@ function updateEnemies() {
         
         // Apply steering
         e.angle = turnToward(e.angle, desiredAngle, s.turn * (.65 + wave * .025));
-        e.speed += (s.speed * (.65 + Math.min(.3, wave * .025)) - e.speed) * .02;
+        e.speed += (s.speed * (.5 + Math.min(.22, wave * .02)) - e.speed) * .02;
         e.x += Math.cos(e.angle) * e.speed;
         e.y += Math.sin(e.angle) * e.speed;
         
@@ -412,23 +428,51 @@ function updateWeapons() {
         
         if (m.target && (m.target.dead || (m.target.owner && m.target.life <= 0))) m.target = null;
         
-        // Flare decoy logic
+        // Flare decoy logic (generous so missiles can be shaken off)
         if (m.target) {
-            const decoy = flares.filter(f => f.owner === m.target && dist(f, m) < 180);
-            if (decoy.length && Math.random() < .12) m.target = decoy[Math.floor(Math.random() * decoy.length)];
+            const decoy = flares.filter(f => f.owner === m.target && dist(f, m) < 280);
+            if (decoy.length && Math.random() < .22) m.target = decoy[Math.floor(Math.random() * decoy.length)];
         }
         
-        // Missile steering
+        // Cross-path acquisition: a missile can lock onto any aircraft it crosses paths with
+        const pool = m.enemy ? [player, ...enemies.filter(e => e !== m.owner && !e.dead)] : enemies.filter(e => !e.dead);
+        const crossed = pool.find(t => !t.dead && t !== m.target && dist(m, t) < 46);
+        if (crossed) m.target = crossed;
+        // Homeless missiles acquire the nearest aircraft in range
+        if (!m.target) {
+            let best = null, bd = 420;
+            pool.forEach(t => {
+                if (!t.dead) {
+                    const d = dist(m, t);
+                    if (d < bd) { best = t; bd = d; }
+                }
+            });
+            m.target = best;
+        }
+        
+        // Missile steering — limited turn rate so a fast-turning pilot can outmaneuver it
         if (m.target) {
             const desired = Math.atan2(m.target.y - m.y, m.target.x - m.x);
-            m.angle = turnToward(m.angle, desired, .065);
+            m.angle = turnToward(m.angle, desired, .042);
         }
         
-        m.speed = Math.min(11.5, m.speed + .055); // Adjusted max missile speed
+        m.speed = Math.min(9.2, m.speed + .04); // Dodgeable missile speed
         m.x += Math.cos(m.angle) * m.speed;
         m.y += Math.sin(m.angle) * m.speed;
         
-        particles.push({ x: m.x, y: m.y, px: m.px, py: m.py, vx: 0, vy: 0, life: 22, max: 22, color: '#d9e8e8', size: 3 });
+        particles.push({
+            x: m.x, y: m.y, px: m.px, py: m.py, vx: 0, vy: 0,
+            life: m.enemy ? 30 : 22, max: m.enemy ? 30 : 22,
+            color: m.enemy ? '#ff8c2e' : '#d9e8e8', size: m.enemy ? 5 : 3
+        });
+        // Extra smoke puffs behind enemy missiles so they stand out
+        if (m.enemy && frame % 3 === 0) {
+            particles.push({
+                x: m.x - Math.cos(m.angle) * 10, y: m.y - Math.sin(m.angle) * 10,
+                px: m.x, py: m.y, vx: rnd(-.4, .4), vy: rnd(-.4, .4),
+                life: 40, max: 40, color: 'rgba(255,120,40,.7)', size: rnd(3, 6)
+            });
+        }
         
         // Missile impact
         if (m.target && dist(m, m.target) < (m.target.r || 5) + 8) {
@@ -501,6 +545,14 @@ function updateWorld() {
         warningTick = frame;
     }
     
+    // Radar Lock Warning — enemy aircraft pointing at the player
+    radarSpike = enemies.some(e => !e.dead && dist(e, player) < 1300 &&
+        Math.abs(angleDiff(Math.atan2(player.y - e.y, player.x - e.x), e.angle)) < .12);
+    if (radarSpike && frame - radarTick > 50) {
+        Sound.broken();
+        radarTick = frame;
+    }
+    
     if (player.hp <= 0) {
         state = 'gameover';
         saveBest();
@@ -534,11 +586,17 @@ function update() {
     bannerTimer = Math.max(0, bannerTimer - 1);
     shake *= .88;
     
-    // Camera follow
-    cam.x += (player.x - W / 2 - cam.x) * .1;
-    cam.y += (player.y - H / 2 - cam.y) * .1;
-    cam.x = clamp(cam.x, 0, Math.max(0, WORLD - W));
-    cam.y = clamp(cam.y, 0, Math.max(0, WORLD - H));
+    // Camera follow — cam is the top-left corner of the (possibly zoomed-out) viewport
+    const vw = W / cam.zoom, vh = H / cam.zoom;
+    cam.x += (player.x - vw / 2 - cam.x) * .1;
+    cam.y += (player.y - vh / 2 - cam.y) * .1;
+    cam.x = clamp(cam.x, 0, Math.max(0, WORLD - vw));
+    cam.y = clamp(cam.y, 0, Math.max(0, WORLD - vh));
+    
+    // Camera zooms out as the player goes faster
+    const maxSpeed = AIRFRAMES[player.type].speed;
+    const targetZoom = clamp(1.08 - (player.speed / maxSpeed) * .36, .72, 1.08);
+    cam.zoom += (targetZoom - cam.zoom) * .04;
     
     // Lock-on Tone
     const lock = acquireTarget(player, false);
@@ -550,22 +608,23 @@ function update() {
 // --- Rendering ---
 
 function visible(o, pad = 100) {
-    return o.x > cam.x - pad && o.x < cam.x + W + pad && o.y > cam.y - pad && o.y < cam.y + H + pad;
+    const vw = W / cam.zoom, vh = H / cam.zoom;
+    return o.x > cam.x - pad && o.x < cam.x + vw + pad && o.y > cam.y - pad && o.y < cam.y + vh + pad;
 }
 
 function drawTerrain() {
     ctx.fillStyle = '#789451';
-    ctx.fillRect(cam.x - 20, cam.y - 20, W + 40, H + 40);
+    ctx.fillRect(cam.x - 20, cam.y - 20, W / cam.zoom + 40, H / cam.zoom + 40);
     
     // Draw Grid
     const grid = 180;
     ctx.strokeStyle = 'rgba(45,72,38,.16)';
     ctx.lineWidth = 1;
-    for (let x = Math.floor(cam.x / grid) * grid; x < cam.x + W; x += grid) {
-        ctx.beginPath(); ctx.moveTo(x, cam.y); ctx.lineTo(x, cam.y + H); ctx.stroke();
+    for (let x = Math.floor(cam.x / grid) * grid; x < cam.x + W / cam.zoom; x += grid) {
+        ctx.beginPath(); ctx.moveTo(x, cam.y); ctx.lineTo(x, cam.y + H / cam.zoom); ctx.stroke();
     }
-    for (let y = Math.floor(cam.y / grid) * grid; y < cam.y + H; y += grid) {
-        ctx.beginPath(); ctx.moveTo(cam.x, y); ctx.lineTo(cam.x + W, y); ctx.stroke();
+    for (let y = Math.floor(cam.y / grid) * grid; y < cam.y + H / cam.zoom; y += grid) {
+        ctx.beginPath(); ctx.moveTo(cam.x, y); ctx.lineTo(cam.x + W / cam.zoom, y); ctx.stroke();
     }
     
     terrain.filter(t => visible(t, 700)).forEach(t => {
@@ -629,16 +688,78 @@ function drawTerrain() {
 function jetPath(type) {
     ctx.beginPath();
     if (type === 'f16') {
-        ctx.moveTo(29, 0); ctx.lineTo(7, -6); ctx.lineTo(-3, -23); ctx.lineTo(-10, -22); ctx.lineTo(-7, -7); ctx.lineTo(-24, -4); 
-        ctx.lineTo(-24, 4); ctx.lineTo(-7, 7); ctx.lineTo(-10, 22); ctx.lineTo(-3, 23); ctx.lineTo(7, 6); ctx.lineTo(29, 0);
+        // F-16 Fighting Falcon — slender chined fuselage, cropped delta wing, single tail, small stabilators
+        ctx.moveTo(31, 0);
+        ctx.lineTo(20, -2.2);   // nose chine
+        ctx.lineTo(11, -3.4);   // cockpit section
+        ctx.lineTo(6, -4.4);    // wing root leading edge
+        ctx.lineTo(-7, -16.5);  // ~40° swept leading edge
+        ctx.lineTo(-13, -16);   // cropped wingtip
+        ctx.lineTo(-8, -5.5);   // forward-swept trailing edge
+        ctx.lineTo(-20, -4.2);  // aft fuselage
+        ctx.lineTo(-27, -10.5); // stabilator leading edge
+        ctx.lineTo(-30.5, -9.5);
+        ctx.lineTo(-26, -3);
+        ctx.lineTo(-26, 3);
+        ctx.lineTo(-30.5, 9.5);
+        ctx.lineTo(-27, 10.5);
+        ctx.lineTo(-20, 4.2);
+        ctx.lineTo(-8, 5.5);
+        ctx.lineTo(-13, 16);
+        ctx.lineTo(-7, 16.5);
+        ctx.lineTo(6, 4.4);
+        ctx.lineTo(11, 3.4);
+        ctx.lineTo(20, 2.2);
+        ctx.closePath();
     } else if (type === 'mig29') {
-        ctx.moveTo(30, 0); ctx.lineTo(8, -7); ctx.lineTo(-4, -25); ctx.lineTo(-13, -22); ctx.lineTo(-9, -8); ctx.lineTo(-25, -12); 
-        ctx.lineTo(-22, -3); ctx.lineTo(-22, 3); ctx.lineTo(-25, 12); ctx.lineTo(-9, 8); ctx.lineTo(-13, 22); ctx.lineTo(-4, 25); ctx.lineTo(8, 7);
+        // MiG-29 Fulcrum — wide lifting body, LERX blending into wing, big tail surfaces, twin fins
+        ctx.moveTo(29, 0);
+        ctx.lineTo(18, -3);
+        ctx.lineTo(10, -4.2);   // LERX start
+        ctx.lineTo(3, -8);      // LERX blending curve
+        ctx.lineTo(-7, -19);    // swept leading edge
+        ctx.lineTo(-14, -18);   // wingtip
+        ctx.lineTo(-9, -7);     // trailing edge
+        ctx.lineTo(-22, -6.2);  // nacelle side
+        ctx.lineTo(-26, -13.5); // stabilator
+        ctx.lineTo(-31, -12.5);
+        ctx.lineTo(-26, -4.5);
+        ctx.lineTo(-26, 4.5);
+        ctx.lineTo(-31, 12.5);
+        ctx.lineTo(-26, 13.5);
+        ctx.lineTo(-22, 6.2);
+        ctx.lineTo(-9, 7);
+        ctx.lineTo(-14, 18);
+        ctx.lineTo(-7, 19);
+        ctx.lineTo(3, 8);
+        ctx.lineTo(10, 4.2);
+        ctx.lineTo(18, 3);
+        ctx.closePath();
     } else {
-        ctx.moveTo(34, 0); ctx.lineTo(9, -6); ctx.lineTo(-3, -27); ctx.lineTo(-11, -25); ctx.lineTo(-8, -8); ctx.lineTo(-27, -15); 
-        ctx.lineTo(-20, -3); ctx.lineTo(-20, 3); ctx.lineTo(-27, 15); ctx.lineTo(-8, 8); ctx.lineTo(-11, 25); ctx.lineTo(-3, 27); ctx.lineTo(9, 6);
+        // Su-27 Flanker — long needle nose, generous LERX, huge swept wing, wide flat tailplane
+        ctx.moveTo(37, 0);
+        ctx.lineTo(24, -1.8);
+        ctx.lineTo(14, -3);     // LERX begin
+        ctx.lineTo(5, -9);      // deep LERX curve
+        ctx.lineTo(-9, -23);    // long swept leading edge
+        ctx.lineTo(-17, -22);   // wingtip
+        ctx.lineTo(-11, -8);    // trailing edge
+        ctx.lineTo(-24, -7.5);  // engine nacelle
+        ctx.lineTo(-29, -16);   // wide tailplane
+        ctx.lineTo(-34, -14.5);
+        ctx.lineTo(-29, -5);
+        ctx.lineTo(-29, 5);
+        ctx.lineTo(-34, 14.5);
+        ctx.lineTo(-29, 16);
+        ctx.lineTo(-24, 7.5);
+        ctx.lineTo(-11, 8);
+        ctx.lineTo(-17, 22);
+        ctx.lineTo(-9, 23);
+        ctx.lineTo(5, 9);
+        ctx.lineTo(14, 3);
+        ctx.lineTo(24, 1.8);
+        ctx.closePath();
     }
-    ctx.closePath();
 }
 
 function drawJet(a, scale = 1) {
@@ -647,38 +768,114 @@ function drawJet(a, scale = 1) {
     ctx.rotate(a.angle);
     ctx.scale(scale, scale);
     
+    const enemy = a.enemy;
+    const body = enemy ? '#8a9478' : AIRFRAMES[a.type].color;
+    const dark = enemy ? '#5f6a4e' : 'rgba(0,0,0,.3)';
+    const trim = enemy ? '#efe8d4' : '#dff7ff';
+    
     ctx.shadowColor = 'rgba(0,0,0,.5)';
     ctx.shadowBlur = 8;
     ctx.shadowOffsetY = 7;
     jetPath(a.type);
-    
-    ctx.fillStyle = a.enemy ? '#b91c1c' : AIRFRAMES[a.type].color;
+    ctx.fillStyle = body;
     ctx.fill();
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
     
-    ctx.strokeStyle = a.enemy ? '#fee2e2' : '#dff7ff';
-    ctx.lineWidth = 1.5;
+    // Shaded underside + spine highlight (clip to silhouette)
+    ctx.save();
+    jetPath(a.type);
+    ctx.clip();
+    ctx.fillStyle = dark;
+    ctx.fillRect(-40, 1.5, 80, 40);
+    ctx.fillStyle = enemy ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.3)';
+    ctx.fillRect(-30, -1.7, 56, 3.4);
+    ctx.restore();
+    
+    ctx.strokeStyle = trim;
+    ctx.lineWidth = 1.4;
+    jetPath(a.type);
     ctx.stroke();
     
-    ctx.fillStyle = '#20394a';
+    // Bubble canopy
+    const cg = ctx.createLinearGradient(4, -4, 15, 4);
+    cg.addColorStop(0, '#c4ecff');
+    cg.addColorStop(1, '#1d4d68');
+    ctx.fillStyle = cg;
     ctx.beginPath();
-    ctx.ellipse(9, 0, 8, 3, 0, 0, TAU);
+    ctx.ellipse(11, 0, 7.5, 3.2, 0, 0, TAU);
     ctx.fill();
+    ctx.strokeStyle = 'rgba(8,24,34,.85)';
+    ctx.lineWidth = .8;
+    ctx.stroke();
     
-    if (a.enemy) {
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(-5, -4, 7, 8);
-        ctx.fillStyle = '#dc2626';
-        ctx.fillRect(-3, -4, 3, 8);
+    // Vertical tail fins — twin for MiG-29 / Su-27, single canted for F-16
+    ctx.fillStyle = dark;
+    if (a.type === 'f16') {
+        ctx.beginPath(); ctx.moveTo(-11, -2); ctx.lineTo(-21, -12); ctx.lineTo(-25, -11); ctx.lineTo(-18, -1); ctx.closePath(); ctx.fill();
+    } else {
+        ctx.beginPath(); ctx.moveTo(-13, -4); ctx.lineTo(-23, -13); ctx.lineTo(-26, -12); ctx.lineTo(-20, -3); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-13, 4); ctx.lineTo(-23, 13); ctx.lineTo(-26, 12); ctx.lineTo(-20, 3); ctx.closePath(); ctx.fill();
     }
     
-    if (a.throttle > .92 || a.enemy) {
+    // Engine intakes
+    ctx.fillStyle = 'rgba(0,0,0,.42)';
+    ctx.fillRect(2, -6.5, 5, 2.4);
+    ctx.fillRect(2, 4.1, 5, 2.4);
+    
+    // Under-wing pylons with AAMs
+    const py = a.type === 'su27' ? 15.5 : a.type === 'mig29' ? 12.5 : 10.5;
+    const pl = a.type === 'su27' ? 11 : 9;
+    ctx.fillStyle = '#46525a';
+    ctx.fillRect(-9, -py - 1.4, pl, 1.4);
+    ctx.fillRect(-9, py, pl, 1.4);
+    ctx.fillStyle = '#e6edf0';
+    ctx.fillRect(-10, -py - 3, pl - 1, 1.4);
+    ctx.fillRect(-10, py + 1.6, pl - 1, 1.4);
+    ctx.fillStyle = '#c0392b';
+    ctx.fillRect(-10 + pl - 3, -py - 3, 2, 1.4);
+    ctx.fillRect(-10 + pl - 3, py + 1.6, 2, 1.4);
+    
+    // Engine nozzle(s)
+    const nx = a.type === 'su27' ? -28 : -25;
+    ctx.fillStyle = '#1b2226';
+    ctx.fillRect(nx, -3.6, 5, 7.2);
+    ctx.fillStyle = '#39434a';
+    ctx.fillRect(nx + 3.4, -2.6, 1.6, 5.2);
+    
+    // Wing panel lines
+    ctx.strokeStyle = 'rgba(0,0,0,.28)';
+    ctx.lineWidth = .8;
+    ctx.beginPath();
+    ctx.moveTo(-4, -6); ctx.lineTo(-10, -py - 1);
+    ctx.moveTo(-4, 6); ctx.lineTo(-10, py + 1);
+    ctx.moveTo(-14, -3.6); ctx.lineTo(-20, -3.6);
+    ctx.moveTo(-14, 3.6); ctx.lineTo(-20, 3.6);
+    ctx.stroke();
+    
+    // Enemy roundel markings
+    if (enemy) {
+        ctx.fillStyle = '#d63a2f';
+        ctx.strokeStyle = '#f5efdc';
+        ctx.lineWidth = .9;
+        [[-7, -11], [-7, 11]].forEach(([x, y]) => {
+            ctx.beginPath(); ctx.arc(x, y, 3.2, 0, TAU); ctx.fill(); ctx.stroke();
+        });
+    }
+    
+    // Afterburner
+    if (a.throttle > .92 || enemy) {
+        const fl = 12 + Math.sin(frame * .8) * 3;
         ctx.fillStyle = '#67e8f9';
         ctx.shadowColor = '#ff6b21';
         ctx.shadowBlur = 12;
         ctx.beginPath();
-        ctx.moveTo(-22, -4); ctx.lineTo(-35, 0); ctx.lineTo(-22, 4);
+        ctx.moveTo(-22, -4); ctx.lineTo(-35 - fl, 0); ctx.lineTo(-22, 4);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(-22, -2); ctx.lineTo(-30 - fl * .5, 0); ctx.lineTo(-22, 2);
         ctx.fill();
     }
     ctx.restore();
@@ -824,6 +1021,7 @@ function panel(x, y, w, h) {
 
 function drawHUD() {
     ctx.textBaseline = 'middle';
+    const s = AIRFRAMES[player.type];
     
     // Top Left Player Stats
     panel(16, 62, 250, 105);
@@ -845,7 +1043,7 @@ function drawHUD() {
     ctx.fillStyle = '#fff';
     ctx.font = '600 13px Outfit';
     ctx.fillText(`MISSILES  ${'◆ '.repeat(player.missiles)}`, 28, H - 64);
-    ctx.fillText(`FLARES  ${player.flares}`, 28, H - 39);
+    ctx.fillText(`FLARES  ${player.flares}/${s.flares}  (REGEN)`, 28, H - 39);
     
     // Top Center Score
     ctx.textAlign = 'center';
@@ -887,6 +1085,11 @@ function drawHUD() {
         ctx.moveTo(18, 0); ctx.lineTo(-10, -10); ctx.lineTo(-10, 10);
         ctx.fill();
         ctx.restore();
+    } else if (radarSpike) {
+        // Radar Lock Warning — enemy nose-on to the player
+        ctx.fillStyle = frame % 20 < 10 ? '#ffa02e' : '#fff';
+        ctx.font = '800 18px Outfit';
+        ctx.fillText('⚠ RADAR LOCK — ENEMY ON YOUR SIX ⚠', W / 2, 82);
     }
     
     // Center Banner Announcements
@@ -1019,7 +1222,7 @@ function drawSelect() {
     ctx.fillText('PRESS SPACE / ENTER OR TAP SELECTED JET TO DEPLOY', W / 2, 550);
     ctx.font = '600 13px Outfit';
     ctx.fillStyle = '#91b9c3';
-    ctx.fillText('WASD / ARROWS fly  •  SPACE cannon  •  X missile  •  C flare  •  P pause', W / 2, 585);
+    ctx.fillText('WASD / ARROWS fly  •  SPACE cannon  •  E missile  •  Q flare  •  P pause', W / 2, 585);
 }
 
 function drawGameOver() {
@@ -1056,7 +1259,9 @@ function draw() {
     
     ctx.save();
     if (shake) ctx.translate(rnd(-shake, shake), rnd(-shake, shake));
-    ctx.translate(-cam.x, -cam.y);
+    ctx.translate(W / 2, H / 2);
+    ctx.scale(cam.zoom, cam.zoom);
+    ctx.translate(-cam.x - W / (2 * cam.zoom), -cam.y - H / (2 * cam.zoom));
     
     drawTerrain();
     drawObjects();
@@ -1107,8 +1312,8 @@ addEventListener('keydown', e => {
     if (e.key.toLowerCase() === 'p' || e.key === 'Escape') setPaused(!paused);
     if (state !== 'playing' || paused) return;
     
-    if (e.key.toLowerCase() === 'x') launch(player, lastLock);
-    if (e.key.toLowerCase() === 'c') deployFlares(player);
+    if (e.key.toLowerCase() === 'e') launch(player, lastLock);
+    if (e.key.toLowerCase() === 'q') deployFlares(player);
 });
 
 addEventListener('keyup', e => {
