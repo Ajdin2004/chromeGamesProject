@@ -209,7 +209,7 @@ const SPOT_W = 46, SPOT_H = 76;       // parking spot dimensions
 const ANGLE_TOL = 0.21;               // ~12 degrees alignment tolerance
 const MAX_SPEED = 3.2, MAX_REVERSE = -1.7;
 
-let car = { x: 200, y: 480, angle: 0, speed: 0 };
+let car = { x: 200, y: 480, angle: 0, speed: 0, vx: 0, vy: 0 };
 let obstacles = [];                    // {kind:'car'|'wall'|'cone', x, y, w, h, angle, color}
 let spot = { x: 270, y: 50, angle: 0 };
 let levelIndex = 0;                    // 0-based
@@ -224,6 +224,7 @@ let aligned = false;
 let lastParkFlawless = false;
 let lastResult = null;
 let particles = [];
+let tyreMarks = [];                    // persistent skid marks: {x1,y1,x2,y2,a}
 let frameCount = 0;
 let selectLevel = 1;
 let bumpCooldown = 0;
@@ -363,8 +364,9 @@ function buildLevel(idx) {
     obstacles = borders().concat(def.obstacles);
     spot = def.spot;
     car.x = def.start.x; car.y = def.start.y; car.angle = def.start.angle; car.speed = 0;
+    car.vx = 0; car.vy = 0;
     damage = 0; elapsed = 0; holdTimer = 0; aligned = false;
-    particles = []; levelScore = 0; bumpCooldown = 0;
+    particles = []; tyreMarks = []; levelScore = 0; bumpCooldown = 0;
     input.up = input.down = input.left = input.right = input.hand = false;
 }
 
@@ -452,39 +454,110 @@ function updateCar() {
         if (Math.abs(car.speed) < 0.012) car.speed = 0;
     }
     if (input.hand) {
-        car.speed *= 0.9;
-        if (Math.abs(car.speed) < 0.012) car.speed = 0;
+        if (input.up) {
+            car.speed *= 0.988;   // keep momentum while power-drifting
+        } else {
+            car.speed *= 0.9;
+            if (Math.abs(car.speed) < 0.012) car.speed = 0;
+        }
     }
 
-    // Speed-scaled steering (reversed when backing up)
+    // ----- DRIFT / GRIP -----
+    const drifting = input.hand && Math.abs(car.speed) > 0.4;
+    const forwardX = Math.sin(car.angle), forwardY = -Math.cos(car.angle);
+
+    // Grip: how quickly the velocity vector snaps to the car's heading.
+    // Low grip while the handbrake is held = the car keeps sliding sideways.
+    const grip = drifting ? 0.06 : 0.5;
+    car.vx += (forwardX * car.speed - car.vx) * grip;
+    car.vy += (forwardY * car.speed - car.vy) * grip;
+
+    // Speed-scaled steering (reversed when backing up) — extra bite while drifting
     const steerFactor = Math.min(1, Math.abs(car.speed) / 1.4);
-    const steer = 0.045 * steerFactor * (car.speed < 0 ? -1 : 1);
+    const steer = 0.045 * steerFactor * (car.speed < 0 ? -1 : 1) * (drifting ? 1.7 : 1);
     if (input.left) car.angle -= steer;
     if (input.right) car.angle += steer;
 
-    const prevX = car.x, prevY = car.y, prevAngle = car.angle;
-    car.x += Math.sin(car.angle) * car.speed;
-    car.y -= Math.cos(car.angle) * car.speed;
+    const prevAngle = car.angle;
 
-    for (const ob of obstacles) {
-        if (carCollides(ob)) {
-            car.x = prevX; car.y = prevY; car.angle = prevAngle;
-            const impact = Math.abs(car.speed);
-            car.speed = -car.speed * 0.25;
+    // ----- TYRE MARKS (rear wheels, sampled before the move) -----
+    const perpX = Math.cos(car.angle), perpY = Math.sin(car.angle);
+    const rearX = car.x - forwardX * CAR_H * 0.3, rearY = car.y - forwardY * CAR_H * 0.3;
+    const wlPrev = { x: rearX - perpX * CAR_W * 0.38, y: rearY - perpY * CAR_W * 0.38 };
+    const wrPrev = { x: rearX + perpX * CAR_W * 0.38, y: rearY + perpY * CAR_W * 0.38 };
 
-            const mx = (car.x + ob.x) / 2;
-            const my = (car.y + ob.y) / 2;
-            addSparks(mx, my, impact > 0.3 ? 14 : 6);
-
-            if (impact > 0.25) {
-                damage = Math.min(100, damage + 5 + impact * 9);
-                if (bumpCooldown <= 0) { Sound.bump(); bumpCooldown = 12; }
-            } else {
-                damage = Math.min(100, damage + 1.5);
-            }
-            if (damage >= 100) failLevel();
-            break;
+    // ----- SUB-STEPPED MOVEMENT -----
+    // Advance in slices of at most 2px, checking collisions after each slice,
+    // so the car can never tunnel through thin walls (some are only 12px wide)
+    const stepLen = Math.hypot(car.vx, car.vy);
+    const steps = Math.max(1, Math.ceil(stepLen / 2));
+    const sx = car.vx / steps, sy = car.vy / steps;
+    let goodX = car.x, goodY = car.y;   // last collision-free position
+    let hitOb = null;
+    for (let i = 0; i < steps; i++) {
+        car.x += sx; car.y += sy;
+        let hitHere = null;
+        for (const ob of obstacles) {
+            if (carCollides(ob)) { hitHere = ob; break; }
         }
+        if (hitHere) { hitOb = hitHere; car.x = goodX; car.y = goodY; break; }
+        goodX = car.x; goodY = car.y;
+    }
+
+    // ----- HARD WORLD BOUNDARY (failsafe — the car can never leave the lot) -----
+    const minX = 7 + CAR_W / 2, maxX = 400 - 7 - CAR_W / 2;
+    const minY = 7 + CAR_H / 2, maxY = 600 - 7 - CAR_H / 2;
+    if (car.x < minX || car.x > maxX || car.y < minY || car.y > maxY) {
+        car.x = Math.max(minX, Math.min(maxX, car.x));
+        car.y = Math.max(minY, Math.min(maxY, car.y));
+        car.vx *= -0.3; car.vy *= -0.3;        // bounce off the invisible rim
+        car.speed *= 0.5;
+    }
+
+    // Record skid-mark segments from the rear wheels while drifting
+    if (drifting && stepLen > 0.3) {
+        const rear2X = car.x - forwardX * CAR_H * 0.3, rear2Y = car.y - forwardY * CAR_H * 0.3;
+        const wl = { x: rear2X - perpX * CAR_W * 0.38, y: rear2Y - perpY * CAR_W * 0.38 };
+        const wr = { x: rear2X + perpX * CAR_W * 0.38, y: rear2Y + perpY * CAR_W * 0.38 };
+        const a = Math.min(1, stepLen / 2.4) * 0.6;
+        tyreMarks.push({ x1: wlPrev.x, y1: wlPrev.y, x2: wl.x, y2: wl.y, a });
+        tyreMarks.push({ x1: wrPrev.x, y1: wrPrev.y, x2: wr.x, y2: wr.y, a });
+        if (tyreMarks.length > 600) tyreMarks.splice(0, tyreMarks.length - 600);
+    }
+
+    // Tire smoke while drifting
+    if (drifting && frameCount % 2 === 0) {
+        particles.push({
+            x: car.x - forwardX * CAR_H * 0.4 + (Math.random() - 0.5) * CAR_W,
+            y: car.y - forwardY * CAR_H * 0.4 + (Math.random() - 0.5) * CAR_W,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: (Math.random() - 0.5) * 0.6,
+            life: 18 + Math.random() * 10,
+            color: 'rgba(156, 163, 175, 0.35)'
+        });
+    }
+
+    if (hitOb) {
+        const ob = hitOb;
+        car.angle = prevAngle;
+        const impact = Math.abs(car.speed);
+        car.speed = -car.speed * 0.25;
+        // Re-sync the velocity vector with the bounced speed so the car
+        // doesn't keep sliding through the obstacle after a collision
+        car.vx = Math.sin(car.angle) * car.speed;
+        car.vy = -Math.cos(car.angle) * car.speed;
+
+        const mx = (car.x + ob.x) / 2;
+        const my = (car.y + ob.y) / 2;
+        addSparks(mx, my, impact > 0.3 ? 14 : 6);
+
+        if (impact > 0.25) {
+            damage = Math.min(100, damage + 5 + impact * 9);
+            if (bumpCooldown <= 0) { Sound.bump(); bumpCooldown = 12; }
+        } else {
+            damage = Math.min(100, damage + 1.5);
+        }
+        if (damage >= 100) failLevel();
     }
 }
 
@@ -893,6 +966,23 @@ function update() {
 function draw() {
     drawLot();
     drawSpot();
+
+    // Tyre marks left by drifting (drawn under cars and walls)
+    if (tyreMarks.length > 0) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(17, 24, 39, 0.8)';
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        for (const m of tyreMarks) {
+            ctx.globalAlpha = m.a;
+            ctx.beginPath();
+            ctx.moveTo(m.x1, m.y1);
+            ctx.lineTo(m.x2, m.y2);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
     obstacles.forEach(ob => {
         if (ob.kind === 'wall') drawWall(ob);
         else if (ob.kind === 'cone') drawCone(ob);
