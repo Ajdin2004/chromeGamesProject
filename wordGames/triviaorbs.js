@@ -252,23 +252,30 @@ function buildCategoryOptions() {
   });
 }
 
+/** Null-safe click wiring: a missing element logs once instead of killing init(). */
+function on(id, fn) {
+  var node = el(id);
+  if (node) node.addEventListener('click', fn);
+  else console.warn('[Trivia Orbs] Missing element #' + id + ' — listener not wired.');
+}
+
 function wireEvents() {
   document.querySelectorAll('.tab-btn').forEach(function (btn) {
     btn.addEventListener('click', function () { showTab(btn.dataset.tab); });
   });
-  el('btn-play-daily').addEventListener('click', startDaily);
-  el('btn-view-results').addEventListener('click', function () {
+  on('btn-play-daily', startDaily);
+  on('btn-view-results', function () {
     var rec = state.playedDates[todayKey()];
     if (rec) showResultsFromHistory(rec);
   });
-  el('btn-start-endless').addEventListener('click', startEndless);
-  el('btn-ll-fifty').addEventListener('click', useFifty);
-  el('btn-ll-hint').addEventListener('click', useHint);
-  el('btn-ll-skip').addEventListener('click', useSkip);
-  el('btn-share').addEventListener('click', shareResult);
-  el('btn-results-endless').addEventListener('click', function () { showTab('endless'); });
-  el('btn-results-home').addEventListener('click', function () { showTab('daily'); });
-  el('btn-toggle-sound').addEventListener('click', toggleSound);
+  on('btn-start-endless', startEndless);
+  on('btn-ll-fifty', useFifty);
+  on('btn-ll-hint', useHint);
+  on('btn-ll-skip', useSkip);
+  on('btn-share', shareResult);
+  on('btn-results-endless', function () { showTab('endless'); });
+  on('btn-results-home', function () { showTab('daily'); });
+  on('btn-toggle-sound', toggleSound);
   document.addEventListener('keydown', onKeyDown);
 }
 
@@ -469,8 +476,10 @@ function renderProgressDots() {
 function updateLifelineButtons() {
   [['btn-ll-fifty', 'fifty'], ['btn-ll-hint', 'hint'], ['btn-ll-skip', 'skip']].forEach(function (pair) {
     var btn = el(pair[0]);
+    if (!btn) return; // missing markup must never crash the round
     var cost = CONFIG.LIFELINES[pair[1]].cost;
-    btn.querySelector('.ll-cost').textContent = cost;
+    var costEl = btn.querySelector('.ll-cost');
+    if (costEl) costEl.textContent = cost;
     btn.disabled = state.orbs < cost || (round && round.answered);
   });
 }
