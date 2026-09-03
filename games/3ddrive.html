@@ -135,6 +135,36 @@
             color: #fff;
             font-weight: 600;
         }
+        .hud.bottom-right {
+            bottom: 1.5rem;
+            right: 1.5rem;
+        }
+        .minimap-wrap {
+            width: 168px;
+            height: 168px;
+            border-radius: 50%;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .minimap-wrap canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .minimap-label {
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #7dd3ff;
+            pointer-events: none;
+            text-shadow: 0 0 6px rgba(0, 242, 254, 0.6);
+        }
         #loading {
             position: absolute;
             inset: 0;
@@ -221,6 +251,14 @@
             .hud.bottom {
                 bottom: 6rem; /* Push auxiliary buttons up slightly */
             }
+            .hud.bottom-right {
+                bottom: 8.5rem;
+                right: 1rem;
+            }
+            .minimap-wrap {
+                width: 110px;
+                height: 110px;
+            }
             .speed-val {
                 font-size: 2.6rem;
             }
@@ -279,6 +317,13 @@
         <div class="controls-hint">
             <strong>W/S</strong> Drive &nbsp;|&nbsp; <strong>A/D</strong> Steer &nbsp;|&nbsp; <strong>Shift</strong> Boost &nbsp;|&nbsp;
             <strong>C</strong> Camera &nbsp;|&nbsp; <strong>Q/E</strong> Theme &nbsp;|&nbsp; <strong>L</strong> Lights &nbsp;|&nbsp; <strong>R</strong> Reset
+        </div>
+    </div>
+
+    <div class="hud bottom-right">
+        <div class="glass minimap-wrap">
+            <canvas id="minimap" width="168" height="168"></canvas>
+            <div class="minimap-label" id="biome-display">Radar</div>
         </div>
     </div>
 

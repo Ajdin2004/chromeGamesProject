@@ -83,6 +83,23 @@
             } catch (e) {}
         }
 
+        // iOS Safari (and several mobile browsers) create AudioContext in a
+        // 'suspended' state and will ONLY resume it from inside the synchronous
+        // call stack of a genuine user-gesture event handler — a later async
+        // resume() call, or one fired from a non-gesture callback, is silently
+        // ignored. touchstart on the on-screen control buttons IS that gesture,
+        // so every button binds resume() directly and synchronously here.
+        function unlockAudio() {
+            initAudio();
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            createEngineSound();
+            createWindSound();
+            initMusicEngine();
+        }
+
         function createEngineSound() {
             if (!audioCtx || engineNodes) return;
             const osc1 = audioCtx.createOscillator(),
@@ -152,6 +169,151 @@
             if (!windNode) return;
             windNode.gain.gain.setTargetAtTime(speedRatio * speedRatio * 0.15, audioCtx.currentTime, 0.15);
             windNode.filter.frequency.setTargetAtTime(180 + speedRatio * 1100, audioCtx.currentTime, 0.15);
+        }
+
+        // ---------------------------------------------------------
+        // 2.5 Procedural Synthwave Music Engine
+        // ---------------------------------------------------------
+        // A lightweight step-sequenced synth running alongside the engine/wind
+        // synthesizer above: an arpeggiated bassline, a slow sustained chord pad,
+        // and a simple kick/hat drum pattern. Tempo and pitch both ramp with
+        // vehicle speed so the track visibly "revs up" as the car accelerates.
+        let musicEnabled = false;
+        let musicNextTime = 0;
+        let musicStep = 0;
+        let musicChordIdx = 0;
+        let padNodes = null;
+
+        // A minor-flavoured synthwave progression, expressed as semitone offsets
+        // from MUSIC_ROOT: i - VI - v - VII
+        const MUSIC_CHORDS = [
+            [0, 3, 7],
+            [8, 12, 15],
+            [5, 8, 12],
+            [10, 14, 17],
+        ];
+        const MUSIC_ROOT = 110; // A2
+
+        function midiRatio(semitones) { return Math.pow(2, semitones / 12); }
+
+        function initMusicEngine() {
+            if (!audioCtx || musicEnabled) return;
+            musicEnabled = true;
+            musicNextTime = audioCtx.currentTime + 0.1;
+
+            // Persistent chord pad bed: 3 detuned saws through a slow lowpass,
+            // gain/cutoff automated continuously rather than retriggered per
+            // note, so it stays a smooth ambient bed under the arpeggio.
+            const padGain = audioCtx.createGain();
+            padGain.gain.value = 0.0;
+            const padFilter = audioCtx.createBiquadFilter();
+            padFilter.type = 'lowpass';
+            padFilter.frequency.value = 700;
+            padFilter.Q.value = 0.5;
+            padFilter.connect(padGain);
+            padGain.connect(masterGain);
+            const padOscs = [];
+            for (let i = 0; i < 3; i++) {
+                const o = audioCtx.createOscillator();
+                o.type = 'sawtooth';
+                o.detune.value = (i - 1) * 7;
+                o.frequency.value = MUSIC_ROOT * 2;
+                o.connect(padFilter);
+                o.start();
+                padOscs.push(o);
+            }
+            padNodes = { padGain, padFilter, padOscs };
+        }
+
+        function playArpNote(freq, time, dur, vol) {
+            const o = audioCtx.createOscillator();
+            o.type = 'square';
+            o.frequency.setValueAtTime(freq, time);
+            const g = audioCtx.createGain();
+            g.gain.setValueAtTime(0, time);
+            g.gain.linearRampToValueAtTime(vol, time + 0.012);
+            g.gain.exponentialRampToValueAtTime(0.0008, time + dur);
+            o.connect(g);
+            g.connect(masterGain);
+            o.start(time);
+            o.stop(time + dur + 0.03);
+        }
+
+        function playDrumHit(time, kind) {
+            if (kind === 'kick') {
+                const o = audioCtx.createOscillator();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(150, time);
+                o.frequency.exponentialRampToValueAtTime(46, time + 0.12);
+                const g = audioCtx.createGain();
+                g.gain.setValueAtTime(0.5, time);
+                g.gain.exponentialRampToValueAtTime(0.001, time + 0.22);
+                o.connect(g);
+                g.connect(masterGain);
+                o.start(time);
+                o.stop(time + 0.25);
+            } else {
+                // Hi-hat: short filtered noise burst
+                const bufferSize = Math.floor(audioCtx.sampleRate * 0.08);
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const src = audioCtx.createBufferSource();
+                src.buffer = buffer;
+                const hp = audioCtx.createBiquadFilter();
+                hp.type = 'highpass';
+                hp.frequency.value = 6500;
+                const g = audioCtx.createGain();
+                g.gain.setValueAtTime(0.16, time);
+                g.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+                src.connect(hp);
+                hp.connect(g);
+                g.connect(masterGain);
+                src.start(time);
+            }
+        }
+
+        // Called every frame with the current speed ratio (0..1+ during boost).
+        // Schedules audio events a short window ahead of "now" (standard Web
+        // Audio lookahead pattern) so playback stays sample-accurate even if a
+        // render frame hitches.
+        function updateMusic(speedRatio) {
+            if (!musicEnabled || !audioCtx) return;
+            const tempo = 92 + speedRatio * 64;          // BPM ramps with speed
+            const stepDur = 60 / tempo / 4;              // 16th notes
+            const pitchShift = midiRatio(speedRatio * 3); // subtle pitch lift at speed
+
+            const now = audioCtx.currentTime;
+            while (musicNextTime < now + 0.2) {
+                const chord = MUSIC_CHORDS[musicChordIdx % MUSIC_CHORDS.length];
+                const octaveUp = Math.floor(musicStep / chord.length) % 2 === 0 ? 0 : 12;
+                const noteSemitone = chord[musicStep % chord.length] + octaveUp;
+                const freq = MUSIC_ROOT * midiRatio(noteSemitone) * pitchShift;
+                playArpNote(freq, musicNextTime, stepDur * 0.9, 0.045 + speedRatio * 0.03);
+
+                if (musicStep % 4 === 0) playDrumHit(musicNextTime, 'kick');
+                if (musicStep % 2 === 1) playDrumHit(musicNextTime, 'hat');
+
+                if (musicStep % 16 === 15) {
+                    musicChordIdx++;
+                    if (padNodes) {
+                        const newChord = MUSIC_CHORDS[musicChordIdx % MUSIC_CHORDS.length];
+                        padNodes.padOscs.forEach((o, i) => {
+                            const semis = newChord[i % newChord.length];
+                            o.frequency.setTargetAtTime(MUSIC_ROOT * midiRatio(semis), musicNextTime, 0.4);
+                        });
+                    }
+                }
+
+                musicStep++;
+                musicNextTime += stepDur;
+            }
+
+            if (padNodes) {
+                const targetPadVol = 0.03 + speedRatio * 0.05;
+                padNodes.padGain.gain.setTargetAtTime(targetPadVol, now, 0.5);
+                padNodes.padFilter.frequency.setTargetAtTime(450 + speedRatio * 2200, now, 0.3);
+            }
         }
 
         // ---------------------------------------------------------
@@ -271,6 +433,8 @@
         const roadTangents = [];
         const roadNormals = [];
         const roadBinormals = [];
+        const roadCurvatures = [];   // signed curvature (rad/unit) at each road point — drives banking
+        const roadArcLen = [];       // TRUE cumulative 3D arc-length from index 0 — drives seamless UV mapping
         const roadGrid = new Map();
 
         function addToRoadGrid(idx) {
@@ -301,6 +465,8 @@
                     roadTangents[0] = new THREE.Vector3(0, 0, 1);
                     roadNormals[0] = new THREE.Vector3(0, 1, 0);
                     roadBinormals[0] = new THREE.Vector3(-1, 0, 0);
+                    roadCurvatures[0] = 0;
+                    roadArcLen[0] = 0;
                     roadHeading = 0;
                     roadCurv = 0;
                     addToRoadGrid(0);
@@ -328,6 +494,11 @@
                 roadTangents[idx] = tangent;
                 roadNormals[idx] = normal;
                 roadBinormals[idx] = binormal;
+                roadCurvatures[idx] = roadCurv;
+                // True 3D arc-length accumulation (never reset per-chunk) — this is
+                // what makes the road texture/dashes tile seamlessly across chunk
+                // boundaries and stay proportionally correct on curves & hills.
+                roadArcLen[idx] = roadArcLen[idx - 1] + roadPoints[idx].distanceTo(prev);
                 addToRoadGrid(idx);
             }
         }
@@ -361,10 +532,12 @@
             return Math.sqrt((p.x - x) ** 2 + (p.z - z) ** 2);
         }
 
-        // True perpendicular distance + interpolated elevation of the road corridor
+        // True perpendicular distance + interpolated elevation of the road corridor.
+        // Also returns a SIGNED lateral offset + local bank angle so callers can
+        // reconstruct the banked road surface height (not just the flat centerline).
         function getRoadCorridor(x, z) {
             const baseIdx = getNearestRoadIndex(x, z);
-            let bestD2 = Infinity, bestY = 0, found = false;
+            let bestD2 = Infinity, bestY = 0, found = false, bestIdx = baseIdx, bestSigned = 0;
             const lo = Math.max(1, baseIdx - 3),
                 hi = Math.min(roadPoints.length - 1, baseIdx + 2);
             for (let i = lo; i <= hi; i++) {
@@ -384,11 +557,19 @@
                 if (d2 < bestD2) {
                     bestD2 = d2;
                     bestY = a.y + (b.y - a.y) * tt;
+                    bestIdx = i;
                     found = true;
+                    // Signed lateral: project (point - road) onto the binormal at i
+                    const bin = roadBinormals[i] || roadBinormals[roadBinormals.length - 1];
+                    bestSigned = bin ? (-dx * bin.x - dz * bin.z) : Math.sqrt(d2);
                 }
             }
             if (!found) return null;
-            return { dist: Math.sqrt(bestD2), height: bestY };
+            const bank = computeBankAngle(bestIdx);
+            // Banked surface height: centerline height plus the vertical rise from
+            // rotating the cross-section by `bank` at this lateral offset.
+            const bankedY = bestY + bestSigned * Math.sin(bank);
+            return { dist: Math.sqrt(bestD2), height: bankedY, flatHeight: bestY, signedLat: bestSigned, bank, index: bestIdx };
         }
 
         function getRoadDistance(x, z) {
@@ -449,6 +630,66 @@
             const c = getRoadCorridor(x, z);
             if (c && c.dist < ROAD_HALF + 1) return c.height + ROAD_LIFT;
             return base;
+        }
+
+        // ---------------------------------------------------------
+        // 5.5 Atmospheric Biome System
+        // ---------------------------------------------------------
+        // The road cycles through three biomes as the player travels. Each biome
+        // supplies a terrain tint, a fog/atmosphere tint, and a "skyline density"
+        // that controls how many distant silhouette structures spawn along the
+        // horizon in that stretch (dense for the cyberpunk outskirts, sparse
+        // elsewhere). Biomes crossfade over a blend zone so the transition reads
+        // as weather drifting in rather than a hard cut.
+        const BIOMES = [{
+            name: 'Synthwave Desert',
+            tint: new THREE.Color(0xff5fae),
+            tintStrength: 0.35,
+            fog: new THREE.Color(0x2a0f3a),
+            skylineColor: 0x2a0f3a,
+            skylineGlow: [0xff2fae, 0xffaa33, 0x8f2fff],
+            skylineDensity: 0.15,
+        }, {
+            name: 'Cyberpunk Outskirts',
+            tint: new THREE.Color(0x2255ff),
+            tintStrength: 0.55,
+            fog: new THREE.Color(0x03050d),
+            skylineColor: 0x060810,
+            skylineGlow: [0x00f2fe, 0xff0080, 0x33ff99],
+            skylineDensity: 1.0,
+        }, {
+            name: 'Neon Forest',
+            tint: new THREE.Color(0x33ff88),
+            tintStrength: 0.28,
+            fog: new THREE.Color(0x081810),
+            skylineColor: 0x0a2018,
+            skylineGlow: [0x33ff99, 0x00f2fe, 0xaaff33],
+            skylineDensity: 0.2,
+        }];
+        const BIOME_ZONE_LEN = 2600;  // world units of road distance spent in each biome
+        const BIOME_BLEND_LEN = 480;  // crossfade length between zones
+
+        // Returns { a, b, t, name } — biome A blending toward biome B by factor t,
+        // sampled at a given distance-along-road (world units, monotonic odometer).
+        function getBiomeBlend(roadDist) {
+            const n = BIOMES.length;
+            const cycle = BIOME_ZONE_LEN * n;
+            const pos = ((roadDist % cycle) + cycle) % cycle;
+            const idx = Math.floor(pos / BIOME_ZONE_LEN);
+            const within = pos - idx * BIOME_ZONE_LEN;
+            const a = BIOMES[idx % n];
+            const b = BIOMES[(idx + 1) % n];
+            const t = within > BIOME_ZONE_LEN - BIOME_BLEND_LEN ?
+                smootherstep(BIOME_ZONE_LEN - BIOME_BLEND_LEN, BIOME_ZONE_LEN, within) : 0;
+            return { a, b, t, name: t > 0.5 ? b.name : a.name };
+        }
+
+        // Cheap approximate "distance along road" for a world point — used only
+        // for biome/skyline placement decisions, not physics, so the nearest-index
+        // lookup is precise enough without needing full arc-length interpolation.
+        function approxRoadDistance(x, z) {
+            const idx = getNearestRoadIndex(x, z);
+            return roadArcLen[idx] || idx * SEGMENT_DIST;
         }
 
         // ---------------------------------------------------------
@@ -515,6 +756,74 @@
             flatShading: true
         });
 
+        // ---- Distant neon city skyline (instanced boxes along the horizon) ----
+        // Unit box, scaled per-instance into tall/thin skyscraper silhouettes.
+        // Emissive "window" bands are baked as vertex colors so the whole skyline
+        // renders in ONE draw call per material variant, no per-building textures.
+        const skylineGeom = new THREE.BoxGeometry(1, 1, 1, 1, 6, 1);
+        {
+            const sp = skylineGeom.attributes.position;
+            const scol = [];
+            for (let i = 0; i < sp.count; i++) {
+                const ny = (sp.getY(i) + 0.5); // 0 (base) .. 1 (roof)
+                // Window bands: alternating dark facade / lit-window brightness
+                const band = Math.sin(ny * 26.0) > 0.35 ? 1.0 : 0.12;
+                scol.push(band, band, band);
+            }
+            skylineGeom.setAttribute('color', new THREE.Float32BufferAttribute(scol, 3));
+        }
+        const skylineMats = BIOMES[1].skylineGlow.map((hex) => new THREE.MeshStandardMaterial({
+            color: 0x05060a,
+            emissive: hex,
+            emissiveIntensity: 0.9,
+            vertexColors: true,
+            roughness: 0.6,
+            metalness: 0.1,
+            fog: true,
+        }));
+
+        // ---- Shared-resource registry (for safe chunk disposal) ----
+        // Anything reused across many chunks (tree/rock/grass geometry & material,
+        // road textures, biome/skyline templates) must NEVER be disposed when a
+        // single chunk unloads — only resources that are unique-per-chunk
+        // (terrain geometry/material, per-chunk InstancedMesh instance buffers)
+        // should be freed. These sets are the single source of truth for that.
+        const SHARED_GEOMETRIES = new Set([treeGeom, rockGeom, grassGeom, skylineGeom]);
+        const SHARED_MATERIALS = new Set([treeMat, rockMat, grassMat, ...skylineMats]);
+
+        // Disposes everything a chunk group owns EXCEPT shared geometry/materials.
+        // Handles: plain Mesh (per-chunk terrain), InstancedMesh (trees/rocks/
+        // grass/skyline — shared geometry+material, but unique instance buffers
+        // that must be freed via .dispose() to avoid leaking GPU buffers), and
+        // any textures a per-chunk material may own.
+        function disposeChunk(chunk) {
+            chunk.group.traverse((obj) => {
+                if (obj.isInstancedMesh) {
+                    // Frees the per-instance matrix/color GPU buffers. Geometry and
+                    // material are shared and intentionally left untouched.
+                    if (typeof obj.dispose === 'function') obj.dispose();
+                    return;
+                }
+                if (obj.isMesh || obj.isLine || obj.isPoints) {
+                    if (obj.geometry && !SHARED_GEOMETRIES.has(obj.geometry)) {
+                        obj.geometry.dispose();
+                    }
+                    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+                    for (const m of mats) {
+                        if (!m || SHARED_MATERIALS.has(m)) continue;
+                        if (m.map) m.map.dispose();
+                        if (m.emissiveMap) m.emissiveMap.dispose();
+                        if (m.normalMap) m.normalMap.dispose();
+                        if (m.roughnessMap) m.roughnessMap.dispose();
+                        m.dispose();
+                    }
+                }
+                if (obj.isLight && obj.shadow && obj.shadow.map) {
+                    obj.shadow.map.dispose();
+                }
+            });
+        }
+
         function getChunkKey(cx, cz) { return `${cx},${cz}`; }
 
         function createChunk(cx, cz) {
@@ -526,11 +835,18 @@
             const offZ = cz * CHUNK_SIZE;
             group.position.set(offX, 0, offZ);
 
+            // Which biome(s) this chunk sits in — drives terrain tint + skyline.
+            const chunkRoadDist = approxRoadDistance(offX, offZ);
+            const biomeBlend = getBiomeBlend(chunkRoadDist);
+            const biomeTint = biomeBlend.a.tint.clone().lerp(biomeBlend.b.tint, biomeBlend.t);
+            const biomeStrength = THREE.MathUtils.lerp(biomeBlend.a.tintStrength, biomeBlend.b.tintStrength, biomeBlend.t);
+
             // Terrain Mesh with Vertex Colors & Normal Shading
             const geom = new THREE.PlaneGeometry(CHUNK_SIZE, CHUNK_SIZE, CHUNK_RES, CHUNK_RES);
             geom.rotateX(-Math.PI / 2);
             const pos = geom.attributes.position;
             const colors = [];
+            const _baseCol = new THREE.Color();
 
             for (let i = 0; i < pos.count; i++) {
                 const wx = pos.getX(i) + offX;
@@ -538,11 +854,17 @@
                 const h = getBlendedGroundHeight(wx, wz);
                 pos.setY(i, h);
 
-                // Richer gradient
-                if (h < -1) { colors.push(0.08, 0.18, 0.30); } else if (h < 2) { colors.push(0.10, 0.28, 0.18); } else if (h < 8) {
-                    colors.push(0.16, 0.42, 0.20);
-                } else if (h < 16) { colors.push(0.22, 0.38, 0.22); } else if (h < 24) { colors.push(0.32, 0.30, 0.25); } else if (h <
-                    32) { colors.push(0.50, 0.45, 0.38); } else { colors.push(0.78, 0.82, 0.90); }
+                // Richer gradient (baseline naturalistic palette)
+                if (h < -1) { _baseCol.setRGB(0.08, 0.18, 0.30); } else if (h < 2) { _baseCol.setRGB(0.10, 0.28, 0.18); } else if (h < 8) {
+                    _baseCol.setRGB(0.16, 0.42, 0.20);
+                } else if (h < 16) { _baseCol.setRGB(0.22, 0.38, 0.22); } else if (h < 24) { _baseCol.setRGB(0.32, 0.30, 0.25); } else if (h <
+                    32) { _baseCol.setRGB(0.50, 0.45, 0.38); } else { _baseCol.setRGB(0.78, 0.82, 0.90); }
+
+                // Blend in the biome tint (multiplicative for shadows, additive for
+                // glow) so each biome reads as a distinct atmosphere while the
+                // underlying height-based shading still holds the terrain together.
+                _baseCol.lerp(_baseCol.clone().multiply(biomeTint), biomeStrength * 0.6);
+                colors.push(_baseCol.r, _baseCol.g, _baseCol.b);
             }
             geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
             geom.computeVertexNormals();
@@ -604,6 +926,38 @@
                 grassMatrices.push(mat);
             }
 
+            // ---- Distant neon skyline silhouettes ----
+            // Density comes from the biome blend at this chunk: dense in the
+            // Cyberpunk Outskirts, sparse-to-absent in the desert/forest biomes.
+            // Buildings are kept well clear of the road/foliage band and given
+            // exaggerated height so they read as a horizon skyline from the car.
+            const skylineDensity = THREE.MathUtils.lerp(biomeBlend.a.skylineDensity, biomeBlend.b.skylineDensity, biomeBlend.t);
+            const skylineMatrices = [[], [], []]; // bucketed per material variant
+            if (skylineDensity > 0.04) {
+                const count = Math.round(skylineDensity * 7);
+                for (let i = 0; i < count; i++) {
+                    const bx = offX + (Math.random() * 2 - 1) * CHUNK_SIZE * 0.5;
+                    const bz = offZ + (Math.random() * 2 - 1) * CHUNK_SIZE * 0.5;
+                    if (getRoadDistance(bx, bz) < 55) continue; // keep the drivable band clear
+                    const bh = sampleTerrainMeshHeight(bx, bz);
+                    const height = 26 + Math.random() * 70;
+                    const width = 6 + Math.random() * 10;
+                    const rot = Math.random() * Math.PI * 2;
+                    const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rot);
+                    const p = new THREE.Vector3(bx - offX, bh + height / 2, bz - offZ);
+                    const m = new THREE.Matrix4().compose(p, q, new THREE.Vector3(width, height, width));
+                    skylineMatrices[i % skylineMats.length].push(m);
+                }
+            }
+            for (let v = 0; v < skylineMats.length; v++) {
+                if (!skylineMatrices[v].length) continue;
+                const sm = new THREE.InstancedMesh(skylineGeom, skylineMats[v], skylineMatrices[v].length);
+                for (let i = 0; i < skylineMatrices[v].length; i++) sm.setMatrixAt(i, skylineMatrices[v][i]);
+                sm.instanceMatrix.needsUpdate = true;
+                sm.frustumCulled = false;
+                group.add(sm);
+            }
+
             if (treeMatrices.length) {
                 const it = new THREE.InstancedMesh(treeGeom, treeMat, treeMatrices.length);
                 for (let i = 0; i < treeMatrices.length; i++) it.setMatrixAt(i, treeMatrices[i]);
@@ -654,6 +1008,7 @@
             for (const [k, c] of chunks) {
                 if (!needed.has(k)) {
                     scene.remove(c.group);
+                    disposeChunk(c); // release terrain geometry/material + instance buffers — prevents GPU memory leak
                     chunks.delete(k);
                 }
             }
@@ -785,6 +1140,34 @@
         const _rvN = new THREE.Vector3();
         const _rvUp = new THREE.Vector3(0, 1, 0);
 
+        // ---- Road banking (superelevation) ----
+        // Real roads cant into curves so lateral g-forces push the tires into the
+        // asphalt instead of off it. We derive a bank angle directly from the
+        // road's signed curvature (tighter turn => more lean), smoothed so it
+        // ramps in/out naturally rather than snapping at segment boundaries.
+        const MAX_BANK = 0.30;       // radians, ~17° cap
+        const BANK_GAIN = 9.5;       // curvature -> bank angle scale
+        const bankSmoothed = [];     // low-pass filtered per-index bank cache
+
+        function computeBankAngle(i) {
+            if (bankSmoothed[i] !== undefined) return bankSmoothed[i];
+            const curv = roadCurvatures[i] || 0;
+            let bank = THREE.MathUtils.clamp(-curv * BANK_GAIN, -MAX_BANK, MAX_BANK);
+            // Smooth against neighbours so banking eases in/out instead of kinking
+            const c0 = roadCurvatures[Math.max(0, i - 4)] || 0;
+            const c1 = roadCurvatures[Math.min(roadCurvatures.length - 1, i + 4)] || 0;
+            const neighborBank = THREE.MathUtils.clamp(-((c0 + c1) * 0.5) * BANK_GAIN, -MAX_BANK, MAX_BANK);
+            bank = bank * 0.6 + neighborBank * 0.4;
+            bankSmoothed[i] = bank;
+            return bank;
+        }
+
+        // Texture repeats once every this many world units along the centerline —
+        // matched to the original per-segment period but now driven by TRUE
+        // cumulative arc-length, so dashes never stretch/compress on curves or
+        // hills and tile seamlessly across chunk boundaries.
+        const ROAD_TEX_PERIOD = SEGMENT_DIST;
+
         // Builds a ribbon over roadPoints[idx0 .. idx0+segCount].
         // [latA, latB] = signed lateral offsets from the centerline (along binormal).
         function buildRibbonGeometry(idx0, segCount, latA, latB, lift) {
@@ -792,15 +1175,21 @@
             const pos = new Float32Array(sections * 6);
             const nor = new Float32Array(sections * 6);
             const uva = new Float32Array(sections * 4);
-            let vDist = 0;
             for (let c = 0; c < sections; c++) {
                 const i = idx0 + c;
-                if (c > 0) vDist += roadPoints[i].distanceTo(roadPoints[i - 1]);
                 _rvPrev.copy(roadPoints[Math.max(0, i - 1)]);
                 _rvNext.copy(roadPoints[Math.min(roadPoints.length - 1, i + 1)]);
                 _rvT.subVectors(_rvNext, _rvPrev).normalize();
                 _rvB.crossVectors(_rvT, _rvUp).normalize();
                 _rvN.crossVectors(_rvB, _rvT).normalize();
+
+                // Apply banking: rotate the (binormal, normal) cross-section frame
+                // around the tangent axis by the smoothed bank angle.
+                const bank = computeBankAngle(i);
+                if (bank !== 0) {
+                    _rvB.applyAxisAngle(_rvT, bank);
+                    _rvN.applyAxisAngle(_rvT, bank);
+                }
 
                 const p = roadPoints[i];
                 const cx = p.x + _rvN.x * lift,
@@ -812,7 +1201,10 @@
                 pos[o + 3] = cx + bx * latB; pos[o + 4] = cy + by * latB; pos[o + 5] = cz + bz * latB;
                 nor[o] = _rvN.x; nor[o + 1] = _rvN.y; nor[o + 2] = _rvN.z;
                 nor[o + 3] = _rvN.x; nor[o + 4] = _rvN.y; nor[o + 5] = _rvN.z;
-                const v = vDist / SEGMENT_DIST; // one texture period per segment length
+                // True arc-length parameterization: global cumulative distance, not
+                // a per-chunk-reset local counter, so the dash pattern is continuous
+                // and correctly scaled everywhere.
+                const v = roadArcLen[i] / ROAD_TEX_PERIOD;
                 o = c * 4;
                 uva[o] = 0; uva[o + 1] = v;
                 uva[o + 2] = 1; uva[o + 3] = v;
@@ -882,6 +1274,8 @@
 
                 const edgeR = buildRibbonGeometry(s0, count, ROAD_HALF - EDGE_HALF_WIDTH, ROAD_HALF, ROAD_LIFT + 0.02);
                 edgeChunkMeshesR.set(ck, makeChunkEntry(roadGroup, edgeR, edgeStripMatR));
+
+                maybeCreateStructure(ck, s0, count);
             }
 
             // Cleanup chunks fully outside the visible window (with margin)
@@ -891,8 +1285,134 @@
                     removeChunk(roadChunkMeshes, key);
                     removeChunk(edgeChunkMeshesL, key);
                     removeChunk(edgeChunkMeshesR, key);
+                    removeStructureChunk(key);
                 }
             }
+        }
+
+        // ---------------------------------------------------------
+        // 7.5 Environmental Structures — Overpasses, Neon Arches, Tunnels
+        // ---------------------------------------------------------
+        // Spawned on the SAME per-road-chunk cadence as the road ribbon itself
+        // (see updateRoadMesh below), keyed by the identical chunk id `ck` so
+        // creation/cleanup piggybacks on logic that's already proven leak-free.
+        const structuresGroup = new THREE.Group();
+        scene.add(structuresGroup);
+        const structureChunkMeshes = new Map(); // ck -> THREE.Group | null (null = "checked, nothing here")
+
+        const structUnitBox = new THREE.BoxGeometry(1, 1, 1);
+        const structMetalMat = new THREE.MeshStandardMaterial({ color: 0x1a1c26, metalness: 0.7, roughness: 0.45 });
+        const structNeonMats = [0x00f2fe, 0xff0080, 0x8f2fff].map((hex) => new THREE.MeshBasicMaterial({
+            color: hex,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending,
+        }));
+        SHARED_GEOMETRIES.add(structUnitBox);
+        SHARED_MATERIALS.add(structMetalMat);
+        structNeonMats.forEach((m) => SHARED_MATERIALS.add(m));
+
+        // Every structure piece is the SAME shared unit cube, just scaled +
+        // positioned — so structures need zero unique geometry/material and
+        // therefore nothing chunk-owned to dispose beyond the group itself.
+        function structBox(parent, w, h, d, x, y, z, mat) {
+            const m = new THREE.Mesh(structUnitBox, mat);
+            m.scale.set(w, h, d);
+            m.position.set(x, y, z);
+            parent.add(m);
+            return m;
+        }
+
+        // Deterministic hash: the SAME chunk id always yields the SAME structure
+        // roll, so nothing flickers or changes if a chunk unloads and reloads.
+        function hashInt(n) {
+            let x = (n << 13) ^ n;
+            x = (x * (x * x * 15731 + 789221) + 1376312589) & 0x7fffffff;
+            return x / 0x7fffffff;
+        }
+
+        const STRUCTURE_STRIDE = 5;               // only 1 in N road-chunks may host a structure
+        const TUNNEL_LEN_SEGS = 10;                // road segments a tunnel encloses (~50 units)
+
+        function buildArch(i0) {
+            const g = new THREE.Group();
+            g.position.copy(roadPoints[i0]);
+            g.rotation.y = Math.atan2(roadTangents[i0].x, roadTangents[i0].z);
+            const half = ROAD_HALF + 1.4;
+            const beamY = 9.5;
+            structBox(g, 0.8, beamY, 0.8, -half, beamY / 2, 0, structMetalMat);
+            structBox(g, 0.8, beamY, 0.8, half, beamY / 2, 0, structMetalMat);
+            structBox(g, half * 2 + 0.8, 0.6, 0.8, 0, beamY, 0, structMetalMat);
+            const neon = structNeonMats[Math.floor(hashInt(i0 + 7) * structNeonMats.length) % structNeonMats.length];
+            structBox(g, half * 2, 0.12, 0.3, 0, beamY - 0.5, 0.5, neon);
+            return g;
+        }
+
+        function buildOverpass(i0) {
+            const g = new THREE.Group();
+            g.position.copy(roadPoints[i0]);
+            g.rotation.y = Math.atan2(roadTangents[i0].x, roadTangents[i0].z);
+            const deckY = 11.5;
+            const halfSpan = 26;
+            structBox(g, halfSpan * 2, 1.6, 7, 0, deckY, 0, structMetalMat);
+            const pillarX = ROAD_HALF + 3.2;
+            structBox(g, 1.4, deckY, 1.4, -pillarX, deckY / 2, 0, structMetalMat);
+            structBox(g, 1.4, deckY, 1.4, pillarX, deckY / 2, 0, structMetalMat);
+            const neon = structNeonMats[Math.floor(hashInt(i0 + 3) * structNeonMats.length) % structNeonMats.length];
+            structBox(g, halfSpan * 2, 0.1, 0.2, 0, deckY - 0.85, 3.6, neon);
+            structBox(g, halfSpan * 2, 0.1, 0.2, 0, deckY - 0.85, -3.6, neon);
+            return g;
+        }
+
+        function buildTunnel(i0, segLen) {
+            const g = new THREE.Group();
+            g.position.copy(roadPoints[i0]);
+            g.rotation.y = Math.atan2(roadTangents[i0].x, roadTangents[i0].z);
+            const h = 8.5,
+                wallX = ROAD_HALF + 1.0,
+                len = segLen;
+            structBox(g, 0.7, h, len, -wallX, h / 2, len / 2, structMetalMat);
+            structBox(g, 0.7, h, len, wallX, h / 2, len / 2, structMetalMat);
+            structBox(g, wallX * 2 + 1.4, 0.8, len, 0, h, len / 2, structMetalMat);
+            const neon = structNeonMats[Math.floor(hashInt(i0 + 11) * structNeonMats.length) % structNeonMats.length];
+            // Ceiling light strip running the length of the tunnel roof
+            structBox(g, 0.35, 0.08, len * 0.96, 0, h - 0.45, len / 2, neon);
+            // Interior point lights, spaced along the tunnel for localized glow
+            const lightCount = Math.max(1, Math.round(len / 16));
+            for (let k = 0; k < lightCount; k++) {
+                const lz = (k + 0.5) * (len / lightCount);
+                const col = k % 2 === 0 ? 0x00f2fe : 0xff0080;
+                const pl = new THREE.PointLight(col, 1.1, 16, 2);
+                pl.position.set(0, h * 0.55, lz);
+                g.add(pl);
+            }
+            return g;
+        }
+
+        // Called once per road-chunk id `ck` (same id space as roadChunkMeshes).
+        function maybeCreateStructure(ck, s0, count) {
+            if (structureChunkMeshes.has(ck)) return;
+            if (ck % STRUCTURE_STRIDE !== 0) { structureChunkMeshes.set(ck, null); return; }
+            const mid = s0 + Math.floor(count / 2);
+            if (mid < 2 || mid >= roadPoints.length - TUNNEL_LEN_SEGS - 2) { structureChunkMeshes.set(ck, null); return; }
+            const roll = hashInt(ck * 97 + 13);
+            let group = null;
+            if (roll < 0.30) group = buildArch(mid);
+            else if (roll < 0.58) group = buildOverpass(mid);
+            else if (roll < 0.80) group = buildTunnel(mid, TUNNEL_LEN_SEGS * SEGMENT_DIST);
+            if (group) structuresGroup.add(group);
+            structureChunkMeshes.set(ck, group);
+        }
+
+        function removeStructureChunk(ck) {
+            const group = structureChunkMeshes.get(ck);
+            if (group) {
+                structuresGroup.remove(group);
+                // Every mesh here reuses the SHARED unit box + shared materials;
+                // the only unique objects are PointLights, which hold no GPU
+                // buffers (shadows disabled), so a plain remove fully cleans up.
+            }
+            structureChunkMeshes.delete(ck);
         }
 
         // ---------------------------------------------------------
@@ -1237,6 +1757,197 @@
             particleSystem.geometry.attributes.position.needsUpdate = true;
         }
 
+        // ---- Weather Particles: Rain ----
+        // A cloud of falling points recentred on the car every frame (same trick
+        // as the starfield dome) — cheap, robust, and reads as ambient rain
+        // streaking past the windshield without a dedicated screen-space shader.
+        const RAIN_COUNT = 650;
+        const RAIN_VOL = { x: 70, y: 46, z: 70 };
+        const rainGeom = new THREE.BufferGeometry();
+        const rainPos = new Float32Array(RAIN_COUNT * 3);
+        for (let i = 0; i < RAIN_COUNT; i++) {
+            rainPos[i * 3] = (Math.random() - 0.5) * RAIN_VOL.x;
+            rainPos[i * 3 + 1] = Math.random() * RAIN_VOL.y;
+            rainPos[i * 3 + 2] = (Math.random() - 0.5) * RAIN_VOL.z;
+        }
+        rainGeom.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+        const rainMat = new THREE.PointsMaterial({
+            color: 0xaad4ff,
+            size: 0.14,
+            transparent: true,
+            opacity: 0.5,
+            sizeAttenuation: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            fog: false,
+        });
+        const rainMesh = new THREE.Points(rainGeom, rainMat);
+        rainMesh.visible = false;
+        rainMesh.frustumCulled = false;
+        scene.add(rainMesh);
+
+        function updateRain(dt, carPos, speed) {
+            if (!isRaining) return;
+            const arr = rainGeom.attributes.position.array;
+            const fallSpeed = 50 + speed * 1.5; // rain streaks harder at speed
+            for (let i = 0; i < RAIN_COUNT; i++) {
+                arr[i * 3 + 1] -= fallSpeed * dt;
+                if (arr[i * 3 + 1] < -2) {
+                    arr[i * 3 + 1] = RAIN_VOL.y;
+                    arr[i * 3] = (Math.random() - 0.5) * RAIN_VOL.x;
+                    arr[i * 3 + 2] = (Math.random() - 0.5) * RAIN_VOL.z;
+                }
+            }
+            rainGeom.attributes.position.needsUpdate = true;
+            rainMesh.position.set(carPos.x, carPos.y, carPos.z);
+        }
+
+        // ---------------------------------------------------------
+        // 9.6 Drift Mechanics — Skid Marks & Tire Smoke
+        // ---------------------------------------------------------
+        const DRIFT_LAT_THRESHOLD = 6.0; // m/s of lateral slip before we call it a "drift"
+
+        // Skid marks: a ring-buffer InstancedMesh of small dark quads laid at the
+        // rear-wheel contact points while drifting. Using one InstancedMesh (vs.
+        // spawning real meshes) means zero per-mark geometry/material allocation
+        // and therefore nothing to leak or dispose.
+        const SKID_MAX = 500;
+        const skidGeom = new THREE.PlaneGeometry(0.3, 0.7);
+        skidGeom.rotateX(-Math.PI / 2);
+        const skidMat = new THREE.MeshBasicMaterial({
+            color: 0x080808,
+            transparent: true,
+            opacity: 0.4,
+            depthWrite: false,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+        });
+        const skidMesh = new THREE.InstancedMesh(skidGeom, skidMat, SKID_MAX);
+        skidMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        skidMesh.frustumCulled = false;
+        scene.add(skidMesh);
+        SHARED_GEOMETRIES.add(skidGeom);
+        SHARED_MATERIALS.add(skidMat); // never chunk-owned, but harmless to register
+
+        const skidPool = new Array(SKID_MAX).fill(null); // {life, maxLife, pos, quat}
+        let skidCursor = 0;
+        const _skidMatrix = new THREE.Matrix4();
+        const _skidZero = new THREE.Vector3();
+        const _skidIdentQuat = new THREE.Quaternion();
+        const _skidScaleV = new THREE.Vector3();
+        const _skidZeroScale = new THREE.Vector3(0, 0, 0);
+
+        function spawnSkidMark(worldPos, quat) {
+            const idx = skidCursor % SKID_MAX;
+            skidCursor++;
+            let entry = skidPool[idx];
+            if (!entry) { entry = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
+                skidPool[idx] = entry; }
+            entry.pos.copy(worldPos);
+            entry.quat.copy(quat);
+            entry.life = 6.0;
+            entry.maxLife = 6.0;
+        }
+
+        function updateSkidMarks(dt) {
+            let anyActive = false;
+            for (let i = 0; i < SKID_MAX; i++) {
+                const s = skidPool[i];
+                if (!s || s.life === undefined || s.life <= 0) {
+                    _skidMatrix.compose(_skidZero, _skidIdentQuat, _skidZeroScale);
+                } else {
+                    s.life -= dt;
+                    anyActive = true;
+                    const t = Math.max(0, s.life / s.maxLife);
+                    _skidScaleV.set(1, 1, 0.4 + t * 0.6); // eases out rather than popping
+                    _skidMatrix.compose(s.pos, s.quat, s.life > 0 ? _skidScaleV : _skidZeroScale);
+                }
+                skidMesh.setMatrixAt(i, _skidMatrix);
+            }
+            if (anyActive) skidMesh.instanceMatrix.needsUpdate = true;
+        }
+
+        // Tire smoke — a small additive particle pool, same pattern as the
+        // exhaust particles but grey, slower, and only active while drifting.
+        const SMOKE_COUNT = 90;
+        const smokeGeom = new THREE.BufferGeometry();
+        const smokePos = new Float32Array(SMOKE_COUNT * 3);
+        const smokeLife = new Float32Array(SMOKE_COUNT).fill(-1);
+        const smokeVel = [];
+        for (let i = 0; i < SMOKE_COUNT; i++) smokeVel.push(new THREE.Vector3());
+        smokeGeom.setAttribute('position', new THREE.BufferAttribute(smokePos, 3));
+        const smokeMat = new THREE.PointsMaterial({
+            color: 0xaaaaaa,
+            size: 0.55,
+            transparent: true,
+            opacity: 0.28,
+            sizeAttenuation: true,
+            depthWrite: false,
+        });
+        const smokeSystem = new THREE.Points(smokeGeom, smokeMat);
+        scene.add(smokeSystem);
+        let smokeCursor = 0;
+
+        function emitTireSmoke(worldPos) {
+            for (let n = 0; n < 3; n++) {
+                const i = smokeCursor % SMOKE_COUNT;
+                smokeCursor++;
+                smokeLife[i] = 0.5 + Math.random() * 0.5;
+                smokePos[i * 3] = worldPos.x + (Math.random() - 0.5) * 0.3;
+                smokePos[i * 3 + 1] = worldPos.y + 0.1;
+                smokePos[i * 3 + 2] = worldPos.z + (Math.random() - 0.5) * 0.3;
+                smokeVel[i].set((Math.random() - 0.5) * 1.2, 0.4 + Math.random() * 0.5, (Math.random() - 0.5) * 1.2);
+            }
+        }
+
+        function updateTireSmoke(dt) {
+            const arr = smokeGeom.attributes.position.array;
+            for (let i = 0; i < SMOKE_COUNT; i++) {
+                if (smokeLife[i] > 0) {
+                    smokeLife[i] -= dt;
+                    arr[i * 3] += smokeVel[i].x * dt;
+                    arr[i * 3 + 1] += smokeVel[i].y * dt;
+                    arr[i * 3 + 2] += smokeVel[i].z * dt;
+                    smokeVel[i].multiplyScalar(0.94);
+                } else {
+                    arr[i * 3 + 1] = -1000;
+                }
+            }
+            smokeGeom.attributes.position.needsUpdate = true;
+        }
+
+        const _driftRearL = new THREE.Vector3();
+        const _driftRearR = new THREE.Vector3();
+        const _driftQuat = new THREE.Quaternion();
+        let driftMarkTimer = 0;
+
+        // Called every physics tick with the current drift state; owns spawning
+        // + per-frame decay for both skid marks and tire smoke.
+        function updateDrift(dt, isDrifting, cosH, sinH) {
+            if (isDrifting) {
+                driftMarkTimer -= dt;
+                if (driftMarkTimer <= 0) {
+                    driftMarkTimer = 0.03; // spawn interval, keeps the ring buffer from burning through instantly
+                    _driftQuat.setFromAxisAngle(_camYAxis, car.heading);
+                    const rl = wheelPositions[2], rr = wheelPositions[3]; // rear-left, rear-right
+                    _driftRearL.set(
+                        car.position.x + rl[0] * cosH + rl[2] * sinH,
+                        0, car.position.z - rl[0] * sinH + rl[2] * cosH);
+                    _driftRearL.y = getGroundUnder(_driftRearL.x, _driftRearL.z) + 0.03;
+                    _driftRearR.set(
+                        car.position.x + rr[0] * cosH + rr[2] * sinH,
+                        0, car.position.z - rr[0] * sinH + rr[2] * cosH);
+                    _driftRearR.y = getGroundUnder(_driftRearR.x, _driftRearR.z) + 0.03;
+                    spawnSkidMark(_driftRearL, _driftQuat);
+                    spawnSkidMark(_driftRearR, _driftQuat);
+                    emitTireSmoke(_driftRearL);
+                    emitTireSmoke(_driftRearR);
+                }
+            }
+            updateSkidMarks(dt);
+            updateTireSmoke(dt);
+        }
+
         // ---------------------------------------------------------
         // 10. Vehicle Physics System & Controls
         // ---------------------------------------------------------
@@ -1267,16 +1978,15 @@
                 if (k === 'l') toggleHeadlights();
                 if (k === 'r') resetCar();
             }
-            initAudio();
-            createEngineSound();
-            createWindSound();
+            unlockAudio();
         });
         window.addEventListener('keyup', e => {
             const k = e.key.toLowerCase();
             keys[k] = false;
             if (e.key === 'Shift') car.boost = false;
         });
-        window.addEventListener('click', initAudio);
+        window.addEventListener('click', unlockAudio);
+        window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
 
         // Mobile Touch Controls
         const touchMappings = {
@@ -1295,12 +2005,11 @@
                 e.preventDefault(); // Stop screen from scrolling/zooming
                 keys[key] = true;
                 if (key === 'shift') car.boost = true;
-                
-                // Initialize audio context on first touch
-                initAudio();
-                createEngineSound();
-                createWindSound();
-            });
+
+                // Unlock/resume the AudioContext synchronously inside this gesture —
+                // required for iOS Safari and most mobile browsers.
+                unlockAudio();
+            }, { passive: false });
 
             const clearTouch = (e) => {
                 e.preventDefault();
@@ -1448,11 +2157,157 @@
             const ratio = speed / car.maxSpeed;
             updateEngineSound(ratio, throttle > 0 ? 1 : 0);
             updateWindSound(ratio);
+            updateMusic(ratio);
             updateParticles(dt, car.position, vF, car.heading, car.boost);
+            updateRain(dt, car.position, speed);
+
+            // ---- Drift detection + skid marks + tire smoke ----
+            // vR (lateral velocity component, computed above before friction was
+            // applied) is the slip signal: high lateral speed relative to the
+            // car's own heading means the tires are sliding, not rolling.
+            const isDrifting = onRoad && Math.abs(vR) > DRIFT_LAT_THRESHOLD && speed > 4.5;
+            updateDrift(dt, isDrifting, cosH, sinH);
+
+            // ---- Traffic AI ----
+            updateTraffic(dt, car);
 
             // HUD
             document.getElementById('speed-display').textContent = Math.round(speed * 3.6);
             document.getElementById('coord-display').textContent = `${Math.round(car.position.x)}, ${Math.round(car.position.z)}`;
+        }
+
+        // ---------------------------------------------------------
+        // 10.5 Traffic AI System
+        // ---------------------------------------------------------
+        // Each traffic car tracks a floating road-point index `sIdx` (advanced
+        // every frame by speed/SEGMENT_DIST) plus a fixed lane offset. Position
+        // and orientation are re-derived from the road centerline + tangent +
+        // binormal each frame, so cars automatically follow every curve, hill
+        // and bank exactly like the player does — that IS the lane-following.
+        const TRAFFIC_MAX = 7;
+        const TRAFFIC_LANE_OFFSET = ROAD_HALF * 0.5; // sit in the middle of a lane, not on the centerline
+        const trafficCars = [];
+
+        const trafficBodyMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.4, roughness: 0.5 });
+        const trafficBodyGeom = new THREE.BoxGeometry(1.9, 0.65, 4.2);
+        const trafficCabinGeom = new THREE.BoxGeometry(1.5, 0.55, 2.0);
+        const trafficLightMatFront = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const trafficLightMatRear = new THREE.MeshBasicMaterial({ color: 0xff2222 });
+        const trafficLightGeom = new THREE.BoxGeometry(0.5, 0.12, 0.06);
+        SHARED_GEOMETRIES.add(trafficBodyGeom);
+        SHARED_GEOMETRIES.add(trafficCabinGeom);
+        SHARED_GEOMETRIES.add(trafficLightGeom);
+        SHARED_MATERIALS.add(trafficBodyMat);
+        SHARED_MATERIALS.add(trafficLightMatFront);
+        SHARED_MATERIALS.add(trafficLightMatRear);
+        const TRAFFIC_HUES = [0x2255dd, 0xdddddd, 0xdd3333, 0xdddd33, 0x33dd88, 0x9955dd];
+
+        function buildTrafficMesh() {
+            const g = new THREE.Group();
+            const bodyMatI = trafficBodyMat.clone();
+            bodyMatI.color.setHex(TRAFFIC_HUES[Math.floor(Math.random() * TRAFFIC_HUES.length)]);
+            const body = new THREE.Mesh(trafficBodyGeom, bodyMatI);
+            body.position.y = 0.5;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            g.add(body);
+            const cabin = new THREE.Mesh(trafficCabinGeom, bodyMatI);
+            cabin.position.set(0, 0.95, -0.1);
+            g.add(cabin);
+            const hlL = new THREE.Mesh(trafficLightGeom, trafficLightMatFront);
+            hlL.position.set(-0.6, 0.5, 2.1);
+            g.add(hlL);
+            const hlR = new THREE.Mesh(trafficLightGeom, trafficLightMatFront);
+            hlR.position.set(0.6, 0.5, 2.1);
+            g.add(hlR);
+            const tlL = new THREE.Mesh(trafficLightGeom, trafficLightMatRear);
+            tlL.position.set(-0.6, 0.5, -2.1);
+            g.add(tlL);
+            const tlR = new THREE.Mesh(trafficLightGeom, trafficLightMatRear);
+            tlR.position.set(0.6, 0.5, -2.1);
+            g.add(tlR);
+            // A single soft headlight glow — kept to one light per car for perf
+            const glow = new THREE.PointLight(0xffffff, 0.6, 14);
+            glow.position.set(0, 0.5, 2.3);
+            g.add(glow);
+            // NOTE: body/cabin materials are per-instance clones (unique colour),
+            // so they are intentionally NOT added to SHARED_MATERIALS — they get
+            // disposed explicitly in despawnTrafficCar().
+            return { group: g, bodyMatI };
+        }
+
+        function spawnTrafficCar(nearIdx) {
+            const { group, bodyMatI } = buildTrafficMesh();
+            const dir = Math.random() < 0.5 ? 1 : -1;          // 1 = same direction as player, -1 = oncoming
+            const lane = (Math.random() < 0.5 ? -1 : 1) * TRAFFIC_LANE_OFFSET * (dir === -1 ? -1 : 1);
+            const speed = 10 + Math.random() * 14;
+            const ahead = 40 + Math.random() * (ROAD_VIS_RADIUS * SEGMENT_DIST - 60);
+            const sIdx = Math.max(1, nearIdx + ahead / SEGMENT_DIST);
+            scene.add(group);
+            trafficCars.push({ group, bodyMatI, sIdx, lane, speed, dir, hitCooldown: 0 });
+        }
+
+        function despawnTrafficCar(car2) {
+            scene.remove(car2.group);
+            car2.group.traverse((obj) => {
+                if (obj.isMesh && obj.geometry && !SHARED_GEOMETRIES.has(obj.geometry)) obj.geometry.dispose();
+            });
+            if (car2.bodyMatI) car2.bodyMatI.dispose();
+        }
+
+        const _trafP = new THREE.Vector3();
+        const _trafT = new THREE.Vector3();
+
+        function updateTraffic(dt, player) {
+            const playerIdx = getNearestRoadIndex(player.position.x, player.position.z);
+
+            // Spawn up to TRAFFIC_MAX cars, always ahead of the player's window
+            if (trafficCars.length < TRAFFIC_MAX && roadPoints.length > playerIdx + 80) {
+                spawnTrafficCar(playerIdx);
+            }
+
+            for (let n = trafficCars.length - 1; n >= 0; n--) {
+                const t = trafficCars[n];
+                t.sIdx += (t.speed * t.dir * dt) / SEGMENT_DIST;
+
+                // Recycle once it falls far behind the player OR runs off the end
+                // of the currently-generated road window.
+                if (t.sIdx < playerIdx - 40 || t.sIdx >= roadPoints.length - 2 || t.sIdx < 1) {
+                    despawnTrafficCar(t);
+                    trafficCars.splice(n, 1);
+                    continue;
+                }
+
+                const i0 = Math.floor(t.sIdx);
+                const frac = t.sIdx - i0;
+                const a = roadPoints[i0],
+                    b = roadPoints[Math.min(roadPoints.length - 1, i0 + 1)];
+                const bin = roadBinormals[i0];
+                _trafP.set(
+                    THREE.MathUtils.lerp(a.x, b.x, frac) + bin.x * t.lane,
+                    THREE.MathUtils.lerp(a.y, b.y, frac) + bin.y * t.lane + ROAD_LIFT + 0.36,
+                    THREE.MathUtils.lerp(a.z, b.z, frac) + bin.z * t.lane
+                );
+                _trafT.copy(roadTangents[i0]);
+                t.group.position.copy(_trafP);
+                const facing = t.dir > 0 ? Math.atan2(_trafT.x, _trafT.z) : Math.atan2(-_trafT.x, -_trafT.z);
+                t.group.rotation.y = facing;
+
+                // ---- Collision detection vs. the player car ----
+                if (t.hitCooldown > 0) t.hitCooldown -= dt;
+                const dx = player.position.x - _trafP.x,
+                    dz = player.position.z - _trafP.z;
+                const distSq = dx * dx + dz * dz;
+                if (distSq < 6.5 && t.hitCooldown <= 0) {
+                    t.hitCooldown = 1.2;
+                    // Simple impulse response: kill most of the player's speed and
+                    // shove them away from the point of impact.
+                    player.velocity.multiplyScalar(0.35);
+                    const pushLen = Math.max(0.001, Math.sqrt(distSq));
+                    player.position.x += (dx / pushLen) * 1.2;
+                    player.position.z += (dz / pushLen) * 1.2;
+                }
+            }
         }
 
         // ---------------------------------------------------------
@@ -1494,6 +2349,18 @@
             return { off, look };
         }
 
+        const CAM_GROUND_CLEARANCE = 1.35; // minimum height above terrain the lens is allowed to reach
+
+        // Clamps a camera-position vector so it can never dip inside a hilltop or
+        // low terrain feature — samples the SAME height field the terrain mesh
+        // itself is built from, so "above terrain" here means what it looks like.
+        function clampCameraAboveTerrain(pos) {
+            const groundY = sampleTerrainMeshHeight(pos.x, pos.z);
+            const minY = groundY + CAM_GROUND_CLEARANCE;
+            if (pos.y < minY) pos.y = minY;
+            return pos;
+        }
+
         function updateCamera(dt) {
             const mode = cameraModes[camIdx];
             const frame = getModeFrame(mode);
@@ -1503,6 +2370,7 @@
             if (lead.length() > 6) lead.setLength(6);
             const desiredPos = car.position.clone().add(frame.off);
             const desiredLook = car.position.clone().add(frame.look).add(lead);
+            clampCameraAboveTerrain(desiredPos);
 
             if (!camInitialized) {
                 camTargetPos.copy(desiredPos);
@@ -1522,12 +2390,112 @@
             camTargetPos.lerp(desiredPos, alpha);
             camTargetLook.lerp(desiredLook, Math.min(1, alpha * 1.6));
 
+            // Hard safety clamp AFTER smoothing too — during fast downhill dips the
+            // lerp target can still momentarily track a position that would clip
+            // into a rise the smoothing hasn't caught up to yet.
+            clampCameraAboveTerrain(camTargetPos);
+
             camera.position.copy(camTargetPos);
             camera.lookAt(camTargetLook);
 
             let targetFov = mode.fov + (car.boost ? 14 : 0);
             camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 5 * dt);
             camera.updateProjectionMatrix();
+        }
+
+        // ---------------------------------------------------------
+        // 11.5 Dynamic Canvas Minimap / Radar
+        // ---------------------------------------------------------
+        const minimapCanvas = document.getElementById('minimap');
+        const minimapCtx = minimapCanvas ? minimapCanvas.getContext('2d') : null;
+        const biomeLabelEl = document.getElementById('biome-display');
+        const MINIMAP_RANGE = 130;      // world units of road shown ahead of the player
+        const MINIMAP_SAMPLE_STEP = 4;  // road-point stride when sampling the path ahead
+
+        // Renders upcoming curves (rotated so "forward" is always screen-up),
+        // colored by elevation change (terrain gradient), plus traffic blips and
+        // a centered player marker — a lightweight 2D radar, redrawn every frame.
+        function drawMinimap(carIdx, roadDist) {
+            if (!minimapCtx) return;
+            const ctx = minimapCtx;
+            const W = minimapCanvas.width,
+                H = minimapCanvas.height;
+            const cx = W / 2,
+                cy = H * 0.72; // player sits low in the frame so more road ahead is visible
+            const scale = (H * 0.62) / MINIMAP_RANGE;
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = 'rgba(5,8,18,0.55)';
+            ctx.beginPath();
+            ctx.arc(W / 2, H / 2, W / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            const cosH = Math.cos(-car.heading),
+                sinH = Math.sin(-car.heading);
+            const project = (wx, wz) => {
+                const dx = wx - car.position.x,
+                    dz = wz - car.position.z;
+                const rx = dx * cosH - dz * sinH;
+                const rz = dx * sinH + dz * cosH;
+                return { x: cx + rx * scale, y: cy - rz * scale };
+            };
+
+            // Upcoming road, colored by grade (orange = climb, blue = descent)
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            let prevPr = null,
+                prevY = null;
+            for (let i = 0; i < 40; i++) {
+                const idx = Math.min(roadPoints.length - 1, carIdx + i * MINIMAP_SAMPLE_STEP);
+                const p = roadPoints[idx];
+                const pr = project(p.x, p.z);
+                if (prevPr) {
+                    const grade = p.y - prevY;
+                    ctx.strokeStyle = grade > 0.4 ? 'rgba(255,170,60,0.9)' :
+                        grade < -0.4 ? 'rgba(120,180,255,0.9)' : 'rgba(0,242,254,0.85)';
+                    ctx.beginPath();
+                    ctx.moveTo(prevPr.x, prevPr.y);
+                    ctx.lineTo(pr.x, pr.y);
+                    ctx.stroke();
+                }
+                prevPr = pr;
+                prevY = p.y;
+            }
+
+            // Traffic blips
+            for (const t of trafficCars) {
+                const pr = project(t.group.position.x, t.group.position.z);
+                if (pr.x < 4 || pr.x > W - 4 || pr.y < 4 || pr.y > H - 4) continue;
+                ctx.fillStyle = t.dir === 1 ? 'rgba(255,220,80,0.9)' : 'rgba(255,60,60,0.9)';
+                ctx.beginPath();
+                ctx.arc(pr.x, pr.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Player marker — fixed at center, always pointing "up"
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.fillStyle = '#00f2fe';
+            ctx.shadowColor = '#00f2fe';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.moveTo(0, -7);
+            ctx.lineTo(5, 6);
+            ctx.lineTo(-5, 6);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            ctx.strokeStyle = 'rgba(0,242,254,0.25)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(W / 2, H / 2, W / 2 - 2, 0, Math.PI * 2);
+            ctx.stroke();
+
+            if (biomeLabelEl) {
+                const bb = getBiomeBlend(roadDist);
+                biomeLabelEl.textContent = bb.name;
+            }
         }
 
         // ---------------------------------------------------------
@@ -1566,9 +2534,24 @@
             hemiI: 0.5,
             hemi: 0x88bbff,
             stars: 0.12
+        }, {
+            name: 'Neon Rain',
+            bg: 0x05060d,
+            fog: 0x05060d,
+            fogD: 0.0044,
+            sun: 0x6688ff,
+            sunI: 0.55,
+            amb: 0.20,
+            hemiI: 0.24,
+            hemi: 0x3355aa,
+            stars: 0.05,
+            wet: true,
+            rain: true,
         }];
         let weatherIdx = 0;
         let headlightsOn = true;
+        let isWet = false;
+        let isRaining = false;
 
         function cycleWeather(dir) {
             weatherIdx = (weatherIdx + dir + weatherPresets.length) % weatherPresets.length;
@@ -1589,6 +2572,37 @@
             if (sunMesh) {
                 sunMesh.material.color.setHex(p.sun);
             }
+
+            // ---- Wet-asphalt reflections & rain ----
+            isWet = !!p.wet;
+            isRaining = !!p.rain;
+            if (isWet) {
+                sharedRoadMat.roughness = 0.32;   // glossy, wet sheen
+                sharedRoadMat.metalness = 0.22;   // subtle specular reflectivity
+                sharedRoadMat.envMapIntensity = 1.4;
+                edgeStripMatL.opacity = 0.55;     // wet edge strips bloom harder
+                bloomPass.strength = 0.62;
+                bloomPass.radius = 0.55;
+            } else {
+                sharedRoadMat.roughness = 0.85;
+                sharedRoadMat.metalness = 0.05;
+                sharedRoadMat.envMapIntensity = 1.0;
+                edgeStripMatL.opacity = 0.35;
+                bloomPass.strength = 0.45;
+                bloomPass.radius = 0.4;
+            }
+            if (rainMesh) rainMesh.visible = isRaining;
+        }
+
+        // ---- Biome atmosphere: layers on top of the weather preset every frame ----
+        // Weather (Q/E) sets the overall time-of-day mood; biome nudges fog color
+        // toward the current stretch's palette so the world visibly drifts through
+        // desert / cyberpunk / forest zones without fighting the player's choice.
+        const _biomeFogTarget = new THREE.Color();
+        function updateBiomeAtmosphere(roadDist) {
+            const bb = getBiomeBlend(roadDist);
+            _biomeFogTarget.copy(bb.a.fog).lerp(bb.b.fog, bb.t);
+            scene.fog.color.lerp(_biomeFogTarget, 0.02);
         }
 
         function toggleHeadlights() {
@@ -1637,6 +2651,10 @@
             // (not the accumulated odometer), keeping it in sync off-road/reversing.
             const carIdx = Math.max(0, getNearestRoadIndex(car.position.x, car.position.z));
             updateRoadMesh(carIdx);
+
+            const roadDist = roadArcLen[carIdx] !== undefined ? roadArcLen[carIdx] : carIdx * SEGMENT_DIST;
+            updateBiomeAtmosphere(roadDist);
+            drawMinimap(carIdx, roadDist);
 
             // Keep the shadow-casting light centered on the car so shadows persist
             sunLight.position.set(car.position.x + 170, car.position.y + 190, car.position.z + 170);
