@@ -493,7 +493,7 @@ window.addEventListener('touchmove', (e) => {
 // Game state
 // ---------------------------------------------------------------------------
 const AI_PERSONALITIES = {
-    Neon: { raiseAgg: 0.35, bluffFreq: 0.15, foldTight: 0.6 },
+    Sage: { raiseAgg: 0.35, bluffFreq: 0.15, foldTight: 0.6 },
     Viper: { raiseAgg: 0.75, bluffFreq: 0.4, foldTight: 0.15 },
     Ace: { raiseAgg: 0.5, bluffFreq: 0.22, foldTight: 0.4 }
 };
@@ -874,10 +874,10 @@ function showResultOverlay(wonAmount) {
         titleEl.innerHTML = `<i class="fa-solid fa-trophy" style="color:#facc15;"></i> You Win!`;
         descEl.textContent = `You take ${wonAmount} chips with ${handLabel(winningEval)}!`;
     } else if (gameOverMsg === 'lose') {
-        titleEl.innerHTML = `<i class="fa-solid fa-robot" style="color:#ff0080;"></i> ${seats[bestSeatIdx].name} Wins!`;
+        titleEl.innerHTML = `<i class="fa-solid fa-robot" style="color:#b3423b;"></i> ${seats[bestSeatIdx].name} Wins!`;
         descEl.textContent = `${seats[bestSeatIdx].name} takes the pot with ${handLabel(winningEval)}.`;
     } else if (gameOverMsg === 'busted') {
-        titleEl.innerHTML = `<i class="fa-solid fa-skull" style="color:#ff4d4d;"></i> You Busted!`;
+        titleEl.innerHTML = `<i class="fa-solid fa-skull" style="color:#b3423b;"></i> You Busted!`;
         descEl.textContent = `You're out of chips. Your bankroll has been reset.`;
         btn.textContent = 'Restart Game';
     } else if (gameOverMsg === 'cleared') {
@@ -886,7 +886,7 @@ function showResultOverlay(wonAmount) {
         descEl.textContent = `All opponents are out. You are the champion!`;
         btn.textContent = 'New Tournament';
     } else {
-        titleEl.innerHTML = `<i class="fa-solid fa-handshake" style="color:#00f2fe;"></i> Hand Complete`;
+        titleEl.innerHTML = `<i class="fa-solid fa-handshake" style="color:#3d6ea5;"></i> Hand Complete`;
         descEl.textContent = `Bankroll: ${playerSeat().chips} chips.`;
         btn.textContent = 'Next Hand';
     }
@@ -1216,7 +1216,7 @@ function spawnPayoutChips(seatIdx) {
     const L = layout();
     const fromX = L.pot.x, fromY = L.pot.y;
     const to = L.seats[seatIdx];
-    const colors = ['#facc15', '#00f2fe', '#ff0080', '#ffffff', '#10b981'];
+    const colors = ['#d9a441', '#3d6ea5', '#b3423b', '#e8e6e0', '#4d7a50'];
     const n = Math.min(10, 4 + Math.floor(Math.random() * 4));
     for (let i = 0; i < n; i++) {
         floatingChips.push({
@@ -1243,7 +1243,7 @@ function cardFlipT(card, now) {
 // Confetti
 // ---------------------------------------------------------------------------
 function launchConfetti() {
-    const colors = ['#00f2fe', '#7928ca', '#ff0080', '#facc15', '#10b981', '#ff4d4d'];
+    const colors = ['#3d6ea5', '#8874a8', '#b3423b', '#d9a441', '#4d7a50', '#8a877f'];
     for (let i = 0; i < 140; i++) {
         confetti.push({
             x: Math.random() * canvas.width,
@@ -1904,7 +1904,7 @@ if (typeof document !== 'undefined' && document.getElementById('gameCanvas')) {
         // Fresh session: load player bankroll
         seats = [
             makeSeat('You', true, null),
-            makeSeat('Neon', false, AI_PERSONALITIES.Neon),
+            makeSeat('Sage', false, AI_PERSONALITIES.Sage),
             makeSeat('Viper', false, AI_PERSONALITIES.Viper),
             makeSeat('Ace', false, AI_PERSONALITIES.Ace)
         ];

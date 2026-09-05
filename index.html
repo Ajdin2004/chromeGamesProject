@@ -454,7 +454,7 @@
             gap: 0.45rem;
             border: 1px solid var(--glass-border);
             background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
-            color: #fff;
+            color: var(--accent-fg);
             padding: 0.55rem 1.05rem;
             border-radius: 24px;
             font-weight: 700;
@@ -492,66 +492,6 @@
         }
         .tagline { color: var(--text-muted); font-size: clamp(0.85rem, 3vw, 1.05rem); margin-top: 0.4rem; }
 
-        /* --- Live Activity Feed (ticker) --- */
-        .live-feed {
-            position: relative;
-            max-width: 640px;
-            margin: 0 auto;
-            border-radius: 18px;
-            padding: 0.7rem 1rem 0.7rem 3rem;
-            text-align: left;
-        }
-        .live-feed::before {
-            content: '\f0e7';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            left: 1.05rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--accent-cyan);
-            filter: drop-shadow(0 0 8px var(--ring-glow));
-            animation: feedPulse 1.6s ease-in-out infinite;
-        }
-        @keyframes feedPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-        .live-feed-title {
-            display: block;
-            font-size: 0.6rem;
-            font-weight: 800;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 0.3rem;
-        }
-        .live-feed-viewport { position: relative; height: 20px; overflow: hidden; }
-        .live-feed-track { position: relative; display: flex; flex-direction: column; transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
-        .feed-item {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            font-size: 0.8rem;
-            color: var(--text-main);
-            line-height: 20px;
-            height: 20px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .feed-item .feed-player { color: var(--accent-cyan); font-weight: 800; }
-        .feed-item .feed-game { color: var(--text-main); font-weight: 700; }
-        .feed-item .feed-score { color: var(--star-color); font-weight: 800; white-space: nowrap; }
-        .feed-item .feed-tag {
-            flex-shrink: 0;
-            font-size: 0.55rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            padding: 0.12rem 0.4rem;
-            border-radius: 6px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-muted);
-        }
 /* ============================================================
            5. CONTROLS BAR — search / categories / sort / random
            ============================================================ */
@@ -626,12 +566,12 @@
             white-space: nowrap;
             font-family: 'Outfit', sans-serif;
         }
-        .category-btn:hover { color: var(--text-main); border-color: var(--glass-hi); transform: translateY(-1px); }
+        .category-btn:hover { color: var(--text-main); border-color: var(--glass-hi); }
         .category-btn.active {
-            color: #fff;
+            color: #f5f5f5;
             background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
             border-color: transparent;
-            box-shadow: 0 6px 18px var(--ring-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            box-shadow: 0 0 2px var(--ring-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
         }
         .category-btn.hidden { display: none; }
 
@@ -665,7 +605,7 @@
             gap: 0.5rem;
             background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
             border: 1px solid transparent;
-            color: #fff;
+            color: var(--accent-fg);
             padding: 0.5rem 1.05rem;
             border-radius: 25px;
             font-weight: 700;
@@ -675,7 +615,7 @@
             font-family: 'Outfit', sans-serif;
             box-shadow: 0 6px 18px var(--ring-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
         }
-        .random-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 10px 26px var(--ring-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+        .random-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 10px 10px var(--ring-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
         .random-btn:active { transform: translateY(0) scale(0.97); }
 /* ============================================================
            6. ASYMMETRIC HERO BENTO — expandable featured card
@@ -1775,8 +1715,6 @@
             .dev-banner-content span { display: none; }
             .about-section { padding: 1.5rem 1rem; }
             .faq-section { padding: 1.2rem 1rem; }
-            .live-feed { padding: 0.7rem 0.8rem 0.7rem 2.6rem; }
-            .live-feed::before { left: 0.8rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -1793,8 +1731,6 @@
             .aurora-blob { animation: none; }
             .glass::after { animation: none; }
             .player-avatar { animation: none; }
-            .feed-item { animation: none; }
-            .live-feed-track { transition: none; }
         }
     </style>
 </head>
@@ -1865,14 +1801,6 @@
                     <h1 class="brand-title">Chromium <span>Games</span></h1>
                 </div>
                 <p class="tagline">Browser arcade powered by boredom.</p>
-            </div>
-
-            <!-- Dynamic Live Activity Feed (ticker) -->
-            <div class="live-feed glass" aria-live="polite">
-                <span class="live-feed-title">Live Arcade Activity</span>
-                <div class="live-feed-viewport">
-                    <div class="live-feed-track" id="live-feed-track"></div>
-                </div>
             </div>
         </header>
 <!-- Controls -->
@@ -3253,85 +3181,6 @@ function fxDraw(now) {
         }
         attachFxHover(document.getElementById('shelves'));
         attachFxHover(document.getElementById('hero-bento'));
-/* ============================================================
-           22. DYNAMIC LIVE ACTIVITY FEED (ticker, simulates players)
-           ============================================================ */
-        const feedTrack = document.getElementById('live-feed-track');
-        const FEED_ROW = 20;
-        const MAX_FEED = 6;
-        let feedItems = [];
-        let feedPos = 0;
-        let feedTimer = null;
-
-        const FEED_TAGS = ['SCORE', 'STREAK', 'COMBO', 'CLEAR', 'ACE', 'PERFECT', 'RECORD'];
-
-        function makeFeedMsg() {
-            const g = GAMES[(Math.random() * GAMES.length) | 0];
-            const adjectives = ['Neon', 'Cyber', 'Quantum', 'Hyper', 'Lunar', 'Pixel', 'Cosmic', 'Turbo', 'Prism', 'Shadow'];
-            const player = adjectives[(Math.random() * adjectives.length) | 0] + '_' + Math.floor(100 + Math.random() * 900);
-            const tag = FEED_TAGS[(Math.random() * FEED_TAGS.length) | 0];
-            const score = Math.floor(20 + Math.random() * 4800);
-            const roll = Math.random();
-            if (roll < 0.4) {
-                return `<span class="feed-tag">${tag}</span> <span class="feed-player">${player}</span> scored <span class="feed-score">${score}</span> in <span class="feed-game">${g.name}</span>`;
-            }
-            if (roll < 0.7) {
-                return `<span class="feed-tag">Streak</span> <span class="feed-player">${player}</span> kept a <span class="feed-score">${Math.ceil(score / 20)}</span> day streak in <span class="feed-game">${g.name}</span>`;
-            }
-            return `<span class="feed-tag">${tag}</span> <span class="feed-player">${player}</span> started playing <span class="feed-game">${g.name}</span>`;
-        }
-
-        function renderFeedTrack() {
-            feedTrack.innerHTML = '';
-            feedItems.forEach(m => {
-                const d = document.createElement('div');
-                d.className = 'feed-item';
-                d.innerHTML = m;
-                feedTrack.appendChild(d);
-            });
-        }
-
-        function feedStep() {
-            feedPos++;
-            feedTrack.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
-            feedTrack.style.transform = `translateY(${-feedPos * FEED_ROW}px)`;
-        }
-
-        function feedTick() {
-            if (feedPos >= feedItems.length - 1) {
-                // roll in a fresh message at the bottom, drop the oldest from top
-                feedItems.shift();
-                feedItems.push(makeFeedMsg());
-                renderFeedTrack();
-                feedPos = feedItems.length - 2;
-                feedTrack.style.transition = 'none';
-                feedTrack.style.transform = `translateY(${-feedPos * FEED_ROW}px)`;
-                void feedTrack.offsetWidth; // reflow
-                feedStep();
-            } else {
-                feedStep();
-            }
-        }
-
-        function startFeed() {
-            if (prefersReducedMotion) return;
-            if (feedItems.length === 0) {
-                feedPos = 0;
-                feedItems = [makeFeedMsg()];
-                renderFeedTrack();
-            }
-            stopFeed();
-            feedTimer = setInterval(feedTick, 2800);
-        }
-
-        function stopFeed() {
-            if (feedTimer) { clearInterval(feedTimer); feedTimer = null; }
-        }
-
-        const liveFeedEl = document.querySelector('.live-feed');
-        liveFeedEl.addEventListener('mouseenter', stopFeed);
-        liveFeedEl.addEventListener('mouseleave', startFeed);
-        startFeed();
 /* ============================================================
            24. SEARCH / FILTER / SORT
            ============================================================ */

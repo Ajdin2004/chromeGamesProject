@@ -96,7 +96,7 @@ body {
     gap: .4rem;
 }
 
-.back:hover { color: #67e8f9; }
+.back:hover { color: #3d6ea5; }
 
 #hand-history-btn { justify-self: end; }
 
@@ -158,9 +158,7 @@ canvas {
     max-width: 92%;
     text-align: center;
     font-size: clamp(1.7rem, 6vw, 3rem);
-    background: linear-gradient(135deg, #67e8f9, #a78bfa, #f472b6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #e8e6e0;
 }
 
 .overlay p {
@@ -222,14 +220,12 @@ canvas {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #22d3ee, #06b6d4);
-    box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+    background: #3d6ea5;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease;
 }
 #raise-slider::-webkit-slider-thumb:hover {
     transform: scale(1.15);
-    box-shadow: 0 0 14px rgba(34, 211, 238, 0.9);
 }
 /* Custom Firefox Slider Thumb */
 #raise-slider::-moz-range-thumb {
@@ -237,15 +233,13 @@ canvas {
     height: 18px;
     border: none;
     border-radius: 50%;
-    background: linear-gradient(135deg, #22d3ee, #06b6d4);
-    box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+    background: #3d6ea5;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease;
 }
 
 #raise-slider::-moz-range-thumb:hover {
     transform: scale(1.15);
-    box-shadow: 0 0 14px rgba(34, 211, 238, 0.9);
 }
 
 #raise-slider:disabled::-webkit-slider-thumb {
@@ -257,7 +251,7 @@ canvas {
 
 #raise-value {
     min-width: 62px;
-    color: #67e8f9;
+    color: #3d6ea5;
     text-align: right;
     font-size: .82rem;
 }
@@ -285,14 +279,13 @@ canvas {
 }
 
 .btn:hover {
-    border-color: rgba(34,211,238,.65);
+    border-color: rgba(61,110,165,.65);
     background: rgba(255,255,255,.09);
 }
 
 .btn.primary {
     border: 0;
-    background: linear-gradient(135deg, #06b6d4, #7c3aed);
-    box-shadow: 0 6px 20px rgba(6,182,212,.18);
+    background: #3d6ea5;
 }
 
 .btn:disabled {
@@ -360,9 +353,9 @@ canvas {
     line-height: 1.35;
 }
 
-.history-result.win { color: #34d399; }
-.history-result.loss { color: #fb7185; }
-.history-result.push { color: #facc15; }
+.history-result.win { color: #4d7a50; }
+.history-result.loss { color: #b3423b; }
+.history-result.push { color: #b08a3e; }
 
 /* Device orientation notice */
 .orientation-overlay {

@@ -14,8 +14,54 @@
             box-sizing: border-box;
             font-family: 'Outfit', sans-serif;
         }
+        :root {
+            /* ---- DARK THEME (default) ---- */
+            --bg: #191a1e;
+            --text: #e8e6e0;
+            --back-hover: #7aa7d6;
+            --felt: #143128;
+            --felt-border: rgba(255, 255, 255, 0.10);
+            --felt-shadow: rgba(0, 0, 0, 0.55);
+            --btn-bg: #2a2c33;
+            --btn-border: rgba(255, 255, 255, 0.10);
+            --btn-fg: #e8e6e0;
+            --btn-hover-bg: #34373f;
+            --btn-hover-border: #7aa7d6;
+            --overlay-bg: rgba(18, 19, 22, 0.93);
+            --overlay-title: #efece4;
+            --overlay-sub: #9aa0a8;
+            --orientation-bg: rgba(18, 19, 22, 0.95);
+            --card-bg: #232429;
+            --card-border: rgba(255, 255, 255, 0.10);
+            --slot-stroke: rgba(255, 255, 255, 0.10);
+            --slot-suit: rgba(255, 255, 255, 0.06);
+        }
+
+        :root[data-theme="light"] {
+            /* ---- LIGHT THEME ---- */
+            --bg: #efece4;
+            --text: #2b2b29;
+            --back-hover: #3d6ea5;
+            --felt: #425f4a;
+            --felt-border: rgba(32, 32, 28, 0.15);
+            --felt-shadow: rgba(52, 48, 40, 0.28);
+            --btn-bg: #ffffff;
+            --btn-border: #d5d1c6;
+            --btn-fg: #2b2b29;
+            --btn-hover-bg: #e7e3d9;
+            --btn-hover-border: #3d6ea5;
+            --overlay-bg: rgba(240, 237, 228, 0.92);
+            --overlay-title: #20201f;
+            --overlay-sub: #7d7a72;
+            --orientation-bg: rgba(239, 236, 228, 0.95);
+            --card-bg: #ffffff;
+            --card-border: #e2ded4;
+            --slot-stroke: rgba(0, 0, 0, 0.12);
+            --slot-suit: rgba(0, 0, 0, 0.08);
+        }
+
         body {
-            background: #0b0d19;
+            background: var(--bg);
             height: 100vh;
             height: 100dvh;
             display: flex;
@@ -23,7 +69,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0.5rem 1rem;
-            color: #f0f4f8;
+            color: var(--text);
             overflow: hidden;
         }
         .header {
@@ -35,7 +81,7 @@
             margin-bottom: 0.25rem;
         }
         .back {
-            color: #f0f4f8;
+            color: var(--text);
             text-decoration: none;
             font-weight: 600;
             display: flex;
@@ -43,7 +89,33 @@
             gap: 0.4rem;
             transition: 0.2s;
         }
-        .back:hover { color: #00f2fe; }
+        .back:hover { color: var(--back-hover); }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--btn-border);
+            background: var(--btn-bg);
+            color: var(--btn-fg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover { border-color: var(--btn-hover-border); color: var(--btn-hover-border); }
+        .icon-sun { display: none; }
+        [data-theme="dark"] .icon-moon { display: none; }
+        [data-theme="dark"] .icon-sun { display: inline; }
         
         #game-container {
             position: relative;
@@ -51,10 +123,10 @@
             max-width: 1600px;
             flex: 1;
             min-height: 0;
-            background: #101426;
+            background: var(--felt);
             border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--felt-border);
+            box-shadow: 0 20px 50px var(--felt-shadow);
             overflow: hidden;
             user-select: none;
             margin-bottom: 0.5rem;
@@ -73,7 +145,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(11, 13, 25, 0.85);
+            background: var(--overlay-bg);
             backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
@@ -92,14 +164,12 @@
 
         .win-overlay h1 {
             font-size: clamp(1.8rem, 6vw, 3rem);
-            background: linear-gradient(135deg, #00f2fe, #7928ca, #ff0080);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--overlay-title);
             text-align: center;
         }
 
         .win-overlay p {
-            color: #9ca3af;
+            color: var(--overlay-sub);
             font-size: 1rem;
         }
 
@@ -114,9 +184,9 @@
         }
 
         .btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: var(--btn-fg);
             padding: 0.5rem 1rem;
             border-radius: 8px;
             cursor: pointer;
@@ -125,8 +195,8 @@
         }
 
         .btn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: #00f2fe;
+            background: var(--btn-hover-bg);
+            border-color: var(--btn-hover-border);
         }
 
         /* Device orientation notice */
@@ -139,7 +209,7 @@
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: rgba(5, 8, 16, 0.95);
+    background: var(--orientation-bg);
     backdrop-filter: blur(16px);
     text-align: center;
     opacity: 1;
@@ -152,8 +222,8 @@
 }
 
 .orientation-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 16px;
     padding: 24px;
     max-width: 320px;
@@ -165,18 +235,18 @@
 
 .orientation-icon {
     font-size: 2.2rem;
-    color: #67e8f9;
+    color: var(--back-hover);
     animation: rotateHint 2s infinite ease-in-out;
 }
 
 .orientation-card h3 {
     font-size: 1.1rem;
-    color: #f8fafc;
+    color: var(--text);
 }
 
 .orientation-card p {
     font-size: 0.85rem;
-    color: #94a3b8;
+    color: var(--overlay-sub);
     line-height: 1.4;
 }
 @keyframes rotateHint {
@@ -214,7 +284,10 @@
 <div class="header">
     <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
     <h2 style="font-weight: 600; font-size: 1.2rem; letter-spacing: 0.5px;">Solitaire</h2>
-    <div style="width: 50px;"></div> 
+    <button id="theme-toggle" class="theme-toggle" title="Toggle light / dark mode" aria-label="Toggle theme">
+        <i class="fa-solid fa-sun icon-sun"></i>
+        <i class="fa-solid fa-moon icon-moon"></i>
+    </button>
 </div>
 
 <div id="game-container">
@@ -231,6 +304,21 @@
     <button class="btn" id="undo-btn">Undo</button>
 </div>
 
-<script src="solitaire.js"></script>
+<script>
+        // Theme toggle — dark is the default, persisted across all games
+        (function () {
+            var KEY = 'cg_theme';
+            var theme = localStorage.getItem(KEY) || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            var btn = document.getElementById('theme-toggle');
+            if (btn) btn.addEventListener('click', function () {
+                theme = theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(KEY, theme);
+                document.documentElement.setAttribute('data-theme', theme);
+            });
+        })();
+    </script>
+
+    <script src="solitaire.js"></script>
 </body>
 </html>

@@ -74,8 +74,8 @@ const Sound = {
 };
 
 // --- Piece Constants ---
-// 'r' = red man (AI), 'R' = red king
-// 'b' = blue man (Player), 'B' = blue king
+// 'r' = black man (AI), 'R' = black king
+// 'b' = white man (Player), 'B' = white king
 const PIECE_SYMBOLS = {
     'r': '●', 'R': '●',
     'b': '●', 'B': '●'
@@ -531,9 +531,9 @@ function updateStatus() {
     if (gameOver) return;
 
     if (gameMode === 'ai') {
-        statusEl.textContent = turn === 'b' ? "Your Turn (Blue)" : "AI Thinking...";
+        statusEl.textContent = turn === 'b' ? "Your Turn (White)" : "AI Thinking...";
     } else {
-        statusEl.textContent = turn === 'r' ? "Red's Turn" : "Blue's Turn";
+        statusEl.textContent = turn === 'r' ? "Black's Turn" : "White's Turn";
     }
 }
 

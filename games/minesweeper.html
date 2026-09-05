@@ -3,19 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Minesweeper | Chromium Games</title>
+    <title>Minesweeper | Chromium Games</title>
     <link rel="icon" type="image/png" href="https://freepngimg.com/save/91765-minesweeper-star-microsoft-symmetry-classic-free-hq-image/1024x1024">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #0b0d19;
-            --card-bg: rgba(22, 27, 46, 0.75);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --primary-cyan: #00f2fe;
-            --primary-magenta: #ff0080;
-            --text-main: #f0f4f8;
-            --text-muted: #94a3b8;
+            /* ---- DARK THEME (default) ---- */
+            --bg-color: #16171c;
+            --card-bg: #232429;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary-cyan: #7aa7d6;
+            --accent-fg: #101218;
+            --primary-magenta: #d97f78;
+            --text-main: #e8e6e0;
+            --text-muted: #9aa0a8;
+            --soft-bg: #1d1e23;
+            --btn-primary-bg: #eceeed;
+            --btn-primary-fg: #1c1d21;
+            --btn-primary-border: #eceeed;
+            --shadow-card: rgba(0, 0, 0, 0.35);
+            --shadow-board: rgba(0, 0, 0, 0.42);
+            --cell-bg: #4a4f5a;
+            --cell-border: #33363d;
+            --cell-hover-bg: #565c68;
+            --cell-hover-border: #14161a;
+            --cell-revealed-bg: #2d2f36;
+            --cell-revealed-border: #26282e;
+            --flag-color: #e27d72;
+            --mine-color: #d9534a;
+            --num-1: #7ab8ff;
+            --num-2: #7ed17f;
+            --num-3: #ff8f85;
+            --num-4: #b092ff;
+            --num-5: #ffb74d;
+            --num-6: #80deea;
+            --num-7: #ececec;
+            --num-8: #b0b7bf;
+        }
+
+        :root[data-theme="light"] {
+            /* ---- LIGHT THEME ---- */
+            --bg-color: #f1efe8;
+            --card-bg: #ffffff;
+            --card-border: #e2ded4;
+            --primary-cyan: #3d6ea5;
+            --accent-fg: #ffffff;
+            --primary-magenta: #b3423b;
+            --text-main: #2b2b29;
+            --text-muted: #7d7a72;
+            --soft-bg: #f4f2ec;
+            --btn-primary-bg: #20201f;
+            --btn-primary-fg: #ffffff;
+            --btn-primary-border: #20201f;
+            --shadow-card: rgba(52, 48, 40, 0.06);
+            --shadow-board: rgba(52, 48, 40, 0.12);
+            --cell-bg: #e8e5dc;
+            --cell-border: #d5d1c6;
+            --cell-hover-bg: #e0ddd3;
+            --cell-hover-border: #bfbaad;
+            --cell-revealed-bg: #f7f5ef;
+            --cell-revealed-border: #e7e3d9;
+            --flag-color: #b3423b;
+            --mine-color: #c0392b;
+            --num-1: #1976d2;
+            --num-2: #388e3c;
+            --num-3: #d32f2f;
+            --num-4: #283593;
+            --num-5: #8d3d26;
+            --num-6: #00838f;
+            --num-7: #20201f;
+            --num-8: #6d6d6d;
         }
 
         * {
@@ -62,6 +120,32 @@
             color: var(--primary-cyan);
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .theme-toggle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover { border-color: var(--primary-cyan); color: var(--primary-cyan); }
+        .icon-sun { display: none; }
+        [data-theme="dark"] .icon-moon { display: none; }
+        [data-theme="dark"] .icon-sun { display: inline; }
+
         /* Controls & Mode Bar */
         .controls-bar {
             display: flex;
@@ -96,16 +180,16 @@
         }
 
         .mode-btn.active {
-            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta));
-            color: #000;
-            font-weight: 800;
+            background: var(--primary-cyan);
+            color: var(--accent-fg);
+            font-weight: 700;
         }
 
         .btn-action {
             padding: 0.65rem 1.2rem;
             border: 1px solid var(--card-border);
             border-radius: 10px;
-            background: rgba(0,0,0,0.3);
+            background: var(--soft-bg);
             color: var(--text-main);
             font-weight: 700;
             cursor: pointer;
@@ -122,11 +206,11 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-magenta));
-            border: none;
-            color: #000;
+            background: var(--btn-primary-bg);
+            border: 1px solid var(--btn-primary-border);
+            color: var(--btn-primary-fg);
         }
-        .btn-primary:hover { opacity: 0.9; color: #000; }
+        .btn-primary:hover { opacity: 0.9; color: var(--btn-primary-fg); border-color: var(--btn-primary-border); }
 
         /* Main Game Layout Grid */
         .main-layout {
@@ -141,14 +225,13 @@
         /* Board Container */
         .game-wrapper {
             position: relative;
-            box-shadow: 0 20px 50px rgba(0, 242, 254, 0.15);
+            box-shadow: 0 18px 44px var(--shadow-board);
             border-radius: 20px;
             overflow: auto;
             border: 1px solid var(--card-border);
-            background: rgba(15, 18, 35, 0.9);
+            background: var(--card-bg);
             width: 100%;
             margin: 0 auto;
-            backdrop-filter: blur(16px);
             padding: 1rem;
             display: flex;
             flex-direction: column;
@@ -163,7 +246,7 @@
             gap: 0.75rem;
             margin-bottom: 1rem;
             padding: 0.6rem 1rem;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--soft-bg);
             border: 1px solid var(--card-border);
             border-radius: 12px;
             min-width: 280px;
@@ -176,7 +259,6 @@
             font-size: 1.1rem;
             font-weight: 800;
             color: var(--primary-cyan);
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
         }
 
         .info-item i {
@@ -189,7 +271,7 @@
             height: 42px;
             border-radius: 10px;
             border: 1px solid var(--card-border);
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--card-bg);
             color: var(--text-main);
             font-size: 1.1rem;
             cursor: pointer;
@@ -202,7 +284,6 @@
         .reset-btn:hover {
             border-color: var(--primary-cyan);
             color: var(--primary-cyan);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
         }
 
         /* Board Grid */
@@ -223,64 +304,60 @@
             font-weight: 800;
             cursor: pointer;
             position: relative;
-            transition: background 0.1s ease, transform 0.1s ease;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: background 0.1s ease;
+            background: var(--cell-bg);
+            border: 1px solid var(--cell-border);
             border-radius: 4px;
         }
 
         .cell:hover {
-            background: rgba(0, 242, 254, 0.1);
-            border-color: rgba(0, 242, 254, 0.3);
+            background: var(--cell-hover-bg);
+            border-color: var(--cell-hover-border);
         }
 
         .cell.revealed {
-            background: rgba(255, 255, 255, 0.02);
-            border-color: rgba(255, 255, 255, 0.04);
+            background: var(--cell-revealed-bg);
+            border-color: var(--cell-revealed-border);
             cursor: default;
         }
 
         .cell.revealed:hover {
-            background: rgba(255, 255, 255, 0.02);
-            border-color: rgba(255, 255, 255, 0.04);
+            background: var(--cell-revealed-bg);
+            border-color: var(--cell-revealed-border);
         }
 
         .cell.flagged {
-            color: var(--primary-magenta);
-            text-shadow: 0 0 10px rgba(255, 0, 128, 0.6);
+            color: var(--flag-color);
         }
 
         .cell.mine {
-            color: #ef4444;
-            text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
-            background: rgba(239, 68, 68, 0.15);
+            color: var(--mine-color);
+            background: rgba(192, 57, 43, 0.10);
         }
 
         .cell.mine-hit {
-            background: rgba(239, 68, 68, 0.4) !important;
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+            background: rgba(192, 57, 43, 0.35) !important;
+            border-color: #c0392b !important;
         }
 
         .cell.wrong-flag {
-            background: rgba(255, 0, 128, 0.2) !important;
-            border-color: var(--primary-magenta) !important;
+            background: rgba(192, 57, 43, 0.15) !important;
+            border-color: #b3423b !important;
         }
 
         .cell.winning {
-            background: rgba(34, 197, 94, 0.15) !important;
-            border-color: #22c55e !important;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+            background: rgba(77, 122, 80, 0.12) !important;
+            border-color: #4d7a50 !important;
         }
 
-        .num-1 { color: #38bdf8; text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); }
-        .num-2 { color: #4ade80; text-shadow: 0 0 8px rgba(74, 222, 128, 0.5); }
-        .num-3 { color: #f87171; text-shadow: 0 0 8px rgba(248, 113, 113, 0.5); }
-        .num-4 { color: #c084fc; text-shadow: 0 0 8px rgba(192, 132, 252, 0.5); }
-        .num-5 { color: #facc15; text-shadow: 0 0 8px rgba(250, 204, 21, 0.5); }
-        .num-6 { color: #fb923c; text-shadow: 0 0 8px rgba(251, 146, 60, 0.5); }
-        .num-7 { color: #f472b6; text-shadow: 0 0 8px rgba(244, 114, 182, 0.5); }
-        .num-8 { color: #e2e8f0; text-shadow: 0 0 8px rgba(226, 232, 240, 0.5); }
+        .num-1 { color: var(--num-1); }
+        .num-2 { color: var(--num-2); }
+        .num-3 { color: var(--num-3); }
+        .num-4 { color: var(--num-4); }
+        .num-5 { color: var(--num-5); }
+        .num-6 { color: var(--num-6); }
+        .num-7 { color: var(--num-7); }
+        .num-8 { color: var(--num-8); }
 
         /* Sidebar Info Box */
         .sidebar {
@@ -295,8 +372,7 @@
             border: 1px solid var(--card-border);
             border-radius: 16px;
             padding: 1rem;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px var(--shadow-card);
         }
 
         .panel h3 {
@@ -309,7 +385,7 @@
 
         .status-msg {
             font-size: 0.95rem;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--primary-cyan);
         }
 
@@ -323,7 +399,7 @@
         .score-item {
             text-align: center;
             padding: 0.6rem 0.4rem;
-            background: rgba(0,0,0,0.3);
+            background: var(--soft-bg);
             border-radius: 10px;
             border: 1px solid var(--card-border);
         }
@@ -343,7 +419,7 @@
 
         .score-item.wins .score-value { color: var(--primary-cyan); }
         .score-item.losses .score-value { color: var(--primary-magenta); }
-        .score-item.best .score-value { color: #facc15; }
+        .score-item.best .score-value { color: var(--text-muted); }
 
         /* How to Play */
         .how-to-play {
@@ -388,7 +464,13 @@
 
     <div class="header-bar">
         <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-        <h2>Neon Minesweeper</h2>
+        <div class="header-right">
+            <h2>Minesweeper</h2>
+            <button id="theme-toggle" class="theme-toggle" title="Toggle light / dark mode" aria-label="Toggle theme">
+                <i class="fa-solid fa-sun icon-sun"></i>
+                <i class="fa-solid fa-moon icon-moon"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Difficulty & Controls Bar -->
@@ -452,6 +534,21 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Theme toggle — dark is the default, persisted across all games
+        (function () {
+            var KEY = 'cg_theme';
+            var theme = localStorage.getItem(KEY) || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            var btn = document.getElementById('theme-toggle');
+            if (btn) btn.addEventListener('click', function () {
+                theme = theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(KEY, theme);
+                document.documentElement.setAttribute('data-theme', theme);
+            });
+        })();
+    </script>
 
     <script src="minesweeper.js"></script>
 </body>

@@ -153,7 +153,7 @@ class Card {
 
         if (isSelected) {
             ctx.save();
-            ctx.strokeStyle = '#00f2fe';
+            ctx.strokeStyle = '#3d6ea5';
             ctx.lineWidth = 3;
             // A separate elevated glow for active selections
             ctx.shadowColor = 'rgba(0,0,0,0.5)';
@@ -200,19 +200,24 @@ function drawLoop() {
     let keepAnimating = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Theme-aware slot outlines (read live so toggling re-renders correctly)
+    const _css = getComputedStyle(document.documentElement);
+    const slotStroke = _css.getPropertyValue('--slot-stroke').trim() || 'rgba(255,255,255,0.1)';
+    const slotSuit = _css.getPropertyValue('--slot-suit').trim() || 'rgba(255,255,255,0.05)';
+
    // Draw Foundations (Slots)
 for (let i = 0; i < 4; i++) {
     const x = LEFT_MARGIN + (i + 3) * (CARD_WIDTH + COLUMN_SPACING);
     const y = TOP_MARGIN;
 
     // Empty slot background
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.strokeStyle = slotStroke;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fillStyle = slotSuit;
     ctx.font = `${Math.max(18, CARD_WIDTH * 0.5)}px serif`;
     ctx.textAlign = 'center';
     ctx.fillText(['♥', '♦', '♣', '♠'][i], x + CARD_WIDTH / 2, y + CARD_HEIGHT / 2 + CARD_WIDTH * 0.18);
@@ -234,11 +239,11 @@ for (let i = 0; i < 4; i++) {
     if (stock.length > 0) {
         if (stock[stock.length - 1].draw(ctx, stockX, stockY)) keepAnimating = true;
     } else {
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.strokeStyle = slotStroke;
         ctx.beginPath();
         ctx.roundRect(stockX, stockY, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
         ctx.stroke();
-        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fillStyle = slotSuit;
         ctx.font = `${Math.max(18, CARD_WIDTH * 0.35)}px Arial`;
         ctx.textAlign = 'center';
         ctx.fillText('↻', stockX + CARD_WIDTH / 2, stockY + CARD_HEIGHT / 2 + CARD_WIDTH * 0.1);
@@ -258,7 +263,7 @@ for (let i = 0; i < 4; i++) {
         const yBase = TOP_MARGIN + CARD_HEIGHT + TABLEAU_GAP;
 
         if (tableau[i].length === 0) {
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.strokeStyle = slotStroke;
             ctx.beginPath();
             ctx.roundRect(x, yBase, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS);
             ctx.stroke();
@@ -565,7 +570,7 @@ function checkWin() {
 // ---------------- Confetti ----------------
 function launchConfetti() {
     confetti = [];
-    const colors = ['#00f2fe', '#7928ca', '#ff0080', '#facc15', '#10b981', '#ff4d4d'];
+    const colors = ['#3d6ea5', '#b3423b', '#d9a441', '#4d7a50', '#8a877f', '#20201f'];
     for (let i = 0; i < 140; i++) {
         confetti.push({
             x: Math.random() * canvas.width,
