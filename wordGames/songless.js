@@ -14,13 +14,21 @@ const SEED = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 10
 
 // --- Genre presets: each genre has its own daily song & progress ---
 const GENRES = [
-    { key: 'pop',     label: 'Pop',     icon: 'fa-music',        terms: ['Taylor Swift', 'Ariana Grande', 'Dua Lipa', 'The Weeknd', 'Ed Sheeran', 'Katy Perry', 'Billie Eilish', 'Bruno Mars', 'Harry Styles'] },
-    { key: 'hiphop',  label: 'Hip-Hop', icon: 'fa-headphones',   terms: ['Drake', 'Kendrick Lamar', 'J. Cole', 'Travis Scott', 'Jay-Z', 'Nicki Minaj', 'Lil Wayne', 'Kanye West', 'Future'] },
-    { key: 'rap',     label: 'Rap',     icon: 'fa-microphone',   terms: ['Eminem', '50 Cent', 'Snoop Dogg', 'Nas', 'Dr. Dre', 'Ice Cube', 'Notorious B.I.G.', 'Tupac', 'Lil Nas X'] },
+    { key: 'pop',     label: 'Pop',     icon: 'fa-music',        terms: ['Taylor Swift', 'Ariana Grande', 'Dua Lipa', 'The Weeknd', 'Ed Sheeran', 'Katy Perry', 'Billie Eilish', 'Bruno Mars', 'Harry Styles', 'Justin Bieber', 'Lady Gaga', 'Rihanna', 'Shawn Mendes', 'Post Malone', 'Doja Cat', 'Adele', 'Sia', 'Camila Cabello', 'Lewis Capaldi', 'Olivia Rodrigo'] },
+    { key: 'hiphop',  label: 'Hip-Hop', icon: 'fa-headphones',   terms: ['Drake', 'Kendrick Lamar', 'J. Cole', 'Travis Scott', 'Jay-Z', 'Nicki Minaj', 'Lil Wayne', 'Kanye West', 'Future', 'Cardi B', 'Megan Thee Stallion', 'A$AP Rocky', 'Playboi Carti', 'Wiz Khalifa', 'Tyler, the Creator', 'Ice Spice', 'Young Thug', 'Lil Uzi Vert', 'Big Sean', 'Lil Baby'] },
+    { key: 'rap',     label: 'Rap',     icon: 'fa-microphone',   terms: ['Eminem', '50 Cent', 'Snoop Dogg', 'Nas', 'Dr. Dre', 'Ice Cube', 'Notorious B.I.G.', 'Tupac', 'Lil Nas X', 'Kendrick Lamar', 'Tech N9ne', 'MF DOOM', 'Kid Cudi', 'Logic', 'J. Cole', 'Chance the Rapper', 'Common', 'Lauryn Hill', 'Big L', 'Mobb Deep'] },
     { key: 'rock',    label: 'Rock',    icon: 'fa-guitar',       terms: ['Queen', 'The Beatles', 'Nirvana', 'AC/DC', 'Led Zeppelin', 'Pink Floyd', 'The Rolling Stones', 'Guns N Roses', 'Bon Jovi'] },
     { key: 'rnb',     label: 'R&B',     icon: 'fa-heart',        terms: ['Beyonce', 'Rihanna', 'SZA', 'Usher', 'Mariah Carey', 'Alicia Keys', 'John Legend', 'Chris Brown', 'Trey Songz'] },
     { key: 'country', label: 'Country', icon: 'fa-hat-cowboy',   terms: ['Taylor Swift', 'Luke Bryan', 'Carrie Underwood', 'Luke Combs', 'Dolly Parton', 'Garth Brooks', 'Kenny Chesney', 'Shania Twain', 'Morgan Wallen'] }
 ];
+let gameMode = 'daily'; // 'daily' | 'endless'
+
+// Endless-mode scoring: up to 100 pts per correct guess — more for being fast
+// and using fewer attempts. 1st-attempt guess = high bonus; late guess = lower.
+const ENDLESS_BASE = 100;
+const ENDLESS_TIME_PENALTY = 2;       // minus pts per elapsed second at guess time
+const ENDLESS_TIME_CAP_SEC = 30;      // beyond this, time penalty stops growing
+
 let currentGenreKey = GENRES[0].key;
 
 function getGenreByKey(key) {
@@ -54,6 +62,9 @@ const guessInput = document.getElementById('guessInput');
 const guessBtn = document.getElementById('guessBtn');
 const skipBtn = document.getElementById('skipBtn');
 const genreBar = document.getElementById('genreBar');
+const modeToggle = document.getElementById('modeToggle');
+const scoreBadge = document.getElementById('scoreBadge');
+const scoreDisplay = document.getElementById('scoreDisplay');
 const messageBox = document.getElementById('messageBox');
 const attemptDisplay = document.getElementById('attemptDisplay');
 const hintDisplay = document.getElementById('hintDisplay');
@@ -80,6 +91,12 @@ let guesses = [];
 let gameOver = false;
 let volume = 0.1;
 audio.volume = volume;
+
+// Endless mode state
+let endlessScore = 0;
+let endlessRounds = 0;
+let endlessRoundStartTime = 0;   // ms timestamp when the current endless round started
+let endlessUsedTerms = [];       // to reduce repeats across endless rounds
 
 // --- CORS & Scheme-Redirect Safe Fetcher (iTunes search proxy + JSONP fallback) ---
 async function safeiTunesQuery(params) {
@@ -344,6 +361,13 @@ function updateSongProgress() {
 function handleSkip() {
     if (gameOver || !skipBtn || skipBtn.disabled) return;
 
+    // In endless mode, skipping abandons the current track and loads a fresh one.
+    if (gameMode === 'endless') {
+        setMessage('Passed on that one — next song!', 'info');
+        setTimeout(() => nextEndlessRound(), 400);
+        return;
+    }
+
     attempts++;
     updateAttemptDisplay();
     updateAutofillState();
@@ -503,28 +527,38 @@ function fallbackCopy(text, btn) {
     } catch (e) {}
 }
 
-// --- Daily track selection (picks a track that has both a preview and lyrics) ---
-async function fetchDailyTrack() {
+// --- Track selection (picks a track that has both a preview and lyrics) ---
+// opts.fresh: for endless mode — ignore the daily cache and avoid reusing artists.
+async function fetchDailyTrack(opts = {}) {
     const terms = currentGenre().terms;
-    let stored;
-    try { stored = localStorage.getItem(trackKey()); } catch (e) {}
-    if (stored) {
-        try {
-            const data = JSON.parse(stored);
-            dailyTrack = data.track || null;
-            lyrics = data.lyrics || { found: false };
-            buildLyricLines();
-            return !!dailyTrack;
-        } catch (e) {}
+    if (!opts.fresh) {
+        let stored;
+        try { stored = localStorage.getItem(trackKey()); } catch (e) {}
+        if (stored) {
+            try {
+                const data = JSON.parse(stored);
+                dailyTrack = data.track || null;
+                lyrics = data.lyrics || { found: false };
+                buildLyricLines();
+                return !!dailyTrack;
+            } catch (e) {}
+        }
     }
 
-    const termIndex = SEED % terms.length;
+    // Prefer terms we haven't used yet in this endless session.
+    let ordered = terms.slice();
+    if (opts.fresh && endlessUsedTerms.length) {
+        const fresh = terms.filter(t => !endlessUsedTerms.includes(t));
+        if (fresh.length) ordered = fresh;
+    }
+
+    const termIndex = SEED % ordered.length;
 
     // 1) Fire off the iTunes searches for all terms in parallel instead of one
     //    at a time — removes most of the swing between genres.
     const termQueries = [];
-    for (let pass = 0; pass < terms.length; pass++) {
-        const term = terms[(termIndex + pass) % terms.length];
+    for (let pass = 0; pass < ordered.length; pass++) {
+        const term = ordered[(termIndex + pass) % ordered.length];
         const params = `term=${encodeURIComponent(term)}&media=music&entity=song&limit=25&country=US`;
         termQueries.push(safeiTunesQuery(params));
     }
@@ -534,7 +568,7 @@ async function fetchDailyTrack() {
     //    chosen daily track is still deterministic) while capturing the fallback.
     const candidates = [];
     let fallback = null; // first preview-bearing track, used if no lyric track found
-    for (let pass = 0; pass < terms.length; pass++) {
+    for (let pass = 0; pass < ordered.length; pass++) {
         const data = resultsArrays[pass];
         const results = (data && data.results) || [];
         if (!results.length) continue;
@@ -565,7 +599,8 @@ async function fetchDailyTrack() {
                 lyrics = lyr;
                 buildLyricLines();
                 if (lyricLines.length >= 3) {
-                    cacheDaily();
+                    if (!opts.fresh) cacheDaily();
+                    if (opts.fresh) recordEndlessTerm(dailyTrack.collectionName);
                     return true;
                 }
             }
@@ -577,12 +612,19 @@ async function fetchDailyTrack() {
         dailyTrack = fallback;
         lyrics = { found: false, plainLyrics: null, syncedLyrics: null, source: 'none' };
         lyricLines = [];
-        cacheDaily();
+        if (!opts.fresh) cacheDaily();
+        if (opts.fresh) recordEndlessTerm(dailyTrack.collectionName);
         return true;
     }
 
     dailyTrack = null;
     return false;
+}
+
+function recordEndlessTerm(collectionName) {
+    // Track which artist/album produced a used endless track to reduce repeats.
+    const mark = (collectionName || '').trim();
+    if (mark && endlessUsedTerms.length < 40) endlessUsedTerms.push(mark);
 }
 
 function buildTrack(item) {
@@ -692,9 +734,59 @@ function endGame(won) {
     if (guessInput) guessInput.disabled = true;
     if (guessBtn) guessBtn.disabled = true;
     if (skipBtn) skipBtn.disabled = true;
-    saveState(won);
     hideSuggestions();
-    showShareRow();
+    if (gameMode === 'daily') {
+        saveState(won);
+        showShareRow();
+    }
+}
+
+// --- Endless mode: score the round, then immediately move to the next track ---
+function updateEndlessUI() {
+    if (scoreBadge) scoreBadge.style.display = gameMode === 'endless' ? 'flex' : 'none';
+    if (scoreDisplay) scoreDisplay.textContent = String(endlessScore);
+}
+
+async function nextEndlessRound() {
+    // Reset round state
+    attempts = 0; guesses = []; gameOver = false;
+    lyrics = null; lyricLines = [];
+    if (boardContainer) boardContainer.innerHTML = '';
+    if (guessInput) { guessInput.value = ''; guessInput.disabled = false; }
+    if (guessBtn) guessBtn.disabled = false;
+    if (skipBtn) skipBtn.disabled = false;
+    updateAutofillState();
+    hideSuggestions();
+
+    await fetchDailyTrack({ fresh: true });
+    if (!dailyTrack) {
+        setMessage('Could not load another track for endless mode — try switching genre.', 'error');
+        if (guessInput) guessInput.disabled = true;
+        if (guessBtn) guessBtn.disabled = true;
+        if (skipBtn) skipBtn.disabled = true;
+        return;
+    }
+
+    endlessRounds++;
+    endlessRoundStartTime = Date.now();
+    buildMelodyBox();
+    buildProgressTicks();
+    updateSongProgress();
+    updateLyricClue();
+    setTimeout(() => {
+        if (cluePreview) cluePreview.textContent = `Preview: ${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s`;
+        playSnippet(revealSeconds());
+        setMessage(`Endless round ${endlessRounds} — name the song!`, 'info');
+    }, 250);
+}
+
+function endlessRoundScore() {
+    // Base points decay with the number of attempts used this round,
+    // and with elapsed time at the moment of the guess.
+    const elapsedSec = Math.min(ENDLESS_TIME_CAP_SEC, (Date.now() - endlessRoundStartTime) / 1000);
+    const attemptPenalty = Math.max(0, attempts) * 10;
+    const timePenalty = Math.floor(elapsedSec * ENDLESS_TIME_PENALTY);
+    return Math.max(5, ENDLESS_BASE - attemptPenalty - timePenalty);
 }
 
 async function handleGuess() {
@@ -713,9 +805,19 @@ async function handleGuess() {
 
     const res = checkCorrectGuess(raw);
     if (res) {
-        setMessage(`🎉 Correct — ${res === 'title' ? 'song' : 'artist'} matched! ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
-        celebrateSuccess();
-        endGame(true);
+        if (gameMode === 'endless') {
+            const pts = endlessRoundScore();
+            endlessScore += pts;
+            updateEndlessUI();
+            setMessage(`🎉 +${pts} pts — ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
+            celebrateSuccess();
+            // Give the celebration a moment, then load the next round.
+            setTimeout(() => nextEndlessRound(), 1600);
+        } else {
+            setMessage(`🎉 Correct — ${res === 'title' ? 'song' : 'artist'} matched! ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
+            celebrateSuccess();
+            endGame(true);
+        }
         return;
     }
 
@@ -726,8 +828,13 @@ async function handleGuess() {
     updateArtworkBlur();
 
     if (attempts >= MAX_ATTEMPTS) {
-        setMessage(`❌ Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
-        endGame(false);
+        if (gameMode === 'endless') {
+            setMessage(`It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}. Next round!`, 'error');
+            setTimeout(() => nextEndlessRound(), 1800);
+        } else {
+            setMessage(`❌ Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
+            endGame(false);
+        }
         return;
     }
 
@@ -735,7 +842,7 @@ async function handleGuess() {
     if (cluePreview) cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
     playSnippet(secs);
     setMessage(`Not quite — try again. ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
-    saveState(false);
+    if (gameMode === 'daily') saveState(false);
     guessInput.value = '';
     hideSuggestions();
 }
@@ -862,9 +969,14 @@ function loadGenre(key) {
     if (lyricSrc) lyricSrc.textContent = '';
 
     updateGenreBar();
-    setMessage('Loading today\'s song...');
-    updateAttemptDisplay();
-    loadGenreTrack();
+    if (gameMode === 'endless') {
+        setMessage('Loading...');
+        nextEndlessRound();
+    } else {
+        setMessage('Loading today\'s song...');
+        updateAttemptDisplay();
+        loadGenreTrack();
+    }
 }
 
 // --- Load / restore the daily game for the currently selected genre ---
@@ -900,15 +1012,76 @@ async function loadGenreTrack() {
     }
 }
 
+function updateModeUI() {
+    if (modeToggle) {
+        modeToggle.querySelectorAll('.mode-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.mode === gameMode);
+        });
+    }
+    updateEndlessUI();
+}
+
+// --- Switch between Daily and Endless modes ---
+function setMode(mode) {
+    if (mode === gameMode) return;
+    gameMode = mode;
+    updateModeUI();
+
+    try { audio.pause(); audio.removeAttribute('src'); } catch (e) {}
+    const oldRow = document.getElementById('shareRow');
+    if (oldRow) oldRow.remove();
+    if (messageBox) messageBox.classList.remove('celebrate');
+    hideSuggestions();
+
+    attempts = 0; guesses = []; gameOver = false;
+    dailyTrack = null; lyrics = null; lyricLines = [];
+    if (boardContainer) boardContainer.innerHTML = '';
+    if (guessInput) { guessInput.value = ''; guessInput.disabled = false; }
+    if (guessBtn) guessBtn.disabled = false;
+    if (skipBtn) skipBtn.disabled = false;
+    if (hintDisplay) hintDisplay.textContent = 'Loading...';
+    if (lyricClue) lyricClue.textContent = 'Loading lyrics...';
+    if (lyricSrc) lyricSrc.textContent = '';
+    updateAttemptDisplay();
+
+    if (gameMode === 'endless') {
+        endlessScore = 0; endlessRounds = 0; endlessUsedTerms = [];
+        updateEndlessUI();
+        setMessage('Loading endless round...');
+        nextEndlessRound();
+    } else {
+        setMessage('Loading today\'s song...');
+        loadGenreTrack();
+    }
+}
+
 async function init() {
     // Pick up the user's saved genre preference (or default to Pop).
     let savedGenre = null;
     try { savedGenre = localStorage.getItem('songless_genre'); } catch (e) {}
     if (savedGenre && getGenreByKey(savedGenre)) currentGenreKey = savedGenre;
 
+    // Pick up the saved mode (endless progress isn't persisted; just the choice).
+    let savedMode = null;
+    try { savedMode = localStorage.getItem('songless_mode'); } catch (e) {}
+    if (savedMode === 'daily' || savedMode === 'endless') gameMode = savedMode;
+
     updateGenreBar();
+    updateModeUI();
     setMessage('Loading today\'s song...');
     updateAttemptDisplay();
+
+    // Mode toggle buttons.
+    if (modeToggle) {
+        modeToggle.addEventListener('click', (e) => {
+            const btn = e.target.closest('.mode-btn');
+            if (!btn) return;
+            const mode = btn.dataset.mode;
+            if (mode === gameMode) return;
+            try { localStorage.setItem('songless_mode', mode); } catch (err) {}
+            setMode(mode);
+        });
+    }
 
     // Keep the progress bar in sync with the song while it plays.
     ['timeupdate', 'playing', 'durationchange', 'pause', 'ended', 'seeked'].forEach(ev =>
@@ -951,7 +1124,12 @@ async function init() {
         }
     });
 
-    await loadGenreTrack();
+    // Load the correct initial game for the active mode.
+    if (gameMode === 'endless') {
+        nextEndlessRound();
+    } else {
+        await loadGenreTrack();
+    }
 }
 
 // --- Daily reset timer ---

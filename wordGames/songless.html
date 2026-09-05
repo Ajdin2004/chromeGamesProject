@@ -328,6 +328,42 @@
         }
         .genre-chip:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        .mode-toggle {
+            display: inline-flex;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.2rem;
+            gap: 0.2rem;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+        .mode-btn {
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.35rem 0.9rem;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+        }
+        .mode-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--cyan), #3b82f6);
+        }
+
+        .score-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--text);
+            font-weight: 800;
+        }
+        .score-badge i { color: var(--cyan); }
+
         /* --- Custom Keyframe Animations --- */
         .guess-row-anim {
             animation: slideInDown 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -545,6 +581,51 @@
             transform-origin: center;
             animation: confettiFall 2s ease-in forwards;
         }
+
+                /* Mode Switch Container */
+        .mode-toggle {
+            display: inline-flex;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.2rem;
+            gap: 0.2rem;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Mode Buttons */
+        .mode-btn {
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.35rem 0.9rem;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        /* Active Mode Button State */
+        .mode-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--cyan), #3b82f6);
+        }
+
+        /* Endless Mode Score Badge */
+        .score-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--text);
+            font-weight: 800;
+        }
+
+        .score-badge i { 
+            color: var(--cyan); 
+        }
         @keyframes successPulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -576,6 +657,17 @@
 
         <div class="genre-bar" id="genreBar"><!-- genre chips injected by JS --></div>
 
+        <!-- Endless Mode Toggle Switch -->
+        <div class="mode-toggle" id="modeToggle">
+            <button type="button" class="mode-btn active" data-mode="daily"><i class="fa-regular fa-calendar"></i> Daily</button>
+            <button type="button" class="mode-btn" data-mode="endless"><i class="fa-solid fa-infinity"></i> Endless</button>
+        </div>
+
+        <!-- Endless Mode Score Badge (Hidden by default, toggled via JS) -->
+        <div class="badge score-badge" id="scoreBadge" style="display: none;">
+            <i class="fa-solid fa-star"></i> Score <span id="scoreDisplay">0</span>
+        </div>
+
 <div class="song-progress">
             <div class="song-progress-head">
                 <span class="song-progress-label"><i class="fa-solid fa-wave-square"></i> Song reveal</span>
@@ -596,6 +688,7 @@
 
         <div class="info-panel">
             <div class="badge"><i class="fa-regular fa-clock"></i> Attempts <span id="attemptDisplay">0/6</span></div>
+            <div class="badge score-badge" id="scoreBadge" style="display: none;"><i class="fa-solid fa-star"></i> Score <span id="scoreDisplay">0</span></div>
             <div class="badge"><i class="fa-regular fa-hourglass-half"></i> Next song in <span id="resetTimer" style="font-variant-numeric: tabular-nums;">--:--:--</span></div>
             <div class="badge"><i class="fa-regular fa-lightbulb"></i> Hint <span id="hintDisplay">Loading...</span></div>
             <div class="badge"><i class="fa-regular fa-compass"></i> Autofill unlocks after 1st guess</div>
