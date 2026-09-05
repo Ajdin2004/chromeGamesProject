@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daily SONGdless · Chromium Games</title>
+    <link rel="icon" type="image/png" href="https://em-content.zobj.net/source/joypixels/369/microphone_1f3a4.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        :root {
+            --bg: #0b0e1a;
+            --card: rgba(18, 24, 42, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --cyan: #00f2fe;
+            --green: #22c55e;
+            --gold: #eab308;
+            --gray: #334155;
+            --text: #f0f4f8;
+            --muted: #94a3b8;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, rgba(0, 242, 254, 0.06), transparent 45%),
+                        linear-gradient(145deg, #070a14 0%, #0b0e1a 100%);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0.75rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .glass {
+            background: var(--card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 1.25rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .header {
+            width: 100%;
+            max-width: 660px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .back {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+        .back:hover { color: var(--cyan); }
+
+        .title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .title i { color: var(--cyan); margin-right: 0.3rem; }
+
+        .main-card {
+            width: 100%;
+            max-width: 660px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow: hidden;
+        }
+
+        .melody-box {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .play-btn {
+            background: linear-gradient(135deg, var(--cyan), #3b82f6);
+            border: none;
+            border-radius: 40px;
+            padding: 0.7rem 1.4rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #0b0e1a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: transform 0.15s ease, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(0, 242, 254, 0.25);
+        }
+        .play-btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35); }
+        .play-btn:active { transform: scale(0.96); }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+        .volume-control i { color: var(--cyan); width: 1rem; text-align: center; }
+        .volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 90px;
+            height: 6px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.12);
+            outline: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--cyan);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.5);
+        }
+        .volume-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border: none;
+            border-radius: 50%;
+            background: var(--cyan);
+            cursor: pointer;
+        }
+
+        .clue-text {
+            background: rgba(0,0,0,0.25);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .clue-text strong { color: var(--text); font-weight: 600; }
+
+/* --- Song progress bar (extends with each guess) --- */
+        .song-progress {
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(0, 242, 254, 0.18);
+            border-radius: 14px;
+            padding: 0.7rem 0.9rem;
+            flex-shrink: 0;
+        }
+        .song-progress-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .song-progress-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+        .song-progress-label i { margin-right: 0.3rem; }
+        .song-progress-count {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+        .song-progress-track {
+            position: relative;
+            height: 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+        .song-progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--cyan), #38bdf8);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+            transition: width 0.3s ease-out;
+        }
+        .song-progress-ticks {
+            position: relative;
+            height: 10px;
+            margin-top: 5px;
+        }
+        .tick {
+            position: absolute;
+            top: 0;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            border-radius: 1px;
+            background: rgba(148, 163, 184, 0.4);
+        }
+        .tick.active {
+            background: var(--cyan);
+            box-shadow: 0 0 6px rgba(0, 242, 254, 0.6);
+        }
+        /* --- Lyric Clue Panel (the heart of Songless) --- */
+        .lyric-box {
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(0, 242, 254, 0.18);
+            border-radius: 16px;
+            padding: 0.9rem 1.1rem;
+            min-height: 4.6rem;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 24px rgba(0, 242, 254, 0.04);
+            animation: lyricGlow 3s ease-in-out infinite;
+        }
+        @keyframes lyricGlow {
+            0%, 100% { box-shadow: inset 0 0 24px rgba(0, 242, 254, 0.04); }
+            50% { box-shadow: inset 0 0 30px rgba(0, 242, 254, 0.09); }
+        }
+        .lyric-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 0.4rem;
+        }
+        .lyric-clue {
+            font-size: 1.02rem;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+            min-height: 1.5rem;
+            font-style: italic;
+        }
+        .lyric-clue.masked { color: var(--muted); letter-spacing: 0.05em; }
+        .lyric-src {
+            display: inline-block;
+            margin-top: 0.3rem;
+            font-size: 0.68rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .grid-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding-right: 4px;
+        }
+
+        /* --- Scrollbar Hidden Rules --- */
+        .grid-wrap::-webkit-scrollbar,
+        .songless-suggestions::-webkit-scrollbar {
+            display: none;
+        }
+
+        .grid-wrap,
+        .songless-suggestions {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* --- Cover-art progressive de-blur (clears with each guess, like Tunetile) --- */
+        .album-art {
+            transition: filter 0.6s ease, transform 0.6s ease;
+        }
+
+        /* --- Genre switcher --- */
+        .genre-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        .genre-chip {
+            flex: 1 1 auto;
+            min-width: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.5rem 0.7rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.15s;
+        }
+        .genre-chip:hover { color: var(--text); border-color: var(--cyan); }
+        .genre-chip.active {
+            color: #fff;
+            border-color: var(--cyan);
+            background: linear-gradient(135deg, var(--cyan), #3b82f6);
+            box-shadow: 0 4px 14px rgba(0, 242, 254, 0.25);
+        }
+        .genre-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- Custom Keyframe Animations --- */
+        .guess-row-anim {
+            animation: slideInDown 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            flex-shrink: 0;
+        }
+
+        @keyframes slideInDown {
+            0% { opacity: 0; transform: translateY(-12px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .msg-anim {
+            animation: fadeInMsg 0.25s ease forwards;
+        }
+
+        @keyframes fadeInMsg {
+            0% { opacity: 0; transform: scale(0.97); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .pulse-anim {
+            animation: buttonPulse 1.2s infinite alternate ease-in-out;
+        }
+
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 0 8px rgba(0, 242, 254, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(0, 242, 254, 0.85); }
+        }
+
+        .info-panel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.75rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 14px;
+            padding: 0.6rem 1rem;
+            border: 1px solid rgba(255,255,255,0.04);
+            flex-shrink: 0;
+        }
+
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .badge span { color: var(--text); font-weight: 700; }
+
+        .guess-area {
+            position: relative;
+            display: flex;
+            gap: 0.6rem;
+            width: 100%;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .guess-input {
+            width: 100%;
+            padding: 0.8rem 1.1rem;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .guess-input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+        }
+
+        .songless-suggestions {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            margin-bottom: 8px;
+            background: rgba(11, 14, 26, 0.96);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 4px;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            display: none;
+            max-height: 180px;
+            overflow-y: auto;
+            animation: fadeInDrop 0.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+
+        @keyframes fadeInDrop {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .suggestion-row {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            color: #e6eef8;
+            font-size: 0.88rem;
+            transition: background 0.15s ease, color 0.15s ease;
+            animation: itemPop 0.15s ease forwards;
+        }
+
+        @keyframes itemPop {
+            0% { opacity: 0; transform: translateX(-4px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .suggestion-row:hover {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--cyan);
+        }
+
+        .guess-btn {
+            background: linear-gradient(135deg, var(--cyan), #3b82f6);
+            border: none;
+            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.15s;
+            box-shadow: 0 4px 12px rgba(0, 242, 254, 0.2);
+            white-space: nowrap;
+        }
+        .guess-btn:hover { transform: scale(1.02); opacity: 0.9; }
+        .guess-btn:active { transform: scale(0.96); }
+        .guess-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .skip-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 25px;
+            padding: 0.8rem 1.1rem;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.15s, color 0.2s, border-color 0.2s, opacity 0.15s;
+        }
+        .skip-btn:hover { transform: scale(1.02); color: var(--text); border-color: var(--cyan); opacity: 0.9; }
+        .skip-btn:active { transform: scale(0.96); }
+        .skip-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .share-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .share-btn {
+            background: linear-gradient(135deg, var(--green), #10b981);
+            border: none;
+            border-radius: 20px;
+            padding: 0.45rem 1rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .share-btn:hover { transform: scale(1.04); }
+        .share-btn:active { transform: scale(0.96); }
+
+        .message-box {
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--text);
+            min-height: 2.8rem;
+            display: flex;
+            align-items: center;
+            font-size: 0.88rem;
+            flex-shrink: 0;
+            transition: background 0.3s ease, color 0.3s ease, transform 0.25s ease;
+        }
+        .message-box.success { background: rgba(34, 197, 94, 0.12); color: #ceffce; border-color: rgba(34, 197, 94, 0.3); }
+        .message-box.success.celebrate {
+            animation: successPulse 0.65s ease-in-out 2;
+            transform: scale(1.02);
+            box-shadow: 0 0 24px rgba(34, 197, 94, 0.35);
+        }
+        .message-box.error { background: rgba(248, 113, 113, 0.1); color: #ffd6d6; border-color: rgba(248, 113, 113, 0.3); }
+        .message-box.warning { background: rgba(251, 191, 36, 0.08); color: #ffecb3; border-color: rgba(251, 191, 36, 0.3); }
+
+        .celebration-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+            display: none;
+        }
+        .celebration-overlay.active { display: block; }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 18px;
+            opacity: 0.95;
+            transform-origin: center;
+            animation: confettiFall 2s ease-in forwards;
+        }
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(120vh) rotate(720deg); opacity: 0; }
+        }
+
+        @media (max-width: 500px) {
+            .glass { padding: 1rem; }
+            .title { font-size: 1.4rem; }
+            .play-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+            .guess-area { flex-direction: row; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+        <div class="title"><i class="fa-solid fa-microphone-slash"></i>SONGdless</div>
+    </div>
+
+    <div class="main-card glass">
+        <div class="melody-box">
+            <div class="clue-text"><i class="fa-regular fa-lightbulb"></i> <strong id="cluePreview">first 4 notes</strong></div>
+        </div>
+
+        <div class="genre-bar" id="genreBar"><!-- genre chips injected by JS --></div>
+
+<div class="song-progress">
+            <div class="song-progress-head">
+                <span class="song-progress-label"><i class="fa-solid fa-wave-square"></i> Song reveal</span>
+                <span class="song-progress-count" id="progressCount">1s / 16s</span>
+            </div>
+            <div class="song-progress-track">
+                <div class="song-progress-fill" id="progressFill"></div>
+            </div>
+            <div class="song-progress-ticks" id="progressTicks"></div>
+        </div>
+        <div class="lyric-box">
+            <div class="lyric-label"><i class="fa-solid fa-quote-left"></i> Lyric clue</div>
+            <div class="lyric-clue" id="lyricClue">🎵 Guess the song in 6 attempts. Each wrong guess reveals another lyric line.</div>
+            <span class="lyric-src" id="lyricSrc"></span>
+        </div>
+
+        <div class="grid-wrap" id="boardContainer"></div>
+
+        <div class="info-panel">
+            <div class="badge"><i class="fa-regular fa-clock"></i> Attempts <span id="attemptDisplay">0/6</span></div>
+            <div class="badge"><i class="fa-regular fa-hourglass-half"></i> Next song in <span id="resetTimer" style="font-variant-numeric: tabular-nums;">--:--:--</span></div>
+            <div class="badge"><i class="fa-regular fa-lightbulb"></i> Hint <span id="hintDisplay">Loading...</span></div>
+            <div class="badge"><i class="fa-regular fa-compass"></i> Autofill unlocks after 1st guess</div>
+        </div>
+
+        <form id="guessForm" action="javascript:void(0);" autocomplete="off" style="width: 100%;">
+            <div class="guess-area">
+                <div class="input-wrapper">
+                    <input type="text" class="guess-input" id="guessInput" placeholder="Artist or song..." autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <div id="suggestionBox" class="songless-suggestions"></div>
+                </div>
+                <button type="button" class="skip-btn" id="skipBtn" title="Skip this turn — reveal more of the song without guessing"><i class="fa-solid fa-forward"></i> Skip</button>
+                <button type="submit" class="guess-btn" id="guessBtn"><i class="fa-regular fa-paper-plane"></i> Guess</button>
+            </div>
+        </form>
+
+        <div class="message-box" id="messageBox">🎤 Name the tune from the melody and the lyrics! 6 guesses.</div>
+    </div>
+    <div id="celebrationOverlay" class="celebration-overlay"></div>
+
+    <script src="songless.js" defer></script>
+</body>
+</html>

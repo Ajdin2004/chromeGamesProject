@@ -29,6 +29,7 @@ Brain-teasing puzzles and daily challenges:
 - **Flag Guessr:** Daily flag guessing game with Daily, Endless, and Quiz modes.
 - **Box Office & Video Games:** Trivia based on movies and gaming history.
 - **TuneTile:** Music-based puzzle integration.
+- **Songdless:** Daily Heardle-style song guessing game. Hear a growing clip of a mystery song (iTunes Search API previews) and read progressively revealing lyric clues (LRCLIB with a lyrics.ovh fallback, proxied through `/api/lyrics`). 6 tries, de-blurring cover art, and a copyable emoji share grid.
 - **Riddler:** Daily logic and word riddles.
 - **Trivia Orbs:** A cozy daily trivia game powered by the Open Trivia Database — 10 shared questions per day, orb currency, streak freezes, orb-priced lifelines (50/50, Hint, Skip), plus an Endless practice mode with category/difficulty pickers and a Wordle-style share grid. Questions are proxied through `/api/trivia` (`netlify/functions/trivia.js`) for caching/rate-limit protection, with a direct-API fallback.
 - **Typing Rush:** Type progressively harder dictionary words (12 escalating difficulty tiers) before the per-word clock runs out. Rush mode adds 3 lives, combos and time bonuses; Practice mode is a relaxed WPM trainer.

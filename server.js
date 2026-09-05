@@ -205,6 +205,22 @@ async function proxyTrivia(req, res) {
   }
 }
 
+// Songless — reuse the Netlify lyrics function logic for local development
+const lyricsFunction = require('./netlify/functions/lyrics.js');
+
+async function proxyLyrics(req, res) {
+  const query = parseQueryParams(req.url);
+  try {
+    const result = await lyricsFunction.handler({ queryStringParameters: query });
+    sendResponse(res, result.statusCode, result.body, result.headers || {});
+  } catch (error) {
+    sendResponse(res, 500, JSON.stringify({ error: error.message || 'Lyrics proxy failed.' }), {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    });
+  }
+}
+
 const server = http.createServer((req, res) => {
   const parsed = url.parse(req.url);
   const pathname = parsed.pathname;
@@ -229,6 +245,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (pathname === '/api/lyrics' || pathname === '/.netlify/functions/lyrics') {
+    proxyLyrics(req, res);
+    return;
+  }
+
   serveStatic(res, pathname);
 });
 
@@ -237,4 +258,5 @@ server.listen(PORT, () => {
   console.log('Use /api/itunes-search?term=... to proxy iTunes search requests.');
   console.log('Use /api/movie-poster?title=... to proxy movie poster requests.');
   console.log('Use /api/poster?title=... to proxy game poster requests.');
+  console.log('Use /api/lyrics?artist=...&title=... to proxy lyrics requests.');
 });
