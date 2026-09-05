@@ -456,6 +456,18 @@
         .result-play:hover { background: rgba(0, 242, 254, 0.22); }
         @media (max-width: 500px) { .result-panel { grid-template-columns: 56px 1fr; } .result-art { width: 56px; height: 56px; } .result-play { grid-column: 1 / -1; width: 100%; } }
 
+        .history-panel { display: none; padding: 0.8rem; border: 1px solid var(--border); border-radius: 16px; background: rgba(0,0,0,0.18); }
+        .history-panel.visible { display: block; }
+        .history-head { display: flex; justify-content: space-between; align-items: center; color: var(--cyan); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.55rem; }
+        .history-count { color: var(--muted); letter-spacing: 0; font-size: 0.7rem; }
+        .history-list { display: grid; gap: 0.4rem; max-height: 190px; overflow-y: auto; }
+        .history-entry { display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 0.55rem; padding: 0.45rem; border-radius: 10px; background: rgba(255,255,255,0.04); font-size: 0.75rem; }
+        .history-entry img { width: 30px; height: 30px; border-radius: 6px; object-fit: cover; }
+        .history-song { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 700; }
+        .history-artist { color: var(--muted); font-size: 0.68rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .history-result { color: var(--cyan); text-align: right; white-space: nowrap; font-size: 0.68rem; }
+        .history-result.missed { color: #fca5a5; }
+
         .celebration-overlay {
             position: fixed;
             inset: 0;
@@ -540,6 +552,10 @@
         </form>
 
         <div class="message-box" id="messageBox">🎵 Name the tune! 6 guesses. Autofill wil be unlocked after the first guess.</div>
+        <section class="history-panel" id="historyPanel" aria-label="Endless song history">
+            <div class="history-head"><span><i class="fa-solid fa-clock-rotate-left"></i> Song history</span><span class="history-count" id="historyCount"></span></div>
+            <div class="history-list" id="historyList"></div>
+        </section>
     </div>
     <div id="celebrationOverlay" class="celebration-overlay"></div>
 

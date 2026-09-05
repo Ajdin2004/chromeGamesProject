@@ -97,6 +97,7 @@ audio.volume = volume;
 let endlessScore = 0;
 let endlessRounds = 0;
 let endlessRoundStartTime = 0;   // ms timestamp when the current endless round started
+let endlessHistory = [];
 let endlessUsedTerms = [];       // to reduce repeats across endless rounds
 
 // --- CORS & Scheme-Redirect Safe Fetcher (iTunes search proxy + JSONP fallback) ---
@@ -334,6 +335,36 @@ function showResultPanel(won, matchedBy = '') {
     messageBox.parentNode.insertBefore(panel, messageBox);
 }
 
+function renderEndlessHistory() {
+    const panel = document.getElementById('historyPanel');
+    const list = document.getElementById('historyList');
+    const count = document.getElementById('historyCount');
+    if (!panel || !list) return;
+    panel.classList.toggle('visible', gameMode === 'endless' && endlessHistory.length > 0);
+    if (count) count.textContent = `${endlessHistory.length} played`;
+    list.innerHTML = '';
+    endlessHistory.forEach(entry => {
+        const row = document.createElement('div');
+        row.className = 'history-entry';
+        const art = document.createElement('img'); art.src = entry.artwork || ''; art.alt = '';
+        const info = document.createElement('div');
+        const song = document.createElement('div'); song.className = 'history-song'; song.textContent = entry.trackName;
+        const artist = document.createElement('div'); artist.className = 'history-artist'; artist.textContent = entry.artistName;
+        info.append(song, artist);
+        const result = document.createElement('div'); result.className = `history-result${entry.won ? '' : ' missed'}`;
+        result.textContent = entry.won ? `+${entry.points} pts` : 'Missed';
+        row.append(art, info, result);
+        list.appendChild(row);
+    });
+}
+
+function recordEndlessHistory(won, points = 0) {
+    if (!dailyTrack || gameMode !== 'endless') return;
+    endlessHistory.unshift({ trackName: dailyTrack.trackName, artistName: dailyTrack.artistName, artwork: dailyTrack.artwork, won, points });
+    if (endlessHistory.length > 12) endlessHistory.length = 12;
+    renderEndlessHistory();
+}
+
 function updateAttemptDisplay() {
     if (attemptDisplay) attemptDisplay.textContent = `${attempts}/${MAX_ATTEMPTS}`;
     updateSongProgress();
@@ -406,7 +437,12 @@ function handleSkip() {
 
     if (attempts >= MAX_ATTEMPTS) {
         if (gameMode === 'endless') {
+            gameOver = true;
             setMessage(`It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}. Next round!`, 'error');
+            playFullPreview();
+            updateLyricClue();
+            showResultPanel(false);
+            recordEndlessHistory(false);
             setTimeout(() => nextEndlessRound(), 400);
         } else {
             setMessage(`Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
@@ -786,6 +822,8 @@ async function nextEndlessRound() {
     // Reset round state
     attempts = 0; guesses = []; gameOver = false;
     lyrics = null; lyricLines = [];
+    const oldPanel = document.getElementById('resultPanel');
+    if (oldPanel) oldPanel.remove();
     if (boardContainer) boardContainer.innerHTML = '';
     if (guessInput) { guessInput.value = ''; guessInput.disabled = false; }
     if (guessBtn) guessBtn.disabled = false;
@@ -842,10 +880,15 @@ async function handleGuess() {
     if (res) {
         if (gameMode === 'endless') {
             const pts = endlessRoundScore();
+            gameOver = true;
             endlessScore += pts;
             updateEndlessUI();
             setMessage(`🎉 +${pts} pts — ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
             celebrateSuccess();
+            playFullPreview();
+            updateLyricClue();
+            showResultPanel(true, res);
+            recordEndlessHistory(true, pts);
             // Give the celebration a moment, then load the next round.
             setTimeout(() => nextEndlessRound(), 1600);
         } else {
@@ -864,7 +907,12 @@ async function handleGuess() {
 
     if (attempts >= MAX_ATTEMPTS) {
         if (gameMode === 'endless') {
+            gameOver = true;
             setMessage(`It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}. Next round!`, 'error');
+            playFullPreview();
+            updateLyricClue();
+            showResultPanel(false);
+            recordEndlessHistory(false);
             setTimeout(() => nextEndlessRound(), 1800);
         } else {
             setMessage(`❌ Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
@@ -1081,6 +1129,8 @@ function setMode(mode) {
 
     if (gameMode === 'endless') {
         endlessScore = 0; endlessRounds = 0; endlessUsedTerms = [];
+        endlessHistory = [];
+        renderEndlessHistory();
         updateEndlessUI();
         setMessage('Loading endless round...');
         nextEndlessRound();
