@@ -53,6 +53,7 @@ let coverArtElement = null;
 // Game State
 let dailyTrack = null;
 let audio = new Audio();
+let previewStopTimer = null;
 let attempts = 0;
 let guesses = [];
 let gameOver = false;
@@ -367,24 +368,28 @@ function revealSeconds() {
     return Math.min(MAX_PREVIEW_SECONDS, PREVIEW_RAMP[Math.min(attempts, MAX_ATTEMPTS - 1)]); //[cite: 2]
 }
 
-function playSnippet(seconds) {
+function playSnippet(seconds, preservePosition = false) {
     if (!dailyTrack || !dailyTrack.previewUrl) return;
     try {
-        audio.pause();
-        audio.src = dailyTrack.previewUrl;
-        audio.currentTime = 0;
+        if (previewStopTimer) clearTimeout(previewStopTimer);
+        if (!preservePosition) {
+            audio.pause();
+            audio.src = dailyTrack.previewUrl;
+            audio.currentTime = 0;
+        }
         audio.volume = volume;
         
         if (playBtn) playBtn.classList.add('pulse-anim');
         audio.play().catch(() => {});
         
         const stopAfter = Math.min(seconds, MAX_PREVIEW_SECONDS);
-        setTimeout(() => {
+        const remaining = Math.max(0, stopAfter - (Number.isFinite(audio.currentTime) ? audio.currentTime : 0));
+        previewStopTimer = setTimeout(() => {
             try { 
                 audio.pause(); 
                 if (playBtn) playBtn.classList.remove('pulse-anim');
             } catch (e) {}
-        }, stopAfter * 1000 + 250);
+        }, remaining * 1000 + 250);
     } catch (e) {}
 }
 
@@ -544,7 +549,7 @@ function handleSkip() {
         } else {
             const secs = revealSeconds();
             if (cluePreview) cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
-            playSnippet(secs);
+            playSnippet(secs, true);
             setMessage(`Skipped — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
         }
         return;
@@ -567,7 +572,7 @@ function handleSkip() {
 
     const secs = revealSeconds();
     if (cluePreview) cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
-    playSnippet(secs);
+    playSnippet(secs, true);
     setMessage(`Skipped a guess — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
     saveState(false);
     guessInput.value = '';

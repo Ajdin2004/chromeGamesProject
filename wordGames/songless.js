@@ -86,6 +86,7 @@ let dailyTrack = null;
 let lyrics = null;        // { plainLyrics, syncedLyrics, source, found }
 let lyricLines = [];      // cleaned non-empty lyric lines (chronological)
 let audio = new Audio();
+let previewStopTimer = null;
 let attempts = 0;
 let guesses = [];
 let gameOver = false;
@@ -268,22 +269,26 @@ function revealSeconds() {
 }
 
 // --- Audio ---
-function playSnippet(seconds) {
+function playSnippet(seconds, preservePosition = false) {
     if (!dailyTrack || !dailyTrack.previewUrl) return;
     try {
-        audio.pause();
-        audio.src = dailyTrack.previewUrl;
-        audio.currentTime = 0;
+        if (previewStopTimer) clearTimeout(previewStopTimer);
+        if (!preservePosition) {
+            audio.pause();
+            audio.src = dailyTrack.previewUrl;
+            audio.currentTime = 0;
+        }
         audio.volume = volume;
         if (playBtn) playBtn.classList.add('pulse-anim');
         audio.play().catch(() => {});
         const stopAfter = Math.min(seconds, MAX_PREVIEW_SECONDS);
-        setTimeout(() => {
+        const remaining = Math.max(0, stopAfter - (Number.isFinite(audio.currentTime) ? audio.currentTime : 0));
+        previewStopTimer = setTimeout(() => {
             try {
                 audio.pause();
                 if (playBtn) playBtn.classList.remove('pulse-anim');
             } catch (e) {}
-        }, stopAfter * 1000 + 250);
+        }, remaining * 1000 + 250);
     } catch (e) {}
 }
 
@@ -361,13 +366,6 @@ function updateSongProgress() {
 function handleSkip() {
     if (gameOver || !skipBtn || skipBtn.disabled) return;
 
-    // In endless mode, skipping abandons the current track and loads a fresh one.
-    if (gameMode === 'endless') {
-        setMessage('Passed on that one — next song!', 'info');
-        setTimeout(() => nextEndlessRound(), 400);
-        return;
-    }
-
     attempts++;
     updateAttemptDisplay();
     updateAutofillState();
@@ -376,14 +374,19 @@ function handleSkip() {
     updateArtworkBlur();
 
     if (attempts >= MAX_ATTEMPTS) {
-        setMessage(`Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
-        endGame(false);
+        if (gameMode === 'endless') {
+            setMessage(`It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}. Next round!`, 'error');
+            setTimeout(() => nextEndlessRound(), 400);
+        } else {
+            setMessage(`Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
+            endGame(false);
+        }
         return;
     }
 
     const secs = revealSeconds();
     if (cluePreview) cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
-    playSnippet(secs);
+    playSnippet(secs, true);
     setMessage(`Skipped a guess — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
     saveState(false);
     guessInput.value = '';
@@ -891,7 +894,7 @@ function buildMelodyBox() {
     const play = document.createElement('button');
     play.id = 'playMelodyBtn';
     play.className = 'play-btn';
-    play.innerHTML = '<i class="fa-solid fa-play"></i> Play clue';
+    play.innerHTML = '<i class="fa-solid fa-play"></i> Play preview';
     right.appendChild(play);
 
     const volControl = document.createElement('div');
