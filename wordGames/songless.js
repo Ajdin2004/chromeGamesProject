@@ -229,7 +229,7 @@ function revealedLyricCount() {
 function updateLyricClue() {
     if (!lyricClue) return;
     if (!lyrics || !lyrics.found || lyricLines.length === 0) {
-        lyricClue.textContent = dailyTrack && dailyTrack.collectionName
+        lyricClue.textContent = dailyTrack && dailyTrack.collectionName && !albumRevealsSongName(dailyTrack.collectionName)
             ? `No lyrics available — hint: from album “${dailyTrack.collectionName}”`
             : 'No lyrics available for this track.';
         lyricClue.className = 'lyric-clue';
@@ -395,12 +395,21 @@ function restoreState() {
     }
 }
 
+// Returns true when the album name would give away the answer (e.g. singles
+// where iTunes sets collectionName equal to the track title).
+function albumRevealsSongName(collectionName) {
+    const track = normalizeForCompare(dailyTrack && dailyTrack.trackName);
+    const album = normalizeForCompare(collectionName);
+    if (!track || !album) return true; // no safe album hint available
+    return album === track || album.includes(track) || track.includes(album);
+}
+
 function updateHint() {
     if (!hintDisplay) return;
     if (!dailyTrack) { hintDisplay.textContent = '—'; return; }
     if (attempts >= 3 && dailyTrack.artistName) {
         hintDisplay.textContent = `Artist starts with '${dailyTrack.artistName.charAt(0)}'`;
-    } else if (dailyTrack.collectionName) {
+    } else if (dailyTrack.collectionName && !albumRevealsSongName(dailyTrack.collectionName)) {
         hintDisplay.textContent = dailyTrack.collectionName;
     } else {
         hintDisplay.textContent = 'Popular track';
@@ -510,37 +519,54 @@ async function fetchDailyTrack() {
     }
 
     const termIndex = SEED % terms.length;
-    let lyricChecks = 0;
-    let fallback = null; // first preview-bearing track, used if no lyric track found
 
+    // 1) Fire off the iTunes searches for all terms in parallel instead of one
+    //    at a time — removes most of the swing between genres.
+    const termQueries = [];
     for (let pass = 0; pass < terms.length; pass++) {
         const term = terms[(termIndex + pass) % terms.length];
         const params = `term=${encodeURIComponent(term)}&media=music&entity=song&limit=25&country=US`;
-        const data = await safeiTunesQuery(params);
+        termQueries.push(safeiTunesQuery(params));
+    }
+    const resultsArrays = await Promise.all(termQueries);
+
+    // 2) Build an ordered candidate list (keeps the original seeded order so the
+    //    chosen daily track is still deterministic) while capturing the fallback.
+    const candidates = [];
+    let fallback = null; // first preview-bearing track, used if no lyric track found
+    for (let pass = 0; pass < terms.length; pass++) {
+        const data = resultsArrays[pass];
         const results = (data && data.results) || [];
         if (!results.length) continue;
-
         const start = SEED % results.length;
         for (let offset = 0; offset < results.length; offset++) {
             const item = results[(start + offset) % results.length];
             if (!item || !item.previewUrl) continue;
+            if (!fallback) fallback = buildTrack(item);
+            candidates.push(item);
+        }
+    }
 
-            // Remember the first playable track in case none have lyrics.
-            if (!fallback) {
-                fallback = buildTrack(item);
-            }
+    // 3) Check lyrics for candidates. The lyric fetches are the slowest part, so
+    //    run them in concurrent batches (still considered in original order).
+    let lyricChecks = 0;
+    const batchSize = 4; // concurrent lyric lookups per batch
+    for (let i = 0; i < candidates.length && lyricChecks < MAX_LYRIC_CHECKS; i += batchSize) {
+        const batch = candidates.slice(i, i + batchSize);
+        const take = Math.min(batch.length, MAX_LYRIC_CHECKS - lyricChecks);
+        const slice = batch.slice(0, take);
+        lyricChecks += slice.length;
 
-            if (lyricChecks < MAX_LYRIC_CHECKS) {
-                lyricChecks++;
-                const lyr = await fetchLyrics(item.artistName, item.trackName);
-                if (lyr && lyr.found) {
-                    dailyTrack = buildTrack(item);
-                    lyrics = lyr;
-                    buildLyricLines();
-                    if (lyricLines.length >= 3) {
-                        cacheDaily();
-                        return true;
-                    }
+        const lyrResults = await Promise.all(slice.map(item => fetchLyrics(item.artistName, item.trackName)));
+        for (let j = 0; j < slice.length; j++) {
+            const lyr = lyrResults[j];
+            if (lyr && lyr.found) {
+                dailyTrack = buildTrack(slice[j]);
+                lyrics = lyr;
+                buildLyricLines();
+                if (lyricLines.length >= 3) {
+                    cacheDaily();
+                    return true;
                 }
             }
         }
@@ -829,6 +855,12 @@ function loadGenre(key) {
     if (skipBtn) skipBtn.disabled = false;
     hideSuggestions();
 
+    // Clear stale data while the new genre's track loads (avoids showing the
+    // previous genre's hint/lyrics during the slow fetch).
+    if (hintDisplay) hintDisplay.textContent = 'Loading...';
+    if (lyricClue) lyricClue.textContent = 'Loading lyrics...';
+    if (lyricSrc) lyricSrc.textContent = '';
+
     updateGenreBar();
     setMessage('Loading today\'s song...');
     updateAttemptDisplay();
@@ -844,6 +876,7 @@ async function loadGenreTrack() {
     }
     if (!dailyTrack) {
         setMessage('No track available for this genre today — try another.', 'error');
+        if (hintDisplay) hintDisplay.textContent = '—';
         if (guessInput) guessInput.disabled = true;
         if (guessBtn) guessBtn.disabled = true;
         if (skipBtn) skipBtn.disabled = true;
