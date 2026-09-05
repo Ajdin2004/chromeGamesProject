@@ -172,6 +172,68 @@
         }
         .clue-text strong { color: var(--text); font-weight: 600; }
 
+        /* --- Song progress bar --- */
+        .song-progress {
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(0, 242, 254, 0.18);
+            border-radius: 14px;
+            padding: 0.7rem 0.9rem;
+            flex-shrink: 0;
+        }
+        .song-progress-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .song-progress-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+        .song-progress-label i { margin-right: 0.3rem; }
+        .song-progress-count {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+        .song-progress-track {
+            position: relative;
+            height: 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+        .song-progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--cyan), #38bdf8);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+            transition: width 0.3s ease-out;
+        }
+        .song-progress-ticks {
+            position: relative;
+            height: 10px;
+            margin-top: 5px;
+        }
+        .tick {
+            position: absolute;
+            top: 0;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            border-radius: 1px;
+            background: rgba(148, 163, 184, 0.4);
+        }
+        .tick.active {
+            background: var(--cyan);
+            box-shadow: 0 0 6px rgba(0, 242, 254, 0.6);
+        }
+
         .grid-wrap {
             display: flex;
             flex-direction: column;
@@ -332,6 +394,21 @@
         .guess-btn:hover { transform: scale(1.02); opacity: 0.9; }
         .guess-btn:active { transform: scale(0.96); }
 
+        .skip-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 25px;
+            padding: 0.8rem 1.1rem;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.15s, color 0.2s, border-color 0.2s, opacity 0.15s;
+        }
+        .skip-btn:hover { transform: scale(1.02); color: var(--text); border-color: var(--cyan); opacity: 0.9; }
+        .skip-btn:active { transform: scale(0.96); }
+        .skip-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
         .message-box {
             padding: 0.75rem 1rem;
             border-radius: 16px;
@@ -398,7 +475,18 @@
     <div class="main-card glass">
         <div class="melody-box">
             <button class="play-btn" id="playMelodyBtn"><i class="fa-solid fa-play"></i> Play melody</button>
-            <div class="clue-text"><i class="fa-regular fa-lightbulb"></i> <strong id="cluePreview">first 4 notes</strong></div>
+            <div class="clue-text"><i class="fa-regular fa-lightbulb"></i> <strong id="cluePreview">first notes</strong></div>
+        </div>
+
+        <div class="song-progress">
+            <div class="song-progress-head">
+                <span class="song-progress-label"><i class="fa-solid fa-wave-square"></i> Song reveal</span>
+                <span class="song-progress-count" id="progressCount">1s / 16s</span>
+            </div>
+            <div class="song-progress-track">
+                <div class="song-progress-fill" id="progressFill"></div>
+            </div>
+            <div class="song-progress-ticks" id="progressTicks"></div>
         </div>
 
         <div class="grid-wrap" id="boardContainer"></div>
@@ -413,9 +501,10 @@
         <form id="guessForm" action="javascript:void(0);" autocomplete="off" style="width: 100%;">
             <div class="guess-area">
                 <div class="input-wrapper">
-                    <input type="text" class="guess-input" id="guessInput" placeholder="Artist or song..." autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <input type="text" class="guess-input" id="guessInput" placeholder="Song title..." autocomplete="one-time-code" autocorrect="off" autocapitalize="off" spellcheck="false">
                     <div id="suggestionBox" class="tunetile-suggestions"></div>
                 </div>
+                <button type="button" class="skip-btn" id="skipBtn" title="Skip this turn — reveal more of the song without guessing"><i class="fa-solid fa-forward"></i> Skip</button>
                 <button type="submit" class="guess-btn" id="guessBtn"><i class="fa-regular fa-paper-plane"></i> Guess</button>
             </div>
         </form>

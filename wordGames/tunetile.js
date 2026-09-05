@@ -15,9 +15,8 @@ const CURATED_TERMS = [
 ];
 
 const MAX_ATTEMPTS = 6;
-const INITIAL_REVEAL_SECONDS = 3;
-const REVEAL_INCREMENT = 3;
-const MAX_PREVIEW_SECONDS = 30;
+const PREVIEW_RAMP = [1, 2, 4, 7, 11, 16]; //[cite: 2]
+const MAX_PREVIEW_SECONDS = 16; //[cite: 2]
 
 // Cover-art progressive de-blur (clears up with each wrong guess)
 const ARTWORK_BLUR_START_PX = 6;
@@ -28,11 +27,15 @@ let playBtn = document.getElementById('playMelodyBtn');
 let cluePreview = document.getElementById('cluePreview');
 const guessInput = document.getElementById('guessInput');
 const guessBtn = document.getElementById('guessBtn');
+const skipBtn = document.getElementById('skipBtn');
 const messageBox = document.getElementById('messageBox');
 const attemptDisplay = document.getElementById('attemptDisplay');
 const hintDisplay = document.getElementById('hintDisplay');
 const boardContainer = document.getElementById('boardContainer');
 const suggestionBox = document.getElementById('suggestionBox');
+const progressFill = document.getElementById('progressFill');
+const progressCount = document.getElementById('progressCount');
+const progressTicks = document.getElementById('progressTicks');
 
 let suggestionTimer = null;
 let suggestionCache = {};
@@ -178,8 +181,48 @@ function updateArtworkBlur() {
     if (!coverArtElement) return;
     const blurPx = getArtworkBlurPx();
     coverArtElement.style.filter = `blur(${blurPx}px)`;
-    // Slight scale compensates for blurred edge bleed-through on fully clear images
     coverArtElement.style.transform = blurPx > 0 ? 'scale(1.06)' : 'scale(1)';
+}
+
+// --- Song Progress Bar UI ---
+function buildProgressTicks() {
+    if (!progressTicks) return;
+    progressTicks.innerHTML = '';
+    const secs = revealSeconds();
+    for (let i = 0; i < MAX_ATTEMPTS; i++) {
+        const t = document.createElement('div');
+        t.className = 'tick' + (PREVIEW_RAMP[i] <= secs ? ' active' : '');
+        t.style.left = ((PREVIEW_RAMP[i] / MAX_PREVIEW_SECONDS) * 100) + '%';
+        t.setAttribute('aria-hidden', 'true');
+        progressTicks.appendChild(t);
+    }
+}
+
+function updateSongProgress() {
+    if (!progressFill) return;
+    const playing = audio && !audio.paused && !audio.ended && isFinite(audio.currentTime);
+    const posSecs = playing ? Math.max(0, audio.currentTime) : revealSeconds();
+    const pct = playing
+        ? Math.min(100, (posSecs / MAX_PREVIEW_SECONDS) * 100)
+        : Math.min(100, Math.round((posSecs / MAX_PREVIEW_SECONDS) * 100));
+    
+    progressFill.style.width = pct + '%';
+    
+    if (progressCount) {
+        progressCount.textContent = playing
+            ? `${Math.floor(audio.currentTime)}s / ${Math.min(revealSeconds(), MAX_PREVIEW_SECONDS)}s`
+            : `${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s`;
+    }
+    
+    if (progressTicks) {
+        const ticks = progressTicks.querySelectorAll('.tick');
+        const unlockSecs = revealSeconds();
+        ticks.forEach(t => {
+            const pos = parseFloat(t.style.left) || 0;
+            const isActive = (pos / 100) * MAX_PREVIEW_SECONDS <= unlockSecs;
+            t.classList.toggle('active', isActive);
+        });
+    }
 }
 
 // --- Dynamic Hint Generation ---
@@ -190,13 +233,13 @@ function updateHint() {
         return;
     }
 
-    if (attempts >= 3 && dailyTrack.artistName) {
-        hintDisplay.textContent = `Artist starts with '${dailyTrack.artistName.charAt(0)}'`;
-    } else if (dailyTrack.collectionName) {
-        hintDisplay.textContent = dailyTrack.collectionName;
-    } else {
-        hintDisplay.textContent = 'Popular Track';
+    let hint = `Artist starts with '${dailyTrack.artistName.charAt(0)}'`;
+    
+    if (attempts >= MAX_ATTEMPTS - 1 && dailyTrack.trackName) {
+        hint += ` | Song starts with '${dailyTrack.trackName.charAt(0)}'`;
     }
+    
+    hintDisplay.textContent = hint;
 }
 
 function updateBoardList() {
@@ -217,7 +260,6 @@ function updateAutofillState() {
     if (!guessInput) return;
 
     if (attempts === 0) {
-        // Force fully unrecognized attributes on attempt 1 to defeat browser heuristics
         guessInput.type = 'text';
         guessInput.setAttribute('autocomplete', 'none');
         guessInput.setAttribute('aria-autocomplete', 'none');
@@ -227,7 +269,6 @@ function updateAutofillState() {
         guessInput.setAttribute('spellcheck', 'false');
         guessInput.setAttribute('name', `field_no_fill_${Math.random().toString(36).substring(2, 7)}`);
     } else {
-        // Restore standard autofill behavior for attempt 2 and beyond
         guessInput.removeAttribute('role');
         guessInput.setAttribute('autocomplete', 'on');
         guessInput.setAttribute('aria-autocomplete', 'list');
@@ -308,7 +349,7 @@ function scheduleSuggestions(term) {
 }
 
 function revealSeconds() {
-    return Math.min(MAX_PREVIEW_SECONDS, INITIAL_REVEAL_SECONDS + attempts * REVEAL_INCREMENT);
+    return Math.min(MAX_PREVIEW_SECONDS, PREVIEW_RAMP[Math.min(attempts, MAX_ATTEMPTS - 1)]); //[cite: 2]
 }
 
 function playSnippet(seconds) {
@@ -365,11 +406,14 @@ function restoreState() {
             setMessage(st.passed ? `🎉 Solved! ${dailyTrack.trackName} — ${dailyTrack.artistName}` : `Game over! It was ${dailyTrack.trackName} — ${dailyTrack.artistName}`, st.passed ? 'success' : 'error');
             if (guessInput) guessInput.disabled = true; 
             if (guessBtn) guessBtn.disabled = true;
+            if (skipBtn) skipBtn.disabled = true;
             revealAnswer();
         } else {
-            setMessage(`Guess the song or artist — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
+            setMessage(`Guess the song — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
         }
         updateHint();
+        buildProgressTicks();
+        updateSongProgress();
         return true;
     } catch (e) { return false; }
 }
@@ -415,10 +459,44 @@ function checkCorrectGuess(guess) {
     if (!dailyTrack) return false;
     const nGuess = normalizeForCompare(guess);
     const nTitle = normalizeForCompare(dailyTrack.trackName);
-    const nArtist = normalizeForCompare(dailyTrack.artistName);
+    
     if (nGuess === nTitle || nTitle.includes(nGuess)) return 'title';
-    if (nGuess === nArtist || nArtist.includes(nGuess)) return 'artist';
     return false;
+}
+
+// --- Skip Action (Adapted from Songdless) ---
+function handleSkip() {
+    if (gameOver || !skipBtn || skipBtn.disabled) return;
+
+    attempts++;
+    updateAttemptDisplay();
+    updateAutofillState();
+    updateHint();
+    updateArtworkBlur();
+    updateSongProgress();
+
+    if (attempts >= MAX_ATTEMPTS) {
+        gameOver = true;
+        setMessage(`❌ Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
+        if (guessInput) guessInput.disabled = true;
+        if (guessBtn) guessBtn.disabled = true;
+        if (skipBtn) skipBtn.disabled = true;
+        playFullPreview();
+        revealAnswer();
+        updateArtworkBlur();
+        updateSongProgress();
+        saveState(false);
+        hideSuggestions();
+        return;
+    }
+
+    const secs = revealSeconds();
+    if (cluePreview) cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
+    playSnippet(secs);
+    setMessage(`Skipped a guess — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
+    saveState(false);
+    guessInput.value = '';
+    hideSuggestions();
 }
 
 async function handleGuess() {
@@ -438,13 +516,15 @@ async function handleGuess() {
     const res = checkCorrectGuess(raw);
     if (res) {
         gameOver = true;
-        setMessage(`🎉 Correct — ${res === 'title' ? 'song' : 'artist'} matched! ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
+        setMessage(`🎉 Correct! ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
         celebrateSuccess();
-        guessInput.disabled = true; 
+        if (guessInput) guessInput.disabled = true; 
         if (guessBtn) guessBtn.disabled = true;
+        if (skipBtn) skipBtn.disabled = true;
         playFullPreview();
         revealAnswer();
         updateArtworkBlur();
+        updateSongProgress();
         saveState(true);
         hideSuggestions();
         return;
@@ -452,19 +532,21 @@ async function handleGuess() {
 
     attempts++;
     updateAttemptDisplay();
-    // Reveal more of the album art with every wrong guess
     updateArtworkBlur();
-    // Switch input state to enable browser autofill on Attempt 2+
     updateAutofillState();
+    updateHint();
+    updateSongProgress();
 
     if (attempts >= MAX_ATTEMPTS) {
         gameOver = true;
         setMessage(`❌ Out of attempts. It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'error');
-        guessInput.disabled = true; 
+        if (guessInput) guessInput.disabled = true; 
         if (guessBtn) guessBtn.disabled = true;
+        if (skipBtn) skipBtn.disabled = true;
         playFullPreview();
         revealAnswer();
         updateArtworkBlur();
+        updateSongProgress();
         saveState(false);
         hideSuggestions();
         return;
@@ -497,6 +579,7 @@ async function init() {
         setMessage('No track available today — try again later.', 'error');
         if (guessInput) guessInput.disabled = true; 
         if (guessBtn) guessBtn.disabled = true; 
+        if (skipBtn) skipBtn.disabled = true;
         if (playBtn) playBtn.disabled = true;
         return;
     }
@@ -579,15 +662,24 @@ async function init() {
         answerTitleElement = document.getElementById('answerTitle');
     }
 
+    buildProgressTicks();
+    updateSongProgress();
+
+    ['timeupdate', 'playing', 'durationchange', 'pause', 'ended', 'seeked'].forEach(ev =>
+        audio.addEventListener(ev, updateSongProgress)
+    );
+
     if (!restored) {
         setTimeout(() => {
             if (cluePreview) cluePreview.textContent = `Preview: ${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s`;
             playSnippet(revealSeconds());
-            setMessage(`Guess the song or artist — ${MAX_ATTEMPTS} attempts.`, 'info');
+            setMessage(`Guess the song — ${MAX_ATTEMPTS} attempts.`, 'info');
         }, 300);
     }
 
     if (guessBtn) guessBtn.addEventListener('click', handleGuess);
+    if (skipBtn) skipBtn.addEventListener('click', handleSkip);
+
     if (guessInput) {
         guessInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -630,7 +722,6 @@ async function init() {
 
     const guessForm = document.getElementById('guessForm');
     if (guessForm) {
-        // Intercept native browser autofill with dummy fields
         if (!document.getElementById('dummyAutofillTrap')) {
             const dummyInput = document.createElement('input');
             dummyInput.id = 'dummyAutofillTrap';
@@ -670,7 +761,6 @@ function updateResetTimer() {
 
 function checkDayRollover() {
     if (getLocalDateStr() === TODAY) return false;
-    // Local 00:00 passed while the page was open — reload to pick up the new song & fresh state
     location.reload();
     return true;
 }
@@ -680,7 +770,6 @@ setInterval(() => {
     if (!checkDayRollover()) updateResetTimer();
 }, 1000);
 
-// Safely boot when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
