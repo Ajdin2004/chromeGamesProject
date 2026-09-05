@@ -93,6 +93,10 @@
             overflow: hidden;
         }
 
+        .mode-toggle { display: flex; gap: 0.4rem; align-items: center; }
+        .mode-btn { border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--muted); border-radius: 999px; padding: 0.4rem 0.7rem; cursor: pointer; font-weight: 700; }
+        .mode-btn.active { color: var(--text); border-color: var(--cyan); background: rgba(0,242,254,0.12); }
+
         .melody-box {
             display: flex;
             flex-wrap: wrap;
@@ -473,6 +477,11 @@
     </div>
 
     <div class="main-card glass">
+        <div class="mode-toggle" id="modeToggle">
+            <button type="button" class="mode-btn" data-mode="daily"><i class="fa-regular fa-calendar"></i> Daily</button>
+            <button type="button" class="mode-btn" data-mode="endless"><i class="fa-solid fa-infinity"></i> Endless</button>
+            <div class="badge" id="scoreBadge" style="display: none;"><i class="fa-solid fa-star"></i> Score <span id="scoreDisplay">0</span></div>
+        </div>
         <div class="melody-box">
             <button class="play-btn" id="playMelodyBtn"><i class="fa-solid fa-play"></i> Play melody</button>
             <div class="clue-text"><i class="fa-regular fa-lightbulb"></i> <strong id="cluePreview">first notes</strong></div>

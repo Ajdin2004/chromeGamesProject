@@ -17,6 +17,10 @@ const CURATED_TERMS = [
 const MAX_ATTEMPTS = 6;
 const PREVIEW_RAMP = [1, 2, 4, 7, 11, 16]; //[cite: 2]
 const MAX_PREVIEW_SECONDS = 16; //[cite: 2]
+let gameMode = 'daily'; // 'daily' | 'endless'
+const ENDLESS_BASE = 100;
+const ENDLESS_TIME_PENALTY = 2;
+const ENDLESS_TIME_CAP_SEC = 30;
 
 // Cover-art progressive de-blur (clears up with each wrong guess)
 const ARTWORK_BLUR_START_PX = 6;
@@ -36,6 +40,9 @@ const suggestionBox = document.getElementById('suggestionBox');
 const progressFill = document.getElementById('progressFill');
 const progressCount = document.getElementById('progressCount');
 const progressTicks = document.getElementById('progressTicks');
+const modeToggle = document.getElementById('modeToggle');
+const scoreBadge = document.getElementById('scoreBadge');
+const scoreDisplay = document.getElementById('scoreDisplay');
 
 let suggestionTimer = null;
 let suggestionCache = {};
@@ -51,6 +58,10 @@ let guesses = [];
 let gameOver = false;
 let volume = 0.1; // Default volume: 10%
 audio.volume = volume;
+let endlessScore = 0;
+let endlessRounds = 0;
+let endlessRoundStartTime = 0;
+let endlessUsedTracks = [];
 
 // --- CORS & Scheme-Redirect Safe Fetcher ---
 async function safeiTunesQuery(params) {
@@ -231,6 +242,10 @@ function updateHint() {
     if (!dailyTrack) {
         hintDisplay.textContent = '—';
         return;
+    }
+    if (gameMode === 'endless') {
+        endlessRounds = 1;
+        endlessRoundStartTime = Date.now();
     }
 
     let hint = `Artist starts with '${dailyTrack.artistName.charAt(0)}'`;
@@ -418,37 +433,40 @@ function restoreState() {
     } catch (e) { return false; }
 }
 
-async function fetchDailyTrack() {
-    const stored = localStorage.getItem(`tunetile_track_${TODAY}`);
-    if (stored) {
-        try { dailyTrack = JSON.parse(stored); return dailyTrack; } catch (e) {}
+async function fetchDailyTrack(options = {}) {
+    const fresh = !!options.fresh;
+    if (!fresh) {
+        const stored = localStorage.getItem(`tunetile_track_${TODAY}`);
+        if (stored) {
+            try { dailyTrack = JSON.parse(stored); return dailyTrack; } catch (e) {}
+        }
     }
 
-    const termIndex = SEED % CURATED_TERMS.length;
-    let tries = CURATED_TERMS.length;
-    let idx = termIndex;
-
-    while (tries-- > 0) {
-        const term = CURATED_TERMS[idx];
+    const termIndex = fresh ? Math.floor(Math.random() * CURATED_TERMS.length) : SEED % CURATED_TERMS.length;
+    for (let offset = 0; offset < CURATED_TERMS.length; offset++) {
+        const term = CURATED_TERMS[(termIndex + offset) % CURATED_TERMS.length];
         const params = `term=${encodeURIComponent(term)}&media=music&entity=song&limit=25&country=US`;
         const data = await safeiTunesQuery(params);
-
-        if (data && data.results && data.results.length > 0) {
-            const pick = SEED % data.results.length;
-            const item = data.results[pick];
-            if (item && item.previewUrl) {
-                dailyTrack = {
-                    trackName: item.trackName,
-                    artistName: item.artistName,
-                    previewUrl: item.previewUrl,
-                    artwork: (item.artworkUrl100 || item.artworkUrl60 || '').replace(/\/(\d+)x\1/, '/300x300'),
-                    collectionName: item.collectionName || ''
-                };
-                localStorage.setItem(`tunetile_track_${TODAY}`, JSON.stringify(dailyTrack));
-                return dailyTrack;
-            }
+        const results = (data && data.results) || [];
+        if (!results.length) continue;
+        const start = fresh ? Math.floor(Math.random() * results.length) : SEED % results.length;
+        for (let index = 0; index < results.length; index++) {
+            const item = results[(start + index) % results.length];
+            if (!item || !item.previewUrl) continue;
+            const track = {
+                trackName: item.trackName,
+                artistName: item.artistName,
+                previewUrl: item.previewUrl,
+                artwork: (item.artworkUrl100 || item.artworkUrl60 || '').replace(/\/(\d+)x\1/, '/300x300'),
+                collectionName: item.collectionName || ''
+            };
+            const identity = `${track.trackName}|${track.artistName}`;
+            if (fresh && endlessUsedTracks.includes(identity)) continue;
+            dailyTrack = track;
+            if (fresh) endlessUsedTracks.push(identity);
+            else localStorage.setItem(`tunetile_track_${TODAY}`, JSON.stringify(dailyTrack));
+            return dailyTrack;
         }
-        idx = (idx + 1) % CURATED_TERMS.length;
     }
 
     dailyTrack = null;
@@ -464,6 +482,50 @@ function checkCorrectGuess(guess) {
     return false;
 }
 
+function updateEndlessUI() {
+    if (scoreBadge) scoreBadge.style.display = gameMode === 'endless' ? 'flex' : 'none';
+    if (scoreDisplay) scoreDisplay.textContent = String(endlessScore);
+}
+
+function endlessRoundScore() {
+    const elapsed = Math.min(ENDLESS_TIME_CAP_SEC, (Date.now() - endlessRoundStartTime) / 1000);
+    return Math.max(5, ENDLESS_BASE - (attempts * 10) - Math.floor(elapsed * ENDLESS_TIME_PENALTY));
+}
+
+async function nextEndlessRound() {
+    attempts = 0;
+    guesses = [];
+    gameOver = false;
+    dailyTrack = null;
+    if (guessInput) { guessInput.value = ''; guessInput.disabled = false; }
+    if (guessBtn) guessBtn.disabled = false;
+    if (skipBtn) skipBtn.disabled = false;
+    if (boardContainer) boardContainer.innerHTML = '';
+    await fetchDailyTrack({ fresh: true });
+    if (!dailyTrack) {
+        setMessage('Could not load another track for endless mode.', 'error');
+        return;
+    }
+    endlessRounds++;
+    endlessRoundStartTime = Date.now();
+    const title = document.getElementById('answerTitle');
+    if (title) title.textContent = maskTitle(dailyTrack.trackName);
+    if (coverArtElement) {
+        coverArtElement.src = dailyTrack.artwork;
+        coverArtElement.alt = dailyTrack.trackName;
+    }
+    updateAttemptDisplay();
+    updateHint();
+    updateArtworkBlur();
+    buildProgressTicks();
+    updateSongProgress();
+    setMessage(`Endless round ${endlessRounds} — name the song!`, 'info');
+    setTimeout(() => {
+        if (cluePreview) cluePreview.textContent = `Preview: ${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s`;
+        playSnippet(revealSeconds());
+    }, 250);
+}
+
 // --- Skip Action (Adapted from Songdless) ---
 function handleSkip() {
     if (gameOver || !skipBtn || skipBtn.disabled) return;
@@ -474,6 +536,19 @@ function handleSkip() {
     updateHint();
     updateArtworkBlur();
     updateSongProgress();
+
+    if (gameMode === 'endless') {
+        if (attempts >= MAX_ATTEMPTS) {
+            setMessage(`It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}. Next round!`, 'error');
+            setTimeout(nextEndlessRound, 900);
+        } else {
+            const secs = revealSeconds();
+            if (cluePreview) cluePreview.textContent = `Preview: ${secs}s / ${MAX_PREVIEW_SECONDS}s`;
+            playSnippet(secs);
+            setMessage(`Skipped — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
+        }
+        return;
+    }
 
     if (attempts >= MAX_ATTEMPTS) {
         gameOver = true;
@@ -515,6 +590,15 @@ async function handleGuess() {
 
     const res = checkCorrectGuess(raw);
     if (res) {
+        if (gameMode === 'endless') {
+            const points = endlessRoundScore();
+            endlessScore += points;
+            updateEndlessUI();
+            setMessage(`🎉 +${points} pts — ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
+            celebrateSuccess();
+            setTimeout(nextEndlessRound, 1200);
+            return;
+        }
         gameOver = true;
         setMessage(`🎉 Correct! ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
         celebrateSuccess();
@@ -536,6 +620,12 @@ async function handleGuess() {
     updateAutofillState();
     updateHint();
     updateSongProgress();
+
+    if (gameMode === 'endless' && attempts >= MAX_ATTEMPTS) {
+        setMessage(`It was: ${dailyTrack.trackName} — ${dailyTrack.artistName}. Next round!`, 'error');
+        setTimeout(nextEndlessRound, 900);
+        return;
+    }
 
     if (attempts >= MAX_ATTEMPTS) {
         gameOver = true;
@@ -562,14 +652,31 @@ async function handleGuess() {
 }
 
 async function init() {
-    setMessage('Loading today\'s tune...');
+    const requestedMode = new URLSearchParams(location.search).get('mode');
+    const savedMode = localStorage.getItem('tunetile_mode');
+    if (requestedMode === 'daily' || requestedMode === 'endless') gameMode = requestedMode;
+    else if (savedMode === 'daily' || savedMode === 'endless') gameMode = savedMode;
+    updateEndlessUI();
+    setMessage(gameMode === 'endless' ? 'Loading endless round...' : 'Loading today\'s tune...');
     updateAttemptDisplay();
     updateHint();
 
     if (boardContainer) boardContainer.innerHTML = '';
 
-    await fetchDailyTrack();
-    const restored = restoreState();
+    if (modeToggle) {
+        modeToggle.querySelectorAll('.mode-btn').forEach(button => {
+            button.classList.toggle('active', button.dataset.mode === gameMode);
+        });
+        modeToggle.addEventListener('click', event => {
+            const button = event.target.closest('.mode-btn');
+            if (!button || button.dataset.mode === gameMode) return;
+            localStorage.setItem('tunetile_mode', button.dataset.mode);
+            location.search = `?mode=${button.dataset.mode}`;
+        });
+    }
+
+    await fetchDailyTrack({ fresh: gameMode === 'endless' });
+    const restored = gameMode === 'daily' ? restoreState() : false;
     if (!restored) {
         updateAutofillState();
     }
@@ -673,7 +780,7 @@ async function init() {
         setTimeout(() => {
             if (cluePreview) cluePreview.textContent = `Preview: ${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s`;
             playSnippet(revealSeconds());
-            setMessage(`Guess the song — ${MAX_ATTEMPTS} attempts.`, 'info');
+            setMessage(gameMode === 'endless' ? `Endless round ${endlessRounds} — name the song!` : `Guess the song — ${MAX_ATTEMPTS} attempts.`, 'info');
         }, 300);
     }
 

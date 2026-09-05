@@ -552,7 +552,7 @@ async function fetchDailyTrack(opts = {}) {
         if (fresh.length) ordered = fresh;
     }
 
-    const termIndex = SEED % ordered.length;
+    const termIndex = opts.fresh ? Math.floor(Math.random() * ordered.length) : SEED % ordered.length;
 
     // 1) Fire off the iTunes searches for all terms in parallel instead of one
     //    at a time — removes most of the swing between genres.
@@ -572,7 +572,7 @@ async function fetchDailyTrack(opts = {}) {
         const data = resultsArrays[pass];
         const results = (data && data.results) || [];
         if (!results.length) continue;
-        const start = SEED % results.length;
+        const start = opts.fresh ? Math.floor(Math.random() * results.length) : SEED % results.length;
         for (let offset = 0; offset < results.length; offset++) {
             const item = results[(start + offset) % results.length];
             if (!item || !item.previewUrl) continue;
@@ -1065,6 +1065,8 @@ async function init() {
     let savedMode = null;
     try { savedMode = localStorage.getItem('songless_mode'); } catch (e) {}
     if (savedMode === 'daily' || savedMode === 'endless') gameMode = savedMode;
+    const requestedMode = new URLSearchParams(location.search).get('mode');
+    if (requestedMode === 'daily' || requestedMode === 'endless') gameMode = requestedMode;
 
     updateGenreBar();
     updateModeUI();
