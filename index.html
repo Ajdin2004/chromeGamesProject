@@ -779,7 +779,7 @@
 /* ============================================================
            7. CATEGORY SHELVES — glowing custom scrollbars + drag
            ============================================================ */
-        .shelf { margin-bottom: 2.2rem; }
+        .shelf { margin-bottom: 2.2rem; content-visibility: auto; contain-intrinsic-size: 0 280px; }
 
         .shelf-head {
             display: flex;
@@ -1732,6 +1732,26 @@
             .glass::after { animation: none; }
             .player-avatar { animation: none; }
         }
+
+        /* Keep the visual language while reducing expensive compositing on
+           devices with limited CPU/GPU headroom. */
+        body.low-end .aurora-blob { filter: blur(48px); opacity: 0.32; animation: none; }
+        body.low-end #bg-vignette { background: radial-gradient(ellipse at center, transparent 62%, rgba(2, 3, 10, 0.42) 100%); }
+        body.low-end::after { opacity: 0.025; }
+        body.low-end .glass,
+        body.low-end .bento-tile,
+        body.low-end .controls-bar,
+        body.low-end .game-card.tile,
+        body.low-end .about-section,
+        body.low-end .faq-section { -webkit-backdrop-filter: none; backdrop-filter: none; }
+        body.low-end .glass::before,
+        body.low-end .glass::after { display: none; }
+        body.low-end .game-card.tile { will-change: auto; box-shadow: inset 0 1px 0 var(--glass-hi), 0 8px 18px rgba(2, 4, 14, 0.32); }
+        body.low-end .game-card.tile:hover { box-shadow: inset 0 1px 0 var(--glass-hi), 0 12px 24px rgba(2, 4, 14, 0.4); }
+        body.low-end .bento-tile,
+        body.low-end .game-card { animation: none; opacity: 1; }
+        body.low-end .about-section::before,
+        body.low-end .faq-section::before { animation: none; }
     </style>
 </head>
 <body>
@@ -2308,8 +2328,14 @@
         let bgVisible = true;
         let bgLastFrame = 0;
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const isLowEnd = (navigator.hardwareConcurrency || 8) <= 4 || window.innerWidth < 768;
-        const BG_FPS = isLowEnd ? 24 : 50;
+        const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+        const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+        const isLowEnd = (navigator.hardwareConcurrency || 8) <= 4 ||
+            (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+            window.innerWidth < 768 || isCoarsePointer || saveData;
+        const animateBackground = !prefersReducedMotion && !saveData;
+        document.body.classList.toggle('low-end', isLowEnd);
+        const BG_FPS = isLowEnd ? 20 : 50;
         const BG_FRAME_INTERVAL = 1000 / BG_FPS;
 
         // Cached accent + glow colors (re-read whenever theme changes)
@@ -2335,6 +2361,7 @@
         resizeBg();
 
         window.addEventListener('mousemove', (e) => {
+            if (isCoarsePointer) return;
             if (lastMouseEvent) {
                 // movementX/Y is the instant velocity in px/frame
                 const instantX = e.movementX || 0;
@@ -2349,7 +2376,7 @@
 
         document.addEventListener('visibilitychange', () => {
             bgVisible = !document.hidden;
-            if (bgVisible && !prefersReducedMotion) {
+            if (bgVisible && animateBackground) {
                 bgLastFrame = 0;
                 requestAnimationFrame(bgAnimate);
             }
@@ -2442,7 +2469,7 @@ function spawnShootingStar() {
         }
 
         function bgAnimate(now) {
-            if (!bgVisible || prefersReducedMotion) return;
+            if (!bgVisible || !animateBackground) return;
             if (now - bgLastFrame < BG_FRAME_INTERVAL) {
                 bgAnimId = requestAnimationFrame(bgAnimate);
                 return;
@@ -2494,7 +2521,7 @@ function spawnShootingStar() {
 
             bgAnimId = requestAnimationFrame(bgAnimate);
         }
-        if (!prefersReducedMotion) bgAnimId = requestAnimationFrame(bgAnimate);
+        if (animateBackground) bgAnimId = requestAnimationFrame(bgAnimate);
 /* ============================================================
            13. STORAGE HELPERS (kept identical in spirit)
            ============================================================ */
@@ -3045,7 +3072,7 @@ const SHELVES = [
            ============================================================ */
         const TILT_MAX = 9;      // max degrees
         const TILT_LIFT = -5;    // px translateY on hover
-        const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+        const isTouchDevice = isCoarsePointer;
 
         function attachTilt(card) {
             if (card.dataset.tiltBound || prefersReducedMotion || isTouchDevice) return;
@@ -3087,7 +3114,7 @@ const SHELVES = [
         const FX_INTERVAL = 1000 / 30;
 
         function fxStart(tile) {
-            if (prefersReducedMotion) return;
+            if (prefersReducedMotion || isLowEnd || isTouchDevice) return;
             fxTile = tile;
             fxFrame = 0;
             fxLast = 0;
