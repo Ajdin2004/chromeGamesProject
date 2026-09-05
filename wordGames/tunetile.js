@@ -128,6 +128,44 @@ function setMessage(text, type = 'info') {
     }
 }
 
+function playSongRemainder() {
+    if (!dailyTrack || !dailyTrack.previewUrl) return;
+    try {
+        if (previewStopTimer) clearTimeout(previewStopTimer);
+        const currentPosition = Number.isFinite(audio.currentTime) && audio.src && audio.currentTime > 0 ? audio.currentTime : revealSeconds();
+        audio.pause();
+        if (!audio.src || !audio.src.includes(dailyTrack.previewUrl)) audio.src = dailyTrack.previewUrl;
+        audio.currentTime = Math.max(0, currentPosition);
+        audio.volume = volume;
+        audio.play().catch(() => {});
+        if (playBtn) playBtn.classList.add('pulse-anim');
+        audio.onended = () => playBtn && playBtn.classList.remove('pulse-anim');
+    } catch (e) {}
+}
+
+function showResultPanel(won, matchedBy = '') {
+    if (!dailyTrack || !messageBox) return;
+    const oldPanel = document.getElementById('resultPanel');
+    if (oldPanel) oldPanel.remove();
+    const panel = document.createElement('section');
+    panel.id = 'resultPanel';
+    panel.className = 'result-panel';
+    panel.setAttribute('aria-label', 'Round statistics');
+    const art = document.createElement('img');
+    art.className = 'result-art'; art.src = dailyTrack.artwork || ''; art.alt = `${dailyTrack.trackName} cover`;
+    const details = document.createElement('div');
+    const kicker = document.createElement('div'); kicker.className = 'result-kicker'; kicker.textContent = won ? `Solved${matchedBy ? ` by ${matchedBy}` : ''}` : 'Song revealed';
+    const title = document.createElement('div'); title.className = 'result-title'; title.textContent = dailyTrack.trackName;
+    const artist = document.createElement('div'); artist.className = 'result-artist'; artist.textContent = dailyTrack.artistName;
+    const stats = document.createElement('div'); stats.className = 'result-stats';
+    stats.innerHTML = `<span class="result-stat">Attempts <strong>${attempts}/${MAX_ATTEMPTS}</strong></span><span class="result-stat">Preview <strong>${MAX_PREVIEW_SECONDS}s</strong></span>`;
+    details.append(kicker, title, artist, stats);
+    const play = document.createElement('button'); play.type = 'button'; play.className = 'result-play'; play.innerHTML = '<i class="fa-solid fa-play"></i> Play rest';
+    play.addEventListener('click', () => { playSongRemainder(); play.innerHTML = '<i class="fa-solid fa-volume-high"></i> Playing'; });
+    panel.append(art, details, play);
+    messageBox.parentNode.insertBefore(panel, messageBox);
+}
+
 function normalizeForCompare(s) {
     return (s || '').toString().toUpperCase().replace(/[^A-Z0-9 ]+/g, '').replace(/\s+/g, ' ').trim();
 }
@@ -394,14 +432,7 @@ function playSnippet(seconds, preservePosition = false) {
 }
 
 function playFullPreview() {
-    if (!dailyTrack || !dailyTrack.previewUrl) return;
-    try {
-        audio.pause();
-        audio.src = dailyTrack.previewUrl;
-        audio.currentTime = 0;
-        audio.volume = volume;
-        audio.play().catch(() => {});
-    } catch (e) {}
+    playSongRemainder();
 }
 
 function saveState(passed) {
@@ -428,6 +459,8 @@ function restoreState() {
             if (guessBtn) guessBtn.disabled = true;
             if (skipBtn) skipBtn.disabled = true;
             revealAnswer();
+            showResultPanel(!!st.passed);
+            playSongRemainder();
         } else {
             setMessage(`Guess the song — ${MAX_ATTEMPTS - attempts} attempts left.`, 'info');
         }
@@ -563,6 +596,7 @@ function handleSkip() {
         if (skipBtn) skipBtn.disabled = true;
         playFullPreview();
         revealAnswer();
+        showResultPanel(false);
         updateArtworkBlur();
         updateSongProgress();
         saveState(false);
@@ -612,6 +646,7 @@ async function handleGuess() {
         if (skipBtn) skipBtn.disabled = true;
         playFullPreview();
         revealAnswer();
+        showResultPanel(true, res);
         updateArtworkBlur();
         updateSongProgress();
         saveState(true);
@@ -640,6 +675,7 @@ async function handleGuess() {
         if (skipBtn) skipBtn.disabled = true;
         playFullPreview();
         revealAnswer();
+        showResultPanel(false);
         updateArtworkBlur();
         updateSongProgress();
         saveState(false);
