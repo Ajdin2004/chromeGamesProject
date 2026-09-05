@@ -549,6 +549,13 @@
             background: linear-gradient(135deg, rgba(0, 242, 254, 0.11), rgba(59, 130, 246, 0.1)), rgba(0,0,0,0.22);
             animation: fadeInMsg 0.3s ease forwards;
         }
+        .result-modal-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(5, 8, 18, 0.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); animation: fadeInMsg 0.25s ease forwards; }
+        .result-modal-overlay.loading::after { content: 'Loading next song...'; position: absolute; bottom: 1.5rem; color: var(--muted); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        .result-modal-overlay .result-panel { width: min(720px, 100%); min-height: 220px; padding: 1.5rem; grid-template-columns: 150px 1fr auto; box-shadow: 0 30px 90px rgba(0,0,0,0.65), 0 0 45px rgba(0,242,254,0.18); }
+        .result-modal-overlay .result-art { width: 150px; height: 150px; border-radius: 18px; }
+        .result-modal-overlay .result-title { font-size: clamp(1.3rem, 4vw, 2rem); }
+        .result-modal-overlay .result-artist { font-size: 1rem; }
+        @media (max-width: 600px) { .result-modal-overlay .result-panel { grid-template-columns: 86px 1fr; padding: 1rem; } .result-modal-overlay .result-art { width: 86px; height: 86px; } .result-modal-overlay .result-play { grid-column: 1 / -1; width: 100%; } }
         .result-art { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); }
         .result-kicker { color: var(--cyan); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
         .result-title { color: var(--text); font-size: 1rem; font-weight: 800; margin-top: 0.15rem; }

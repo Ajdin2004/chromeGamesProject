@@ -15,8 +15,9 @@ const CURATED_TERMS = [
 ];
 
 const MAX_ATTEMPTS = 6;
-const PREVIEW_RAMP = [1, 2, 4, 7, 11, 16]; //[cite: 2]
-const MAX_PREVIEW_SECONDS = 16; //[cite: 2]
+const dailyPlaceholderKey = () => `tunetile_daily_placeholder_${TODAY}`;
+const PREVIEW_RAMP = [1, 2, 4, 7, 11, 16]; 
+const MAX_PREVIEW_SECONDS = 16; 
 let gameMode = 'daily'; // 'daily' | 'endless'
 const ENDLESS_BASE = 100;
 const ENDLESS_TIME_PENALTY = 2;
@@ -146,8 +147,8 @@ function playSongRemainder() {
 
 function showResultPanel(won, matchedBy = '') {
     if (!dailyTrack || !messageBox) return;
-    const oldPanel = document.getElementById('resultPanel');
-    if (oldPanel) oldPanel.remove();
+    const oldModal = document.getElementById('resultModal');
+    if (oldModal) oldModal.remove();
     const panel = document.createElement('section');
     panel.id = 'resultPanel';
     panel.className = 'result-panel';
@@ -164,7 +165,16 @@ function showResultPanel(won, matchedBy = '') {
     const play = document.createElement('button'); play.type = 'button'; play.className = 'result-play'; play.innerHTML = '<i class="fa-solid fa-play"></i> Play rest';
     play.addEventListener('click', () => { playSongRemainder(); play.innerHTML = '<i class="fa-solid fa-volume-high"></i> Playing'; });
     panel.append(art, details, play);
-    messageBox.parentNode.insertBefore(panel, messageBox);
+    const modal = document.createElement('div');
+    modal.id = 'resultModal';
+    modal.className = 'result-modal-overlay';
+    modal.appendChild(panel);
+    document.body.appendChild(modal);
+}
+
+function setResultModalLoading(isLoading) {
+    const modal = document.getElementById('resultModal');
+    if (modal) modal.classList.toggle('loading', isLoading);
 }
 
 function renderEndlessHistory() {
@@ -434,7 +444,7 @@ function scheduleSuggestions(term) {
 }
 
 function revealSeconds() {
-    return Math.min(MAX_PREVIEW_SECONDS, PREVIEW_RAMP[Math.min(attempts, MAX_ATTEMPTS - 1)]); //[cite: 2]
+    return Math.min(MAX_PREVIEW_SECONDS, PREVIEW_RAMP[Math.min(attempts, MAX_ATTEMPTS - 1)]); 
 }
 
 function playSnippet(seconds, preservePosition = false) {
@@ -471,6 +481,11 @@ function saveState(passed) {
     localStorage.setItem(`tunetile_state_${TODAY}`, JSON.stringify(state));
 }
 
+function saveDailyPlaceholder() {
+    if (!dailyTrack || gameMode !== 'daily') return;
+    try { localStorage.setItem(dailyPlaceholderKey(), JSON.stringify({ track: dailyTrack })); } catch (e) {}
+}
+
 function restoreState() {
     const raw = localStorage.getItem(`tunetile_state_${TODAY}`);
     if (!raw) return false;
@@ -505,9 +520,13 @@ function restoreState() {
 async function fetchDailyTrack(options = {}) {
     const fresh = !!options.fresh;
     if (!fresh) {
-        const stored = localStorage.getItem(`tunetile_track_${TODAY}`);
+        const stored = localStorage.getItem(`tunetile_track_${TODAY}`) || localStorage.getItem(dailyPlaceholderKey());
         if (stored) {
-            try { dailyTrack = JSON.parse(stored); return dailyTrack; } catch (e) {}
+            try {
+                const parsed = JSON.parse(stored);
+                dailyTrack = parsed.track || parsed;
+                return dailyTrack;
+            } catch (e) {}
         }
     }
 
@@ -566,17 +585,19 @@ async function nextEndlessRound() {
     guesses = [];
     gameOver = false;
     dailyTrack = null;
-    const oldPanel = document.getElementById('resultPanel');
-    if (oldPanel) oldPanel.remove();
+    setResultModalLoading(true);
     if (guessInput) { guessInput.value = ''; guessInput.disabled = false; }
     if (guessBtn) guessBtn.disabled = false;
     if (skipBtn) skipBtn.disabled = false;
     if (boardContainer) boardContainer.innerHTML = '';
     await fetchDailyTrack({ fresh: true });
     if (!dailyTrack) {
+        setResultModalLoading(false);
         setMessage('Could not load another track for endless mode.', 'error');
         return;
     }
+    const resultModal = document.getElementById('resultModal');
+    if (resultModal) resultModal.remove();
     endlessRounds++;
     endlessRoundStartTime = Date.now();
     const title = document.getElementById('answerTitle');
@@ -760,6 +781,10 @@ async function init() {
             const button = event.target.closest('.mode-btn');
             if (!button || button.dataset.mode === gameMode) return;
             localStorage.setItem('tunetile_mode', button.dataset.mode);
+            if (gameMode === 'daily') {
+                saveDailyPlaceholder();
+                if (!gameOver) saveState(false);
+            }
             location.search = `?mode=${button.dataset.mode}`;
         });
     }

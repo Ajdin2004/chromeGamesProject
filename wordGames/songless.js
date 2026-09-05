@@ -38,6 +38,7 @@ function currentGenre() { return getGenreByKey(currentGenreKey); }
 // Per-genre storage keys so switching genres gives an independent daily game
 const stateKey  = () => `songless_state_${TODAY}_${currentGenreKey}`;
 const trackKey  = () => `songless_track_${TODAY}_${currentGenreKey}`;
+const dailyPlaceholderKey = () => `songless_daily_placeholder_${TODAY}_${currentGenreKey}`;
 
 const MAX_ATTEMPTS = 6;
 // Audio preview increases with each attempt (capped by Apple's 30s clip)
@@ -315,8 +316,8 @@ function playSongRemainder() {
 
 function showResultPanel(won, matchedBy = '') {
     if (!dailyTrack || !messageBox) return;
-    const oldPanel = document.getElementById('resultPanel');
-    if (oldPanel) oldPanel.remove();
+    const oldModal = document.getElementById('resultModal');
+    if (oldModal) oldModal.remove();
     const panel = document.createElement('section');
     panel.id = 'resultPanel';
     panel.className = 'result-panel';
@@ -333,7 +334,16 @@ function showResultPanel(won, matchedBy = '') {
     const play = document.createElement('button'); play.type = 'button'; play.className = 'result-play'; play.innerHTML = '<i class="fa-solid fa-play"></i> Play rest';
     play.addEventListener('click', () => { playSongRemainder(); play.innerHTML = '<i class="fa-solid fa-volume-high"></i> Playing'; });
     panel.append(art, details, play);
-    messageBox.parentNode.insertBefore(panel, messageBox);
+    const modal = document.createElement('div');
+    modal.id = 'resultModal';
+    modal.className = 'result-modal-overlay';
+    modal.appendChild(panel);
+    document.body.appendChild(modal);
+}
+
+function setResultModalLoading(isLoading) {
+    const modal = document.getElementById('resultModal');
+    if (modal) modal.classList.toggle('loading', isLoading);
 }
 
 function renderEndlessHistory() {
@@ -606,6 +616,9 @@ async function fetchDailyTrack(opts = {}) {
     if (!opts.fresh) {
         let stored;
         try { stored = localStorage.getItem(trackKey()); } catch (e) {}
+        if (!stored) {
+            try { stored = localStorage.getItem(dailyPlaceholderKey()); } catch (e) {}
+        }
         if (stored) {
             try {
                 if (!isCurrentLoad()) return false;
@@ -719,6 +732,13 @@ function cacheDaily() {
     } catch (e) {}
 }
 
+function saveDailyPlaceholder() {
+    if (!dailyTrack || gameMode !== 'daily') return;
+    try {
+        localStorage.setItem(dailyPlaceholderKey(), JSON.stringify({ track: dailyTrack, lyrics }));
+    } catch (e) {}
+}
+
 // --- First-attempt autofill toggle (mirrors TuneTile to defeat browser hints) ---
 function updateAutofillState() {
     if (!guessInput) return;
@@ -829,8 +849,7 @@ async function nextEndlessRound() {
     // Reset round state
     attempts = 0; guesses = []; gameOver = false;
     lyrics = null; lyricLines = [];
-    const oldPanel = document.getElementById('resultPanel');
-    if (oldPanel) oldPanel.remove();
+    setResultModalLoading(true);
     if (boardContainer) boardContainer.innerHTML = '';
     if (guessInput) { guessInput.value = ''; guessInput.disabled = false; }
     if (guessBtn) guessBtn.disabled = false;
@@ -841,12 +860,16 @@ async function nextEndlessRound() {
     await fetchDailyTrack({ fresh: true, loadToken });
     if (gameMode !== 'endless' || loadToken !== modeLoadToken) return;
     if (!dailyTrack) {
+        setResultModalLoading(false);
         setMessage('Could not load another track for endless mode — try switching genre.', 'error');
         if (guessInput) guessInput.disabled = true;
         if (guessBtn) guessBtn.disabled = true;
         if (skipBtn) skipBtn.disabled = true;
         return;
     }
+
+    const resultModal = document.getElementById('resultModal');
+    if (resultModal) resultModal.remove();
 
     endlessRounds++;
     endlessRoundStartTime = Date.now();
@@ -1117,6 +1140,10 @@ function updateModeUI() {
 // --- Switch between Daily and Endless modes ---
 function setMode(mode) {
     if (mode === gameMode) return;
+    if (gameMode === 'daily') {
+        saveDailyPlaceholder();
+        if (!gameOver) saveState(false);
+    }
     modeLoadToken++;
     gameMode = mode;
     const modeParams = new URLSearchParams(location.search);
@@ -1127,7 +1154,7 @@ function setMode(mode) {
     try { audio.pause(); audio.removeAttribute('src'); } catch (e) {}
     const oldRow = document.getElementById('shareRow');
     if (oldRow) oldRow.remove();
-    const oldResult = document.getElementById('resultPanel');
+    const oldResult = document.getElementById('resultModal');
     if (oldResult) oldResult.remove();
     if (messageBox) messageBox.classList.remove('celebrate');
     hideSuggestions();
