@@ -333,10 +333,17 @@ function showResultPanel(won, matchedBy = '') {
     details.append(kicker, title, artist, stats);
     const play = document.createElement('button'); play.type = 'button'; play.className = 'result-play'; play.innerHTML = '<i class="fa-solid fa-play"></i> Play rest';
     play.addEventListener('click', () => { playSongRemainder(); play.innerHTML = '<i class="fa-solid fa-volume-high"></i> Playing'; });
-    panel.append(art, details, play);
+    const close = document.createElement('button');
+    close.type = 'button'; close.className = 'result-close'; close.setAttribute('aria-label', 'Close result');
+    close.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    panel.append(art, details, play, close);
     const modal = document.createElement('div');
     modal.id = 'resultModal';
     modal.className = 'result-modal-overlay';
+    modal.addEventListener('click', event => {
+        if (event.target === modal) modal.remove();
+    });
+    close.addEventListener('click', () => modal.remove());
     modal.appendChild(panel);
     document.body.appendChild(modal);
 }

@@ -555,6 +555,9 @@
         .result-modal-overlay .result-art { width: 150px; height: 150px; border-radius: 18px; }
         .result-modal-overlay .result-title { font-size: clamp(1.3rem, 4vw, 2rem); }
         .result-modal-overlay .result-artist { font-size: 1rem; }
+        .result-modal-overlay .result-panel { position: relative; }
+        .result-close { position: absolute; top: 0.7rem; right: 0.7rem; width: 34px; height: 34px; border: 1px solid rgba(255,255,255,0.16); border-radius: 50%; background: rgba(0,0,0,0.28); color: var(--muted); cursor: pointer; font-size: 1rem; }
+        .result-close:hover { color: var(--text); border-color: var(--cyan); background: rgba(0,242,254,0.14); }
         @media (max-width: 600px) { .result-modal-overlay .result-panel { grid-template-columns: 86px 1fr; padding: 1rem; } .result-modal-overlay .result-art { width: 86px; height: 86px; } .result-modal-overlay .result-play { grid-column: 1 / -1; width: 100%; } }
         .result-art { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); }
         .result-kicker { color: var(--cyan); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
