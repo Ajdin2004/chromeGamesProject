@@ -99,6 +99,7 @@ let endlessRounds = 0;
 let endlessRoundStartTime = 0;   // ms timestamp when the current endless round started
 let endlessHistory = [];
 let endlessUsedTerms = [];       // to reduce repeats across endless rounds
+let modeLoadToken = 0;
 
 // --- CORS & Scheme-Redirect Safe Fetcher (iTunes search proxy + JSONP fallback) ---
 async function safeiTunesQuery(params) {
@@ -600,12 +601,14 @@ function fallbackCopy(text, btn) {
 // --- Track selection (picks a track that has both a preview and lyrics) ---
 // opts.fresh: for endless mode — ignore the daily cache and avoid reusing artists.
 async function fetchDailyTrack(opts = {}) {
+    const isCurrentLoad = () => opts.loadToken === undefined || opts.loadToken === modeLoadToken;
     const terms = currentGenre().terms;
     if (!opts.fresh) {
         let stored;
         try { stored = localStorage.getItem(trackKey()); } catch (e) {}
         if (stored) {
             try {
+                if (!isCurrentLoad()) return false;
                 const data = JSON.parse(stored);
                 dailyTrack = data.track || null;
                 lyrics = data.lyrics || { found: false };
@@ -633,6 +636,7 @@ async function fetchDailyTrack(opts = {}) {
         termQueries.push(safeiTunesQuery(params));
     }
     const resultsArrays = await Promise.all(termQueries);
+    if (!isCurrentLoad()) return false;
 
     // 2) Build an ordered candidate list (keeps the original seeded order so the
     //    chosen daily track is still deterministic) while capturing the fallback.
@@ -665,6 +669,7 @@ async function fetchDailyTrack(opts = {}) {
         for (let j = 0; j < slice.length; j++) {
             const lyr = lyrResults[j];
             if (lyr && lyr.found) {
+                if (!isCurrentLoad()) return false;
                 dailyTrack = buildTrack(slice[j]);
                 lyrics = lyr;
                 buildLyricLines();
@@ -679,6 +684,7 @@ async function fetchDailyTrack(opts = {}) {
 
     // Couldn't find a track with usable lyrics — play melody-only with the fallback.
     if (fallback) {
+        if (!isCurrentLoad()) return false;
         dailyTrack = fallback;
         lyrics = { found: false, plainLyrics: null, syncedLyrics: null, source: 'none' };
         lyricLines = [];
@@ -819,6 +825,7 @@ function updateEndlessUI() {
 }
 
 async function nextEndlessRound() {
+    const loadToken = modeLoadToken;
     // Reset round state
     attempts = 0; guesses = []; gameOver = false;
     lyrics = null; lyricLines = [];
@@ -831,7 +838,8 @@ async function nextEndlessRound() {
     updateAutofillState();
     hideSuggestions();
 
-    await fetchDailyTrack({ fresh: true });
+    await fetchDailyTrack({ fresh: true, loadToken });
+    if (gameMode !== 'endless' || loadToken !== modeLoadToken) return;
     if (!dailyTrack) {
         setMessage('Could not load another track for endless mode — try switching genre.', 'error');
         if (guessInput) guessInput.disabled = true;
@@ -1064,7 +1072,9 @@ function loadGenre(key) {
 
 // --- Load / restore the daily game for the currently selected genre ---
 async function loadGenreTrack() {
-    await fetchDailyTrack();
+    const loadToken = modeLoadToken;
+    await fetchDailyTrack({ loadToken });
+    if (gameMode !== 'daily' || loadToken !== modeLoadToken) return;
     const restored = restoreState();
     if (!restored || !dailyTrack) {
         updateAutofillState();
@@ -1107,12 +1117,18 @@ function updateModeUI() {
 // --- Switch between Daily and Endless modes ---
 function setMode(mode) {
     if (mode === gameMode) return;
+    modeLoadToken++;
     gameMode = mode;
+    const modeParams = new URLSearchParams(location.search);
+    modeParams.set('mode', mode);
+    history.replaceState(null, '', `${location.pathname}?${modeParams.toString()}`);
     updateModeUI();
 
     try { audio.pause(); audio.removeAttribute('src'); } catch (e) {}
     const oldRow = document.getElementById('shareRow');
     if (oldRow) oldRow.remove();
+    const oldResult = document.getElementById('resultPanel');
+    if (oldResult) oldResult.remove();
     if (messageBox) messageBox.classList.remove('celebrate');
     hideSuggestions();
 
@@ -1135,6 +1151,9 @@ function setMode(mode) {
         setMessage('Loading endless round...');
         nextEndlessRound();
     } else {
+        endlessScore = 0; endlessRounds = 0; endlessUsedTerms = [];
+        endlessHistory = [];
+        renderEndlessHistory();
         setMessage('Loading today\'s song...');
         loadGenreTrack();
     }
