@@ -1011,6 +1011,10 @@
                 <button id="sfx-toggle-btn" class="icon-btn" title="Toggle sound effects" aria-pressed="true">
                     <i class="fa-solid fa-volume-high"></i>
                 </button>
+                <!-- Add the switch button here -->
+                <button id="switch-to-old-btn" class="icon-btn" title="Switch to Legacy Version">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
                 <button id="personalize-btn" class="personalize-btn" title="Personalize the page">
                     <i class="fa-solid fa-palette"></i>
                 </button>
@@ -1256,6 +1260,26 @@
                     <button id="studio-reset-btn" class="studio-btn"><i class="fa-solid fa-rotate-left"></i> Reset to Defaults</button>
                     <button id="studio-save-btn" class="studio-btn primary"><i class="fa-solid fa-floppy-disk"></i> Save Personalization</button>
                     <span class="studio-saved-dot" id="studio-saved-dot"><i class="fa-solid fa-circle ic"></i> <span id="studio-saved-text">Local · not saved</span></span>
+                </div>
+            </div>
+        </div>
+
+                <!-- Version Prompt Modal -->
+        <div id="version-prompt-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="version-modal-title">
+            <div class="modal-card" style="text-align: center; max-width: 480px;">
+                <div class="modal-header" style="justify-content: center; margin-bottom: 1rem;">
+                    <h2 id="version-modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Welcome to the New Hub</h2>
+                </div>
+                <p style="color: var(--ink-muted); font-size: 0.9rem; margin-bottom: 1.8rem; line-height: 1.6;">
+                    Chromium Games has been updated to a lighter, faster, and highly customizable design. Would you like to use this new version, or continue using the legacy neon design?
+                </p>
+                <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
+                    <button id="btn-choose-new" class="studio-btn primary" style="flex: 1; min-width: 140px;">
+                        <i class="fa-solid fa-check"></i> Try New Version
+                    </button>
+                    <button id="btn-choose-old" class="studio-btn" style="flex: 1; min-width: 140px;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Use Legacy Hub
+                    </button>
                 </div>
             </div>
         </div>
@@ -2135,7 +2159,44 @@ function syncSegBtns() {
         document.querySelectorAll('.faq-question').forEach(button => button.addEventListener('click', () => { const item = button.closest('.faq-item'); const answer = item.querySelector('.faq-answer'); const open = item.classList.toggle('open'); button.setAttribute('aria-expanded', String(open)); answer.style.maxHeight = open ? `${answer.scrollHeight}px` : ''; }));
         document.getElementById('footer-year').textContent = new Date().getFullYear();
         const consentBanner = document.getElementById('consent-banner'); if (!localStorage.getItem('cookie_consent')) consentBanner.classList.remove('hidden'); document.getElementById('consent-accept').addEventListener('click', () => { localStorage.setItem('cookie_consent', 'accepted'); consentBanner.classList.add('hidden'); }); document.getElementById('consent-decline').addEventListener('click', () => { localStorage.setItem('cookie_consent', 'essential'); consentBanner.classList.add('hidden'); });
-        buildBento(); updateContinue(); updateRecentVisibility(); updateCardMeta(); updateStats(); filterGames();
+        document.getElementById('switch-to-old-btn').addEventListener('click', () => {
+        localStorage.setItem('cg_version_choice', 'old');
+        if (typeof sfx === 'function') sfx('click');
+        window.location.href = '../tests/legacyindex.html';
+        });
+        /* ============================================================
+        VERSION PROMPT ON FIRST LOAD
+        ============================================================ */
+        const VERSION_KEY = 'cg_version_choice';
+        const versionPromptModal = document.getElementById('version-prompt-modal');
+
+        // Show modal if the user hasn't made a choice yet
+        if (!localStorage.getItem(VERSION_KEY)) {
+            versionPromptModal.classList.remove('hidden');
+            // Optional: play the 'open' sfx when it appears
+            if (typeof sfx === 'function') sfx('open'); 
+        }
+
+        // User chooses the new index
+        document.getElementById('btn-choose-new').addEventListener('click', () => {
+            localStorage.setItem(VERSION_KEY, 'new');
+            versionPromptModal.classList.add('hidden');
+            if (typeof sfx === 'function') sfx('click');
+        });
+
+        // User chooses the old codesnapshot
+        document.getElementById('btn-choose-old').addEventListener('click', () => {
+            localStorage.setItem(VERSION_KEY, 'old');
+            if (typeof sfx === 'function') sfx('click');
+            window.location.href = '../tests/legacyindex.html';
+        });
+        
+        buildBento(); 
+        updateContinue(); 
+        updateRecentVisibility(); 
+        updateCardMeta(); 
+        updateStats(); 
+        filterGames();
     </script>
 </body>
 </html>
