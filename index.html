@@ -970,10 +970,101 @@
         }
         body.low-end .game-card.tile,
         body.low-end .bento-tile { transition: none; will-change: auto; }
+
+        /* ---------- 16. TOGGLEABLE AMBIENT MOTION (Studio · 06 Motion) ----------
+           Idle/ambient animations inspired by the legacy hub (aurora blobs,
+           floating logo, light sweeps, wobbles), rebuilt for the flat
+           editorial system. Everything here is gated behind
+           body[data-anim="on"], so switching Motion off (or before JS runs)
+           restores the exact original page. Deliberately NOT gated (kept
+           always as they are): .shelf*, .bento-* and all one-shot entrance
+           animations. */
+        .ambient-shape { display: none; position: fixed; z-index: 1; pointer-events: none; will-change: transform; }
+        body[data-anim="on"] .ambient-shape { display: block; }
+        .ambient-shape.s1 { width: 150px; height: 150px; left: 3vw; top: 18vh; border: var(--b-w) solid var(--accent); border-radius: 50%; opacity: 0.22; }
+        .ambient-shape.s2 { width: 110px; height: 110px; right: 6vw; top: 30vh; background: var(--accent); border-radius: var(--r-md); opacity: 0.12; }
+        .ambient-shape.s3 { width: 90px; height: 90px; left: 8vw; bottom: 14vh; border: var(--b-w) solid var(--accent); opacity: 0.18; }
+        .ambient-shape.s4 { width: 54px; height: 54px; right: 12vw; bottom: 22vh; background: var(--accent); border-radius: 50%; opacity: 0.14; }
+        body[data-anim="on"] .ambient-shape.s1 { animation: ambientDrift1 28s ease-in-out infinite alternate; }
+        body[data-anim="on"] .ambient-shape.s2 { animation: ambientDrift2 24s ease-in-out infinite alternate; }
+        body[data-anim="on"] .ambient-shape.s3 { animation: ambientDrift3 32s ease-in-out infinite alternate; }
+        body[data-anim="on"] .ambient-shape.s4 { animation: ambientDrift2 20s ease-in-out infinite alternate-reverse; }
+        @keyframes ambientDrift1 { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(7vw, 10vh) rotate(40deg); } }
+        @keyframes ambientDrift2 { from { transform: translate(0, 0) rotate(0deg) scale(1); } to { transform: translate(-6vw, 12vh) rotate(-30deg) scale(1.18); } }
+        @keyframes ambientDrift3 { from { transform: translate(0, 0) rotate(45deg); } to { transform: translate(5vw, -9vh) rotate(100deg); } }
+
+        /* Logo idle float (legacy .logo-wrapper float) + periodic accent sweep
+           (legacy .glass::after lightSweep) — the first loop cycle is the entrance. */
+        body[data-anim="on"] .brand-title { animation: logoReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both, logoFloat 6s ease-in-out 1.6s infinite; }
+        body[data-anim="on"] .brand-title .accent-block::after { animation: logoSweepLoop 8s ease-out 0.65s infinite; }
+        @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes logoSweepLoop { 0% { transform: translateX(-110%) skewX(-18deg); } 10% { transform: translateX(170%) skewX(-18deg); } 100% { transform: translateX(170%) skewX(-18deg); } }
+
+        /* Avatar curious tilt (legacy avatarSpin) · dice + play-icon wobbles
+           (legacy diceWobble / continueNudge) */
+        body[data-anim="on"] .player-avatar { animation: avatarWobble 9s ease-in-out 2.4s infinite; }
+        body[data-anim="on"] .random-btn i { display: inline-block; animation: diceWobble 5s ease-in-out infinite; }
+        body[data-anim="on"] #continue-btn i { display: inline-block; animation: playNudge 4.5s ease-in-out infinite; }
+        @keyframes avatarWobble { 0%, 76%, 100% { transform: rotate(0deg); } 80% { transform: rotate(-6deg); } 84% { transform: rotate(5deg); } 88% { transform: rotate(-2deg); } }
+        @keyframes diceWobble { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(-14deg) scale(1.14); } }
+        @keyframes playNudge { 0%, 88%, 100% { transform: translateX(0); } 92% { transform: translateX(-5px); } 96% { transform: translateX(5px); } }
+
+        /* Dev banner lift pulse + slow helmet spin (legacy bannerPulse / spinSlow) */
+        body[data-anim="on"] .dev-banner { animation: bannerLift 3.4s ease-in-out infinite; }
+        body[data-anim="on"] .dev-banner-content i { display: inline-block; animation: spinSlow 10s linear infinite; }
+        @keyframes bannerLift { 0%, 100% { box-shadow: 0 0 0 var(--accent-soft); } 50% { box-shadow: 5px 5px 0 var(--accent-soft); } }
+        @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* About icons float (legacy floatIcon) + soft accent drift (legacy aboutGlow) */
+        body[data-anim="on"] .about-icon { display: inline-block; animation: floatIcon 3.2s ease-in-out infinite; }
+        body[data-anim="on"] .about-icon:nth-child(2) { animation-delay: 0.4s; }
+        body[data-anim="on"] .about-icon:nth-child(3) { animation-delay: 0.8s; }
+        body[data-anim="on"] .about-icon:nth-child(4) { animation-delay: 1.2s; }
+        body[data-anim="on"] .about-icon:nth-child(5) { animation-delay: 1.6s; }
+        body[data-anim="on"] .about-section { position: relative; overflow: hidden; }
+        body[data-anim="on"] .about-section::before {
+            content: ''; position: absolute; top: -55%; left: -55%; width: 210%; height: 210%;
+            background: radial-gradient(circle, var(--accent-soft) 0%, transparent 55%);
+            opacity: 0.6; pointer-events: none; animation: aboutDrift 14s ease-in-out infinite;
+        }
+        @keyframes floatIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+        @keyframes aboutDrift { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(4%, 4%) rotate(5deg); } }
+
+        /* Structural grid backdrop drifts one tile (dark backgrounds only) */
+        body[data-anim="on"][data-bg="charcoal"]::after, body[data-anim="on"][data-bg="oled"]::after,
+        body[data-anim="on"][data-bg="slate"]::after, body[data-anim="on"]:not([data-bg])::after {
+            animation: gridDrift 40s ease-in-out infinite alternate;
+        }
+        @keyframes gridDrift { from { background-position: 0 0, 0 0; } to { background-position: 64px 64px, 64px 64px; } }
+
+        /* Reduced motion: kill every toggleable ambient animation too */
+        @media (prefers-reduced-motion: reduce) {
+            .ambient-shape { display: none; }
+            body[data-anim="on"] .brand-title .accent-block::after,
+            body[data-anim="on"] .player-avatar,
+            body[data-anim="on"] .random-btn i,
+            body[data-anim="on"] #continue-btn i,
+            body[data-anim="on"] .dev-banner,
+            body[data-anim="on"] .dev-banner-content i,
+            body[data-anim="on"] .about-icon,
+            body[data-anim="on"]::after { animation: none; }
+            body[data-anim="on"] .about-section::before { display: none; }
+        }
+
+        /* Low-end devices: drop the large repaint-heavy ambient layers */
+        body.low-end .ambient-shape { display: none; }
+        body.low-end[data-anim="on"] .about-section::before { display: none; }
+        body.low-end[data-anim="on"]::after { animation: none; }
     </style>
 </head>
 <body>
     <canvas id="bg-canvas"></canvas>
+
+    <!-- Toggleable ambient shapes (Studio · 06 Motion) — legacy aurora homage -->
+    <div class="ambient-shape s1" aria-hidden="true"></div>
+    <div class="ambient-shape s2" aria-hidden="true"></div>
+    <div class="ambient-shape s3" aria-hidden="true"></div>
+    <div class="ambient-shape s4" aria-hidden="true"></div>
 
     <div class="container">
         <!-- Sticky Top Bar: Player Card · Theme · SFX · Actions -->
@@ -1256,6 +1347,14 @@
                     </div>
                 </div>
 
+                <div class="studio-section">
+                    <p class="studio-label"><span class="n">06</span> Motion</p>
+                    <div class="studio-seg" id="motion-seg">
+                        <button class="studio-seg-btn" data-motion="on"><i class="fa-solid fa-wand-magic-sparkles"></i> Animated</button>
+                        <button class="studio-seg-btn" data-motion="off"><i class="fa-solid fa-minus"></i> Still</button>
+                    </div>
+                </div>
+
                 <div class="studio-actions">
                     <button id="studio-reset-btn" class="studio-btn"><i class="fa-solid fa-rotate-left"></i> Reset to Defaults</button>
                     <button id="studio-save-btn" class="studio-btn primary"><i class="fa-solid fa-floppy-disk"></i> Save Personalization</button>
@@ -1511,6 +1610,7 @@
             (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
             window.innerWidth < 768 || isCoarsePointer || saveData;
         const animateBackground = !prefersReducedMotion && !saveData;
+        let ambientMotion = true; // live-controlled by the Studio "Motion" toggle (body[data-anim])
         document.body.classList.toggle('low-end', isLowEnd);
 
         function refreshAccentColor() {
@@ -1541,7 +1641,7 @@ if (bgCtx) {
 
             document.addEventListener('visibilitychange', () => {
                 bgVisible = !document.hidden;
-                if (bgVisible && animateBackground) {
+                if (bgVisible && animateBackground && ambientMotion) {
                     bgLastFrame = 0;
                     requestAnimationFrame(bgAnimate);
                 }
@@ -1602,7 +1702,7 @@ if (bgCtx) {
             initStars();
 
             function bgAnimate(now) {
-                if (!bgVisible || !animateBackground) return;
+                if (!bgVisible || !animateBackground || !ambientMotion) return;
                 if (now - bgLastFrame < (isLowEnd ? 50 : 20)) {
                     bgAnimId = requestAnimationFrame(bgAnimate);
                     return;
@@ -1620,6 +1720,22 @@ if (bgCtx) {
             else {
                 bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
                 stars.forEach((s) => { s.t = 0; s.draw(bgCtx); });
+            }
+        }
+
+        // Live control for the Studio "Motion" toggle (CSS ambient gate: body[data-anim])
+        function setAmbientMotion(on) {
+            ambientMotion = on;
+            if (!bgCtx) return;
+            if (on) {
+                if (animateBackground && bgVisible) {
+                    bgLastFrame = 0;
+                    if (bgAnimId) cancelAnimationFrame(bgAnimId);
+                    bgAnimId = requestAnimationFrame(bgAnimate);
+                }
+            } else if (bgAnimId) {
+                cancelAnimationFrame(bgAnimId);
+                bgAnimId = null;
             }
         }
 /* ============================================================
@@ -1667,7 +1783,7 @@ if (bgCtx) {
             { hex: '#4d7c0f', name: 'Chartreuse' },
             { hex: '#7c2d12', name: 'Espresso' }
         ];
-        const DEFAULT_PERSONAL = { bg: 'stars', accent: '#e4572e', radius: 'sharp', density: 'cozy', scale: 'regular' };
+        const DEFAULT_PERSONAL = { bg: 'stars', accent: '#e4572e', radius: 'sharp', density: 'cozy', scale: 'regular', motion: 'on' };
 
         let personal = (() => {
             try {
@@ -1679,7 +1795,8 @@ if (bgCtx) {
                     accent: /^#[0-9a-f]{6}$/i.test(saved.accent || '') ? saved.accent : DEFAULT_PERSONAL.accent,
                     radius: ['sharp', 'soft', 'round'].includes(saved.radius) ? saved.radius : DEFAULT_PERSONAL.radius,
                     density: ['compact', 'cozy', 'spacious'].includes(saved.density) ? saved.density : DEFAULT_PERSONAL.density,
-                    scale: ['small', 'regular', 'large'].includes(saved.scale) ? saved.scale : DEFAULT_PERSONAL.scale
+                    scale: ['small', 'regular', 'large'].includes(saved.scale) ? saved.scale : DEFAULT_PERSONAL.scale,
+                    motion: ['on', 'off'].includes(saved.motion) ? saved.motion : DEFAULT_PERSONAL.motion
                 };
             } catch (e) { return { ...DEFAULT_PERSONAL }; }
         })();
@@ -1719,6 +1836,8 @@ if (bgCtx) {
 
         function applyPersonal(pr) {
             document.body.setAttribute('data-bg', pr.bg);
+            document.body.setAttribute('data-anim', pr.motion);
+            setAmbientMotion(pr.motion === 'on');
             if (bgCanvas) bgCanvas.style.setProperty('opacity', pr.bg === 'stars' ? '0.54' : '0', 'important');
             document.body.setAttribute('data-radius', pr.radius);
             document.body.setAttribute('data-density', pr.density);
@@ -1737,6 +1856,7 @@ function syncSegBtns() {
             document.querySelectorAll('#radius-seg .studio-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.radius === personal.radius));
             document.querySelectorAll('#density-seg .studio-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.density === personal.density));
             document.querySelectorAll('#scale-seg .studio-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.scale === personal.scale));
+            document.querySelectorAll('#motion-seg .studio-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.motion === personal.motion));
             document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === personal.bg));
             accentRow.querySelectorAll('.accent-swatch').forEach(s => s.classList.toggle('active', s.dataset.hex.toLowerCase() === personal.accent.toLowerCase()));
             accentColorPicker.value = personal.accent;
@@ -1799,6 +1919,9 @@ function syncSegBtns() {
         });
         document.querySelectorAll('#scale-seg .studio-seg-btn').forEach(btn => {
             btn.addEventListener('click', () => { personal.scale = btn.dataset.scale; applyPersonal(personal); sfx('click'); });
+        });
+        document.querySelectorAll('#motion-seg .studio-seg-btn').forEach(btn => {
+            btn.addEventListener('click', () => { personal.motion = btn.dataset.motion; applyPersonal(personal); sfx('click'); });
         });
 
         // Save / Reset / Open
@@ -2127,22 +2250,107 @@ function syncSegBtns() {
             section.querySelectorAll('.shelf-nav-btn').forEach(button => button.addEventListener('click', () => track.scrollBy({ left: Number(button.dataset.dir) * track.clientWidth * 0.8, behavior: 'smooth' })));
             shelvesEl.appendChild(section);
         });
+        
         let cards = Array.from(document.querySelectorAll('.game-card'));
         const getFavorites = () => getJSON(FAV_KEY, []).map(normalizePath);
         const getRecent = () => getJSON(RECENT_KEY, []).map(normalizePath);
         const getPlayCount = href => getJSON(PLAYS_KEY, {})[normalizePath(href)] || 0;
         const findGame = href => GAMES.find(game => normalizePath(game.href) === normalizePath(href));
-        function showToast(message, icon = 'fa-circle-info') { const toast = document.createElement('div'); toast.className = 'toast'; toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`; document.getElementById('toast-container').appendChild(toast); setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => toast.remove(), 300); }, 2800); }
-        function updateCardMeta() { const favs = getFavorites(); const recent = getRecent(); cards.forEach(card => { const href = normalizePath(card.getAttribute('href')); card.querySelector('.fav-star').classList.toggle('active', favs.includes(href)); const label = card.querySelector('.last-played'); label.classList.toggle('visible', recent.includes(href)); label.textContent = recent[0] === href ? 'Played recently' : 'Played'; }); }
-        function filterGames() { const query = searchInput.value.trim().toLowerCase(); const recent = getRecent(); const favs = getFavorites(); let visible = 0; cards.forEach(card => { const href = normalizePath(card.getAttribute('href')); const category = card.dataset.category.split(' '); const categoryMatch = activeCategory === 'all' || (activeCategory === 'recent' && recent.includes(href)) || (activeCategory === 'favorites' && favs.includes(href)) || category.includes(activeCategory); const show = categoryMatch && card.dataset.name.includes(query); card.style.display = show ? 'flex' : 'none'; if (show) visible++; }); document.querySelectorAll('.shelf').forEach(shelf => shelf.style.display = Array.from(shelf.querySelectorAll('.game-card')).some(card => card.style.display !== 'none') ? '' : 'none'); emptyState.classList.toggle('visible', visible === 0); }
-        function sortGames() { const sort = sortSelect.value; if (sort !== 'default') { cards.sort((a, b) => sort === 'az' ? a._game.name.localeCompare(b._game.name) : getPlayCount(b.getAttribute('href')) - getPlayCount(a.getAttribute('href'))); cards.forEach(card => card.parentElement.appendChild(card)); } filterGames(); }
-        function updateStats() { document.getElementById('footer-games').textContent = GAMES.length; document.getElementById('footer-plays').textContent = Object.values(getJSON(PLAYS_KEY, {})).reduce((sum, value) => sum + Number(value || 0), 0); document.getElementById('footer-favs').textContent = getFavorites().length; }
-        function updateRecentVisibility() { document.getElementById('recent-category-btn').classList.toggle('hidden', getRecent().length === 0); }
-        function recordPlay(href) { const path = normalizePath(href); const recent = getRecent().filter(item => item !== path); recent.unshift(path); setJSON(RECENT_KEY, recent.slice(0, MAX_RECENT)); const plays = getJSON(PLAYS_KEY, {}); plays[path] = (plays[path] || 0) + 1; setJSON(PLAYS_KEY, plays); updateCardMeta(); updateStats(); updateRecentVisibility(); }
-        document.querySelectorAll('.category-btn').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.category-btn').forEach(item => item.classList.remove('active')); button.classList.add('active'); activeCategory = button.dataset.category; filterGames(); sfx('click'); }));
+        
+        function showToast(message, icon = 'fa-circle-info') {
+            const toast = document.createElement('div'); 
+            toast.className = 'toast'; toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`; 
+            document.getElementById('toast-container').appendChild(toast); 
+            setTimeout(() => { toast.classList.add('fade-out'); 
+            setTimeout(() => toast.remove(), 300); }, 2800); 
+        }
+        function updateCardMeta() { 
+            const favs = getFavorites(); 
+            const recent = getRecent(); 
+            cards.forEach(card => { 
+                const href = normalizePath(card.getAttribute('href')); 
+                card.querySelector('.fav-star').classList.toggle('active', favs.includes(href)); 
+                const label = card.querySelector('.last-played'); 
+                label.classList.toggle('visible', recent.includes(href)); 
+                label.textContent = recent[0] === href ? 'Played recently' : 'Played'; }); 
+            }
+       
+        function filterGames() { 
+            const query = searchInput.value.trim().toLowerCase(); 
+            const recent = getRecent(); 
+            const favs = getFavorites(); 
+            let visible = 0; 
+            cards.forEach(card => { 
+                const href = normalizePath(card.getAttribute('href')); 
+                const category = card.dataset.category.split(' '); 
+                const categoryMatch = activeCategory === 'all' || (activeCategory === 'recent' && recent.includes(href)) || (activeCategory === 'favorites' && favs.includes(href)) || category.includes(activeCategory); 
+                const show = categoryMatch && card.dataset.name.includes(query); 
+                card.style.display = show ? 'flex' : 'none'; if (show) visible++; }); 
+                document.querySelectorAll('.shelf').forEach(shelf => shelf.style.display = Array.from(shelf.querySelectorAll('.game-card')).some(card => card.style.display !== 'none') ? '' : 'none'); 
+                emptyState.classList.toggle('visible', visible === 0); 
+            }
+        function sortGames() { 
+            const sort = sortSelect.value; if (sort !== 'default') { 
+                cards.sort((a, b) => sort === 'az' ? a._game.name.localeCompare(b._game.name) : getPlayCount(b.getAttribute('href')) - getPlayCount(a.getAttribute('href'))); 
+                cards.forEach(card => card.parentElement.appendChild(card)); 
+            } 
+
+            filterGames(); 
+            }
+
+        function updateStats() { 
+            document.getElementById('footer-games').textContent = GAMES.length; 
+            document.getElementById('footer-plays').textContent = Object.values(getJSON(PLAYS_KEY, {})).reduce((sum, value) => sum + Number(value || 0), 0); 
+            document.getElementById('footer-favs').textContent = getFavorites().length; 
+        }
+
+        function updateRecentVisibility() { 
+            document.getElementById('recent-category-btn').classList.toggle('hidden', getRecent().length === 0); 
+        }
+        
+        function recordPlay(href) { 
+            const path = normalizePath(href); 
+            const recent = getRecent().filter(item => item !== path); recent.unshift(path); setJSON(RECENT_KEY, recent.slice(0, MAX_RECENT)); 
+            const plays = getJSON(PLAYS_KEY, {}); plays[path] = (plays[path] || 0) + 1; 
+            setJSON(PLAYS_KEY, plays); 
+            updateCardMeta(); 
+            updateStats(); 
+            updateRecentVisibility(); 
+        }
+
+        document.querySelectorAll('.category-btn').forEach(button => button.addEventListener('click', () => { 
+            document.querySelectorAll('.category-btn').forEach(item => item.classList.remove('active'));
+            button.classList.add('active'); activeCategory = button.dataset.category; filterGames(); sfx('click'); 
+                }
+            )
+        );
+        
         searchInput.addEventListener('input', filterGames); sortSelect.addEventListener('change', sortGames);
-        document.getElementById('clear-filters-btn').addEventListener('click', () => { searchInput.value = ''; activeCategory = 'all'; sortSelect.value = 'default'; document.querySelectorAll('.category-btn').forEach(item => item.classList.toggle('active', item.dataset.category === 'all')); filterGames(); });
-        cards.forEach(card => { card.addEventListener('click', event => { if (!event.target.closest('.fav-star')) recordPlay(card.getAttribute('href')); }); card.querySelector('.fav-star').addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); const href = normalizePath(card.getAttribute('href')); const favs = getFavorites(); const next = favs.includes(href) ? favs.filter(item => item !== href) : [...favs, href]; setJSON(FAV_KEY, next); updateCardMeta(); updateStats(); filterGames(); showToast(next.includes(href) ? 'Added to favorites' : 'Removed from favorites', 'fa-star'); }); });
+
+        document.getElementById('clear-filters-btn').addEventListener('click', () => { 
+            searchInput.value = ''; activeCategory = 'all'; 
+            sortSelect.value = 'default'; 
+            document.querySelectorAll('.category-btn').forEach(item => item.classList.toggle('active', item.dataset.category === 'all')); 
+            filterGames(); 
+            }
+        );
+        
+        cards.forEach(card => { 
+            card.addEventListener('click', event => { 
+                if (!event.target.closest('.fav-star')) recordPlay(card.getAttribute('href'));
+             }); 
+             card.querySelector('.fav-star').addEventListener('click', event => { event.preventDefault(); 
+                event.stopPropagation(); 
+                const href = normalizePath(card.getAttribute('href')); 
+                const favs = getFavorites(); 
+                const next = favs.includes(href) ? favs.filter(item => item !== href) : [...favs, href]; setJSON(FAV_KEY, next); 
+                updateCardMeta(); 
+                updateStats(); 
+                filterGames(); 
+                showToast(next.includes(href) ? 'Added to favorites' : 'Removed from favorites', 'fa-star');
+             }); 
+            });
+
         function setBentoPreview(kind, game) {
             const preview = document.getElementById(`bento-${kind}-preview`);
             if (!preview) return;
@@ -2150,41 +2358,109 @@ function syncSegBtns() {
             preview.alt = `${game.name} game preview`;
             preview.onerror = () => { preview.hidden = true; };
         }
-        function updateContinue() { const recent = getRecent(); const button = document.getElementById('continue-btn'); const bento = document.getElementById('bento-continue'); if (!recent.length) { button.classList.add('hidden'); bento.classList.add('hidden'); return; } const game = findGame(recent[0]); if (!game) return; button.classList.remove('hidden'); button.innerHTML = `<i class="fa-solid fa-play"></i> ${game.name}`; button.onclick = () => { recordPlay(game.href); window.location.href = game.href; }; bento.classList.remove('hidden'); bento.href = game.href; document.getElementById('bento-continue-title').textContent = game.name; setBentoPreview('continue', game); }
-        function buildBento() { const featured = GAMES.reduce((best, game) => getPlayCount(game.href) > getPlayCount(best.href) ? game : best, GAMES[0]); const daily = GAMES[Math.floor(Date.now() / 86400000) % GAMES.length]; [['featured', featured], ['daily', daily]].forEach(([kind, game]) => { document.getElementById(`bento-${kind}-title`).textContent = game.name; document.getElementById(`bento-${kind}-desc`).textContent = game.desc; document.getElementById(`bento-${kind}-icon`).className = `fa-solid ${game.icon}`; document.getElementById(`bento-${kind}`).href = game.href; setBentoPreview(kind, game); }); }
-        document.querySelectorAll('.bento-tile').forEach(tile => tile.addEventListener('click', () => { if (!tile.classList.contains('hidden')) recordPlay(tile.getAttribute('href')); }));
-        document.getElementById('random-btn').addEventListener('click', () => { const visible = cards.filter(card => card.style.display !== 'none'); if (!visible.length) return showToast('No games match your filters', 'fa-triangle-exclamation'); const card = visible[Math.floor(Math.random() * visible.length)]; const href = card.getAttribute('href'); recordPlay(href); window.location.href = href; });
-        document.addEventListener('keydown', event => { if (event.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { event.preventDefault(); searchInput.focus(); } if (event.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.add('hidden')); });
-        const leaderboardModal = document.getElementById('leaderboard-modal'); document.getElementById('open-leaderboard-btn').addEventListener('click', () => leaderboardModal.classList.remove('hidden')); document.getElementById('close-modal-btn').addEventListener('click', () => leaderboardModal.classList.add('hidden')); leaderboardModal.addEventListener('click', event => { if (event.target === leaderboardModal) leaderboardModal.classList.add('hidden'); });
-        document.querySelectorAll('.faq-question').forEach(button => button.addEventListener('click', () => { const item = button.closest('.faq-item'); const answer = item.querySelector('.faq-answer'); const open = item.classList.toggle('open'); button.setAttribute('aria-expanded', String(open)); answer.style.maxHeight = open ? `${answer.scrollHeight}px` : ''; }));
+        function updateContinue() { 
+            const recent = getRecent(); 
+            const button = document.getElementById('continue-btn'); 
+            const bento = document.getElementById('bento-continue'); 
+            if (!recent.length) 
+            { 
+                button.classList.add('hidden'); 
+                bento.classList.add('hidden'); 
+                return; 
+            } 
+            
+            const game = findGame(recent[0]); 
+            if (!game) return; 
+            
+            button.classList.remove('hidden'); 
+            button.innerHTML = `<i class="fa-solid fa-play"></i> ${game.name}`; 
+            button.onclick = () => { recordPlay(game.href); window.location.href = game.href; }; 
+            bento.classList.remove('hidden'); 
+            bento.href = game.href; 
+            document.getElementById('bento-continue-title').textContent = game.name; 
+            setBentoPreview('continue', game);
+         }
+
+        function buildBento() {
+            const featured = GAMES.reduce((best, game) => getPlayCount(game.href) > getPlayCount(best.href) ? game : best, GAMES[0]); 
+            const daily = GAMES[Math.floor(Date.now() / 86400000) % GAMES.length]; [['featured', featured], ['daily', daily]].forEach(([kind, game]) => { 
+                document.getElementById(`bento-${kind}-title`).textContent = game.name;
+                document.getElementById(`bento-${kind}-desc`).textContent = game.desc; 
+                document.getElementById(`bento-${kind}-icon`).className = `fa-solid ${game.icon}`; 
+                document.getElementById(`bento-${kind}`).href = game.href; setBentoPreview(kind, game); 
+            }); 
+        }
+
+        document.querySelectorAll('.bento-tile').forEach(tile => tile.addEventListener('click', () => { 
+            if (!tile.classList.contains('hidden')) recordPlay(tile.getAttribute('href')); }));
+
+        document.getElementById('random-btn').addEventListener('click', () => { 
+            const visible = cards.filter(card => card.style.display !== 'none'); 
+            if (!visible.length) return showToast('No games match your filters', 'fa-triangle-exclamation'); 
+            const card = visible[Math.floor(Math.random() * visible.length)]; 
+            const href = card.getAttribute('href'); 
+            recordPlay(href); 
+            window.location.href = href; 
+        });
+
+        document.addEventListener('keydown', event => { 
+            if (event.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) 
+            { 
+                event.preventDefault(); 
+                searchInput.focus(); 
+            } 
+            if (event.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.add('hidden')); 
+            }
+        });
+        const leaderboardModal = document.getElementById('leaderboard-modal'); 
+        document.getElementById('open-leaderboard-btn').addEventListener('click', () => leaderboardModal.classList.remove('hidden')); 
+        document.getElementById('close-modal-btn').addEventListener('click', () => leaderboardModal.classList.add('hidden')); 
+        leaderboardModal.addEventListener('click', event => { 
+            if (event.target === leaderboardModal) leaderboardModal.classList.add('hidden'); 
+            }
+        );
+
+        document.querySelectorAll('.faq-question').forEach(button => button.addEventListener('click', () => { 
+            const item = button.closest('.faq-item'); 
+            const answer = item.querySelector('.faq-answer');
+            const open = item.classList.toggle('open'); 
+            button.setAttribute('aria-expanded', String(open)); 
+            answer.style.maxHeight = open ? `${answer.scrollHeight}px` : ''; }
+        ));
+
         document.getElementById('footer-year').textContent = new Date().getFullYear();
-        const consentBanner = document.getElementById('consent-banner'); if (!localStorage.getItem('cookie_consent')) consentBanner.classList.remove('hidden'); document.getElementById('consent-accept').addEventListener('click', () => { localStorage.setItem('cookie_consent', 'accepted'); consentBanner.classList.add('hidden'); }); document.getElementById('consent-decline').addEventListener('click', () => { localStorage.setItem('cookie_consent', 'essential'); consentBanner.classList.add('hidden'); });
+        const consentBanner = document.getElementById('consent-banner'); 
+        if (!localStorage.getItem('cookie_consent')) consentBanner.classList.remove('hidden'); 
+        document.getElementById('consent-accept').addEventListener('click', () => { 
+            localStorage.setItem('cookie_consent', 'accepted'); consentBanner.classList.add('hidden'); 
+        });
+        document.getElementById('consent-decline').addEventListener('click', () => { 
+            localStorage.setItem('cookie_consent', 'essential'); consentBanner.classList.add('hidden'); 
+        });
+        
         document.getElementById('switch-to-old-btn').addEventListener('click', () => {
         localStorage.setItem('cg_version_choice', 'old');
         if (typeof sfx === 'function') sfx('click');
         window.location.href = '../tests/legacyindex.html';
         });
+
         /* ============================================================
         VERSION PROMPT ON FIRST LOAD
         ============================================================ */
         const VERSION_KEY = 'cg_version_choice';
         const versionPromptModal = document.getElementById('version-prompt-modal');
-
-        // Show modal if the user hasn't made a choice yet
         if (!localStorage.getItem(VERSION_KEY)) {
             versionPromptModal.classList.remove('hidden');
-            // Optional: play the 'open' sfx when it appears
             if (typeof sfx === 'function') sfx('open'); 
         }
 
-        // User chooses the new index
         document.getElementById('btn-choose-new').addEventListener('click', () => {
             localStorage.setItem(VERSION_KEY, 'new');
             versionPromptModal.classList.add('hidden');
             if (typeof sfx === 'function') sfx('click');
         });
 
-        // User chooses the old codesnapshot
         document.getElementById('btn-choose-old').addEventListener('click', () => {
             localStorage.setItem(VERSION_KEY, 'old');
             if (typeof sfx === 'function') sfx('click');
