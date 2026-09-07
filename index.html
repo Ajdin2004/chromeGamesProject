@@ -2185,6 +2185,12 @@ function syncSegBtns() {
         }
         try { localStorage.setItem(LAST_LEVEL_KEY, String(curLevel)); } catch (e) { /* ignore */ }
 
+        // Sync the header player card with the saved state on load (level,
+        // XP ring, percent and avatar). Previously the header kept its
+        // hardcoded "LVL 1" default until the profile modal recomputed it.
+        updateXPCard();
+        syncAvatars();
+
         /* ============================================================
            6. STICKY HEADER + DEV BANNER
            ============================================================ */
