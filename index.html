@@ -1055,6 +1055,35 @@
         body.low-end .ambient-shape { display: none; }
         body.low-end[data-anim="on"] .about-section::before { display: none; }
         body.low-end[data-anim="on"]::after { animation: none; }
+
+        /* ---------- 17. PREVIEW ZOOM PAGE TRANSITION ----------
+           Clicking a game tile (shelf or bento) expands its preview image
+           until it fills the viewport, then the game page loads. The page
+           behind dissolves into the background color while it expands. */
+        .preview-zoom-overlay {
+            position: fixed; inset: 0; z-index: 500; pointer-events: none;
+            background-color: transparent; transition: background-color 0.32s ease;
+        }
+        .preview-zoom-overlay.active { background-color: var(--bg-0); }
+        .preview-zoom-frame {
+            position: fixed; overflow: hidden; background: var(--surface);
+            transition:
+                top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                left 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                width 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                height 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                border-radius 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .preview-zoom-frame img {
+            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, filter 0.45s ease;
+        }
+
+        /* ---------- 18. SHELF DRAG-TO-SCROLL (desktop) ----------
+           Mouse dragging scrolls the shelf; native image ghost-dragging and
+           text selection are disabled so the gesture feels like touch. */
+        .shelf-track { user-select: none; }
+        .shelf-track img, .hero-bento img { -webkit-user-drag: none; }
     </style>
 </head>
 <body>
@@ -2234,7 +2263,7 @@ function syncSegBtns() {
             tile.dataset.category = game.categories.join(' '); tile.dataset.name = `${game.name} ${game.desc} ${game.tag}`.toLowerCase(); tile.dataset.added = game.added; tile._game = game;
             const video = game.previewVideo ? `<video muted loop playsinline preload="none" data-preview-video="${game.previewVideo}"><source src="${game.previewVideo}" type="video/webm"></video>` : '';
             const previewBadge = game.previewVideo ? '<span class="tile-preview-badge"><i class="fa-solid fa-play"></i> Live preview</span>' : '<span class="tile-preview-badge"><i class="fa-solid fa-image"></i> Preview</span>';
-            tile.innerHTML = `<button class="fav-star" data-href="${game.href}" title="Favorite" aria-label="Favorite ${game.name}"><i class="fa-solid fa-star"></i></button><div class="tile-preview" style="--t1:${game.c1};--t2:${game.c2}"><div class="tile-preview-fallback"><i class="fa-solid ${game.icon}"></i></div><img src="${game.preview}" alt="${game.name} game preview" loading="lazy" decoding="async" onerror="this.hidden=true"><div class="tile-preview-media">${video}</div>${previewBadge}</div><div class="tile-head"><div class="tile-icon" style="--t1:${game.c1};--t2:${game.c2}"><i class="fa-solid ${game.icon}"></i></div><h3>${game.name}</h3></div><p class="tile-desc">${game.desc}</p><div class="tile-foot"><span class="genre-tag">${game.tag}</span><span class="last-played" data-href="${game.href}"></span></div>`;
+            tile.innerHTML = `<button class="fav-star" data-href="${game.href}" title="Favorite" aria-label="Favorite ${game.name}"><i class="fa-solid fa-star"></i></button><div class="tile-preview" style="--t1:${game.c1};--t2:${game.c2}"><div class="tile-preview-fallback"><i class="fa-solid ${game.icon}"></i></div><img src="${game.preview}" alt="${game.name} game preview" loading="lazy" decoding="async" draggable="false" onerror="this.hidden=true"><div class="tile-preview-media">${video}</div>${previewBadge}</div><div class="tile-head"><div class="tile-icon" style="--t1:${game.c1};--t2:${game.c2}"><i class="fa-solid ${game.icon}"></i></div><h3>${game.name}</h3></div><p class="tile-desc">${game.desc}</p><div class="tile-foot"><span class="genre-tag">${game.tag}</span><span class="last-played" data-href="${game.href}"></span></div>`;
             const previewVideo = tile.querySelector('video');
             if (previewVideo) {
                 tile.addEventListener('mouseenter', () => previewVideo.play().catch(() => {}));
@@ -2250,7 +2279,61 @@ function syncSegBtns() {
             section.querySelectorAll('.shelf-nav-btn').forEach(button => button.addEventListener('click', () => track.scrollBy({ left: Number(button.dataset.dir) * track.clientWidth * 0.8, behavior: 'smooth' })));
             shelvesEl.appendChild(section);
         });
-        
+
+        /* ============================================================
+           SHELF DRAG-TO-SCROLL (desktop mouse)
+           Drag a shelf sideways to scroll it, with a small momentum glide.
+           Native image dragging is disabled — dragging previously made the
+           browser ghost-drag the preview image instead of scrolling. A real
+           drag also suppresses the follow-up click so tiles don't navigate.
+           ============================================================ */
+        let shelfDrag = null;
+        let shelfDragConsumed = false;
+        function bindShelfDragging(track) {
+            track.addEventListener('dragstart', e => e.preventDefault());
+            track.addEventListener('click', e => {
+                if (shelfDragConsumed) { e.preventDefault(); e.stopPropagation(); shelfDragConsumed = false; }
+            }, true);
+            track.addEventListener('mousedown', e => {
+                if (e.button !== 0) return;
+                if (track._momentumRaf) { cancelAnimationFrame(track._momentumRaf); track._momentumRaf = null; track.classList.remove('is-dragging'); }
+                shelfDrag = { track, startX: e.clientX, startScroll: track.scrollLeft, moved: false, lastX: e.clientX, lastT: performance.now(), velocity: 0 };
+            });
+        }
+        window.addEventListener('mousemove', e => {
+            if (!shelfDrag) return;
+            const dx = e.clientX - shelfDrag.startX;
+            if (!shelfDrag.moved && Math.abs(dx) < 6) return;
+            if (!shelfDrag.moved) { shelfDrag.moved = true; shelfDrag.track.classList.add('is-dragging'); }
+            shelfDrag.track.scrollLeft = shelfDrag.startScroll - dx;
+            const now = performance.now();
+            const dt = now - shelfDrag.lastT;
+            if (dt > 0) shelfDrag.velocity = (e.clientX - shelfDrag.lastX) / dt;
+            shelfDrag.lastX = e.clientX;
+            shelfDrag.lastT = now;
+        });
+        window.addEventListener('mouseup', () => {
+            if (!shelfDrag) return;
+            const drag = shelfDrag;
+            shelfDrag = null;
+            if (!drag.moved) return;
+            shelfDragConsumed = true;
+            setTimeout(() => { shelfDragConsumed = false; }, 0); // backup reset if no click follows
+            const glide = () => {
+                drag.velocity *= 0.94;
+                if (Math.abs(drag.velocity) < 0.02) { drag.track.classList.remove('is-dragging'); drag.track._momentumRaf = null; return; }
+                drag.track.scrollLeft -= drag.velocity * 16;
+                drag.track._momentumRaf = requestAnimationFrame(glide);
+            };
+            if (Math.abs(drag.velocity) > 0.05) drag.track._momentumRaf = requestAnimationFrame(glide);
+            else drag.track.classList.remove('is-dragging');
+        });
+        // Kill the native ghost-image drag for shelf and bento previews.
+        document.addEventListener('dragstart', e => {
+            if (e.target.closest && e.target.closest('.shelf-track, .hero-bento')) e.preventDefault();
+        });
+        document.querySelectorAll('.shelf-track').forEach(bindShelfDragging);
+
         let cards = Array.from(document.querySelectorAll('.game-card'));
         const getFavorites = () => getJSON(FAV_KEY, []).map(normalizePath);
         const getRecent = () => getJSON(RECENT_KEY, []).map(normalizePath);
@@ -2335,10 +2418,100 @@ function syncSegBtns() {
             }
         );
         
-        cards.forEach(card => { 
-            card.addEventListener('click', event => { 
-                if (!event.target.closest('.fav-star')) recordPlay(card.getAttribute('href'));
-             }); 
+        /* ============================================================
+           PREVIEW ZOOM PAGE TRANSITION (shelves + bento)
+           Clicking a game expands its preview image to fill the screen,
+           then the game page loads. Falls back to instant navigation for
+           middle/ctrl/shift+clicks, reduced motion, save-data, or when the
+           Studio "Motion" toggle is set to Still.
+           ============================================================ */
+        const ZOOM_MS = 560;
+        let zoomInFlight = false;
+        function launchWithPreviewZoom(container, href, event) {
+            if (zoomInFlight) return false;
+            if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return false;
+            if (prefersReducedMotion || saveData || document.body.getAttribute('data-anim') === 'off') return false;
+            const previewEl = container.querySelector('.tile-preview, .bento-preview');
+            if (!previewEl) return false;
+            // Bento previews ARE the <img> itself; shelf previews wrap one in .tile-preview.
+            const sourceImg = previewEl.tagName === 'IMG' ? previewEl : previewEl.querySelector('img');
+            if (!sourceImg || sourceImg.hidden || !sourceImg.getAttribute('src')) return false;
+
+            event.preventDefault();
+            zoomInFlight = true;
+
+            // Start rectangle = the preview area the user actually sees
+            // (whole card once hover/focus expands the clip, top band otherwise).
+            const isBento = container.classList.contains('bento-tile');
+            const startRect = (isBento ? container : previewEl).getBoundingClientRect();
+            const clipPath = getComputedStyle(previewEl).clipPath || '';
+            const bandMatch = isBento ? null : clipPath.match(/calc\(100% - ([\d.]+)px\)/);
+            const bandH = bandMatch ? Math.min(parseFloat(bandMatch[1]), startRect.height) : startRect.height;
+            const radiusMatch = clipPath.match(/round\s+([\d.]+)px/);
+            const startRadius = isBento
+                ? getComputedStyle(container).borderTopLeftRadius
+                : `${radiusMatch ? parseFloat(radiusMatch[1]) : 6}px`;
+            const srcCs = getComputedStyle(sourceImg);
+
+            const overlay = document.createElement('div');
+            overlay.className = 'preview-zoom-overlay';
+            const frame = document.createElement('div');
+            frame.className = 'preview-zoom-frame';
+            const img = document.createElement('img');
+            img.src = sourceImg.currentSrc || sourceImg.src;
+            img.alt = '';
+            frame.appendChild(img);
+            if (isBento) {
+                // Replicate the bento tile's legibility gradient, faded out during the zoom.
+                const shade = document.createElement('div');
+                shade.style.cssText = 'position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(10,10,12,0.08) 15%,rgba(10,10,12,0.82) 100%);opacity:1;transition:opacity 0.45s ease;';
+                frame.appendChild(shade);
+                requestAnimationFrame(() => { shade.style.opacity = '0'; });
+            }
+            overlay.appendChild(frame);
+            document.body.appendChild(overlay);
+
+            // Frame 0: sit exactly on the visible preview, matching its crop.
+            frame.style.top = `${startRect.top}px`;
+            frame.style.left = `${startRect.left}px`;
+            frame.style.width = `${startRect.width}px`;
+            frame.style.height = `${bandH}px`;
+            frame.style.borderRadius = bandH < startRect.height ? `${startRadius} ${startRadius} 0 0` : startRadius;
+            img.style.opacity = srcCs.opacity;
+            if (srcCs.filter && srcCs.filter !== 'none') img.style.filter = srcCs.filter;
+            // Keep the band crop identical to the tile while the frame is band-sized.
+            const cropShift = (startRect.height - bandH) / 2;
+            img.style.transform = `${srcCs.transform === 'none' ? '' : srcCs.transform + ' '}translateY(${cropShift}px)`;
+
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                overlay.classList.add('active');
+                frame.style.top = '0px';
+                frame.style.left = '0px';
+                frame.style.width = `${window.innerWidth}px`;
+                frame.style.height = `${window.innerHeight}px`;
+                frame.style.borderRadius = '0px';
+                img.style.transform = 'none';
+                img.style.opacity = '1';
+                img.style.filter = 'none';
+            }));
+
+            let launched = false;
+            const launch = () => {
+                if (launched) return;
+                launched = true;
+                window.location.href = href;
+            };
+            frame.addEventListener('transitionend', (e) => { if (e.target === frame && e.propertyName === 'height') launch(); });
+            setTimeout(launch, ZOOM_MS + 140); // fallback if transitionend never fires
+            return true;
+        }
+
+        cards.forEach(card => {
+            card.addEventListener('click', event => {
+                if (event.target.closest('.fav-star')) return;
+                recordPlay(card.getAttribute('href'));
+                launchWithPreviewZoom(card, card.getAttribute('href'), event);
+             });
              card.querySelector('.fav-star').addEventListener('click', event => { event.preventDefault(); 
                 event.stopPropagation(); 
                 const href = normalizePath(card.getAttribute('href')); 
@@ -2391,8 +2564,11 @@ function syncSegBtns() {
             }); 
         }
 
-        document.querySelectorAll('.bento-tile').forEach(tile => tile.addEventListener('click', () => { 
-            if (!tile.classList.contains('hidden')) recordPlay(tile.getAttribute('href')); }));
+        document.querySelectorAll('.bento-tile').forEach(tile => tile.addEventListener('click', event => {
+            if (tile.classList.contains('hidden')) return;
+            recordPlay(tile.getAttribute('href'));
+            launchWithPreviewZoom(tile, tile.getAttribute('href'), event);
+        }));
 
         document.getElementById('random-btn').addEventListener('click', () => { 
             const visible = cards.filter(card => card.style.display !== 'none'); 
