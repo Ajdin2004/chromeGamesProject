@@ -2589,8 +2589,65 @@ function syncSegBtns() {
             document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.add('hidden')); 
             }
         });
-        const leaderboardModal = document.getElementById('leaderboard-modal'); 
-        document.getElementById('open-leaderboard-btn').addEventListener('click', () => leaderboardModal.classList.remove('hidden')); 
+        /* ============================================================
+           LEADERBOARD (Hall of Fame) — personal bests are read live from
+           each game's localStorage key every time the modal opens, so
+           entries persist across visits and are shared with the legacy
+           hub (same keys, same origin). Darts is "fewest darts wins", so
+           it sorts ascending with unplayed entries ranked last.
+           ============================================================ */
+        const LEADERBOARD_CONFIG = [
+            { name: 'Wordle', key: 'wordle_streak', icon: 'fa-font', href: 'wordGames/wordle.html' },
+            { name: 'Flagguessr', key: 'flagguessr_streak', icon: 'fa-flag', href: 'wordGames/flagguessr.html' },
+            { name: 'Box Office', key: 'boxoffice_best_streak', icon: 'fa-film', href: 'wordGames/boxoffice.html' },
+            { name: 'Trivia Orbs', key: 'triviaorbs_best_streak', icon: 'fa-lightbulb', href: 'wordGames/triviaorbs.html' },
+            { name: 'Gauntlet', key: 'gauntlet_best_score', icon: 'fa-shield-halved', href: 'wordGames/gauntlet.html' },
+            { name: 'Typing Rush', key: 'typingrush_highscore', icon: 'fa-keyboard', href: 'wordGames/typingrush.html' },
+            { name: 'Flappy Bird', key: 'flappy_highscore', icon: 'fa-dove', href: 'games/flappybird.html' },
+            { name: 'Dino Run', key: 'dino_highscore', icon: 'fa-dinosaur', href: 'games/dino.html' },
+            { name: 'Snake', key: 'snake_highscore', icon: 'fa-worm', href: 'games/snake.html' },
+            { name: 'Block Puzzle', key: 'blockpuzzler_highscore', icon: 'fa-shapes', href: 'games/blockpuzzler.html' },
+            { name: 'Neon Pong', key: 'pong_highscore', icon: 'fa-table-tennis-paddle-ball', href: 'games/pong.html' },
+            { name: 'Highway Racer', key: 'highway_highscore', icon: 'fa-car-side', href: 'games/highway.html' },
+            { name: 'Parking Mania', key: 'parking_highscore', icon: 'fa-square-parking', href: 'games/parking.html' },
+            { name: 'Poker', key: 'poker_best_chips', icon: 'fa-club', href: 'games/poker.html' },
+            { name: 'Blockudoku', key: 'blockudoku_highscore', icon: 'fa-table-cells-large', href: 'games/blockudoku.html' },
+            { name: 'Pac-Man', key: 'pacman_highscore', icon: 'fa-ghost', href: 'games/pacman.html' },
+            { name: 'Asteroids', key: 'asteroids_highscore', icon: 'fa-rocket', href: 'games/asteroids.html' },
+            { name: 'Space Invaders', key: 'invaders_highscore', icon: 'fa-plane', href: 'games/spaceinvaders.html' },
+            { name: 'Jet Fighter', key: 'jetfighter_highscore', icon: 'fa-jet-fighter-up', href: 'games/jetfighter.html' },
+            { name: 'Tic-Tac-Toe', key: 'tictactoe_wins', icon: 'fa-hashtag', href: 'games/tictactoe.html' },
+            { name: 'Checkers', key: 'checkers_wins', icon: 'fa-chess-pawn', href: 'games/checkers.html' },
+            { name: 'Minesweeper', key: 'minesweeper_wins', icon: 'fa-bomb', href: 'games/minesweeper.html' },
+            { name: 'Darts', key: 'darts_highscore', icon: 'fa-bullseye', href: 'games/darts.html', lowerIsBetter: true }
+        ];
+        function populateLeaderboard() {
+            const leaderboardRows = document.getElementById('leaderboard-rows');
+            if (!leaderboardRows) return;
+            const rows = LEADERBOARD_CONFIG.map(game => {
+                const score = readScore(game.key);
+                const sortScore = game.lowerIsBetter ? (score > 0 ? score : Infinity) : -score;
+                return { ...game, score, plays: getPlayCount(game.href), sortScore };
+            }).sort((a, b) => a.sortScore - b.sortScore);
+            leaderboardRows.innerHTML = '';
+            rows.forEach((game, i) => {
+                const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="rank-badge ${rankClass}">${i + 1}</span></td>
+                    <td><strong>${game.name}</strong></td>
+                    <td><i class="fa-solid ${game.icon}"></i></td>
+                    <td class="text-right score-val">${game.score}</td>
+                    <td class="text-right">${game.plays}</td>
+                `;
+                leaderboardRows.appendChild(row);
+            });
+        }
+        const leaderboardModal = document.getElementById('leaderboard-modal');
+        document.getElementById('open-leaderboard-btn').addEventListener('click', () => {
+            populateLeaderboard();
+            leaderboardModal.classList.remove('hidden');
+        });
         document.getElementById('close-modal-btn').addEventListener('click', () => leaderboardModal.classList.add('hidden')); 
         leaderboardModal.addEventListener('click', event => { 
             if (event.target === leaderboardModal) leaderboardModal.classList.add('hidden'); 

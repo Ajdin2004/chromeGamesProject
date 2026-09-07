@@ -3611,17 +3611,21 @@ function sortGames() {
             { name: 'Tic-Tac-Toe', key: 'tictactoe_wins', icon: 'fa-hashtag', href: 'games/tictactoe.html' },
             { name: 'Checkers', key: 'checkers_wins', icon: 'fa-chess-pawn', href: 'games/checkers.html' },
             { name: 'Minesweeper', key: 'minesweeper_wins', icon: 'fa-bomb', href: 'games/minesweeper.html' },
-            { name: 'Darts', key: 'darts_highscore', icon: 'fa-bullseye', href: 'games/darts.html' },
+            { name: 'Asteroids', key: 'asteroids_highscore', icon: 'fa-rocket', href: 'games/asteroids.html' },
+            { name: 'Space Invaders', key: 'invaders_highscore', icon: 'fa-plane', href: 'games/spaceinvaders.html' },
+            { name: 'Category Gauntlet', key: 'gauntlet_best_score', icon: 'fa-shield-halved', href: 'wordGames/gauntlet.html' },
+            { name: 'Darts', key: 'darts_highscore', icon: 'fa-bullseye', href: 'games/darts.html', lowerIsBetter: true },
             { name: 'Typing Rush', key: 'typingrush_highscore', icon: 'fa-keyboard', href: 'wordGames/typingrush.html' },
             { name: 'Jet Fighter', key: 'jetfighter_highscore', icon: 'fa-jet-fighter-up', href: 'games/jetfighter.html' }
         ];
 
         function populateLeaderboard() {
-            const rows = GAMES_CONFIG.map(game => ({
-                ...game,
-                score: parseInt(localStorage.getItem(game.key) || '0', 10),
-                plays: getPlayCount(game.href)
-            })).sort((a, b) => b.score - a.score);
+            const rows = GAMES_CONFIG.map(game => {
+                const score = parseInt(localStorage.getItem(game.key) || '0', 10);
+                // "Lower is better" games (Darts) rank unplayed entries last.
+                const sortScore = game.lowerIsBetter ? (score > 0 ? score : Infinity) : -score;
+                return { ...game, score, plays: getPlayCount(game.href), sortScore };
+            }).sort((a, b) => a.sortScore - b.sortScore);
 
             leaderboardRows.innerHTML = '';
             rows.forEach((game, i) => {
