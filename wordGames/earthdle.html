@@ -247,16 +247,7 @@
         }
 
         .search-container {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            z-index: 25;
-            pointer-events: auto;
-            background: var(--card-bg);
-            border: var(--b-w) solid var(--card-border);
-            border-radius: var(--r-sm);
-            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.22);
-            padding: 0.3rem 0.4rem;
+            position: relative;
         }
 
         .input-box { display: flex; gap: 0.5rem; }
@@ -668,9 +659,12 @@
                 max-width: 1000px;
             }
             .game-panel {
+                position: fixed;
+                right: 1rem;
+                bottom: 1rem;
                 max-width: 520px;
-                margin-left: auto;
-                margin-right: 0.5rem;
+                width: min(520px, calc(100vw - 2rem));
+                margin: 0;
             }
         }
         /* small screens: globe is inline */
