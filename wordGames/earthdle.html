@@ -91,11 +91,11 @@
             width: 100%;
             margin-bottom: 0.5rem;
             flex-shrink: 0;
-            background: rgba(11, 13, 25, 0.6);
-            backdrop-filter: blur(8px);
-            padding: 0.4rem 0.8rem;
-            border-radius: 40px;
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
+            padding: 0.5rem 0.9rem;
+            border-radius: var(--r-md);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
         }
 
         .header-actions {
@@ -110,7 +110,7 @@
             color: var(--text-main);
             width: 34px;
             height: 34px;
-            border-radius: 50%;
+            border-radius: var(--r-sm);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -246,7 +246,18 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .search-container { position: relative; }
+        .search-container {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 25;
+            pointer-events: auto;
+            background: var(--card-bg);
+            border: var(--b-w) solid var(--card-border);
+            border-radius: var(--r-sm);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.22);
+            padding: 0.3rem 0.4rem;
+        }
 
         .input-box { display: flex; gap: 0.5rem; }
 
