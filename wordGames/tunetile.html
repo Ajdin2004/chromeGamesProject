@@ -15,10 +15,10 @@
            (header, panel, responsive) lives in atelier-shared.css. Identity:
            violet accent. */
         :root {
-            --accent: #7c5cff;
+            --accent: #00daf7fb;
             --accent-fg: #ffffff;
             --accent-soft: rgba(124, 92, 255, 0.15);
-            --wallpaper: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240"><rect width="100%" height="100%" fill="%230d0d10"/><g opacity="0.7"><rect x="70" y="50" width="56" height="56" rx="10" fill="%237c5cff"/><rect x="134" y="50" width="56" height="56" rx="10" fill="%231d1d21"/><rect x="198" y="50" width="56" height="56" rx="10" fill="%237c5cff"/><rect x="70" y="114" width="56" height="56" rx="10" fill="%231d1d21"/><rect x="134" y="114" width="56" height="56" rx="10" fill="%237c5cff" opacity="0.5"/><rect x="198" y="114" width="56" height="56" rx="10" fill="%231d1d21"/></g></svg>');
+            --wallpaper: url('https://static.vecteezy.com/system/resources/thumbnails/044/034/894/small/musical-notes-wavy-line-background-design-vector.jpg');
 
             /* Legacy tokens → Atelier so the game's own layout CSS resolves */
             --bg: var(--bg-0);
@@ -31,6 +31,15 @@
             --gray: #34343a;
             --text: var(--ink);
             --muted: var(--ink-muted);
+        }
+        /* --- Audio Visualizer Background --- */
+        .visualizer-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.55;
         }
 
         .glass {
@@ -343,7 +352,7 @@
         }
 
         .guess-btn {
-            background: linear-gradient(135deg, var(--magenta), #a855f7);
+            background: linear-gradient(135deg, var(--cyan), #3b82f6); border: none; border-radius: 25px;
             border: none;
             border-radius: 25px;
             padding: 0.8rem 1.5rem;
@@ -425,6 +434,34 @@
         .result-play:hover { background: rgba(0, 242, 254, 0.22); }
         @media (max-width: 500px) { .result-panel { grid-template-columns: 56px 1fr; } .result-art { width: 56px; height: 56px; } .result-play { grid-column: 1 / -1; width: 100%; } }
 
+
+        /* --- Help Modal Styles --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 2rem; max-width: 420px; width: 90%;
+            position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            color: var(--text);
+        }
+        .modal-close {
+            position: absolute; top: 1.2rem; right: 1.2rem;
+            background: none; border: none; color: var(--muted);
+            font-size: 1.2rem; cursor: pointer;
+        }
+        .modal-close:hover { color: var(--cyan); }
+        .modal-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; color: #fff;}
+        .btn-close-win {
+            background: linear-gradient(135deg, var(--cyan), #3b82f6); color: #fff;
+            border: none; border-radius: 12px; padding: 0.85rem 1.5rem;
+            font-weight: 800; cursor: pointer; width: 100%; margin-top: 1rem;
+        }
+
         .history-panel { display: none; padding: 0.8rem; border: 1px solid var(--border); border-radius: 16px; background: rgba(0,0,0,0.18); }
         .history-panel.visible { display: block; }
         .history-head { display: flex; justify-content: space-between; align-items: center; color: var(--cyan); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.55rem; }
@@ -478,6 +515,10 @@
     </style>
 </head>
 <body>
+
+    <!-- Audio Visualizer Canvas -->
+    <canvas id="visualizerBg" class="visualizer-bg"></canvas>
+
     <header class="header-bar">
         <div class="header-left">
             <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
@@ -485,8 +526,26 @@
         </div>
         <div class="header-controls">
             <button id="btn-wallpaper" class="icon-btn" title="Show wallpaper"><i class="fa-regular fa-image"></i></button>
+            <button id="help-btn" class="icon-btn" title="How to play"><i class="fa-solid fa-circle-question"></i></button>
         </div>
     </header>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-card">
+            <button id="help-close" class="modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-title">How to Play</div>
+            <div class="help-content">
+                <p style="margin-bottom: 1rem; line-height: 1.5; font-size: 0.95rem; color: var(--text);">Listen to the melody to guess the song. You have 6 attempts.</p>
+                <ul style="margin-left: 1.25rem; color: var(--muted); font-size: 0.9rem; line-height: 1.6; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <li>Each incorrect guess unlocks more of the song preview.</li>
+                    <li>Wrong guesses also reveal additional lines of the lyrics.</li>
+                    <li>If you're stuck, you can <strong>Skip</strong> to reveal more of the song without guessing.</li>
+                </ul>
+                <button class="btn-close-win" id="help-ok">GOT IT</button>
+            </div>
+        </div>
+    </div>
 
     <div class="main-card glass">
         <div class="mode-toggle" id="modeToggle">

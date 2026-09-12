@@ -428,4 +428,83 @@ document.getElementById('share-btn').addEventListener('click', async () => {
     }
 });
 
+// --- Wallpaper & Particle Interactions ---
+let particlesActive = localStorage.getItem('wordle_wallpaper') !== 'false';
+const btnWallpaper = document.getElementById('btn-wallpaper');
+const particles = document.querySelectorAll('.particle');
+
+// 1. Apply the initial state on page load
+if (!particlesActive) {
+    particles.forEach(p => p.style.display = 'none');
+}
+
+// 2. Wallpaper toggle button logic
+if (btnWallpaper) {
+    btnWallpaper.addEventListener('click', () => {
+        particlesActive = !particlesActive;
+        localStorage.setItem('wordle_wallpaper', particlesActive); 
+        
+        if (!particlesActive) {
+            // Pop all particles in place and hide them
+            particles.forEach(p => {
+                const rect = p.getBoundingClientRect();
+                p.dataset.origStyle = p.style.cssText; // Save original styling
+                
+                // Freeze exact current on-screen position
+                p.style.left = rect.left + 'px';
+                p.style.top = rect.top + 'px';
+                p.style.bottom = 'auto';
+                
+                p.classList.add('popping');
+                setTimeout(() => {
+                    if (!particlesActive) p.style.display = 'none'; 
+                }, 400);
+            });
+        } else {
+            // Restore original styles and restart animations
+            particles.forEach(p => {
+                if (p.dataset.origStyle) {
+                    p.style.cssText = p.dataset.origStyle;
+                }
+                p.style.display = 'block';
+                p.classList.remove('popping');
+                
+                p.style.animationName = 'none';
+                p.offsetHeight; // Force reflow
+                p.style.animationName = ''; 
+            });
+        }
+    });
+}
+
+// 3. Individual particle click (pop in place and seamlessly reset)
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('particle') && particlesActive) {
+        const p = e.target;
+        
+        // Freeze particle exactly where it is on the screen
+        const rect = p.getBoundingClientRect();
+        const originalCssText = p.style.cssText;
+        
+        p.style.left = rect.left + 'px';
+        p.style.top = rect.top + 'px';
+        p.style.bottom = 'auto';
+        
+        p.classList.add('popping');
+        
+        // Reset the clicked particle to the bottom after the pop finishes
+        setTimeout(() => {
+            if (particlesActive) {
+                p.classList.remove('popping');
+                p.style.cssText = originalCssText; // Restores original % left positioning
+                
+                // Safely restart the animation
+                p.style.animationName = 'none';
+                p.offsetHeight; // trigger reflow
+                p.style.animationName = '';
+            }
+        }, 400);
+    }
+});
+
 initBoard();

@@ -54,6 +54,7 @@ let coverArtElement = null;
 // Game State
 let dailyTrack = null;
 let audio = new Audio();
+audio.crossOrigin = "anonymous"; // Required for Web Audio API Analyzer to access external media 
 let previewStopTimer = null;
 let attempts = 0;
 let guesses = [];
@@ -65,6 +66,65 @@ let endlessRounds = 0;
 let endlessRoundStartTime = 0;
 let endlessUsedTracks = [];
 let endlessHistory = [];
+
+// --- Audio Visualizer ---
+let audioCtx = null;
+let analyser = null;
+let audioSource = null;
+const canvas = document.getElementById('visualizerBg');
+let canvasCtx = canvas ? canvas.getContext('2d') : null;
+
+function initVisualizer() {
+    if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        
+        audioSource = audioCtx.createMediaElementSource(audio);
+        audioSource.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        
+        if (canvas && canvasCtx) {
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            drawVisualizer();
+        }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
+function resizeCanvas() {
+    if (!canvas) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function drawVisualizer() {
+    requestAnimationFrame(drawVisualizer);
+    if (!analyser || !canvasCtx || !canvas) return;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
+
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let barHeight;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+        barHeight = (dataArray[i] / 255) * (canvas.height / 2); 
+
+        canvasCtx.fillStyle = `rgba(0, 242, 254, ${dataArray[i] / 500})`; 
+        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+        x += barWidth + 1;
+    }
+}
 
 // --- CORS & Scheme-Redirect Safe Fetcher ---
 async function safeiTunesQuery(params) {
@@ -904,6 +964,19 @@ async function init() {
             setMessage(gameMode === 'endless' ? `Endless round ${endlessRounds} — name the song!` : `Guess the song — ${MAX_ATTEMPTS} attempts.`, 'info');
         }, 300);
     }
+
+    // --- Help Modal Init ---
+    const helpModal = document.getElementById('help-modal');
+    document.getElementById('help-btn')?.addEventListener('click', () => helpModal.classList.add('active'));
+    document.getElementById('help-close')?.addEventListener('click', () => helpModal.classList.remove('active'));
+    document.getElementById('help-ok')?.addEventListener('click', () => helpModal.classList.remove('active'));
+    helpModal?.addEventListener('click', e => {
+        if (e.target === helpModal) helpModal.classList.remove('active');
+    });
+
+    ['timeupdate', 'playing', 'durationchange', 'pause', 'ended', 'seeked'].forEach(ev =>
+        audio.addEventListener(ev, updateSongProgress)
+    );
 
     if (guessBtn) guessBtn.addEventListener('click', handleGuess);
     if (skipBtn) skipBtn.addEventListener('click', handleSkip);

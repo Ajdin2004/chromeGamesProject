@@ -5,14 +5,12 @@
  */
 const ITUNES_BASE = 'https://itunes.apple.com/search';
 
-// Use LOCAL date so the daily song resets exactly at 00:00 local time
 function getLocalDateStr(d = new Date()) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 let TODAY = getLocalDateStr();
 const SEED = new Date().getFullYear() * 10000 + (new Date().getMonth() + 1) * 100 + new Date().getDate();
 
-// --- Genre presets: each genre has its own daily song & progress ---
 const GENRES = [
     { key: 'pop',     label: 'Pop',     icon: 'fa-music',        terms: ['Taylor Swift', 'Ariana Grande', 'Dua Lipa', 'The Weeknd', 'Ed Sheeran', 'Katy Perry', 'Billie Eilish', 'Bruno Mars', 'Harry Styles', 'Justin Bieber', 'Lady Gaga', 'Rihanna', 'Shawn Mendes', 'Post Malone', 'Doja Cat', 'Adele', 'Sia', 'Camila Cabello', 'Lewis Capaldi', 'Olivia Rodrigo'] },
     { key: 'hiphop',  label: 'Hip-Hop', icon: 'fa-headphones',   terms: ['Drake', 'Kendrick Lamar', 'J. Cole', 'Travis Scott', 'Jay-Z', 'Nicki Minaj', 'Lil Wayne', 'Kanye West', 'Future', 'Cardi B', 'Megan Thee Stallion', 'A$AP Rocky', 'Playboi Carti', 'Wiz Khalifa', 'Tyler, the Creator', 'Ice Spice', 'Young Thug', 'Lil Uzi Vert', 'Big Sean', 'Lil Baby'] },
@@ -21,42 +19,33 @@ const GENRES = [
     { key: 'rnb',     label: 'R&B',     icon: 'fa-heart',        terms: ['Beyonce', 'Rihanna', 'SZA', 'Usher', 'Mariah Carey', 'Alicia Keys', 'John Legend', 'Chris Brown', 'Trey Songz'] },
     { key: 'country', label: 'Country', icon: 'fa-hat-cowboy',   terms: ['Taylor Swift', 'Luke Bryan', 'Carrie Underwood', 'Luke Combs', 'Dolly Parton', 'Garth Brooks', 'Kenny Chesney', 'Shania Twain', 'Morgan Wallen'] }
 ];
-let gameMode = 'daily'; // 'daily' | 'endless'
+let gameMode = 'daily'; 
 
-// Endless-mode scoring: up to 100 pts per correct guess — more for being fast
-// and using fewer attempts. 1st-attempt guess = high bonus; late guess = lower.
 const ENDLESS_BASE = 100;
-const ENDLESS_TIME_PENALTY = 2;       // minus pts per elapsed second at guess time
-const ENDLESS_TIME_CAP_SEC = 30;      // beyond this, time penalty stops growing
+const ENDLESS_TIME_PENALTY = 2;       
+const ENDLESS_TIME_CAP_SEC = 30;      
 
 let currentGenreKey = GENRES[0].key;
 
-function getGenreByKey(key) {
-    return GENRES.find(g => g.key === key) || GENRES[0];
-}
+function getGenreByKey(key) { return GENRES.find(g => g.key === key) || GENRES[0]; }
 function currentGenre() { return getGenreByKey(currentGenreKey); }
-// Per-genre storage keys so switching genres gives an independent daily game
 const stateKey  = () => `songless_state_${TODAY}_${currentGenreKey}`;
 const trackKey  = () => `songless_track_${TODAY}_${currentGenreKey}`;
 const dailyPlaceholderKey = () => `songless_daily_placeholder_${TODAY}_${currentGenreKey}`;
 
 const MAX_ATTEMPTS = 6;
-// Audio preview increases with each attempt (capped by Apple's 30s clip)
 const PREVIEW_RAMP = [1, 2, 4, 7, 11, 16];
 const MAX_PREVIEW_SECONDS = 16;
-// Cover-art progressive de-blur (clears up with each wrong guess / skip, like Tunetile)
 const ARTWORK_BLUR_START_PX = 6;
 const ARTWORK_BLUR_STEP_PX = 1;
-const MAX_LYRIC_CHECKS = 8;   // how many candidates to try before relaxing the lyric requirement
+const MAX_LYRIC_CHECKS = 8;   
 
-// -- Stop words excluded from lyric-title masking so common words stay readable
 const STOP_WORDS = new Set([
     'A','AN','THE','IN','ON','AT','TO','OF','FOR','AND','YOU','I','ME','MY','IS','ARE',
     'WAS','WERE','IT','WE','HE','SHE','THEY','THESE','THOSE','YOUR','YOURE','ITS','THEYRE',
     'BE','AM','DO','DONT','CAN','CANT','SO','BUT','OR','IF','THAT','THIS','WITH'
 ]);
 
-// DOM References
 const playBtn0 = document.getElementById('playMelodyBtn');
 let cluePreview = document.getElementById('cluePreview');
 const guessInput = document.getElementById('guessInput');
@@ -82,11 +71,11 @@ let suggestionCache = {};
 let suggestionDisabled = false;
 let playBtn = playBtn0;
 
-// Game State
 let dailyTrack = null;
-let lyrics = null;        // { plainLyrics, syncedLyrics, source, found }
-let lyricLines = [];      // cleaned non-empty lyric lines (chronological)
+let lyrics = null;        
+let lyricLines = [];      
 let audio = new Audio();
+audio.crossOrigin = "anonymous"; // Required for Web Audio API Analyzer to access external media 
 let previewStopTimer = null;
 let attempts = 0;
 let guesses = [];
@@ -94,24 +83,79 @@ let gameOver = false;
 let volume = 0.1;
 audio.volume = volume;
 
-// Endless mode state
 let endlessScore = 0;
 let endlessRounds = 0;
-let endlessRoundStartTime = 0;   // ms timestamp when the current endless round started
+let endlessRoundStartTime = 0;   
 let endlessHistory = [];
-let endlessUsedTerms = [];       // to reduce repeats across endless rounds
+let endlessUsedTerms = [];       
 let modeLoadToken = 0;
 
-// --- CORS & Scheme-Redirect Safe Fetcher (iTunes search proxy + JSONP fallback) ---
+// --- Audio Visualizer ---
+let audioCtx = null;
+let analyser = null;
+let audioSource = null;
+const canvas = document.getElementById('visualizerBg');
+let canvasCtx = canvas ? canvas.getContext('2d') : null;
+
+function initVisualizer() {
+    if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        
+        audioSource = audioCtx.createMediaElementSource(audio);
+        audioSource.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        
+        if (canvas && canvasCtx) {
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            drawVisualizer();
+        }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+}
+
+function resizeCanvas() {
+    if (!canvas) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function drawVisualizer() {
+    requestAnimationFrame(drawVisualizer);
+    if (!analyser || !canvasCtx || !canvas) return;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
+
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const barWidth = (canvas.width / bufferLength) * 2.5;
+    let barHeight;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+        barHeight = (dataArray[i] / 255) * (canvas.height / 2); 
+
+        canvasCtx.fillStyle = `rgba(0, 242, 254, ${dataArray[i] / 500})`; 
+        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+        x += barWidth + 1;
+    }
+}
+
+// --- CORS & Scheme-Redirect Safe Fetcher ---
 async function safeiTunesQuery(params) {
     const proxyUrl = `/api/itunes-search?${params}`;
     try {
         const res = await fetch(proxyUrl);
         if (res.ok) return await res.json();
-        console.warn('iTunes proxy query failed:', res.status, res.statusText);
-    } catch (err) {
-        console.warn('iTunes proxy fetch error:', err);
-    }
+    } catch (err) {}
     return await safeItunesJsonpQuery(params);
 }
 
@@ -130,22 +174,15 @@ function safeItunesJsonpQuery(params) {
         }
 
         window[callbackName] = (data) => {
-            cleanup();
-            resolve(data);
+            cleanup(); resolve(data);
         };
 
         script.onerror = () => {
-            cleanup();
-            suggestionDisabled = true;
-            hideSuggestions();
-            resolve(null);
+            cleanup(); suggestionDisabled = true; hideSuggestions(); resolve(null);
         };
 
         timeoutId = setTimeout(() => {
-            cleanup();
-            suggestionDisabled = true;
-            hideSuggestions();
-            resolve(null);
+            cleanup(); suggestionDisabled = true; hideSuggestions(); resolve(null);
         }, 10000);
 
         script.src = url;
@@ -157,17 +194,13 @@ function safeItunesJsonpQuery(params) {
     });
 }
 
-// --- Lyrics proxy (no JSONP fallback; via /api/lyrics serverless function) ---
 async function fetchLyrics(artist, title) {
     const q = `/api/lyrics?artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}`;
     try {
         const res = await fetch(q);
         if (!res.ok) return { found: false };
         return await res.json();
-    } catch (err) {
-        console.warn('Lyrics fetch error:', err);
-        return { found: false };
-    }
+    } catch (err) { return { found: false }; }
 }
 
 function setMessage(text, type = 'info') {
@@ -186,36 +219,23 @@ function maskTitle(s) {
     return s.replace(/[A-Za-z0-9]/g, '•');
 }
 
-// --- Lyric line extraction -------------------------------------------------
-
-// Pick the best source: synced (LRC) gives clean line-per-line separation.
 function buildLyricLines() {
     if (!lyrics || !lyrics.found) { lyricLines = []; return; }
-
     let lines;
     if (lyrics.syncedLyrics) {
-        // Each line looks like "[00:52.66] I came along"
         lines = String(lyrics.syncedLyrics).split(/\n+/).map(l => l.replace(/^\s*\[[0-9:. \]]+\]\s*/, '').trim());
     } else if (lyrics.plainLyrics) {
         lines = String(lyrics.plainLyrics).split(/\n+/).map(l => l.trim());
     } else {
-        lyricLines = [];
-        return;
+        lyricLines = []; return;
     }
-
-    // Keep non-empty, non-bracketed (like [Chorus]) lines, modest length.
     lyricLines = lines.filter(l => {
-        if (!l) return false;
-        if (/^[\[\(].*[\]\)]$/.test(l)) return false; // section markers
-        if (/^[≈~•\-\*]+$/.test(l)) return false;
-        if (l.replace(/[^A-Za-z0-9]/g, '').length < 2) return false;
-        if (l.length > 90) return false;
+        if (!l || /^[\[\(].*[\]\)]$/.test(l) || /^[≈~•\-\*]+$/.test(l)) return false;
+        if (l.replace(/[^A-Za-z0-9]/g, '').length < 2 || l.length > 90) return false;
         return true;
     });
 }
 
-// Whole-word matches of significant title words get masked in lyric clues so
-// the answer isn't trivially spelled out, while short stop words stay readable.
 function titleMaskWords() {
     const out = new Set();
     if (!dailyTrack || !dailyTrack.trackName) return out;
@@ -228,22 +248,18 @@ function titleMaskWords() {
 
 function maskLyricLine(line) {
     if (!line) return '';
-    if (gameOver) return line; // fully revealed at end
+    if (gameOver) return line; 
     const maskWords = titleMaskWords();
     if (maskWords.size === 0) return line;
     return line.replace(/[A-Za-z0-9']+/g, (tok) => {
         const key = tok.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-        if (key.length >= 2 && maskWords.has(key)) {
-            return tok.replace(/[A-Za-z0-9]/g, '•'); // keep apostrophe, replace letters/digits
-        }
+        if (key.length >= 2 && maskWords.has(key)) return tok.replace(/[A-Za-z0-9]/g, '•'); 
         return tok;
     });
 }
 
-// Reveal lyric lines based on how many wrong guesses have been made.
 function revealedLyricCount() {
     if (gameOver) return lyricLines.length;
-    // Start with 1 line; each wrong guess reveals one more (max ~half).
     return Math.min(lyricLines.length, 1 + Math.min(attempts, MAX_ATTEMPTS - 1));
 }
 
@@ -257,7 +273,6 @@ function updateLyricClue() {
         if (lyricSrc) lyricSrc.textContent = '';
         return;
     }
-
     const count = revealedLyricCount();
     const shown = lyricLines.slice(0, count);
     const maskedShown = shown.map(maskLyricLine);
@@ -271,9 +286,9 @@ function revealSeconds() {
     return Math.min(MAX_PREVIEW_SECONDS, PREVIEW_RAMP[Math.min(attempts, MAX_ATTEMPTS - 1)]);
 }
 
-// --- Audio ---
 function playSnippet(seconds, preservePosition = false) {
     if (!dailyTrack || !dailyTrack.previewUrl) return;
+    initVisualizer();
     try {
         if (previewStopTimer) clearTimeout(previewStopTimer);
         if (!preservePosition) {
@@ -287,20 +302,16 @@ function playSnippet(seconds, preservePosition = false) {
         const stopAfter = Math.min(seconds, MAX_PREVIEW_SECONDS);
         const remaining = Math.max(0, stopAfter - (Number.isFinite(audio.currentTime) ? audio.currentTime : 0));
         previewStopTimer = setTimeout(() => {
-            try {
-                audio.pause();
-                if (playBtn) playBtn.classList.remove('pulse-anim');
-            } catch (e) {}
+            try { audio.pause(); if (playBtn) playBtn.classList.remove('pulse-anim'); } catch (e) {}
         }, remaining * 1000 + 250);
     } catch (e) {}
 }
 
-function playFullPreview() {
-    playSongRemainder();
-}
+function playFullPreview() { playSongRemainder(); }
 
 function playSongRemainder() {
     if (!dailyTrack || !dailyTrack.previewUrl) return;
+    initVisualizer();
     try {
         if (previewStopTimer) clearTimeout(previewStopTimer);
         const currentPosition = Number.isFinite(audio.currentTime) && audio.src && audio.currentTime > 0 ? audio.currentTime : revealSeconds();
@@ -321,9 +332,8 @@ function showResultPanel(won, matchedBy = '') {
     const panel = document.createElement('section');
     panel.id = 'resultPanel';
     panel.className = 'result-panel';
-    panel.setAttribute('aria-label', 'Round statistics');
     const art = document.createElement('img');
-    art.className = 'result-art'; art.src = dailyTrack.artwork || ''; art.alt = `${dailyTrack.trackName} cover`;
+    art.className = 'result-art'; art.src = dailyTrack.artwork || ''; 
     const details = document.createElement('div');
     const kicker = document.createElement('div'); kicker.className = 'result-kicker'; kicker.textContent = won ? `Solved${matchedBy ? ` by ${matchedBy}` : ''}` : 'Song revealed';
     const title = document.createElement('div'); title.className = 'result-title'; title.textContent = dailyTrack.trackName;
@@ -334,15 +344,11 @@ function showResultPanel(won, matchedBy = '') {
     const play = document.createElement('button'); play.type = 'button'; play.className = 'result-play'; play.innerHTML = '<i class="fa-solid fa-play"></i> Play rest';
     play.addEventListener('click', () => { playSongRemainder(); play.innerHTML = '<i class="fa-solid fa-volume-high"></i> Playing'; });
     const close = document.createElement('button');
-    close.type = 'button'; close.className = 'result-close'; close.setAttribute('aria-label', 'Close result');
-    close.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    close.type = 'button'; close.className = 'result-close'; close.innerHTML = '<i class="fa-solid fa-xmark"></i>';
     panel.append(art, details, play, close);
     const modal = document.createElement('div');
-    modal.id = 'resultModal';
-    modal.className = 'result-modal-overlay';
-    modal.addEventListener('click', event => {
-        if (event.target === modal) modal.remove();
-    });
+    modal.id = 'resultModal'; modal.className = 'result-modal-overlay';
+    modal.addEventListener('click', event => { if (event.target === modal) modal.remove(); });
     close.addEventListener('click', () => modal.remove());
     modal.appendChild(panel);
     document.body.appendChild(modal);
@@ -364,7 +370,7 @@ function renderEndlessHistory() {
     endlessHistory.forEach(entry => {
         const row = document.createElement('div');
         row.className = 'history-entry';
-        const art = document.createElement('img'); art.src = entry.artwork || ''; art.alt = '';
+        const art = document.createElement('img'); art.src = entry.artwork || '';
         const info = document.createElement('div');
         const song = document.createElement('div'); song.className = 'history-song'; song.textContent = entry.trackName;
         const artist = document.createElement('div'); artist.className = 'history-artist'; artist.textContent = entry.artistName;
@@ -388,9 +394,8 @@ function updateAttemptDisplay() {
     updateSongProgress();
 }
 
-// --- Cover-art progressive de-blur (clears up with each wrong guess / skip) ---
 function getArtworkBlurPx() {
-    if (gameOver) return 0; // Fully clear on win/game-over
+    if (gameOver) return 0; 
     return Math.max(0, ARTWORK_BLUR_START_PX - attempts * ARTWORK_BLUR_STEP_PX);
 }
 
@@ -402,7 +407,6 @@ function updateArtworkBlur() {
     art.style.transform = blurPx > 0 ? 'scale(1.12)' : 'scale(1)';
 }
 
-// --- Song progress bar: fills as each guess unlocks more of the preview ---
 function buildProgressTicks() {
     if (!progressTicks) return;
     progressTicks.innerHTML = '';
@@ -411,15 +415,12 @@ function buildProgressTicks() {
         const t = document.createElement('div');
         t.className = 'tick' + (PREVIEW_RAMP[i] <= secs ? ' active' : '');
         t.style.left = ((PREVIEW_RAMP[i] / MAX_PREVIEW_SECONDS) * 100) + '%';
-        t.setAttribute('aria-hidden', 'true');
         progressTicks.appendChild(t);
     }
 }
 
 function updateSongProgress() {
     if (!progressFill) return;
-    // While the song is playing, follow the exact playback timestamp.
-    // When idle, show the unlocked level (how much of the preview is revealed).
     const playing = audio && !audio.paused && !audio.ended && isFinite(audio.currentTime);
     const posSecs = playing ? Math.max(0, audio.currentTime) : revealSeconds();
     const pct = playing
@@ -442,10 +443,8 @@ function updateSongProgress() {
     }
 }
 
-// --- Skip a turn: consume one attempt and reveal more, without recording a guess ---
 function handleSkip() {
     if (gameOver || !skipBtn || skipBtn.disabled) return;
-
     attempts++;
     updateAttemptDisplay();
     updateAutofillState();
@@ -478,7 +477,6 @@ function handleSkip() {
     hideSuggestions();
 }
 
-// --- State persistence (keyed by local date) ---
 function saveState(passed) {
     const state = { date: TODAY, genre: currentGenreKey, attempts, guesses, gameOver, passed, dailyTrack, lyrics, lyricLines };
     try { localStorage.setItem(stateKey(), JSON.stringify(state)); } catch (e) {}
@@ -502,17 +500,13 @@ function restoreState() {
         updateHint();
         updateLyricClue();
         return true;
-    } catch (e) {
-        return false;
-    }
+    } catch (e) { return false; }
 }
 
-// Returns true when the album name would give away the answer (e.g. singles
-// where iTunes sets collectionName equal to the track title).
 function albumRevealsSongName(collectionName) {
     const track = normalizeForCompare(dailyTrack && dailyTrack.trackName);
     const album = normalizeForCompare(collectionName);
-    if (!track || !album) return true; // no safe album hint available
+    if (!track || !album) return true; 
     return album === track || album.includes(track) || track.includes(album);
 }
 
@@ -569,7 +563,6 @@ function celebrateSuccess() {
     }, 2200);
 }
 
-// --- Share result as an emoji grid ---
 function buildShareText() {
     if (!dailyTrack) return '';
     const grid = attempts >= MAX_ATTEMPTS && !gameOver
@@ -582,8 +575,7 @@ function showShareRow() {
     const existing = document.getElementById('shareRow');
     if (existing) existing.remove();
     const row = document.createElement('div');
-    row.id = 'shareRow';
-    row.className = 'share-row';
+    row.id = 'shareRow'; row.className = 'share-row';
     const btn = document.createElement('button');
     btn.className = 'share-btn';
     btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Copy result';
@@ -594,9 +586,7 @@ function showShareRow() {
                 btn.textContent = '✓ Copied!';
                 setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Copy result'; }, 1500);
             }, () => fallbackCopy(text, btn));
-        } catch (e) {
-            fallbackCopy(text, btn);
-        }
+        } catch (e) { fallbackCopy(text, btn); }
     });
     row.appendChild(btn);
     messageBox.parentNode.insertBefore(row, messageBox.nextSibling);
@@ -606,26 +596,20 @@ function fallbackCopy(text, btn) {
     try {
         const ta = document.createElement('textarea');
         ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
         document.body.removeChild(ta);
         btn.textContent = '✓ Copied!';
         setTimeout(() => { btn.textContent = 'Copy result'; }, 1500);
     } catch (e) {}
 }
 
-// --- Track selection (picks a track that has both a preview and lyrics) ---
-// opts.fresh: for endless mode — ignore the daily cache and avoid reusing artists.
 async function fetchDailyTrack(opts = {}) {
     const isCurrentLoad = () => opts.loadToken === undefined || opts.loadToken === modeLoadToken;
     const terms = currentGenre().terms;
     if (!opts.fresh) {
         let stored;
         try { stored = localStorage.getItem(trackKey()); } catch (e) {}
-        if (!stored) {
-            try { stored = localStorage.getItem(dailyPlaceholderKey()); } catch (e) {}
-        }
+        if (!stored) { try { stored = localStorage.getItem(dailyPlaceholderKey()); } catch (e) {} }
         if (stored) {
             try {
                 if (!isCurrentLoad()) return false;
@@ -638,7 +622,6 @@ async function fetchDailyTrack(opts = {}) {
         }
     }
 
-    // Prefer terms we haven't used yet in this endless session.
     let ordered = terms.slice();
     if (opts.fresh && endlessUsedTerms.length) {
         const fresh = terms.filter(t => !endlessUsedTerms.includes(t));
@@ -646,9 +629,6 @@ async function fetchDailyTrack(opts = {}) {
     }
 
     const termIndex = opts.fresh ? Math.floor(Math.random() * ordered.length) : SEED % ordered.length;
-
-    // 1) Fire off the iTunes searches for all terms in parallel instead of one
-    //    at a time — removes most of the swing between genres.
     const termQueries = [];
     for (let pass = 0; pass < ordered.length; pass++) {
         const term = ordered[(termIndex + pass) % ordered.length];
@@ -658,10 +638,8 @@ async function fetchDailyTrack(opts = {}) {
     const resultsArrays = await Promise.all(termQueries);
     if (!isCurrentLoad()) return false;
 
-    // 2) Build an ordered candidate list (keeps the original seeded order so the
-    //    chosen daily track is still deterministic) while capturing the fallback.
     const candidates = [];
-    let fallback = null; // first preview-bearing track, used if no lyric track found
+    let fallback = null; 
     for (let pass = 0; pass < ordered.length; pass++) {
         const data = resultsArrays[pass];
         const results = (data && data.results) || [];
@@ -675,10 +653,8 @@ async function fetchDailyTrack(opts = {}) {
         }
     }
 
-    // 3) Check lyrics for candidates. The lyric fetches are the slowest part, so
-    //    run them in concurrent batches (still considered in original order).
     let lyricChecks = 0;
-    const batchSize = 4; // concurrent lyric lookups per batch
+    const batchSize = 4; 
     for (let i = 0; i < candidates.length && lyricChecks < MAX_LYRIC_CHECKS; i += batchSize) {
         const batch = candidates.slice(i, i + batchSize);
         const take = Math.min(batch.length, MAX_LYRIC_CHECKS - lyricChecks);
@@ -702,7 +678,6 @@ async function fetchDailyTrack(opts = {}) {
         }
     }
 
-    // Couldn't find a track with usable lyrics — play melody-only with the fallback.
     if (fallback) {
         if (!isCurrentLoad()) return false;
         dailyTrack = fallback;
@@ -718,7 +693,6 @@ async function fetchDailyTrack(opts = {}) {
 }
 
 function recordEndlessTerm(collectionName) {
-    // Track which artist/album produced a used endless track to reduce repeats.
     const mark = (collectionName || '').trim();
     if (mark && endlessUsedTerms.length < 40) endlessUsedTerms.push(mark);
 }
@@ -734,19 +708,14 @@ function buildTrack(item) {
 }
 
 function cacheDaily() {
-    try {
-        localStorage.setItem(trackKey(), JSON.stringify({ track: dailyTrack, lyrics }));
-    } catch (e) {}
+    try { localStorage.setItem(trackKey(), JSON.stringify({ track: dailyTrack, lyrics })); } catch (e) {}
 }
 
 function saveDailyPlaceholder() {
     if (!dailyTrack || gameMode !== 'daily') return;
-    try {
-        localStorage.setItem(dailyPlaceholderKey(), JSON.stringify({ track: dailyTrack, lyrics }));
-    } catch (e) {}
+    try { localStorage.setItem(dailyPlaceholderKey(), JSON.stringify({ track: dailyTrack, lyrics })); } catch (e) {}
 }
 
-// --- First-attempt autofill toggle (mirrors TuneTile to defeat browser hints) ---
 function updateAutofillState() {
     if (!guessInput) return;
     if (attempts === 0) {
@@ -758,10 +727,7 @@ function updateAutofillState() {
     }
 }
 
-// --- Autocomplete ---
-function suggestionsAllowed() {
-    return attempts > 0 && !suggestionDisabled;
-}
+function suggestionsAllowed() { return attempts > 0 && !suggestionDisabled; }
 
 function hideSuggestions() {
     if (!suggestionBox) return;
@@ -797,13 +763,7 @@ async function fetchSuggestions(term) {
 
     const params = `term=${encodeURIComponent(term)}&media=music&entity=song&limit=6&country=US`;
     let data = null;
-    try {
-        data = await safeiTunesQuery(params);
-    } catch (e) {
-        console.warn('fetchSuggestions failed:', e);
-        suggestionDisabled = true;
-        return [];
-    }
+    try { data = await safeiTunesQuery(params); } catch (e) { suggestionDisabled = true; return []; }
     if (!data || !data.results) return [];
     const items = data.results.filter(r => r.previewUrl).map(r => ({ trackName: r.trackName, artistName: r.artistName }));
     suggestionCache[term] = items;
@@ -845,7 +805,6 @@ function endGame(won) {
     }
 }
 
-// --- Endless mode: score the round, then immediately move to the next track ---
 function updateEndlessUI() {
     if (scoreBadge) scoreBadge.style.display = gameMode === 'endless' ? 'flex' : 'none';
     if (scoreDisplay) scoreDisplay.textContent = String(endlessScore);
@@ -853,7 +812,6 @@ function updateEndlessUI() {
 
 async function nextEndlessRound() {
     const loadToken = modeLoadToken;
-    // Reset round state
     attempts = 0; guesses = []; gameOver = false;
     lyrics = null; lyricLines = [];
     setResultModalLoading(true);
@@ -892,8 +850,6 @@ async function nextEndlessRound() {
 }
 
 function endlessRoundScore() {
-    // Base points decay with the number of attempts used this round,
-    // and with elapsed time at the moment of the guess.
     const elapsedSec = Math.min(ENDLESS_TIME_CAP_SEC, (Date.now() - endlessRoundStartTime) / 1000);
     const attemptPenalty = Math.max(0, attempts) * 10;
     const timePenalty = Math.floor(elapsedSec * ENDLESS_TIME_PENALTY);
@@ -927,7 +883,6 @@ async function handleGuess() {
             updateLyricClue();
             showResultPanel(true, res);
             recordEndlessHistory(true, pts);
-            // Give the celebration a moment, then load the next round.
             setTimeout(() => nextEndlessRound(), 1600);
         } else {
             setMessage(`🎉 Correct — ${res === 'title' ? 'song' : 'artist'} matched! ${dailyTrack.trackName} — ${dailyTrack.artistName}`, 'success');
@@ -968,7 +923,6 @@ async function handleGuess() {
     hideSuggestions();
 }
 
-// --- Build / hydrate the melody box (cover art, masked title, play, volume) ---
 function buildMelodyBox() {
     const melodyBox = document.querySelector('.melody-box');
     if (!melodyBox) return;
@@ -979,10 +933,8 @@ function buildMelodyBox() {
     art.className = 'album-art';
     art.src = dailyTrack.artwork;
     art.alt = dailyTrack.trackName;
-    art.style.width = '64px';
-    art.style.height = '64px';
-    art.style.borderRadius = '10px';
-    art.style.marginRight = '10px';
+    art.style.width = '64px'; art.style.height = '64px';
+    art.style.borderRadius = '10px'; art.style.marginRight = '10px';
     art.style.objectFit = 'cover';
 
     const info = document.createElement('div');
@@ -990,28 +942,21 @@ function buildMelodyBox() {
     title.innerHTML = `<strong id="answerTitle">${gameOver ? dailyTrack.trackName + ' — ' + dailyTrack.artistName : maskTitle(dailyTrack.trackName)}</strong>`;
     title.style.marginBottom = '4px';
     const clue = document.createElement('div');
-    clue.id = 'cluePreview';
-    clue.className = 'clue-text';
+    clue.id = 'cluePreview'; clue.className = 'clue-text';
     clue.innerHTML = `<i class="fa-regular fa-lightbulb"></i> <strong>Preview: ${revealSeconds()}s / ${MAX_PREVIEW_SECONDS}s</strong>`;
-    cluePreview = clue; // track the live element (buildMelodyBox replaces the static one)
-    info.appendChild(title);
-    info.appendChild(clue);
+    cluePreview = clue; 
+    info.appendChild(title); info.appendChild(clue);
 
     const left = document.createElement('div');
-    left.style.display = 'flex';
-    left.style.alignItems = 'center';
-    left.appendChild(art);
-    left.appendChild(info);
+    left.style.display = 'flex'; left.style.alignItems = 'center';
+    left.appendChild(art); left.appendChild(info);
 
     const right = document.createElement('div');
-    right.style.display = 'flex';
-    right.style.flexDirection = 'column';
-    right.style.alignItems = 'flex-end';
-    right.style.gap = '0.5rem';
+    right.style.display = 'flex'; right.style.flexDirection = 'column';
+    right.style.alignItems = 'flex-end'; right.style.gap = '0.5rem';
 
     const play = document.createElement('button');
-    play.id = 'playMelodyBtn';
-    play.className = 'play-btn';
+    play.id = 'playMelodyBtn'; play.className = 'play-btn';
     play.innerHTML = '<i class="fa-solid fa-play"></i> Play preview';
     right.appendChild(play);
 
@@ -1020,14 +965,11 @@ function buildMelodyBox() {
     const volIcon = document.createElement('i');
     volIcon.className = 'fa-solid fa-volume-low';
     const volSlider = document.createElement('input');
-    volSlider.type = 'range';
-    volSlider.className = 'volume-slider';
-    volSlider.min = '0';
-    volSlider.max = '100';
+    volSlider.type = 'range'; volSlider.className = 'volume-slider';
+    volSlider.min = '0'; volSlider.max = '100';
     volSlider.value = Math.round(volume * 100);
     volSlider.setAttribute('aria-label', 'Volume');
-    volControl.appendChild(volIcon);
-    volControl.appendChild(volSlider);
+    volControl.appendChild(volIcon); volControl.appendChild(volSlider);
     right.appendChild(volControl);
 
     volSlider.addEventListener('input', () => {
@@ -1036,14 +978,12 @@ function buildMelodyBox() {
         volIcon.className = volume === 0 ? 'fa-solid fa-volume-xmark' : (volume < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high');
     });
 
-    melodyBox.appendChild(left);
-    melodyBox.appendChild(right);
+    melodyBox.appendChild(left); melodyBox.appendChild(right);
     playBtn = play;
     play.addEventListener('click', () => playSnippet(revealSeconds()));
     updateArtworkBlur();
 }
 
-// --- Genre switcher UI ---
 function updateGenreBar() {
     if (!genreBar) return;
     genreBar.innerHTML = '';
@@ -1059,16 +999,13 @@ function updateGenreBar() {
     });
 }
 
-// --- Switch to a different genre (fresh independent daily game) ---
 function loadGenre(key) {
     if (key === currentGenreKey && dailyTrack && !document.getElementById('shareRow')) {
-        updateGenreBar();
-        return;
+        updateGenreBar(); return;
     }
     currentGenreKey = key;
     try { localStorage.setItem('songless_genre', key); } catch (e) {}
 
-    // Clear any prior game / share row between genres
     try { audio.pause(); audio.removeAttribute('src'); } catch (e) {}
     const oldRow = document.getElementById('shareRow');
     if (oldRow) oldRow.remove();
@@ -1083,8 +1020,6 @@ function loadGenre(key) {
     if (skipBtn) skipBtn.disabled = false;
     hideSuggestions();
 
-    // Clear stale data while the new genre's track loads (avoids showing the
-    // previous genre's hint/lyrics during the slow fetch).
     if (hintDisplay) hintDisplay.textContent = 'Loading...';
     if (lyricClue) lyricClue.textContent = 'Loading lyrics...';
     if (lyricSrc) lyricSrc.textContent = '';
@@ -1100,7 +1035,6 @@ function loadGenre(key) {
     }
 }
 
-// --- Load / restore the daily game for the currently selected genre ---
 async function loadGenreTrack() {
     const loadToken = modeLoadToken;
     await fetchDailyTrack({ loadToken });
@@ -1144,7 +1078,6 @@ function updateModeUI() {
     updateEndlessUI();
 }
 
-// --- Switch between Daily and Endless modes ---
 function setMode(mode) {
     if (mode === gameMode) return;
     if (gameMode === 'daily') {
@@ -1194,12 +1127,10 @@ function setMode(mode) {
 }
 
 async function init() {
-    // Pick up the user's saved genre preference (or default to Pop).
     let savedGenre = null;
     try { savedGenre = localStorage.getItem('songless_genre'); } catch (e) {}
     if (savedGenre && getGenreByKey(savedGenre)) currentGenreKey = savedGenre;
 
-    // Pick up the saved mode (endless progress isn't persisted; just the choice).
     let savedMode = null;
     try { savedMode = localStorage.getItem('songless_mode'); } catch (e) {}
     if (savedMode === 'daily' || savedMode === 'endless') gameMode = savedMode;
@@ -1211,7 +1142,6 @@ async function init() {
     setMessage('Loading today\'s song...');
     updateAttemptDisplay();
 
-    // Mode toggle buttons.
     if (modeToggle) {
         modeToggle.addEventListener('click', (e) => {
             const btn = e.target.closest('.mode-btn');
@@ -1223,7 +1153,15 @@ async function init() {
         });
     }
 
-    // Keep the progress bar in sync with the song while it plays.
+    // --- Help Modal Init ---
+    const helpModal = document.getElementById('help-modal');
+    document.getElementById('help-btn')?.addEventListener('click', () => helpModal.classList.add('active'));
+    document.getElementById('help-close')?.addEventListener('click', () => helpModal.classList.remove('active'));
+    document.getElementById('help-ok')?.addEventListener('click', () => helpModal.classList.remove('active'));
+    helpModal?.addEventListener('click', e => {
+        if (e.target === helpModal) helpModal.classList.remove('active');
+    });
+
     ['timeupdate', 'playing', 'durationchange', 'pause', 'ended', 'seeked'].forEach(ev =>
         audio.addEventListener(ev, updateSongProgress)
     );
@@ -1233,8 +1171,7 @@ async function init() {
     if (guessInput) {
         guessInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                e.preventDefault();
-                handleGuess();
+                e.preventDefault(); handleGuess();
             } else if (e.key === 'Tab' && suggestionBox && suggestionBox.style.display === 'block') {
                 const first = suggestionBox.querySelector('.suggestion-row');
                 if (first) {
@@ -1264,7 +1201,6 @@ async function init() {
         }
     });
 
-    // Load the correct initial game for the active mode.
     if (gameMode === 'endless') {
         nextEndlessRound();
     } else {
@@ -1272,7 +1208,6 @@ async function init() {
     }
 }
 
-// --- Daily reset timer ---
 function msUntilLocalMidnight() {
     const now = new Date();
     const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0, 0);

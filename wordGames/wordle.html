@@ -14,13 +14,12 @@
         /* Daily Wordle — page identity + board/keyboard layout. The shared
            Atelier shell (header, panel, modals, responsive) lives in
            atelier-shared.css. Identity: grass-green accent. */
+        /* Identity & Animated Gradient Background */
         :root {
             --accent: #2e9e4f;
             --accent-fg: #0f0f11;
             --accent-soft: rgba(46, 158, 79, 0.15);
-            --wallpaper: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240"><rect width="100%" height="100%" fill="%230d0d10"/><rect x="60" y="44" width="34" height="34" rx="6" fill="%232e9e4f" opacity="0.85"/><rect x="104" y="44" width="34" height="34" rx="6" fill="%2334343a"/><rect x="148" y="44" width="34" height="34" rx="6" fill="%23eab308" opacity="0.7"/><rect x="192" y="44" width="34" height="34" rx="6" fill="%232e9e4f" opacity="0.85"/><rect x="104" y="88" width="34" height="34" rx="6" fill="%23eab308" opacity="0.6"/><rect x="148" y="88" width="34" height="34" rx="6" fill="%232e9e4f" opacity="0.85"/><rect x="192" y="88" width="34" height="34" rx="6" fill="%23eab308" opacity="0.6"/></svg>');
-
-            /* Legacy tokens → Atelier so the game JS/DOM still resolves */
+            /* Legacy tokens → Atelier */
             --primary-cyan: var(--accent);
             --bg-color: var(--bg-0);
             --card-bg: var(--bg-1);
@@ -32,20 +31,95 @@
             --absent-gray: #34343a;
         }
 
-        /* Wordle Grid */
-        .wordle-panel { max-width: 520px; }
+        body {
+            /* Smooth transitioning dark aesthetic gradient */
+            background: linear-gradient(-45deg, #0d0d10, #161622, #0d0d10, #131e17);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header-bar, .game-panel {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Update the particle container and base particles */
+        .bg-particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Lets clicks pass through empty space to the board */
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 45px; height: 45px;
+            background: rgba(46, 158, 79, 0.05);
+            border: 2px solid rgba(46, 158, 79, 0.15);
+            border-radius: var(--r-sm);
+            bottom: -60px;
+            animation: floatUp linear infinite;
+            pointer-events: auto; /* Makes the particles themselves clickable */
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .particle:hover {
+            background: rgba(46, 158, 79, 0.15);
+            transform: scale(1.1);
+        }
+
+        /* Smooth single particle pop animation */
+        @keyframes popOut {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            40% { opacity: 0.8; }
+            100% { transform: scale(2.2) rotate(45deg); opacity: 0; }
+        }
+
+        .particle.popping {
+            /* Using a custom cubic-bezier for a buttery smooth deceleration */
+            animation: popOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards !important; 
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            to {
+                transform: translateY(-110vh) rotate(360deg);
+            }
+        }
+
+        
+
+        /* Centered Wordle Grid */
+        .wordle-panel { 
+            max-width: 520px; 
+            margin: 0 auto; /* Centers the entire panel horizontally */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
         .board-container {
             display: grid;
             grid-template-rows: repeat(6, 1fr);
             gap: 6px;
             margin-bottom: 1.5rem;
+            justify-content: center; /* Centers the rows inside the container */
         }
 
         .row {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, 54px); /* Fixed widths ensure true centering instead of stretching */
             gap: 6px;
+            justify-content: center;
         }
 
         .tile {
@@ -55,7 +129,9 @@
             border-radius: var(--r-sm);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Centers text horizontally */
+            text-align: center;
+            line-height: 1; /* Eliminates vertical font baseline offset */
             font-size: 1.8rem;
             font-weight: 800;
             text-transform: uppercase;
@@ -171,6 +247,15 @@
     </style>
 </head>
 <body>
+
+<!-- Floating background animation elements -->
+    <div class="bg-particles">
+        <div class="particle" style="left: 15%; animation-duration: 14s; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 35%; animation-duration: 18s; animation-delay: 3s; background: rgba(234, 179, 8, 0.05); border-color: rgba(234, 179, 8, 0.15);"></div>
+        <div class="particle" style="left: 55%; animation-duration: 15s; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 75%; animation-duration: 20s; animation-delay: 4s; background: rgba(234, 179, 8, 0.05); border-color: rgba(234, 179, 8, 0.15);"></div>
+        <div class="particle" style="left: 85%; animation-duration: 16s; animation-delay: 2s;"></div>
+    </div>
 
     <header class="header-bar">
         <div class="header-left">
