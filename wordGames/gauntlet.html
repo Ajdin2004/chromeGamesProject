@@ -3,254 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#070a14">
+    <meta name="theme-color" content="#101012">
     <title>Category Gauntlet | Chromium Games</title>
     <link rel="icon" type="image/png" href="https://png.pngtree.com/recommend-works/png-clipart/20241224/ourmid/pngtree-red-question-mark-symbol-png-image_14540396.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="trivia-shared.css">
+    <link rel="stylesheet" href="atelier-shared.css">
     <style>
-        /* Design tokens, ambient background & header chrome are provided by trivia-shared.css */
-/* ---- Shell ---- */
-        .app { width: 100%; max-width: 660px; display: flex; flex-direction: column; gap: 0.85rem; }
-
-        /* ---- Main panel (glass, fits viewport) ---- */
-        .game-panel {
-            width: 100%;
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 22px;
-            padding: clamp(1rem, 2.2vh, 1.5rem);
-            box-shadow: 0 30px 90px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
-            -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-            max-height: calc(100dvh - 3.2rem);
-            overflow-y: auto;
-            scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
+        /* ============================================================
+           Category Gauntlet — page identity + game layout only.
+           The shared Atelier shell (header, panel, modals, stats,
+           help, responsive rules) lives in atelier-shared.css.
+           Identity: orange accent + plasma data-URI wallpaper.
+           ============================================================ */
+        :root {
+            --accent: #e4572e;
+            --accent-fg: #ffffff;
+            --accent-soft: rgba(228, 87, 46, 0.16);
+            --wallpaper: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200"><rect width="100%" height="100%" fill="%23101012"/><circle cx="24" cy="30" r="2.2" fill="%23e4572e" opacity="0.9"/><circle cx="88" cy="16" r="1.3" fill="%23f6f0e6"/><circle cx="158" cy="54" r="2" fill="%23e4572e" opacity="0.7"/><circle cx="238" cy="26" r="1.4" fill="%23f6f0e6"/><circle cx="296" cy="70" r="2.4" fill="%23e4572e" opacity="0.6"/><circle cx="42" cy="104" r="1.4" fill="%23f6f0e6"/><circle cx="118" cy="126" r="1.9" fill="%23e4572e" opacity="0.75"/><circle cx="196" cy="100" r="1.4" fill="%23f6f0e6"/><circle cx="270" cy="144" r="2.1" fill="%23e4572e" opacity="0.55"/><circle cx="70" cy="176" r="1.6" fill="%23f6f0e6"/><circle cx="150" cy="184" r="2" fill="%23e4572e" opacity="0.6"/><circle cx="228" cy="170" r="1.4" fill="%23f6f0e6"/><circle cx="300" cy="188" r="1.8" fill="%23e4572e" opacity="0.5"/></svg>');
         }
-        .game-panel::-webkit-scrollbar { width: 6px; }
-        .game-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+        /* Legacy trivia tokens → Atelier tokens (the shell already
+           defines --ink / --muted / --line / --green / --red / --bg-*) */
+        :root {
+            --panel: var(--bg-1);
+            --inner: var(--bg-2);
+            --line2: var(--line-soft);
+            --gold: var(--accent);
+            --gold2: var(--accent);
+            --cyan: #4cc2ff;
+        }
+        .header-title em { font-style: normal; color: var(--accent); font-weight: 700; }
+        .app { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 0.85rem; }
+        .game-panel { max-height: calc(100dvh - 3.4rem); overflow-y: auto; }
 
         /* ---- Start screen ---- */
         .start-screen { display: flex; flex-direction: column; align-items: center; gap: 1.05rem; text-align: center; padding: 0.3rem 0 0.2rem; }
-        .start-ring { flex: none; width: clamp(92px, 13vmin, 104px); height: clamp(92px, 13vmin, 104px); border-radius: 26px; padding: 6px; background: conic-gradient(from 210deg, var(--gold), var(--gold2), #ffe08a, var(--gold2), var(--gold)); box-shadow: 0 16px 44px rgba(255, 201, 60, 0.4); }
-        .start-ring .inner { width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(160deg, #1b1508, #2a1f06); display: grid; place-items: center; color: var(--gold); }
-        .start-ring i { font-size: clamp(2rem, 4.4vh, 2.4rem); filter: drop-shadow(0 3px 8px rgba(0,0,0,0.45)); animation: floaty 3.6s ease-in-out infinite; }
+        .start-ring {
+            flex: none; width: clamp(92px, 13vmin, 104px); height: clamp(92px, 13vmin, 104px);
+            border-radius: var(--r-md); background: var(--accent-soft);
+            border: var(--b-w) solid var(--accent); box-shadow: 6px 6px 0 var(--accent-contrast);
+            display: grid; place-items: center; color: var(--accent);
+        }
+        .start-ring i { font-size: clamp(2rem, 4.4vh, 2.4rem); animation: floaty 3.6s ease-in-out infinite; }
         @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-        .start-title { font-size: clamp(1.5rem, 4.6vh, 1.95rem); font-weight: 800; letter-spacing: 0.3px; }
-        .start-title em { font-style: normal; background: linear-gradient(90deg, var(--gold), var(--gold2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .start-desc { color: var(--muted); font-size: 0.92rem; line-height: 1.6; max-width: 520px; }
+        .start-title { font-family: var(--font-display); font-size: clamp(1.4rem, 4vh, 1.8rem); font-weight: 700; letter-spacing: 0.3px; }
+        .start-title em { font-style: normal; color: var(--accent); }
+        .start-desc { color: var(--ink-muted); font-size: 0.92rem; line-height: 1.6; max-width: 520px; }
         .start-desc strong { color: var(--ink); }
         .rules-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
-        .rule-chip { background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 0.85rem; font-size: 0.74rem; font-weight: 700; color: var(--muted); display: inline-flex; align-items: center; gap: 0.4rem; }
-        .rule-chip i { color: var(--gold); font-size: 0.8rem; }
-        .btn-start { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #171207; font-weight: 800; font-size: 0.98rem; letter-spacing: 0.6px; border: none; padding: 0.95rem clamp(2rem, 6vw, 3rem); border-radius: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.55rem; box-shadow: 0 12px 30px rgba(255, 201, 60, 0.3); transition: all 0.2s ease; margin-top: 0.15rem; }
-        .btn-start:hover { filter: brightness(1.08); transform: translateY(-1px); }
-        .btn-start:active { transform: scale(0.97); }
+        .rule-chip {
+            background: var(--bg-2); border: 1px solid var(--line-soft);
+            border-radius: var(--r-sm); padding: 0.4rem 0.85rem; font-size: 0.74rem; font-weight: 700;
+            color: var(--ink-muted); display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .rule-chip i { color: var(--accent); font-size: 0.8rem; }
+        .btn-start {
+            background: var(--accent); border: var(--b-w) solid var(--accent); color: var(--accent-fg);
+            font: 800 0.95rem var(--font-body); letter-spacing: 0.6px;
+            padding: 0.95rem clamp(2rem, 6vw, 3rem); border-radius: var(--r-sm); cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.55rem; margin-top: 0.15rem;
+            box-shadow: 3px 3px 0 var(--accent-contrast);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .btn-start:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--accent-contrast); }
 /* ---- Run UI ---- */
         .run-ui { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.4vh, 0.9rem); }
         .hud-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
-        #lives-row { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 1.05rem; background: var(--inner); border: 1px solid var(--line); border-radius: 12px; padding: 0.42rem 0.78rem; }
-        #lives-row .heart { color: var(--red); filter: drop-shadow(0 2px 6px rgba(251,95,104,0.35)); transition: 0.3s ease; }
-        #lives-row .heart.lost { color: rgba(251,95,104,0.18); filter: none; }
+        #lives-row {
+            display: inline-flex; align-items: center; gap: 0.3rem; font-size: 1.05rem;
+            background: var(--bg-2); border: var(--b-w) solid var(--line-soft); border-radius: var(--r-sm);
+            padding: 0.42rem 0.78rem;
+        }
+        #lives-row .heart { color: var(--wrong-red); transition: 0.3s ease; }
+        #lives-row .heart.lost { color: var(--wrong-dim); }
         .hud-chips { display: flex; gap: 0.45rem; flex-wrap: wrap; }
-        .hud-chip { background: var(--inner); border: 1px solid var(--line); border-radius: 12px; padding: 0.42rem 0.7rem; font-size: 0.7rem; font-weight: 700; color: var(--muted); display: inline-flex; align-items: center; gap: 0.4rem; }
-        .hud-chip i { color: var(--gold); font-size: 0.78rem; }
-        .hud-chip .lbl { color: var(--muted); }
+        .hud-chip {
+            background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: var(--r-sm);
+            padding: 0.42rem 0.7rem; font-size: 0.7rem; font-weight: 700; color: var(--ink-muted);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .hud-chip i { color: var(--accent); font-size: 0.78rem; }
+        .hud-chip .lbl { color: var(--ink-muted); }
         .hud-chip .val { color: var(--ink); font-weight: 800; font-size: 0.82rem; }
-        .hud-chip .slash { color: var(--muted); font-weight: 700; }
+        .hud-chip .slash { color: var(--ink-muted); font-weight: 700; }
 
         /* Segmented stage progress track */
         .stage-track { display: flex; align-items: center; gap: 4px; padding: 0.15rem 0; }
-        .stage-dot { flex: 1; height: 8px; border-radius: 99px; background: rgba(255,255,255,0.08); position: relative; transition: background 0.3s ease; }
-        .stage-dot::after { content: ""; position: absolute; top: 0; left: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, var(--green), #2dd4bf); border-radius: 99px; transform: scaleX(0); transform-origin: left; transition: transform 0.45s ease; }
-        .stage-dot.done { background: rgba(52,211,153,0.2); }
+        .stage-dot { flex: 1; height: 8px; border-radius: 99px; background: var(--line-soft); position: relative; transition: background 0.3s ease; }
+        .stage-dot::after { content: ""; position: absolute; inset: 0; background: var(--correct-green); border-radius: 99px; transform: scaleX(0); transform-origin: left; transition: transform 0.45s ease; }
+        .stage-dot.done { background: var(--correct-dim); }
         .stage-dot.done::after { transform: scaleX(1); }
-        .stage-dot.current { background: linear-gradient(90deg, var(--gold), var(--gold2)); box-shadow: 0 0 12px rgba(255, 201, 60, 0.5); }
+        .stage-dot.current { background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
 
         /* Timer */
-        .timer-track { height: 11px; border-radius: 99px; background: rgba(255,255,255,0.07); overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
-        #timer-fill { height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--cyan), #a3f7ff); transition: width 0.1s linear, background 0.3s ease; }
-        #timer-fill.danger { background: linear-gradient(90deg, var(--red), #ffb3b9); }
+        .timer-track { height: 11px; border-radius: 99px; background: var(--line-soft); overflow: hidden; }
+        #timer-fill { height: 100%; width: 100%; border-radius: 99px; background: var(--cyan); transition: width 0.1s linear, background 0.3s ease; }
+        #timer-fill.danger { background: var(--wrong-red); }
 
         /* ---- Question card ---- */
-        .q-card { background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)); border: 1px solid var(--line2); border-radius: 16px; padding: clamp(0.9rem, 2vh, 1.15rem); }
+        .q-card {
+            background: var(--bg-2); border: var(--b-w) solid var(--line-soft);
+            border-radius: var(--r-sm); padding: clamp(0.9rem, 2vh, 1.15rem);
+        }
         .q-meta { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.7rem; }
-        #q-category { background: rgba(255,201,60,0.1); border: 1px solid rgba(255,201,60,0.35); color: var(--gold); font-size: 0.66rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; padding: 0.26rem 0.7rem; border-radius: 999px; }
-        #q-difficulty { font-size: 0.68rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); display: inline-flex; align-items: center; gap: 0.4rem; }
-        #q-difficulty::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
-        #q-difficulty.diff-easy { color: var(--green); }
-        #q-difficulty.diff-medium { color: var(--gold); }
-        #q-difficulty.diff-hard { color: var(--red); }
-        .q-text { font-size: clamp(0.98rem, 2.1vh, 1.15rem); font-weight: 700; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+        #q-category {
+            background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent);
+            font: 800 0.68rem var(--font-mono); letter-spacing: 1.2px; text-transform: uppercase;
+            padding: 0.26rem 0.7rem; border-radius: var(--r-sm);
+        }
+        #q-difficulty {
+            font: 800 0.68rem var(--font-mono); letter-spacing: 1.2px; text-transform: uppercase;
+            color: var(--ink-muted); background: var(--bg-2); border: 1px solid var(--line-soft);
+        }
 /* ---- Answers ---- */
         .answers-grid { display: flex; flex-direction: column; gap: 0.6rem; counter-reset: answer; }
-        .answer-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: var(--inner); border: 1px solid var(--line); border-radius: 13px; padding: 0.8rem 0.9rem; color: var(--ink); font-size: 0.92rem; font-weight: 600; line-height: 1.35; text-align: left; cursor: pointer; counter-increment: answer; transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease; }
-        .answer-btn::before { content: counter(answer, upper-alpha); flex: none; width: 30px; height: 30px; border-radius: 9px; background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--muted); font-weight: 800; font-size: 0.78rem; display: inline-flex; align-items: center; justify-content: center; transition: 0.15s ease; }
-        .answer-btn:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--gold); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-        .answer-btn:hover:not(:disabled)::before { border-color: var(--gold); color: var(--gold); }
+        .answer-btn {
+            display: flex; align-items: center; gap: 0.75rem; width: 100%;
+            background: var(--bg-2); border: var(--b-w) solid var(--line-soft); border-radius: var(--r-sm);
+            padding: 0.8rem 0.9rem; color: var(--ink); font-size: 0.92rem; font-weight: 600;
+            line-height: 1.35; text-align: left; cursor: pointer; counter-increment: answer;
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+        .answer-btn::before {
+            content: counter(answer, upper-alpha); flex: none; width: 30px; height: 30px; border-radius: 6px;
+            background: var(--bg-1); border: 1px solid var(--line-soft); color: var(--ink-muted);
+            font: 800 0.78rem var(--font-mono); display: inline-flex; align-items: center; justify-content: center;
+        }
+        .answer-btn:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--accent); }
+        .answer-btn:hover:not(:disabled)::before { border-color: var(--accent); color: var(--accent); }
         .answer-btn:active:not(:disabled) { transform: scale(0.98); }
-        .answer-btn.correct { background: rgba(52,211,153,0.14); border-color: var(--green); }
-        .answer-btn.correct::before { content: "\2713"; background: rgba(52,211,153,0.2); border-color: var(--green); color: var(--green); }
-        .answer-btn.wrong { background: rgba(251,95,104,0.12); border-color: var(--red); }
-        .answer-btn.wrong::before { content: "\2715"; background: rgba(251,95,104,0.2); border-color: var(--red); color: var(--red); }
+        .answer-btn.correct { background: var(--correct-dim); border-color: var(--correct-green); }
+        .answer-btn.correct::before { content: "\2713"; background: var(--correct-dim); border-color: var(--correct-green); color: var(--correct-green); }
+        .answer-btn.wrong { background: var(--wrong-dim); border-color: var(--wrong-red); }
+        .answer-btn.wrong::before { content: "\2715"; background: var(--wrong-dim); border-color: var(--wrong-red); color: var(--wrong-red); }
         .answer-btn.eliminated { opacity: 0.28; pointer-events: none; filter: grayscale(0.4); }
         .answer-btn:disabled { cursor: default; }
 
         /* ---- Lifelines ---- */
         .lifeline-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
         .icon-btn.life { flex: 1; min-width: 130px; width: auto; height: 40px; font-size: 0.82rem; font-weight: 700; gap: 0.45rem; }
-        .icon-btn.life i { color: var(--gold); }
+        .icon-btn.life i { color: var(--accent); }
         .icon-btn.life:disabled { opacity: 0.35; }
 
         /* ---- Feedback / loading ---- */
-        .toast { text-align: center; font-weight: 700; font-size: 0.86rem; min-height: 20px; color: var(--gold); }
-        .toast.good { color: var(--green); }
-        .toast.bad { color: var(--red); }
-        .loading-box { display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 2rem 0; color: var(--muted); font-weight: 700; }
-        .loading-box i { color: var(--gold); }
-/* ---- Stage banner ---- */
-        #stage-banner { position: fixed; top: 1rem; left: 50%; transform: translate(-50%, -16px); z-index: 900; pointer-events: none; opacity: 0; transition: opacity 0.28s ease, transform 0.28s ease; }
+        .toast { text-align: center; font-weight: 700; font-size: 0.86rem; min-height: 20px; color: var(--accent); }
+        .toast.good { color: var(--correct-green); }
+        .toast.bad { color: var(--wrong-red); }
+/* ---- Stage banner (slides in below the sticky header) ---- */
+        #stage-banner { position: fixed; top: clamp(4.2rem, 8vh, 5.2rem); left: 50%; transform: translate(-50%, -16px); z-index: 900; pointer-events: none; opacity: 0; transition: opacity 0.28s ease, transform 0.28s ease; }
         #stage-banner.active { opacity: 1; transform: translate(-50%, 0); }
-        #stage-banner-inner { background: rgba(13,17,34,0.92); border: 1px solid rgba(255,201,60,0.4); border-radius: 18px; box-shadow: 0 14px 44px rgba(0,0,0,0.6); padding: 0.8rem 1.7rem; text-align: center; max-width: min(90vw, 430px); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-        .banner-stage { font-size: 0.64rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 0.2rem; }
-        .banner-name { font-size: 1.3rem; font-weight: 800; background: linear-gradient(90deg, var(--gold), var(--gold2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .banner-diff { margin-top: 0.2rem; font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+        #stage-banner-inner {
+            background: var(--bg-1); border: var(--b-w) solid var(--accent);
+            border-radius: var(--r-md); box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1.7rem; text-align: center; max-width: min(90vw, 430px);
+        }
+        .banner-stage { font: 800 0.64rem var(--font-mono); letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.2rem; }
+        .banner-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--ink); }
+        .banner-diff { margin-top: 0.2rem; font-size: 0.78rem; font-weight: 600; color: var(--ink-muted); }
 
-        /* ---- Modals ---- */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(6,9,18,0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-card { position: relative; z-index: 1; width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; background: linear-gradient(180deg, rgba(20,27,52,0.97), rgba(14,18,36,0.99)); border: 1px solid var(--line2); border-radius: 22px; padding: 1.6rem 1.4rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.95rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); transform: translateY(14px) scale(0.96); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3); }
-        .modal-overlay.active .modal-card { transform: none; }
-        .modal-title { font-size: 1.35rem; font-weight: 800; color: var(--gold); }
-        .modal-title i { margin-right: 0.35rem; }
-        .modal-title.lose { color: var(--red); }
-        .modal-title.win { color: var(--green); }
-        .modal-sub { color: var(--muted); font-size: 0.82rem; }
-        .win-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; width: 100%; background: var(--inner); border: 1px solid var(--line); border-radius: 14px; padding: 0.85rem; font-size: 0.8rem; text-align: left; }
-        .win-stats div { display: flex; flex-direction: column; gap: 0.15rem; }
-        .win-stats div strong { color: var(--gold); font-size: 0.64rem; letter-spacing: 0.5px; text-transform: uppercase; }
-        .win-stats div span { color: var(--ink); font-weight: 800; font-size: 1.05rem; }
-        .new-best { color: var(--green); font-weight: 800; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem; animation: pulse 1.3s ease-in-out infinite; }
+        /* ---- Modal extras (chrome lives in the shell) ---- */
+        .modal-sub { color: var(--ink-muted); font-size: 0.82rem; }
+        .new-best { color: var(--correct-green); font-weight: 800; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem; animation: pulse 1.3s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-        .btn-close-win { width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #171207; font-weight: 800; border: none; padding: 0.8rem; border-radius: 12px; cursor: pointer; transition: filter 0.2s ease, transform 0.15s ease; box-shadow: 0 10px 24px rgba(255,201,60,0.25); }
-        .btn-close-win:hover { filter: brightness(1.08); }
-        .btn-share { width: 100%; background: rgba(57,227,255,0.08); border: 1px solid rgba(57,227,255,0.5); color: var(--cyan); font-weight: 800; padding: 0.8rem; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: 0.2s ease; }
-        .btn-share:hover { background: rgba(57,227,255,0.18); }
-        #confetti-canvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: 22px; }
-/* ---- Stats / help ---- */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; width: 100%; }
-        .stat-cell { background: var(--inner); border: 1px solid var(--line); border-radius: 14px; padding: 0.7rem 0.3rem; }
-        .stat-num { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
-        .stat-label { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 0.15rem; }
-        .help-content { width: 100%; text-align: left; font-size: 0.84rem; line-height: 1.6; color: var(--muted); }
-        .help-content h3 { color: var(--gold); font-size: 0.92rem; margin: 0.85rem 0 0.3rem; }
-        .help-content h3:first-child { margin-top: 0.2rem; }
-        .help-content ul { padding-left: 1.1rem; }
-        .help-content li { margin-bottom: 0.2rem; }
-        .help-content strong { color: var(--ink); }
-
-        /* ---- Responsive ---- */
-        @media (max-width: 560px) {
-            body { justify-content: flex-start; }
-            .header-stats { display: none; }
-            .game-panel { padding: 1rem; }
-            .q-text { font-size: 1rem; }
-            .stage-dot { height: 6px; }
-        }
-        @media (max-height: 680px) {
-            body { justify-content: flex-start; }
-            .game-panel { padding: 0.9rem; }
-            .run-ui { gap: 0.55rem; }
-            .q-card { padding: 0.85rem; }
-            .q-text { font-size: 0.95rem; line-height: 1.4; }
-            .answer-btn { padding: 0.6rem 0.75rem; }
-            .start-screen { gap: 0.75rem; }
-            .start-ring { width: 78px; height: 78px; }
-            .start-ring i { font-size: 1.7rem; }
-        }
-/* ============================================================
-           V2 Visual Polish — glow halo, ring pulse, answer & timer glow
-           ============================================================ */
-        /* Ambient glow halo around the main panel */
-        .app { position: relative; }
-        .app::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(22% 18% at 18% 14%, rgba(255, 201, 60, 0.10), transparent 60%),
-                radial-gradient(20% 16% at 88% 16%, rgba(57, 227, 255, 0.08), transparent 60%);
-            filter: blur(20px);
-            animation: haloDrift 24s ease-in-out infinite alternate;
-        }
-        @keyframes haloDrift {
-            0%   { transform: translate3d(-2%, -1%, 0); }
-            50%  { transform: translate3d(2%, 1%, 0); }
-            100% { transform: translate3d(-1%, 2%, 0); }
-        }
-        .game-panel { position: relative; z-index: 1; box-shadow: 0 30px 90px rgba(0,0,0,0.55), 0 0 34px rgba(57,227,255,0.08), inset 0 1px 0 rgba(255,255,255,0.05); }
-        .header-bar { position: relative; z-index: 1; }
-
-        /* Start ring — breathing glow */
-        .start-ring { animation: ringPulse 3.4s ease-in-out infinite; }
-        @keyframes ringPulse {
-            0%, 100% { box-shadow: 0 16px 44px rgba(255, 201, 60, 0.4); }
-            50% { box-shadow: 0 18px 58px rgba(255, 201, 60, 0.66); }
-        }
-
-        /* Answer buttons — hover glow + lift, correct/wrong halos */
-        .answer-btn:hover:not(:disabled) { box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 201, 60, 0.4); }
-        .answer-btn.correct { box-shadow: 0 8px 22px rgba(52, 211, 153, 0.22); }
-        .answer-btn.wrong { box-shadow: 0 8px 22px rgba(251, 95, 104, 0.22); }
-
-        /* Timer — glowing fill + danger pulse */
-        .timer-track { box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(57, 227, 255, 0.06); }
-        #timer-fill { box-shadow: 0 0 14px rgba(57, 227, 255, 0.35); }
-        #timer-fill.danger { animation: dangerPulse 1s ease-in-out infinite; }
-        @keyframes dangerPulse {
-            0%, 100% { box-shadow: 0 0 10px rgba(251, 95, 104, 0.3); }
-            50% { box-shadow: 0 0 22px rgba(251, 95, 104, 0.75); }
-        }
-
-        /* Stage dots — current dot pulses */
-        .stage-dot.current { animation: dotPulse 2s ease-in-out infinite; }
-        @keyframes dotPulse {
-            0%, 100% { box-shadow: 0 0 8px rgba(255, 201, 60, 0.4); }
-            50% { box-shadow: 0 0 18px rgba(255, 201, 60, 0.85); }
-        }
-
-        /* HUD values — soft gold glow */
-        .hud-chip .val { text-shadow: 0 0 12px rgba(255, 201, 60, 0.28); }
-
-        /* Question card — inner top highlight */
-        .q-card { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
-
-        /* Modals — warm rim glow */
-        .modal-card { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 201, 60, 0.10); }
-
-        /* Stat cells — hover lift */
-        .stat-cell { transition: transform 0.18s ease, border-color 0.18s ease; }
-        .stat-cell:hover { transform: translateY(-2px); border-color: rgba(255, 201, 60, 0.4); }
-
-        /* Lifeline buttons — hover glow */
-        .icon-btn.life:not(:disabled):hover { border-color: var(--gold); color: var(--gold); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .q-card, #answers-grid { animation: fadeIn 0.25s ease; }
+        .loading-box { display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 2rem 0; color: var(--ink-muted); font-weight: 700; }
+        .loading-box i { color: var(--accent); }
+        #question-text { font-size: clamp(0.92rem, 2.2vh, 1.15rem); font-weight: 700; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+        .btn-start:active { transform: scale(0.97); box-shadow: 2px 2px 0 var(--accent-contrast); }
     </style>
 </head>
-<body class="arcade-bg">
-    <div class="app">
+<body>
+<div class="app">
         <header class="header-bar">
             <div class="header-left">
                 <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-                <span class="brand-mark"><i class="fa-solid fa-trophy"></i></span>
-                <h1 class="header-title">Category <em>Gauntlet</em></h1>
+                <div class="header-title"><i class="fa-solid fa-trophy"></i> Category <em>Gauntlet</em></div>
             </div>
             <div class="header-controls">
-                <div class="header-stats">
-                    <span class="stat-badge"><i class="fa-solid fa-crown"></i> Best <strong id="stat-best-score">0</strong></span>
-                    <span class="stat-badge"><i class="fa-solid fa-route"></i> Stage <strong id="stat-best-stage">–</strong></span>
+                <div class="stats-bar">
+                    <span class="stat-item" title="Best score"><i class="fa-solid fa-crown"></i> <strong id="stat-best-score">0</strong></span>
+                    <span class="stat-item" title="Best stage"><i class="fa-solid fa-route"></i> <strong id="stat-best-stage">–</strong></span>
                 </div>
+                <button id="btn-wallpaper" class="icon-btn" title="Toggle wallpaper"><i class="fa-regular fa-image"></i></button>
                 <button id="btn-sfx" class="icon-btn" title="Toggle Sound" aria-label="Toggle sound"><i class="fa-solid fa-volume-high"></i></button>
                 <button id="btn-stats" class="icon-btn" title="Statistics" aria-label="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
                 <button id="btn-help" class="icon-btn" title="How to Play" aria-label="How to play"><i class="fa-solid fa-circle-question"></i></button>
@@ -260,20 +197,22 @@
         <main class="game-panel">
             <!-- Start Screen -->
             <section id="start-screen" class="start-screen">
-                <div class="start-ring"><div class="inner"><i class="fa-solid fa-trophy"></i></div></div>
+                <div class="start-ring"><i class="fa-solid fa-trophy"></i></div>
                 <div class="start-title">Category <em>Gauntlet</em></div>
                 <p class="start-desc">
-                    Survive <strong>8 escalating trivia categories</strong> — from General Knowledge all the way
-                    to History. Clear the required questions to advance; wrong answers and timeouts cost a life!
+                    Survive <strong>8 trivia categories</strong> with only <strong>3 lives</strong>.
+                    Faster answers score bigger; one mistake costs a life, but never the run.
                 </p>
                 <div class="rules-chips">
-                    <span class="rule-chip"><i class="fa-solid fa-heart"></i> 3 Lives</span>
-                    <span class="rule-chip"><i class="fa-solid fa-stopwatch"></i> Beat the Clock</span>
-                    <span class="rule-chip"><i class="fa-solid fa-scissors"></i> One 50/50</span>
-                    <span class="rule-chip"><i class="fa-solid fa-forward"></i> One Skip</span>
+                    <span class="rule-chip"><i class="fa-solid fa-bolt"></i> Timed answers</span>
+                    <span class="rule-chip"><i class="fa-solid fa-heart-crack"></i> 3 lives</span>
+                    <span class="rule-chip"><i class="fa-solid fa-scissors"></i> 1× 50/50</span>
+                    <span class="rule-chip"><i class="fa-solid fa-forward"></i> 1× Skip</span>
+                    <span class="rule-chip"><i class="fa-solid fa-mountain"></i> 8 stages</span>
                 </div>
-                <button id="btn-start" class="btn-start"><i class="fa-solid fa-play"></i>START RUN</button>
+                <button id="btn-start" class="btn-start"><i class="fa-solid fa-play"></i> Start The Gauntlet</button>
             </section>
+
             <!-- Run UI -->
             <section id="run-ui" class="run-ui" style="display:none;">
                 <div class="hud-row">
@@ -313,7 +252,7 @@
             </div>
         </main>
     </div>
-    <!-- Stage Banner -->
+<!-- Stage Banner -->
     <div id="stage-banner" class="stage-banner" aria-live="polite">
         <div id="stage-banner-inner">
             <div class="banner-stage" id="banner-stage">STAGE 1 OF 8</div>
@@ -356,6 +295,7 @@
             <button id="btn-close-vic" class="btn-close-win">BACK TO START</button>
         </div>
     </div>
+
     <!-- Stats Modal -->
     <div id="stats-modal" class="modal-overlay">
         <div class="modal-card">
@@ -399,15 +339,7 @@
         </div>
     </div>
 
+    <script src="atelier-shell.js"></script>
     <script src="gauntlet.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

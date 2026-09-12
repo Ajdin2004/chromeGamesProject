@@ -3,425 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101012">
     <title>Trivia Orbs | Chromium Games</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪐</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="trivia-shared.css">
+    <link rel="stylesheet" href="atelier-shared.css">
     <style>
+        /* ============================================================
+           Trivia Orbs — page identity + game layout only. The shared
+           Atelier shell (header, chips, buttons, responsive rules)
+           lives in atelier-shared.css. Identity: gold accent + a
+           cosmic data-URI wallpaper (works offline, always renders).
+           ============================================================ */
         :root {
-            --bg-color: #070a14;
-            --card-bg: rgba(19, 26, 52, 0.64);
-            --card-border: rgba(255, 255, 255, 0.12);
-            --primary-purple: #ffc93c;              /* family accent (gold) */
-            --accent-cyan: #39e3ff;
-            --correct-green: #34d399;
-            --wrong-red: #fb5f6a;
-            --skip-gold: #f59e0b;                   /* shifted orange so it never collides with gold "current" */
-            --text-main: #eaf2ff;
-            --text-muted: #8ea0c6;
+            --accent: #eab308;
+            --accent-fg: #101012;
+            --accent-soft: rgba(234, 179, 8, 0.16);
+            --wallpaper: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200"><rect width="100%" height="100%" fill="%230b0d12"/><circle cx="18" cy="32" r="2.2" fill="%23eab308" opacity="0.9"/><circle cx="61" cy="14" r="1.4" fill="%23c9d2ff"/><circle cx="118" cy="51" r="2" fill="%23eab308" opacity="0.7"/><circle cx="174" cy="20" r="1.4" fill="%23c9d2ff"/><circle cx="243" cy="66" r="2.4" fill="%23eab308" opacity="0.6"/><circle cx="302" cy="40" r="1.5" fill="%23c9d2ff"/><circle cx="42" cy="98" r="1.5" fill="%23c9d2ff"/><circle cx="92" cy="124" r="2" fill="%23eab308" opacity="0.75"/><circle cx="147" cy="88" r="1.4" fill="%23c9d2ff"/><circle cx="208" cy="140" r="2.2" fill="%23eab308" opacity="0.55"/><circle cx="268" cy="104" r="1.5" fill="%23c9d2ff"/><circle cx="64" cy="170" r="1.7" fill="%23c9d2ff"/><circle cx="126" cy="182" r="2.1" fill="%23eab308" opacity="0.6"/><circle cx="196" cy="172" r="1.6" fill="%23c9d2ff"/><circle cx="262" cy="178" r="1.9" fill="%23eab308" opacity="0.5"/></svg>');
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
-
-        body {
-            background: linear-gradient(160deg, #070a14 0%, #0a0f22 55%, #0a1024 100%);
-            color: var(--text-main);
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1.25rem 1rem 3rem;
-            overflow-x: hidden;
+        :root {
+            --correct-green: #2e9e4f;
+            --wrong-red: #ef4444;
+            --skip-gold: #f59e0b;
         }
-
-        
-        .header-bar {
-            width: 100%;
-            max-width: 720px;
-            margin-bottom: 1.25rem;
-            gap: 0.75rem;
-        }
-    .header-controls { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--card-border);
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        main { width: 100%; max-width: 720px; }
-
+        .header-title em { font-style: normal; color: var(--accent); font-weight: 700; }
+        .header-title i { color: var(--accent); }
+/* ---- Tabs (Daily / Endless / Stats) ---- */
         .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            background: rgba(255,255,255,0.04);
-            padding: 5px;
-            border-radius: 14px;
-            border: 1px solid var(--card-border);
+            display: flex; gap: 0.4rem; margin-bottom: 1rem;
+            background: var(--bg-2); padding: 4px;
+            border-radius: var(--r-sm); border: var(--b-w) solid var(--line-soft);
         }
         .tab-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            background: transparent;
-            color: var(--text-muted);
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            flex: 1; padding: 0.55rem 0.75rem; border: none; border-radius: 3px;
+            background: transparent; color: var(--ink-muted);
+            font: 700 0.8rem var(--font-body); cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+            transition: background 0.15s ease, color 0.15s ease;
         }
-        .tab-btn.active { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #171207; box-shadow: 0 4px 16px rgba(245, 166, 35, 0.4); }
-        .tab-btn:not(.active):hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .tab-btn.active { background: var(--accent); color: var(--accent-fg); box-shadow: 2px 2px 0 var(--accent-contrast); }
+        .tab-btn:not(.active):hover { color: var(--ink); background: var(--bg-1); }
 
+        main { width: 100%; max-width: 720px; position: relative; }
         .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            backdrop-filter: blur(12px);
-            animation: rise 0.35s ease-out;
+            background: var(--bg-1);
+            border: var(--b-w) solid var(--line);
+            border-radius: var(--r-md);
+            box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.25);
+            padding: 1.35rem;
         }
-        @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        .card h1, .card h2 { font-family: var(--font-display); margin-bottom: 0.4rem; }
+        .muted { color: var(--ink-muted); }
+        .sub { color: var(--ink-muted); line-height: 1.55; font-size: 0.95rem; margin-bottom: 1rem; }
+        .countdown { display: flex; align-items: center; justify-content: center; gap: 0.4rem; color: var(--ink-muted); font: 700 0.8rem var(--font-mono); }
 
-        .card h1 { font-size: 1.5rem; margin-bottom: 0.4rem; }
-        .card h2 { font-size: 1.2rem; margin-bottom: 0.6rem; }
-        .muted { color: var(--text-muted); }
-        .sub { color: var(--text-muted); line-height: 1.55; font-size: 0.95rem; margin-bottom: 1rem; }
-
-        .countdown {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-        }
-
+        /* ---- Buttons ---- */
         .btn-primary {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--gold), var(--gold2));
-            color: #171207;
-            font-family: inherit;
-            font-size: 1.05rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
-            box-shadow: 0 6px 24px rgba(255, 201, 60, 0.35);
+            width: 100%; padding: 0.85rem; border: var(--b-w) solid var(--accent);
+            border-radius: var(--r-sm); background: var(--accent); color: var(--accent-fg);
+            font: 800 0.95rem var(--font-body); letter-spacing: 0.4px; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            box-shadow: 3px 3px 0 var(--accent-contrast);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
         }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
-        .btn-primary:disabled { cursor: default; filter: saturate(0.35) brightness(0.7); box-shadow: none; }
-
+        .btn-primary:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--accent-contrast); }
+        .btn-primary:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
         .btn-secondary {
-            width: 100%;
-            padding: 12px;
-            margin-top: 0.6rem;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            background: rgba(255,255,255,0.06);
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            width: 100%; padding: 0.7rem; margin-top: 0.6rem;
+            border-radius: var(--r-sm); border: var(--b-w) solid var(--line-soft);
+            background: var(--bg-2); color: var(--ink);
+            font: 700 0.85rem var(--font-body); cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
-        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
-
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
         .badge-new {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 0.8rem;
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            background: rgba(34, 211, 238, 0.12);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(34, 211, 238, 0.35);
+            display: inline-flex; align-items: center; gap: 6px; margin-bottom: 0.8rem;
+            padding: 4px 12px; border-radius: var(--r-sm);
+            font: 800 0.7rem var(--font-mono); letter-spacing: 1.5px; text-transform: uppercase;
+            background: var(--correct-dim); color: var(--correct-green);
         }
-
-        /* Round screen */
-        .round-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 0.9rem;
-        }
+/* ---- Round screen ---- */
+        .round-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.9rem; }
         #progress-dots { display: flex; gap: 6px; }
-        .dot {
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.14);
-            transition: all 0.25s;
-        }
-        .dot-current { box-shadow: 0 0 0 2px var(--gold); background: rgba(255,201,60,0.5); }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--line-soft); transition: all 0.25s ease; }
+        .dot-current { box-shadow: 0 0 0 2px var(--accent); background: var(--accent-soft); }
         .dot-correct { background: var(--correct-green); }
         .dot-wrong { background: var(--wrong-red); }
         .dot-skipped { background: var(--skip-gold); }
-
         .q-meta { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
         .meta-chip {
-            padding: 4px 11px;
-            border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
+            padding: 4px 11px; border-radius: var(--r-sm);
+            font: 700 0.78rem var(--font-body);
+            background: var(--bg-2); border: 1px solid var(--line-soft); color: var(--ink-muted);
         }
-        .diff-easy { color: #4ade80; border-color: rgba(74,222,128,0.4); }
-        .diff-medium { color: #fbbf24; border-color: rgba(251,191,36,0.4); }
-        .diff-hard { color: #f87171; border-color: rgba(248,113,113,0.4); }
+        .diff-easy { color: #4ade80; border-color: rgba(74, 222, 128, 0.4); }
+        .diff-medium { color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); }
+        .diff-hard { color: #f87171; border-color: rgba(248, 113, 113, 0.4); }
+        #question-text { font-size: 1.12rem; line-height: 1.5; margin-bottom: 1.2rem; font-weight: 600; }
 
-        #question-text { font-size: 1.15rem; line-height: 1.5; margin-bottom: 1.2rem; font-weight: 600; }
-
-        #answers { display: flex; flex-direction: column; gap: 0.65rem; }
+        #answers { display: flex; flex-direction: column; gap: 0.6rem; }
         .answer-btn {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 13px 16px;
-            border-radius: 14px;
-            border: 1px solid var(--card-border);
-            background: rgba(255,255,255,0.05);
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.98rem;
-            text-align: left;
-            cursor: pointer;
-            transition: transform 0.12s, background 0.15s, border-color 0.15s;
+            display: flex; align-items: center; gap: 12px; width: 100%;
+            padding: 0.8rem 1rem; border-radius: var(--r-sm);
+            border: var(--b-w) solid var(--line-soft); background: var(--bg-2); color: var(--ink);
+            font: 600 0.95rem var(--font-body); text-align: left; cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
         }
-        .answer-btn:hover:not(:disabled) { transform: translateX(4px); background: rgba(255,201,60,0.14); border-color: var(--gold); }
-        .answer-key {
-            flex-shrink: 0;
-            width: 28px; height: 28px;
-            display: grid; place-items: center;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.09);
-            font-weight: 800;
-            font-size: 0.85rem;
+        .answer-btn:hover:not(:disabled) { border-color: var(--accent); transform: translateX(3px); }
+        .answer-btn .answer-key {
+            flex: none; width: 28px; height: 28px; border-radius: 6px;
+            background: var(--bg-1); border: 1px solid var(--line-soft);
+            color: var(--ink-muted); font: 800 0.75rem var(--font-mono);
+            display: inline-flex; align-items: center; justify-content: center;
         }
-        .answer-btn.is-correct { background: rgba(34,197,94,0.22); border-color: var(--correct-green); animation: pop 0.3s ease-out; }
-        .answer-btn.is-wrong { background: rgba(239,68,68,0.22); border-color: var(--wrong-red); animation: shake 0.35s ease-out; }
-        .answer-btn.removed { opacity: 0.25; text-decoration: line-through; }
-        @keyframes pop { 50% { transform: scale(1.03); } }
-        @keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
-
+        .answer-btn:hover:not(:disabled) .answer-key { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+        .answer-btn .answer-text { flex: 1; }
+        .answer-btn.is-correct { background: var(--correct-dim); border-color: var(--correct-green); }
+        .answer-btn.is-correct .answer-key { background: var(--correct-green); color: #fff; }
+        .answer-btn.is-wrong { background: var(--wrong-dim); border-color: var(--wrong-red); }
+        .answer-btn.is-wrong .answer-key { background: var(--wrong-red); color: #fff; }
         #hint-text {
-            display: none;
-            margin-top: 0.9rem;
-            padding: 10px 14px;
-            border-radius: 10px;
-            background: rgba(250, 204, 21, 0.1);
-            border: 1px solid rgba(250, 204, 21, 0.3);
-            color: #fde68a;
-            font-size: 0.9rem;
+            margin-top: 0.7rem; padding: 0.5rem 0.8rem; border-radius: var(--r-sm);
+            border: 1px solid var(--line-soft); background: var(--bg-2);
+            color: var(--ink); font: 500 0.85rem var(--font-body);
         }
-        #ll-status { margin-top: 0.7rem; min-height: 20px; font-size: 0.85rem; color: var(--accent-cyan); }
-
+        #ll-status { margin-top: 0.7rem; min-height: 20px; font-size: 0.82rem; color: var(--accent); }
         .lifelines { display: flex; gap: 0.6rem; margin-top: 1.1rem; }
         .ll-btn {
-            flex: 1;
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 10px 6px;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            background: rgba(255,255,255,0.05);
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.15s, opacity 0.15s;
+            flex: 1; display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+            padding: 0.55rem 4px; border-radius: var(--r-sm);
+            border: var(--b-w) solid var(--line-soft); background: var(--bg-2); color: var(--ink);
+            font: 700 0.78rem var(--font-body); cursor: pointer;
         }
-        .ll-btn:hover:not(:disabled) { background: rgba(255,201,60,0.12); border-color: var(--gold); }
+        .ll-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
         .ll-btn:disabled { opacity: 0.35; cursor: default; }
-        .ll-cost { font-size: 0.72rem; color: var(--skip-gold); }
-
-        /* Results screen */
-        .big-score { font-size: 3rem; font-weight: 800; text-align: center; background: linear-gradient(90deg, var(--primary-purple), var(--accent-cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .big-score span { font-size: 1.4rem; color: var(--text-muted); }
-        #result-summary { text-align: center; margin: 0.6rem 0 1rem; line-height: 1.7; }
+/* ---- Results screen ---- */
+        .big-score { font-size: 3rem; font-weight: 800; text-align: center; color: var(--accent); font-variant-numeric: tabular-nums; }
+        .big-score span { font-size: 1.4rem; color: var(--ink-muted); }
+        #result-summary { text-align: center; margin: 0.6rem 0 1rem; line-height: 1.7; font: 500 0.9rem var(--font-body); }
         #share-grid {
-            white-space: pre-wrap;
-            text-align: center;
-            font-size: 1.15rem;
-            line-height: 1.8;
-            padding: 1rem;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--card-border);
+            white-space: pre-wrap; text-align: center; font-size: 1.1rem; line-height: 1.8;
+            padding: 1rem; border-radius: var(--r-sm); background: var(--bg-2);
+            border: 1px solid var(--line-soft); font-family: var(--font-mono);
         }
 
-        /* Stats screen */
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+        /* ---- Stats screen ---- */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.25rem; }
         .stat-box {
-            padding: 1rem;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--card-border);
-            text-align: center;
+            padding: 0.9rem; border-radius: var(--r-sm); text-align: center;
+            background: var(--bg-2); border: 1px solid var(--line-soft);
         }
-        .stat-box .val { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
-        .stat-box .lbl { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+        .stat-box .val { font-size: 1.5rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+        .stat-box .lbl { font-size: 0.68rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; font-family: var(--font-mono); }
 
         #history-list { list-style: none; }
-        #history-list li { padding: 9px 4px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.92rem; }
+        #history-list li { padding: 9px 4px; border-bottom: 1px solid var(--line-soft); font-size: 0.92rem; color: var(--ink); }
 
         select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 0.7rem;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-            background: rgba(255,255,255,0.07);
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.95rem;
+            width: 100%; padding: 0.7rem; margin-bottom: 0.7rem;
+            border-radius: var(--r-sm); border: var(--b-w) solid var(--line-soft);
+            background: var(--bg-2); color: var(--ink); font: 500 0.92rem var(--font-body);
         }
-        select option { background: #131a33; }
+        select option { background: var(--bg-2); color: var(--ink); }
 
+        /* ---- Floating "+N" chip when an orb refreshes ---- */
         .float-orb {
-            position: absolute;
-            top: -14px;
-            right: 10px;
-            font-weight: 800;
-            font-size: 0.85rem;
-            color: var(--skip-gold);
+            position: absolute; top: -14px; right: 10px;
+            font-weight: 800; font-size: 0.85rem; color: var(--skip-gold);
             animation: floatUp 0.9s ease-out forwards;
-            pointer-events: none;
-            z-index: 5;
+            pointer-events: none; z-index: 5;
         }
         @keyframes floatUp { to { transform: translateY(-26px); opacity: 0; } }
 
-        @media (max-width: 480px) {
+        @media (max-width: 560px) {
             .card { padding: 1.15rem; }
-            .brand-mark { display: none; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
-
-
-
-/* ============================================================
-           V2 Visual Polish — aurora, card glow, answer hover, sheen
-           ============================================================ */
-        body { position: relative; }
-        body::before {
-            content: "";
-            position: fixed;
-            inset: -20%;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(30% 24% at 16% 10%, rgba(255, 201, 60, 0.16), transparent 60%),
-                radial-gradient(28% 22% at 86% 16%, rgba(57, 227, 255, 0.14), transparent 60%),
-                radial-gradient(34% 26% at 82% 92%, rgba(157, 138, 255, 0.20), transparent 62%),
-                radial-gradient(26% 22% at 28% 96%, rgba(57, 227, 255, 0.14), transparent 60%);
-            filter: blur(26px);
-            animation: auroraDrift 26s ease-in-out infinite alternate;
-        }
-        @keyframes auroraDrift {
-            0%   { transform: translate3d(-3%, -2%, 0) rotate(0deg) scale(1); }
-            50%  { transform: translate3d(2%, 2%, 0) rotate(1.5deg) scale(1.05); }
-            100% { transform: translate3d(-1%, 1%, 0) rotate(-1deg) scale(1.03); }
-        }
-        .header-bar, .tabs, main { position: relative; z-index: 1; }
-
-        /* Card — soft glass depth + gradient top highlight */
-        .card {
-            position: relative;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            transition: transform 0.22s ease, border-color 0.22s ease;
-        }
-        .card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 16%; right: 16%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 201, 60, 0.85), rgba(57, 227, 255, 0.7), transparent);
-            opacity: 0.85;
-        }
-        .card:hover { transform: translateY(-2px); border-color: rgba(255, 201, 60, 0.45); }
-
-        /* Primary CTA — animated sheen sweep */
-        .btn-primary { position: relative; overflow: hidden; }
-        .btn-primary::after {
-            content: "";
-            position: absolute;
-            top: 0; bottom: 0; left: -70%; width: 42%;
-            background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transform: skewX(-22deg);
-            animation: btnSheen 5s ease-in-out infinite;
-        }
-        @keyframes btnSheen { 0% { left: -70%; } 48% { left: 135%; } 100% { left: 135%; } }
-
-        /* Answer buttons — hover lift, glow, key badge accent */
-        .answer-btn { position: relative; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03); }
-        .answer-btn:hover:not(:disabled) {
-            transform: translateX(4px) translateY(-1px);
-            background: rgba(255, 201, 60, 0.18);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 201, 60, 0.4);
-        }
-        .answer-btn:hover:not(:disabled) .answer-key {
-            background: linear-gradient(135deg, var(--gold), var(--gold2));
-            color: #171207;
-            border-color: transparent;
-        }
-        .answer-btn.is-correct { box-shadow: 0 8px 22px rgba(34, 197, 94, 0.25); }
-        .answer-btn.is-wrong { box-shadow: 0 8px 22px rgba(239, 68, 68, 0.22); }
-
-        /* Progress dots — glow accents */
-        .dot { transition: all 0.25s, transform 0.25s; }
-        .dot-current { box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgba(255, 201, 60, 0.6); transform: scale(1.15); }
-        .dot-correct { box-shadow: 0 0 10px rgba(34, 197, 94, 0.55); }
-        .dot-wrong { box-shadow: 0 0 8px rgba(239, 68, 68, 0.55); }
-        .dot-skipped { box-shadow: 0 0 8px rgba(250, 204, 21, 0.55); }
-
-        /* Keywords / meta chips */
-        .meta-chip { letter-spacing: 0.4px; }
-
-        /* Stats — hover lift + glow */
-        .stat-box { transition: transform 0.18s ease, border-color 0.18s ease; }
-        .stat-box:hover { transform: translateY(-2px); border-color: rgba(255, 201, 60, 0.5); }
-        .stat-box .val { text-shadow: 0 0 14px rgba(255, 201, 60, 0.35); }
-
-        /* Results — score glow */
-        .big-score { filter: drop-shadow(0 4px 18px rgba(255, 201, 60, 0.3)); }
-
-        .float-orb { font-size: 0.9rem; text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+        .ll-cost { font-size: 0.7rem; color: var(--skip-gold); }
+        .answer-btn.is-correct { border-color: var(--correct-green); }
     </style>
 </head>
 <body>
-    <header class="header-bar">
+<header class="header-bar">
         <div class="header-left">
             <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-            <span class="brand-mark"><i class="fa-solid fa-trophy"></i></span>
-            <h1 class="header-title">Trivia <em>Orbs</em></h1>
+            <div class="header-title"><i class="fa-solid fa-trophy"></i> Trivia <em>Orbs</em></div>
         </div>
-        <div class="header-stats">
-            <span class="chip" title="Daily streak"><i class="fa-solid fa-fire" style="color:#fb923c"></i><strong id="hud-streak">0</strong></span>
-            <span class="chip" title="Orbs"><i class="fa-solid fa-coins" style="color:#facc15"></i><strong id="hud-orbs">0</strong></span>
+        <div class="header-controls">
+            <div class="stats-bar">
+                <span class="stat-item" title="Daily streak"><i class="fa-solid fa-fire"></i> <strong id="hud-streak">0</strong></span>
+                <span class="stat-item" title="Orbs"><i class="fa-solid fa-coins"></i> <strong id="hud-orbs">0</strong></span>
+            </div>
+            <button id="btn-wallpaper" class="icon-btn" title="Toggle wallpaper"><i class="fa-regular fa-image"></i></button>
         </div>
     </header>
 
@@ -450,14 +226,14 @@
                     <h2>How it works</h2>
                     <p class="sub" style="margin-bottom:0.5rem;">
                         🟢 Correct answers earn <b>10–20 orbs</b> (by difficulty) plus streak bonuses.<br>
-                        💡 Spend orbs on lifelines: <b>50/50</b>, or a no-penalty <b>Skip</b>.<br>
+                        💡 Spend orbs on lifelines: <b>50/50</b>,  or a no-penalty <b>Skip</b>.<br>
                         ❄️ Missed a day? A banked <b>streak freeze</b> protects your streak automatically.<br>
                         ⭐ A perfect drop earns a <b>+25 orb</b> bonus and every 7-day streak banks another freeze.
                     </p>
                 </div>
             </div>
-
-            <!-- ============ ROUND SCREEN ============ -->
+        </section>
+<!-- ============ ROUND SCREEN ============ -->
             <div id="screen-round" class="card" style="display:none;">
                 <div class="round-top">
                     <span class="meta-chip" id="round-mode-label">Today's Orb Drop</span>
@@ -476,7 +252,6 @@
                     <button class="ll-btn" id="btn-ll-fifty" title="Remove two wrong answers">
                         <i class="fa-solid fa-scissors"></i> 50/50 <span class="ll-cost">🪙 15</span>
                     </button>
-
                     <button class="ll-btn" id="btn-ll-skip" title="Skip with no penalty">
                         <i class="fa-solid fa-forward"></i> Skip <span class="ll-cost">🪙 5</span>
                     </button>
@@ -493,44 +268,41 @@
                 <button class="btn-secondary" id="btn-results-home" style="margin-top:0;"><i class="fa-solid fa-house"></i> Back Home</button>
                 <p class="countdown" id="countdown-results"></p>
             </div>
+<!-- ============ ENDLESS TAB ============ -->
+        <section id="screen-endless" style="display:none;">
+            <div class="card">
+                <h2>Endless Practice ♾️</h2>
+                <p class="sub">Warm-up rounds that never affect your daily streak. Pick a category and difficulty —
+                    perfect for learning the ropes or chasing a personal best. Correct answers still earn orbs!</p>
+                <select id="endless-category" aria-label="Category"></select>
+                <select id="endless-difficulty" aria-label="Difficulty">
+                    <option value="any">Any Difficulty</option>
+                    <option value="easy">Easy only</option>
+                    <option value="medium">Medium only</option>
+                    <option value="hard">Hard only</option>
+                </select>
+                <button class="btn-primary" id="btn-start-endless"><i class="fa-solid fa-play"></i> Start Endless Round</button>
+            </div>
         </section>
 
-        <!-- ============ ENDLESS TAB ============ -->
-        <section id="screen-endless" style="display:none;">
-                <div class="card">
-                    <h2>Endless Practice ♾️</h2>
-                    <p class="sub">Warm-up rounds that never affect your daily streak. Pick a category and difficulty —
-                        perfect for learning the ropes or chasing a personal best. Correct answers still earn orbs!</p>
-                    <select id="endless-category" aria-label="Category"></select>
-                    <select id="endless-difficulty" aria-label="Difficulty">
-                        <option value="any">Any Difficulty</option>
-                        <option value="easy">Easy only</option>
-                        <option value="medium">Medium only</option>
-                        <option value="hard">Hard only</option>
-                    </select>
-                    <button class="btn-primary" id="btn-start-endless"><i class="fa-solid fa-play"></i> Start Endless Round</button>
+        <!-- ============ STATS TAB ============ -->
+        <section id="screen-stats" style="display:none;">
+            <div class="card">
+                <h2>Your Journey 📈</h2>
+                <div class="stats-grid">
+                    <div class="stat-box"><div class="val" id="stat-orbs">0</div><div class="lbl">Orbs Banked</div></div>
+                    <div class="stat-box"><div class="val" id="stat-accuracy">0%</div><div class="lbl">Accuracy</div></div>
+                    <div class="stat-box"><div class="val" id="stat-best-streak">0 days</div><div class="lbl">Best Streak</div></div>
+                    <div class="stat-box"><div class="val" id="stat-endless">0</div><div class="lbl">Endless Rounds</div></div>
                 </div>
-            </section>
-
-            <!-- ============ STATS TAB ============ -->
-            <section id="screen-stats" style="display:none;">
-                <div class="card">
-                    <h2>Your Journey 📈</h2>
-                    <div class="stats-grid">
-                        <div class="stat-box"><div class="val" id="stat-orbs">0</div><div class="lbl">Orbs Banked</div></div>
-                        <div class="stat-box"><div class="val" id="stat-accuracy">0%</div><div class="lbl">Accuracy</div></div>
-                        <div class="stat-box"><div class="val" id="stat-best-streak">0 days</div><div class="lbl">Best Streak</div></div>
-                        <div class="stat-box"><div class="val" id="stat-endless">0</div><div class="lbl">Endless Rounds</div></div>
-                    </div>
-                    <h2 style="font-size:1rem;">Recent Dailies</h2>
-                    <ul id="history-list"></ul>
-                    <button class="btn-secondary" id="btn-toggle-sound"><i class="fa-solid fa-volume-high"></i> Sound On</button>
-                </div>
+                <h2 style="font-size:1rem;">Recent Dailies</h2>
+                <ul id="history-list"></ul>
+                <button class="btn-secondary" id="btn-toggle-sound"><i class="fa-solid fa-volume-high"></i> Sound On</button>
+            </div>
         </section>
     </main>
 
+    <script src="atelier-shell.js"></script>
     <script src="triviaorbs.js"></script>
 </body>
 </html>
-
-
