@@ -390,11 +390,19 @@ document.getElementById('stats-btn').addEventListener('click', () => {
     document.getElementById('stat-win-pct').textContent = winPct;
     document.getElementById('stat-streak').textContent = stats.currentStreak;
     document.getElementById('stat-max-streak').textContent = stats.maxStreak;
-    statsModal.classList.add('show');
+    statsModal.classList.add('active');
 });
-document.getElementById('stats-close').addEventListener('click', () => statsModal.classList.remove('show'));
+document.getElementById('stats-close').addEventListener('click', () => statsModal.classList.remove('active'));
 statsModal.addEventListener('click', e => {
-    if (e.target === statsModal) statsModal.classList.remove('show');
+    if (e.target === statsModal) statsModal.classList.remove('active');
+});
+
+// --- Help Modal ---
+const helpModal = document.getElementById('help-modal');
+document.getElementById('help-btn').addEventListener('click', () => helpModal.classList.add('active'));
+document.getElementById('help-close').addEventListener('click', () => helpModal.classList.remove('active'));
+helpModal.addEventListener('click', e => {
+    if (e.target === helpModal) helpModal.classList.remove('active');
 });
 
 function buildShareGrid() {

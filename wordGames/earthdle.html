@@ -5,25 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Daily Earthdle | 3D Globe Edition</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4238/4238090.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="atelier-shared.css">
     <style>
         :root {
-            --bg-color: #0b0d19;
-            --card-bg: rgba(22, 27, 46, 0.85);
-            --card-border: rgba(255, 255, 255, 0.12);
-            --primary-cyan: #00f2fe;
-            --correct-green: #22c55e;
+            --accent: #2e9e4f;
+            --accent-fg: #0f0f11;
+            --accent-soft: rgba(46, 158, 79, 0.15);
+            --wallpaper: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240"><rect width="100%" height="100%" fill="%230d0d10"/><circle cx="200" cy="118" r="70" fill="none" stroke="%232e9e4f" stroke-width="3" opacity="0.7"/><path d="M165 95 L175 80 L185 95 L172 108" fill="%232e9e4f" opacity="0.5"/><path d="M220 110 L232 100 L242 112 L228 124" fill="%23f6f3ea" opacity="0.4"/><circle cx="140" cy="70" r="1.5" fill="%23f6f3ea" opacity="0.5"/><circle cx="280" cy="70" r="1.5" fill="%232e9e4f" opacity="0.5"/></svg>');
+
+            --primary-cyan: var(--accent);
+            --bg-color: var(--bg-0);
+            --card-bg: var(--bg-1);
+            --card-border: var(--line);
+            --text-main: var(--ink);
+            --text-muted: var(--ink-muted);
+            --correct-green: #2e9e4f;
             --wrong-red: #ef4444;
-            --text-main: #f0f4f8;
-            --text-muted: #94a3b8;
         }
 
         * { 
             margin: 0; 
             padding: 0; 
             box-sizing: border-box; 
-            font-family: 'Outfit', sans-serif; 
+            font-family: var(--font-body); 
             user-select: none; 
             touch-action: manipulation;
         }
@@ -704,6 +712,7 @@
             <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
             <h2 id="game-title" style="font-size: 0.95rem;">Daily 3D Earthdle</h2>
             <div class="header-actions">
+                <button id="btn-wallpaper" class="icon-btn" title="Show wallpaper"><i class="fa-regular fa-image"></i></button>
                 <button id="btn-hint" class="icon-btn hint-btn" title="Get a Hint"><i class="fa-solid fa-lightbulb"></i><span id="hint-count" class="hint-count">2</span></button>
                 <button id="btn-stats" class="icon-btn" title="Statistics"><i class="fa-solid fa-chart-simple"></i></button>
                 <button id="btn-settings" class="icon-btn" title="Settings"><i class="fa-solid fa-gear"></i></button>
@@ -840,6 +849,7 @@
         </div>
     </div>
 
+    <script src="atelier-shell.js"></script>
     <script src="https://unpkg.com/globe.gl@2.22.0/dist/globe.gl.min.js"></script>
     <script src="earthdle.js"></script>
 </body>

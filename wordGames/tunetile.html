@@ -5,45 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Daily TuneTile · Chromium Games</title>
     <link rel="icon" type="image/png" href="https://em-content.zobj.net/source/joypixels/369/musical-notes_1f3b6.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="atelier-shared.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-            user-select: none;
-            touch-action: manipulation;
-        }
-
+        /* TuneTile — page identity + game layout. The shared Atelier shell
+           (header, panel, responsive) lives in atelier-shared.css. Identity:
+           violet accent. */
         :root {
-            --bg: #0b0e1a;
-            --card: rgba(18, 24, 42, 0.85);
-            --border: rgba(255, 255, 255, 0.08);
-            --cyan: #00f2fe;
-            --magenta: #ec4899;
-            --green: #22c55e;
-            --gold: #eab308;
-            --gray: #334155;
-            --text: #f0f4f8;
-            --muted: #94a3b8;
-        }
+            --accent: #7c5cff;
+            --accent-fg: #ffffff;
+            --accent-soft: rgba(124, 92, 255, 0.15);
+            --wallpaper: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240"><rect width="100%" height="100%" fill="%230d0d10"/><g opacity="0.7"><rect x="70" y="50" width="56" height="56" rx="10" fill="%237c5cff"/><rect x="134" y="50" width="56" height="56" rx="10" fill="%231d1d21"/><rect x="198" y="50" width="56" height="56" rx="10" fill="%237c5cff"/><rect x="70" y="114" width="56" height="56" rx="10" fill="%231d1d21"/><rect x="134" y="114" width="56" height="56" rx="10" fill="%237c5cff" opacity="0.5"/><rect x="198" y="114" width="56" height="56" rx="10" fill="%231d1d21"/></g></svg>');
 
-        body {
-            background: radial-gradient(circle at 20% 30%, rgba(0, 242, 254, 0.06), transparent 45%),
-                        linear-gradient(145deg, #070a14 0%, #0b0e1a 100%);
-            color: var(--text);
-            min-height: 100vh;
-            min-height: 100dvh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 0.75rem;
-            overflow-x: hidden;
-            overflow-y: auto;
+            /* Legacy tokens → Atelier so the game's own layout CSS resolves */
+            --bg: var(--bg-0);
+            --card: var(--bg-1);
+            --border: var(--line);
+            --cyan: var(--accent);
+            --magenta: #ec4899;
+            --green: #2e9e4f;
+            --gold: #eab308;
+            --gray: #34343a;
+            --text: var(--ink);
+            --muted: var(--ink-muted);
         }
 
         .glass {
@@ -55,34 +42,6 @@
             padding: 1.25rem;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
-
-        .header {
-            width: 100%;
-            max-width: 660px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-            flex-shrink: 0;
-        }
-
-        .back {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: color 0.2s;
-        }
-        .back:hover { color: var(--cyan); }
-
-        .title {
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-        .title i { color: var(--cyan); margin-right: 0.3rem; }
 
         .main-card {
             width: 100%;
@@ -514,10 +473,15 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <a href="../index.html" class="back"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-        <div class="title"><i class="fa-solid fa-music"></i>TuneTile</div>
-    </div>
+    <header class="header-bar">
+        <div class="header-left">
+            <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+            <h1 class="header-title"><i class="fa-solid fa-music"></i> TuneTile</h1>
+        </div>
+        <div class="header-controls">
+            <button id="btn-wallpaper" class="icon-btn" title="Show wallpaper"><i class="fa-regular fa-image"></i></button>
+        </div>
+    </header>
 
     <div class="main-card glass">
         <div class="mode-toggle" id="modeToggle">
@@ -569,6 +533,7 @@
     </div>
     <div id="celebrationOverlay" class="celebration-overlay"></div>
 
+    <script src="atelier-shell.js" defer></script>
     <script src="tunetile.js" defer></script>
 </body>
 </html>

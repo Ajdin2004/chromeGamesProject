@@ -229,10 +229,16 @@ function init() {
     statsBtn.addEventListener('click', () => {
         Sound.click();
         renderStats();
-        statsModal.classList.remove('hidden');
+        statsModal.classList.add('active');
     });
-    closeStatsBtn.addEventListener('click', () => statsModal.classList.add('hidden'));
-    statsModal.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.classList.add('hidden'); });
+    closeStatsBtn.addEventListener('click', () => statsModal.classList.remove('active'));
+    statsModal.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.classList.remove('active'); });
+
+    // --- Help Modal ---
+    const helpModal = document.getElementById('help-modal');
+    document.getElementById('help-btn').addEventListener('click', () => helpModal.classList.add('active'));
+    document.getElementById('help-close').addEventListener('click', () => helpModal.classList.remove('active'));
+    helpModal.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.classList.remove('active'); });
     resetStatsBtn.addEventListener('click', () => {
         if (confirm('Reset all stats?')) {
             localStorage.removeItem(STORAGE_KEY);

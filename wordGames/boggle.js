@@ -407,3 +407,9 @@ document.getElementById('hint-btn').addEventListener('click', () => {
 makeBoard();
 startTimer();
 loadDictionary();
+
+// --- Help Modal ---
+const helpModal = document.getElementById('help-modal');
+document.getElementById('help-btn').addEventListener('click', () => helpModal.classList.add('active'));
+document.getElementById('help-close').addEventListener('click', () => helpModal.classList.remove('active'));
+helpModal.addEventListener('click', e => { if (e.target === helpModal) helpModal.classList.remove('active'); });

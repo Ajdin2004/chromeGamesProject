@@ -5,125 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMDb Showdown | Chromium Games</title>
     <link rel="icon" type="image/x-icon" href="https://freepngimg.com/save/23057-popcorn-transparent-image/1483x1959">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="atelier-shared.css">
     <style>
+        /* IMDb Showdown — page identity + matchup layout. The shared Atelier
+           shell (header, panel, modals, responsive) lives in atelier-shared.css.
+           Identity: box-office gold accent. */
         :root {
-            --bg-color: #0a0e1a;
-            --card-bg: rgba(15, 20, 38, 0.9);
-            --card-border: rgba(255, 255, 255, 0.13);
+            --accent: #f5c518;
+            --accent-fg: #0f0f11;
+            --accent-soft: rgba(245, 197, 24, 0.15);
+            --wallpaper: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240"><rect width="100%" height="100%" fill="%230d0d10"/><rect x="150" y="60" width="100" height="58" rx="10" fill="%23f5c518" opacity="0.7"/><circle cx="120" cy="50" r="2" fill="%23f6f3ea" opacity="0.5"/><circle cx="290" cy="130" r="2" fill="%23f6f3ea" opacity="0.5"/><circle cx="80" cy="180" r="2" fill="%23f5c518" opacity="0.4"/><circle cx="320" cy="200" r="2" fill="%23f5c518" opacity="0.4"/></svg>');
+
+            /* Legacy tokens → Atelier so the game's own layout CSS resolves */
             --primary-gold: #f5c518;
             --secondary-red: #ef4444;
-            --correct-green: #22c55e;
-            --text-main: #f0f4f8;
-            --text-muted: #94a3b8;
-            --accent-cyan: #00f2fe;
+            --correct-green: #2e9e4f;
+            --accent-cyan: var(--accent);
+            --card-bg: var(--bg-1);
+            --card-border: var(--line);
+            --text-main: var(--ink);
+            --text-muted: var(--ink-muted);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
-
-        body {
-            background:
-                radial-gradient(ellipse at 20% 20%, rgba(245, 197, 24, 0.05), transparent 20%),
-                radial-gradient(ellipse at 80% 80%, rgba(0, 242, 254, 0.05), transparent 20%),
-                linear-gradient(rgba(10, 14, 26, 0.62), rgba(10, 14, 26, 0.53)),
-                url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
-            background-size: cover;
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 1.5rem 1rem;
-            overflow-x: hidden;
-        }
-
-        .header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .back-btn {
-            color: var(--text-main);
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: color 0.2s ease;
-        }
-        .back-btn:hover { color: var(--accent-cyan); }
-
-        .score-badge {
-            background: rgba(245, 197, 24, 0.12);
-            border: 1px solid var(--primary-gold);
-            color: var(--primary-gold);
-            padding: 0.4rem 0.9rem;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-        }
-
-        .streak-badge {
-            background: rgba(239, 68, 68, 0.12);
-            border: 1px solid var(--secondary-red);
-            color: var(--secondary-red);
-            padding: 0.4rem 0.9rem;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-        }
-
-        .stats-btn {
-            background: rgba(0, 242, 254, 0.1);
-            border: 1px solid var(--accent-cyan);
-            color: var(--accent-cyan);
-            padding: 0.4rem 0.9rem;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 0.95rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            transition: all 0.2s ease;
-        }
-        .stats-btn:hover { background: rgba(0, 242, 254, 0.2); transform: translateY(-2px); }
-
-        .game-panel {
-            width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .round-info {
+        /* Matchup, guess and stats layout — game CSS. The shell provides the base .game-panel. */
             display: flex;
             justify-content: center;
             gap: 1rem;
@@ -521,33 +429,7 @@
             font-size: 0.85rem;
         }
 
-        /* Stats Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1rem;
-        }
-
-        .modal-overlay.hidden { display: none; }
-
-        .modal-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 2rem;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
+        /* Stats modal card layout (shell provides .modal-overlay/.modal-card). */
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -655,15 +537,21 @@
 </head>
 <body>
 
-    <div class="header-bar">
-        <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
-        <h2>IMDb Showdown</h2>
-        <div class="header-controls">
-            <button class="stats-btn" id="stats-btn" title="View Stats"><i class="fa-solid fa-chart-simple"></i></button>
-            <div class="score-badge"><i class="fa-solid fa-trophy"></i> <span id="score-val">0</span></div>
-            <div class="streak-badge"><i class="fa-solid fa-fire"></i> <span id="streak-val">0</span></div>
+    <header class="header-bar">
+        <div class="header-left">
+            <a href="../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Hub</a>
+            <h1 class="header-title"><i class="fa-solid fa-film"></i> IMDb Showdown</h1>
         </div>
-    </div>
+        <div class="header-controls">
+            <div class="stats-bar">
+                <div class="stat-item"><i class="fa-solid fa-trophy"></i> Score <strong id="score-val">0</strong></div>
+                <div class="stat-item"><i class="fa-solid fa-fire"></i> Streak <strong id="streak-val">0</strong></div>
+            </div>
+            <button id="btn-wallpaper" class="icon-btn" title="Show wallpaper"><i class="fa-regular fa-image"></i></button>
+            <button id="stats-btn" class="icon-btn" title="Stats"><i class="fa-solid fa-chart-simple"></i></button>
+            <button id="help-btn" class="icon-btn" title="How to play"><i class="fa-solid fa-circle-question"></i></button>
+        </div>
+    </header>
 
     <div class="game-panel">
         <!-- Mode Selector -->
@@ -708,7 +596,7 @@
     </div>
 
     <!-- Stats Modal -->
-    <div id="stats-modal" class="modal-overlay hidden">
+    <div id="stats-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
                 <h2><i class="fa-solid fa-chart-simple"></i> Your Stats</h2>
@@ -756,6 +644,26 @@
         </div>
     </div>
 
+    <!-- Help modal -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-circle-question"></i> How to Play</h2>
+            </div>
+            <div class="help-content">
+                <p>Top-movie showdowns with three modes.</p>
+                <h3>⚔️ Duel</h3>
+                <p>Pick the movie with the <strong>higher IMDb rating</strong> — chain <strong>8+</strong> correct picks to win the round.</p>
+                <h3>🎯 Guess the Rating</h3>
+                <p>Type a rating (0–10) and the game shows how close you were.</p>
+                <h3>📅 Daily</h3>
+                <p>One shared showdown/rating puzzle per day, tracked automatically.</p>
+            </div>
+            <button id="help-close" class="btn-close-win">GOT IT</button>
+        </div>
+    </div>
+
+    <script src="atelier-shell.js"></script>
     <script src="boxoffice.js"></script>
 </body>
 </html>
