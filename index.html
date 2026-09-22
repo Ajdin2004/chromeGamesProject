@@ -287,6 +287,16 @@
         }
         .dev-banner-close:hover { color: var(--accent-fg); background: var(--accent); border-color: var(--accent); }
         .dev-banner.hidden { display: none; }
+        .dev-banner-studio {
+            background: transparent; border: none; padding: 0;
+            color: var(--accent); font-weight: 700; font-size: 0.8rem;
+            cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px;
+        }
+        .dev-banner-studio:hover, .dev-banner-studio:focus-visible {
+            color: var(--accent-fg); background: var(--accent);
+            border: var(--b-w) solid var(--accent); border-radius: var(--r-sm);
+            padding: 0 0.3rem; text-decoration: none;
+        }
 
         /* ---------- 5. HERO / MASTHEAD ---------- */
         .hero {
@@ -1015,6 +1025,14 @@
         @keyframes bannerLift { 0%, 100% { box-shadow: 0 0 0 var(--accent-soft); } 50% { box-shadow: 5px 5px 0 var(--accent-soft); } }
         @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+        /* Hint pulse on the header palette button — triggered from the dev banner */
+        #personalize-btn.hint { animation: hintPulse 0.7s ease-in-out 1; }
+        @keyframes hintPulse {
+            0%, 100% { transform: translate(0, 0); box-shadow: 3px 3px 0 var(--accent-contrast); }
+            30% { transform: translate(-3px, -6px) scale(1.16); box-shadow: 0 0 0 4px var(--ring); }
+            60% { transform: translate(0, 0); box-shadow: 3px 3px 0 var(--accent-contrast); }
+        }
+
         /* About icons float (legacy floatIcon) + soft accent drift (legacy aboutGlow) */
         body[data-anim="on"] .about-icon { display: inline-block; animation: floatIcon 3.2s ease-in-out infinite; }
         body[data-anim="on"] .about-icon:nth-child(2) { animation-delay: 0.4s; }
@@ -1046,6 +1064,7 @@
             body[data-anim="on"] #continue-btn i,
             body[data-anim="on"] .dev-banner,
             body[data-anim="on"] .dev-banner-content i,
+            body[data-anim="on"] #personalize-btn.hint,
             body[data-anim="on"] .about-icon,
             body[data-anim="on"]::after { animation: none; }
             body[data-anim="on"] .about-section::before { display: none; }
@@ -1144,8 +1163,8 @@
         <div id="dev-banner" class="dev-banner">
             <div class="dev-banner-content">
                 <i class="fa-solid fa-helmet-safety"></i>
-                <strong>Under Active Development</strong>
-                <span>New games, features, and fixes are added regularly — open the <b>palette</b> to make this page yours.</span>
+                <strong>Under Development</strong>
+                <span>New games, features, and fixes are added regularly. Open the <button type="button" id="dev-banner-studio" class="dev-banner-studio">Personalization Studio</button> to make this page yours...</span>
             </div>
             <button id="dev-banner-close" class="dev-banner-close" title="Dismiss"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -1399,7 +1418,7 @@
                 </p>
                 <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
                     <button id="btn-choose-new" class="studio-btn primary" style="flex: 1; min-width: 140px;">
-                        <i class="fa-solid fa-check"></i> Give the New Version a Try
+                        <i class="fa-solid fa-check"></i> Give the a  New Version
                     </button>
                 </div>
             </div>
@@ -2199,6 +2218,18 @@ function syncSegBtns() {
             devBanner.classList.add('hidden');
             try { localStorage.setItem(DEV_BANNER_KEY, '1'); } catch (e) { /* ignore */ }
         });
+        const devBannerStudio = document.getElementById('dev-banner-studio');
+        devBannerStudio.addEventListener('click', () => {
+            sfx('open');
+            personalizeBtn.classList.remove('hint');
+            void personalizeBtn.offsetWidth; // restart the pulse
+            personalizeBtn.classList.add('hint');
+            setTimeout(() => {
+                syncSegBtns();
+                studioModal.classList.remove('hidden');
+                personalizeBtn.classList.remove('hint');
+            }, 700);
+        });
         /* ============================================================
            7. GAME CATALOG AND HOMEPAGE INTERACTIONS
            ============================================================ */
@@ -2671,11 +2702,6 @@ function syncSegBtns() {
             localStorage.setItem('cookie_consent', 'essential'); consentBanner.classList.add('hidden'); 
         });
         
-        document.getElementById('switch-to-old-btn').addEventListener('click', () => {
-        localStorage.setItem('cg_version_choice', 'old');
-        if (typeof sfx === 'function') sfx('click');
-        window.location.href = '../tests/legacyindex.html';
-        });
 
         /* ============================================================
         VERSION PROMPT ON FIRST LOAD
