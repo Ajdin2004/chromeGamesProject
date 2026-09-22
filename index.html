@@ -1131,10 +1131,6 @@
                 <button id="sfx-toggle-btn" class="icon-btn" title="Toggle sound effects" aria-pressed="true">
                     <i class="fa-solid fa-volume-high"></i>
                 </button>
-                <!-- Add the switch button here -->
-                <button id="switch-to-old-btn" class="icon-btn" title="Switch to Legacy Version">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                </button>
                 <button id="personalize-btn" class="personalize-btn" title="Personalize the page">
                     <i class="fa-solid fa-palette"></i>
                 </button>
@@ -1399,14 +1395,11 @@
                     <h2 id="version-modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Welcome to the New Hub</h2>
                 </div>
                 <p style="color: var(--ink-muted); font-size: 0.9rem; margin-bottom: 1.8rem; line-height: 1.6;">
-                    Chromium Games has been updated to a lighter, faster, and highly customizable design. Would you like to use this new version, or continue using the legacy neon design?
+                    Chromium Games has been updated to a lighter, faster, and highly customizable design. You can personalize the page with your favorite background, accent color, and more. 
                 </p>
                 <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap;">
                     <button id="btn-choose-new" class="studio-btn primary" style="flex: 1; min-width: 140px;">
-                        <i class="fa-solid fa-check"></i> Try New Version
-                    </button>
-                    <button id="btn-choose-old" class="studio-btn" style="flex: 1; min-width: 140px;">
-                        <i class="fa-solid fa-clock-rotate-left"></i> Use Legacy Hub
+                        <i class="fa-solid fa-check"></i> Give the New Version a Try
                     </button>
                 </div>
             </div>
@@ -2700,11 +2693,7 @@ function syncSegBtns() {
             if (typeof sfx === 'function') sfx('click');
         });
 
-        document.getElementById('btn-choose-old').addEventListener('click', () => {
-            localStorage.setItem(VERSION_KEY, 'old');
-            if (typeof sfx === 'function') sfx('click');
-            window.location.href = '../tests/legacyindex.html';
-        });
+        
         
         buildBento(); 
         updateContinue(); 
